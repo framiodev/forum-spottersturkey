@@ -1,0 +1,41 @@
+name: Deploy to Guzel Hosting (FTP)
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  web-deploy:
+    name: Deploy
+    runs-on: ubuntu-latest
+    steps:
+      - name: 🚚 Get latest code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+
+      - name: 📂 Sync files via FTP
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server: ${{ secrets.FTP_SERVER }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          server-dir: ${{ secrets.FTP_REMOTE_DIR || '/' }}
+          dangerous-clean-slate: false
+          exclude: |
+            **/.git*
+            **/.git*/**
+            **/node_modules/**
+            config.php
+            firebase-auth.json
+            service_account.json
+            storage/cache/**
+            storage/formatter/**
+            storage/less/**
+            storage/locale/**
+            storage/logs/**
+            storage/sessions/**
+            storage/tmp/**
+            storage/views/**
+            _kurulum/**
