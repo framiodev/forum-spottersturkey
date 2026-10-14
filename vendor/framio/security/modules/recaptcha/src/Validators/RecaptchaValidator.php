@@ -1,0 +1,28 @@
+<?php
+
+/*
+ * This file is part of fof/recaptcha.
+ *
+ * Copyright (c) FriendsOfFlarum.
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
+namespace Framio\Security\ReCaptcha\Validators;
+
+use Flarum\Foundation\AbstractValidator;
+
+class RecaptchaValidator extends AbstractValidator
+{
+    protected array $rules = [
+        'g-recaptcha-response' => [
+            'required',
+            'recaptcha',
+        ],
+    ];
+
+    protected array $messages = [
+        'g-recaptcha-response.required' => 'fof-recaptcha.forum.validation.required',
+    ];
+}

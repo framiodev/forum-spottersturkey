@@ -1,0 +1,110 @@
+.FoFBlogComposer {
+  position: relative;
+
+  .TextEditor-controls {
+    border: 0;
+    margin: 0;
+    padding-left: 0;
+  }
+
+  .ComposerBody-avatar {
+    display: none;
+  }
+
+  .ComposerBody-content {
+    margin: 0;
+  }
+
+  .ComposerBody-header {
+    display: none;
+  }
+
+  .FoFBlogComposer-preview,
+  .TextEditor-editor {
+    min-height: 250px;
+  }
+
+  .FoFBlogComposer-tabs {
+    border-bottom: 1px solid var(--control-bg);
+    margin-bottom: 15px;
+    padding-left: 35px;
+
+    button:not(.Button) {
+      display: inline-block;
+      padding: 8px 20px;
+      font-size: 14px;
+      line-height: 20px;
+      color: var(--muted-color);
+      background-color: transparent;
+      border: 1px solid transparent;
+      border-bottom: 0;
+      margin-bottom: -1px;
+      outline: none;
+
+      &:hover {
+        color: var(--text-color);
+      }
+
+      &.FoFBlogComposer-buttonSelected {
+        color: var(--text-color);
+        background-color: var(--body-bg);
+        border-color: var(--control-bg);
+        border-radius: 3px 3px 0 0;
+      }
+    }
+
+    .Button {
+      float: right;
+
+      &.ComposerCancel {
+        border-radius: 3px 0 0 0;
+      }
+
+      &.ComposerSave {
+        border-radius: 0 3px 0 0;
+      }
+    }
+  }
+
+  &-HideEditor {
+    // Hide the editor while the preview tab is active WITHOUT `display: none`.
+    // ProseMirror (fof/rich-text) nulls its internal `docView` when its DOM node
+    // is removed from layout via `display: none`, which then crashes on the next
+    // toolbar command (`this.docView is null`). Keeping the node laid out but
+    // visually hidden and non-interactive avoids that while still hiding it.
+    .TextEditor {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      overflow: hidden;
+      opacity: 0;
+      pointer-events: none;
+    }
+  }
+
+  .FoFBlogComposer-body {
+    padding: 0 !important;
+    margin: 5px !important;
+    box-shadow: unset;
+    height: unset;
+    border-radius: 4px;
+
+    @media screen and (max-width: 767px) {
+      position: relative !important;
+      top: unset;
+    }
+  }
+}
+
+.FoFBlog {
+  &-ArticleImage {
+    [data-upload-enabled] {
+      display: flex;
+
+      input {
+        flex-grow: 1;
+        margin-right: 4px;
+      }
+    }
+  }
+}

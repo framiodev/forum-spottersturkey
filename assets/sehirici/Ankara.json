@@ -1,0 +1,2212 @@
+{
+  "Ankara": [
+    {
+      "hat_kodu": "101",
+      "guzergah": "GÖLBAŞI-HAYMANA YOLU-BAHÇELİEVLER"
+    },
+    {
+      "hat_kodu": "101-1",
+      "guzergah": "GÖLBAŞI-HAYMANA YOLU-BAHÇELİEVLER-KARAOĞLAN MAHALLESİ"
+    },
+    {
+      "hat_kodu": "103-2",
+      "guzergah": "ATILIM ÜNİVERSİTESİ-OPERA"
+    },
+    {
+      "hat_kodu": "104-2",
+      "guzergah": "AKKÖPRÜ-GÖLBAŞI"
+    },
+    {
+      "hat_kodu": "105-4",
+      "guzergah": "MİLLİ KÜTÜPHANE-GÖLBAŞI"
+    },
+    {
+      "hat_kodu": "106-4",
+      "guzergah": "ULUS-KIZILAY-GÖLBAŞI-YURTLAR"
+    },
+    {
+      "hat_kodu": "107-6",
+      "guzergah": "GÖLBAŞI-TOKİ-AŞTİ-AKKÖPRÜ-ULUS"
+    },
+    {
+      "hat_kodu": "108",
+      "guzergah": "GÖLBAŞI-HAYMANA YOLU-HACILAR MH."
+    },
+    {
+      "hat_kodu": "109-2",
+      "guzergah": "ÇANKAYA-GÖLBAŞI"
+    },
+    {
+      "hat_kodu": "110",
+      "guzergah": "BİLKENT METRO İSTASYONU-BİLKENT-BEYTEPE MAHALLESİ"
+    },
+    {
+      "hat_kodu": "111",
+      "guzergah": "BİLKENT-BİLKENT METRO İSTASYONU"
+    },
+    {
+      "hat_kodu": "112-2",
+      "guzergah": "ULUS-KIZILAY-ANKARA BİLKENT ŞEHİR HASTANESİ"
+    },
+    {
+      "hat_kodu": "113",
+      "guzergah": "TARIM BAKANLIĞI METRO-ANKARA BİLKENT ŞEHİR HASTANESİ"
+    },
+    {
+      "hat_kodu": "113-5",
+      "guzergah": "(ÖTA) TARIM BAKANLIĞI METRO-ANKARA BİLKENT ŞEHİR HASTANESİ"
+    },
+    {
+      "hat_kodu": "114",
+      "guzergah": "GÖLBAŞI YURTLAR-AŞTİ-AKKÖPRÜ"
+    },
+    {
+      "hat_kodu": "114-7",
+      "guzergah": "(ÖHO) KIRKKONAKLAR-ŞENYURT"
+    },
+    {
+      "hat_kodu": "115",
+      "guzergah": "GÖLBAŞI-YURTLAR-KIZILAY-ULUS"
+    },
+    {
+      "hat_kodu": "115-8",
+      "guzergah": "MİLLİ KÜTÜPHANE-GÖLBAŞI-KAMPÜS-YURTLAR"
+    },
+    {
+      "hat_kodu": "117-2",
+      "guzergah": "YARGITAY-OPERA"
+    },
+    {
+      "hat_kodu": "118-2",
+      "guzergah": "100.YIL-ÇUKURAMBAR-GÖLBAŞI TOKİ"
+    },
+    {
+      "hat_kodu": "130",
+      "guzergah": "BEYTEPE METRO İSTASYONU-HACETTEPE KAMPÜSÜ"
+    },
+    {
+      "hat_kodu": "131-2",
+      "guzergah": "ULUS-KIZILAY-MALAZGİRT MH.-TURTAŞ SİTESİ"
+    },
+    {
+      "hat_kodu": "132",
+      "guzergah": "SÖĞÜTÖZÜ METRO-ÇUKURAMBAR YÜZÜNCÜ YIL"
+    },
+    {
+      "hat_kodu": "133",
+      "guzergah": "ÇİĞDEM MAHALLESİ-OPERA"
+    },
+    {
+      "hat_kodu": "134",
+      "guzergah": "SÖĞÜTÖZÜ METRO İST.-Ç.AMBAR-ÇİĞDEM MH."
+    },
+    {
+      "hat_kodu": "135-2",
+      "guzergah": "ULUS-ORAN SİTESİ"
+    },
+    {
+      "hat_kodu": "136",
+      "guzergah": "SÖĞÜTÖZÜ METRO-100.YIL-ÇİĞDEM MH."
+    },
+    {
+      "hat_kodu": "137",
+      "guzergah": "GÖLBAŞI KRIMİNAL MERK.-YAYLABAĞ MH."
+    },
+    {
+      "hat_kodu": "140",
+      "guzergah": "GÖLBAŞI-KARACAÖREN-GÖLBEK-ÇELTEK"
+    },
+    {
+      "hat_kodu": "141",
+      "guzergah": "ÜÇEM-KÜÇÜKBOYALIK-ŞEHRİBAN-ÇATALÇEŞME-KÜÇÜKBAYAT-KEKLİCE"
+    },
+    {
+      "hat_kodu": "142",
+      "guzergah": "TOHUMLAR-ÇAVUŞLU-YAYLA-KARAHASANLI-EVCİLER"
+    },
+    {
+      "hat_kodu": "143",
+      "guzergah": "SIHHİYE-SÖĞÜTÖZÜ-BALGAT ADLİYE"
+    },
+    {
+      "hat_kodu": "144",
+      "guzergah": "SIHHİYE ADLİYE-BALGAT ADLİYE"
+    },
+    {
+      "hat_kodu": "145-7",
+      "guzergah": "(ÖHO) ATATÜRK SİTESİ-ULUS-ATAPARK"
+    },
+    {
+      "hat_kodu": "146",
+      "guzergah": "GÖLBAŞI-GÜLBAĞI-AKÖRENÇARSAK-DEREKIŞLA-BERÇARSAK-SOFULAR-KARAHAMZALI"
+    },
+    {
+      "hat_kodu": "147",
+      "guzergah": "GÖLBAŞI-BEZİRHANE-EMİRLER MH."
+    },
+    {
+      "hat_kodu": "147-2",
+      "guzergah": "GÖLBAŞI-BEZİRHANE-EMİRLER MH.-HASTANE"
+    },
+    {
+      "hat_kodu": "148",
+      "guzergah": "GÖLBAŞI-YÖRELİ-ABAZLI MH."
+    },
+    {
+      "hat_kodu": "149",
+      "guzergah": "GÖLBAŞI-SELAMETLİ"
+    },
+    {
+      "hat_kodu": "149-2",
+      "guzergah": "GÖLBAŞI-SELAMETLİ-HASTANE"
+    },
+    {
+      "hat_kodu": "150-2",
+      "guzergah": "ULUS-KONYA YOLU-1.BÖLGE YERLEŞKESİ"
+    },
+    {
+      "hat_kodu": "151",
+      "guzergah": "GÖLBAŞI-KARAGEDİK MH."
+    },
+    {
+      "hat_kodu": "151-8",
+      "guzergah": "GÖLBAŞI-KARAGEDİK-HASTANE"
+    },
+    {
+      "hat_kodu": "153",
+      "guzergah": "OPERA-BALGAT-GÖKKUŞAĞI MAHALLESİ"
+    },
+    {
+      "hat_kodu": "154-2",
+      "guzergah": "ULUS-SOKULLU"
+    },
+    {
+      "hat_kodu": "155-6",
+      "guzergah": "ATATÜRK SİTESİ-SOKULLU CD.-ULUS"
+    },
+    {
+      "hat_kodu": "157",
+      "guzergah": "OPERA-GÖLBAŞI-OYACA MAHALLESİ"
+    },
+    {
+      "hat_kodu": "158",
+      "guzergah": "AŞTİ-HAYMANA"
+    },
+    {
+      "hat_kodu": "158-5",
+      "guzergah": "(ÖTA) TEPEKÖY-ANKARA"
+    },
+    {
+      "hat_kodu": "159-5",
+      "guzergah": "(ÖTA) ŞEREFLİKOÇHİSAR-ANKARA"
+    },
+    {
+      "hat_kodu": "160",
+      "guzergah": "ULUS-KIZILAY-SEYRANBAĞLARI"
+    },
+    {
+      "hat_kodu": "163-2",
+      "guzergah": "İNCEK-AŞTİ-AKKÖPRÜ-OPERA"
+    },
+    {
+      "hat_kodu": "165-2",
+      "guzergah": "AKKÖPRÜ-GÖLBAŞI TOKİ"
+    },
+    {
+      "hat_kodu": "167",
+      "guzergah": "MTA-EMSAN SİT.-SÖĞÜTÖZÜ CD."
+    },
+    {
+      "hat_kodu": "171",
+      "guzergah": "BİLKENT METRO İST.-M.KEMAL MH."
+    },
+    {
+      "hat_kodu": "173-2",
+      "guzergah": "ULUS-HOŞDERE CD.-HİLAL MAHALLESİ-ORAN SİTESİ"
+    },
+    {
+      "hat_kodu": "174",
+      "guzergah": "BEYTEPE METRO-BEYSUKENT ANGORA EVLERİ"
+    },
+    {
+      "hat_kodu": "175",
+      "guzergah": "BİLKENT METRO İSTASYONU-BEYTEPE MAH"
+    },
+    {
+      "hat_kodu": "176",
+      "guzergah": "BİLKENT METRO-BİLKENT ÜNİVERSİTESİ"
+    },
+    {
+      "hat_kodu": "177",
+      "guzergah": "GÖLBAŞI-VELİHİMMETLİ"
+    },
+    {
+      "hat_kodu": "178",
+      "guzergah": "AŞTİ-BALA"
+    },
+    {
+      "hat_kodu": "178-3",
+      "guzergah": "(ÖTA) BALA-ANKARA"
+    },
+    {
+      "hat_kodu": "179",
+      "guzergah": "GÖLBAŞI-ÖRENCİK-YURTBEYİ MH."
+    },
+    {
+      "hat_kodu": "179-3",
+      "guzergah": "(ÖTA) AFŞAR-ANKARA"
+    },
+    {
+      "hat_kodu": "180",
+      "guzergah": "GÖLBAŞI-KARAOĞLAN MH.-OĞULBEY MH.-KARAALİ MH."
+    },
+    {
+      "hat_kodu": "182",
+      "guzergah": "GÖLBAŞI-GÖKÇEHÖYÜK-SUBAŞI MAHALLESİ"
+    },
+    {
+      "hat_kodu": "183-6",
+      "guzergah": "İLKER-SİNAN CD.-ULUS"
+    },
+    {
+      "hat_kodu": "185-7",
+      "guzergah": "(ÖHO) ORAN SİTESİ-GÜNEŞEVLER"
+    },
+    {
+      "hat_kodu": "186-1",
+      "guzergah": "İLKER SİNAN CD.-ULUS"
+    },
+    {
+      "hat_kodu": "187-1",
+      "guzergah": "İLKER-ULUS"
+    },
+    {
+      "hat_kodu": "190",
+      "guzergah": "ULUS-HOŞDERE CD.-YEŞİLKENT-KARATAŞ"
+    },
+    {
+      "hat_kodu": "191",
+      "guzergah": "OPERA-TAŞPINAR MAHALLESİ"
+    },
+    {
+      "hat_kodu": "192",
+      "guzergah": "OPERA-TULUMTAŞ MAHALLESİ"
+    },
+    {
+      "hat_kodu": "192-1",
+      "guzergah": "OPERA-KIZILAY-TULUMTAŞ-BALLIKPINAR MAHALLESİ"
+    },
+    {
+      "hat_kodu": "193",
+      "guzergah": "OPERA-KIZILAY-İNCEK TOKİ"
+    },
+    {
+      "hat_kodu": "194",
+      "guzergah": "OPERA-FEVZİYE MAHALLESİ"
+    },
+    {
+      "hat_kodu": "195-4",
+      "guzergah": "MİLLİ KÜTÜPHANE-GÖLBAŞI TOKİ"
+    },
+    {
+      "hat_kodu": "196",
+      "guzergah": "GÖLBAŞI-TAŞPINAR-İNCEK-TULUMTAŞ"
+    },
+    {
+      "hat_kodu": "197",
+      "guzergah": "OPERA-TAŞPINAR-İNCEK-TULUMTAŞ MAHALLESİ"
+    },
+    {
+      "hat_kodu": "198-2",
+      "guzergah": "GÖLBAŞI-HAYMANA YOLU-ULUS"
+    },
+    {
+      "hat_kodu": "201",
+      "guzergah": "BATIKENT-DEMETEVLER-YENİMAHALLE-15 TEMMUZ KIZILAY MİLLİ İRADE MEYDANI"
+    },
+    {
+      "hat_kodu": "201-6",
+      "guzergah": "BATIKENT-DEMETEVLER-YENİMAHALLE-15 TEMMUZ KIZILAY MİLLİ İRADE MEYDANI"
+    },
+    {
+      "hat_kodu": "202",
+      "guzergah": "İVEDİK METRO-YENİMAHALLE"
+    },
+    {
+      "hat_kodu": "202-7",
+      "guzergah": "(ÖHO) YENİMAHALLE-KIZILAY"
+    },
+    {
+      "hat_kodu": "203",
+      "guzergah": "İNCİRLİ-ULUS-KIZILAY-BAKANLIKLAR"
+    },
+    {
+      "hat_kodu": "203-7",
+      "guzergah": "(ÖHO) İNCİRLİ-SOKULLU"
+    },
+    {
+      "hat_kodu": "204",
+      "guzergah": "İNCİRLİ-GAR-KIZILAY"
+    },
+    {
+      "hat_kodu": "205",
+      "guzergah": "İVEDİK METRO-ANADOLU MAHALLESİ-YÜKSELTEPE MEYDAN-SİVAS CD."
+    },
+    {
+      "hat_kodu": "206",
+      "guzergah": "İVEDİK METRO-ETLİK ŞEHİR HASTANESİ"
+    },
+    {
+      "hat_kodu": "207",
+      "guzergah": "İVEDİK METRO-KARDEŞLER"
+    },
+    {
+      "hat_kodu": "208",
+      "guzergah": "İVEDİK METRO-KARDEŞLER-KURTİNİ"
+    },
+    {
+      "hat_kodu": "208-4",
+      "guzergah": "İVEDİK METRO-KURTİNİ"
+    },
+    {
+      "hat_kodu": "209",
+      "guzergah": "HASTANE METRO-URANKENT"
+    },
+    {
+      "hat_kodu": "210",
+      "guzergah": "HASTANE METRO-KARŞIYAKA MEZARLIK"
+    },
+    {
+      "hat_kodu": "211",
+      "guzergah": "HASTANE METRO-ÇAMLICA MAHALLESİ-TİMKO"
+    },
+    {
+      "hat_kodu": "212",
+      "guzergah": "İNCİRLİ-ETLİK ŞEHİR HASTANESİ"
+    },
+    {
+      "hat_kodu": "213",
+      "guzergah": "HASTANE METRO-ŞENTEPE-YÜKSELTEPE"
+    },
+    {
+      "hat_kodu": "214",
+      "guzergah": "MACUNKÖY METRO-SERHAT SİTESİ"
+    },
+    {
+      "hat_kodu": "215",
+      "guzergah": "HASTANE METRO-YAKACIK"
+    },
+    {
+      "hat_kodu": "216",
+      "guzergah": "MACUNKÖY METRO-MEHMET AKİF ERSOY CD."
+    },
+    {
+      "hat_kodu": "216-2",
+      "guzergah": "MEHMET AKİF ERSOY CD.-SERHAT-MACUNKÖY METRO"
+    },
+    {
+      "hat_kodu": "217",
+      "guzergah": "HASTANE METRO-YUVA KARACAKAYA"
+    },
+    {
+      "hat_kodu": "217-2",
+      "guzergah": "HASTANE METRO-MERMERCİLER SİTESİ-YUVA KARACAKAYA"
+    },
+    {
+      "hat_kodu": "220-7",
+      "guzergah": "(ÖHO) MAMAK-BATIKENT JANDARMA-BAKANLIK"
+    },
+    {
+      "hat_kodu": "222",
+      "guzergah": "İNCİRLİ-KIZILAY(EKSPRES)"
+    },
+    {
+      "hat_kodu": "222-2",
+      "guzergah": "SIHHİYE-İNCİRLİ(EKSPRES)"
+    },
+    {
+      "hat_kodu": "225",
+      "guzergah": "BAĞLUM-İNCİRLİ-OSTİM-İVEDİK OSB"
+    },
+    {
+      "hat_kodu": "225-2",
+      "guzergah": "OSTİM-İVEDİK OSB-İNCİRLİ-BAĞLUM"
+    },
+    {
+      "hat_kodu": "226",
+      "guzergah": "HASTANE METRO-MEMLİK-VİLLA"
+    },
+    {
+      "hat_kodu": "226-2",
+      "guzergah": "HASTANE METRO-MEMLİK-VİLLA"
+    },
+    {
+      "hat_kodu": "227",
+      "guzergah": "HASTANE METRO-KUZEYYILDIZI MAH-DAMLAKAYA SİTESİ"
+    },
+    {
+      "hat_kodu": "232",
+      "guzergah": "BATIKENT METRO-BOTANİK METRO-MEBUSKENT"
+    },
+    {
+      "hat_kodu": "232-2",
+      "guzergah": "BATIKENT METRO-EMNİYET ATIŞ VE EĞİTİM ALANI-MEBUSKENT"
+    },
+    {
+      "hat_kodu": "233",
+      "guzergah": "BATIKENT-ANADOLU BLV.-ESKİŞEHİR YOLU"
+    },
+    {
+      "hat_kodu": "234",
+      "guzergah": "OSTİM METRO-İVEDİK ORGANİZE SANAYİ"
+    },
+    {
+      "hat_kodu": "236",
+      "guzergah": "OSTİM METRO-BATIKENT-ŞAŞMAZ-ÜMİTKÖY METRO"
+    },
+    {
+      "hat_kodu": "236-2",
+      "guzergah": "OSTİM METRO-BATIKENT-THK ÜNİVERSİTESİ-ŞAŞMAZ-ÜMİTKÖY METRO"
+    },
+    {
+      "hat_kodu": "237",
+      "guzergah": "OSTİM METRO-UZAYÇAĞI CD.-İVEDİK ORGANİZE SANAYİ"
+    },
+    {
+      "hat_kodu": "238",
+      "guzergah": "OSTİM METRO-ATİSAN SANAYİ SİTESİ"
+    },
+    {
+      "hat_kodu": "240",
+      "guzergah": "BATIKENT METRO-ÇEŞME"
+    },
+    {
+      "hat_kodu": "241",
+      "guzergah": "BATIKENT METRO-ÇAKIRLAR-YUVAKÖY MAHALLESİ"
+    },
+    {
+      "hat_kodu": "242",
+      "guzergah": "DEMETEVLER METRO-25 MART MH."
+    },
+    {
+      "hat_kodu": "250",
+      "guzergah": "MACUNKÖY METRO-GİMAT-ERCİYES"
+    },
+    {
+      "hat_kodu": "252",
+      "guzergah": "ATAPARK-KUŞCAĞIZ-ULUS-KIZILAY-BAKANLIKLAR"
+    },
+    {
+      "hat_kodu": "253-6",
+      "guzergah": "KUŞCAĞIZ-İNCİRLİ-ULUS-15 TEMMUZ KIZILAY MİLLİ İRADE MEYDANI-BAKANLIKLAR"
+    },
+    {
+      "hat_kodu": "254",
+      "guzergah": "ATAPARK-GAR-KIZILAY"
+    },
+    {
+      "hat_kodu": "254-1",
+      "guzergah": "ATAPARK-ŞEHİTLER METRO İSTASYONU"
+    },
+    {
+      "hat_kodu": "255",
+      "guzergah": "ATAPARK-23 NİSAN MAHALLESİ-BADEMLİK-KUYUBAŞI METRO İSTASYONU"
+    },
+    {
+      "hat_kodu": "256",
+      "guzergah": "ATAPARK-SELÇUKLU CD.-KIZILAY-BAKANLIK"
+    },
+    {
+      "hat_kodu": "258",
+      "guzergah": "BAĞLUM-UFUKTEPE-ATAPARK-REFİK SAYDAM-ETLİK ŞEHİR HASTANESİ"
+    },
+    {
+      "hat_kodu": "259",
+      "guzergah": "ATIŞ CD.-ULUS-KIZILAY"
+    },
+    {
+      "hat_kodu": "261",
+      "guzergah": "KASALAR-BAKANLIK"
+    },
+    {
+      "hat_kodu": "261-6",
+      "guzergah": "KASALAR-BAKANLIK"
+    },
+    {
+      "hat_kodu": "263",
+      "guzergah": "ETLİK-AŞAĞI EĞLENCE-BAKANLIK"
+    },
+    {
+      "hat_kodu": "263-7",
+      "guzergah": "(ÖHO) ETLİK-AŞAĞI EĞLENCE-BAKANLIK-BALGAT"
+    },
+    {
+      "hat_kodu": "264",
+      "guzergah": "BAĞLUM-UFUKTEPE-ŞEHİTLER METRO İSTASYONU"
+    },
+    {
+      "hat_kodu": "265",
+      "guzergah": "BAĞLUM-ÇALSEKİ MAHALLESİ"
+    },
+    {
+      "hat_kodu": "266",
+      "guzergah": "BAĞLUM-ULUS-15 TEMMUZ KIZILAY MİLLİ İRADE MEYDANI-BAKANLIKLAR"
+    },
+    {
+      "hat_kodu": "266-6",
+      "guzergah": "BAĞLUM-ULUS-15 TEMMUZ KIZILAY MİLLİ İRADE MAYDANI-BAKANLIK"
+    },
+    {
+      "hat_kodu": "267",
+      "guzergah": "ETLİK-KAZIM KARABEKİR-BEŞEVLER"
+    },
+    {
+      "hat_kodu": "267-2",
+      "guzergah": "ETLİK-KAZIM KARABEKİR-BEŞEVLER"
+    },
+    {
+      "hat_kodu": "268",
+      "guzergah": "BAĞLUM-GAR-KIZILAY"
+    },
+    {
+      "hat_kodu": "268-1",
+      "guzergah": "BAĞLUM-ŞEHİTLER METRO İSTASYONU"
+    },
+    {
+      "hat_kodu": "269",
+      "guzergah": "UFUKTEPE-GAR-KIZILAY(EKSPRES)"
+    },
+    {
+      "hat_kodu": "269-2",
+      "guzergah": "SIHHİYE-UFUKTEPE(EKSPRES)"
+    },
+    {
+      "hat_kodu": "270",
+      "guzergah": "KIZILAY-ULUS-UFUKTEPE"
+    },
+    {
+      "hat_kodu": "271",
+      "guzergah": "YENİMAHALLE METRO-ŞENTEPE"
+    },
+    {
+      "hat_kodu": "271-2",
+      "guzergah": "YENİMAHALLE METRO-ŞENTEPE"
+    },
+    {
+      "hat_kodu": "274",
+      "guzergah": "HASTANE METRO-KARŞIYAKA-KAYALAR"
+    },
+    {
+      "hat_kodu": "275",
+      "guzergah": "HASTANE METRO-KARŞIYAKA-ŞENTEPE"
+    },
+    {
+      "hat_kodu": "276",
+      "guzergah": "BATIKENT METRO-ÇAKIRLAR ÇİFTLİĞİ"
+    },
+    {
+      "hat_kodu": "277",
+      "guzergah": "ŞENTEPE-ESTERGON CD.-SIHHİYE"
+    },
+    {
+      "hat_kodu": "278",
+      "guzergah": "YÜKSELTEPE-SANCAKTEPE-ÖZLEM CD.-ULUS-KIZILAY-BAKANLIKLAR"
+    },
+    {
+      "hat_kodu": "279",
+      "guzergah": "YÜKSELTEPE-AYVALI-ULUS-KIZILAY-BAKANLIKLAR"
+    },
+    {
+      "hat_kodu": "279-6",
+      "guzergah": "YÜKSELTEPE-AYVALI-ULUS-15 TEMMUZ KIZILAY MİLLİ İRADE MAYDANI-BAKANLIKLAR"
+    },
+    {
+      "hat_kodu": "281",
+      "guzergah": "YÜKSELTEPE-15 TEMMUZ KIZILAY MİLLİ İRADE MEYDANI"
+    },
+    {
+      "hat_kodu": "282",
+      "guzergah": "YÜKSELTEPE-BEŞEVLER"
+    },
+    {
+      "hat_kodu": "283",
+      "guzergah": "OVACIK-BAŞKENT CD.-SEYİTLER CD.-ATAPARK-ŞEHİTLER METRO İSTASYONU"
+    },
+    {
+      "hat_kodu": "284",
+      "guzergah": "ESERTEPE-KIZILAY-BAKANLIK"
+    },
+    {
+      "hat_kodu": "284-6",
+      "guzergah": "ESERTEPE-15 TEMMUZ KIZILAY MİLLİ İRADE MEYDANI-BAKANLIK"
+    },
+    {
+      "hat_kodu": "285",
+      "guzergah": "ESERTEPE-KAZIMKARABEKİR-KIZILAY"
+    },
+    {
+      "hat_kodu": "286",
+      "guzergah": "OVACIK-KIZILAY-BAKANLIKLAR"
+    },
+    {
+      "hat_kodu": "287",
+      "guzergah": "BATIKENT METRO-MESUTEVLER"
+    },
+    {
+      "hat_kodu": "288",
+      "guzergah": "REFİK SAYDAM CD.-ULUS-KIZILAY"
+    },
+    {
+      "hat_kodu": "288-6",
+      "guzergah": "REFİK SAYDAM CD.-ULUS-15 TEMMUZ KIZILAY MİLLİ İRADE MEYDANI"
+    },
+    {
+      "hat_kodu": "289",
+      "guzergah": "OVACIK-PİYANGOTEPE-İNCİRLİ-KAZIM KARABEKİR-KIZILAY"
+    },
+    {
+      "hat_kodu": "290",
+      "guzergah": "BATIKENT METRO-MESA-MODERNKENT"
+    },
+    {
+      "hat_kodu": "291",
+      "guzergah": "OSTİM METRO-JANDARMA"
+    },
+    {
+      "hat_kodu": "292",
+      "guzergah": "BATIKENT METRO-İNÖNÜ MH."
+    },
+    {
+      "hat_kodu": "293",
+      "guzergah": "OSTİM METRO-UĞUR MUMCU MAH-JANDARMA"
+    },
+    {
+      "hat_kodu": "294",
+      "guzergah": "BATIKENT METRO-ERGAZİ-İNÖNÜ MAHALLESİ"
+    },
+    {
+      "hat_kodu": "295",
+      "guzergah": "BATIKENT METRO-MODERNKENT-KARDELEN"
+    },
+    {
+      "hat_kodu": "296",
+      "guzergah": "BATIKENT METRO-ERGAZİ MAHALLESİ"
+    },
+    {
+      "hat_kodu": "297",
+      "guzergah": "OSTİM METROSU-UĞUR MUMCU"
+    },
+    {
+      "hat_kodu": "297-7",
+      "guzergah": "(ÖHO) MUTLU MH.-BATIKENT"
+    },
+    {
+      "hat_kodu": "298",
+      "guzergah": "BATIKENT METRO-YENİ BATI MAHALLESİ"
+    },
+    {
+      "hat_kodu": "298-7",
+      "guzergah": "(ÖHO) MUTLU MAHALLESİ-ETLİK ŞEHİR HASTANESİ"
+    },
+    {
+      "hat_kodu": "299",
+      "guzergah": "BATIKENT METRO-İLKYERLEŞİM"
+    },
+    {
+      "hat_kodu": "300",
+      "guzergah": "DİKİMEVİ-AŞTİ"
+    },
+    {
+      "hat_kodu": "301",
+      "guzergah": "DOĞUKENT CAD-TURAN GÜNEŞ BLV.-UFUK ÜNİVERSİTESİ-ATILIM ÜNİVERSİTESİ"
+    },
+    {
+      "hat_kodu": "302",
+      "guzergah": "HÜSEYİN GAZİ-SIHHİYE"
+    },
+    {
+      "hat_kodu": "303",
+      "guzergah": "450.CD-K.KONAKLAR-GOP-KUĞULU-15 TEMMUZ KIZILAY MİLLİ İRADE MEYDANI-SIH-ULUS"
+    },
+    {
+      "hat_kodu": "304",
+      "guzergah": "K.KONAKLAR-GOP-KUĞULU-15 TEMMUZ KIZILAY  MİLLİ İRADE MEYDANI-SIHHİYE-ULUS"
+    },
+    {
+      "hat_kodu": "305",
+      "guzergah": "15 TEMMUZ KIZILAY  MİLLİ İRADE MEYDANI-KUĞULU-G.OSMANPAŞA"
+    },
+    {
+      "hat_kodu": "306",
+      "guzergah": "KARAPÜRÇEK-339.CD.-BEŞİKKAYA-1916.CD.-ANKARA HASTANESİ"
+    },
+    {
+      "hat_kodu": "307",
+      "guzergah": "SİTELER-BOĞAZİÇİ-METEHAN"
+    },
+    {
+      "hat_kodu": "308",
+      "guzergah": "KARAPÜRÇEK-CEBECİ-DİKİMEVİ"
+    },
+    {
+      "hat_kodu": "309",
+      "guzergah": "KARAPÜRÇEK-YENİYOL-ULUS-GAR-BEŞEVLER-AŞTİ-ŞEHİR HASTANESİ"
+    },
+    {
+      "hat_kodu": "310",
+      "guzergah": "SIHHİYE-BEŞİKKAYA-KARAPÜRÇEK"
+    },
+    {
+      "hat_kodu": "312",
+      "guzergah": "KARAPÜRÇEK-BEŞİKKAYA-SIHHİYE-ULUS"
+    },
+    {
+      "hat_kodu": "313",
+      "guzergah": "PEÇENEK-TATLAR-GİCİK-SIHHİYE-ULUS"
+    },
+    {
+      "hat_kodu": "314",
+      "guzergah": "EKİN MAHALLESİ-BAŞAK MAHALLESİ-YENİ YOL-SIHHİYE-ULUS"
+    },
+    {
+      "hat_kodu": "315",
+      "guzergah": "KAVAKLI-AYDINCIK-PEÇENEK-GİCİK-TATLAR-HÜSEYİNGAZİ"
+    },
+    {
+      "hat_kodu": "317-7",
+      "guzergah": "(ÖHO) BAĞCILAR-ULUS İÇAYDINLIK"
+    },
+    {
+      "hat_kodu": "318",
+      "guzergah": "BAĞCILAR-15 TEMMUZ KIZILAY MİLLİ İRADE MEYDANI-SIHHİYE-OPERA-ULUS"
+    },
+    {
+      "hat_kodu": "318-6",
+      "guzergah": "ULUS-SIHHİYE-15 TEMMUZ KIZILAY MİLLİ İRADE MEYDANI-BAĞCILAR-AKDERE-PEYAMİ SAFA-MUTLU"
+    },
+    {
+      "hat_kodu": "319",
+      "guzergah": "BAĞCILAR-MUTLU-15 TEMMUZ KIZILAY MİLLİ İRADE MEYDANI-SIHHİYE-OPERA-ULUS"
+    },
+    {
+      "hat_kodu": "320",
+      "guzergah": "KARAPÜRÇEK-EKİN MH-BAŞAK MAHALESİ-SIHHİYE-GAR-ULUS"
+    },
+    {
+      "hat_kodu": "321",
+      "guzergah": "KARAPÜRÇEK-ESKİYOL-15 TEMMUZ KIZILAY MİLLİ İRADE MEYDANI-SIHHİYE-ULUS"
+    },
+    {
+      "hat_kodu": "321-6",
+      "guzergah": "15 TEM.KIZ.MİLLİ İRADE MEYDANI-SIH.-ULUS-KARPRÇK-BEŞİKKAYA-BAŞAK MAH-ALTM"
+    },
+    {
+      "hat_kodu": "322",
+      "guzergah": "KARAPÜRÇEK-ESKİYOL-SIHHİYE-GAR-ULUS"
+    },
+    {
+      "hat_kodu": "323",
+      "guzergah": "MUTLU CD.-DEREBOYU CD.-BAĞCILAR-15 TEMMUZ KIZILAY MİLLİ İRADE MEYDANI-OPERA-ULUS"
+    },
+    {
+      "hat_kodu": "324",
+      "guzergah": "EKİN MH.-ÇATAK CD.-ÇİĞİLTEPE-15 TEMMUZ KIZILAY MİLLİ İRADE MEYDANI"
+    },
+    {
+      "hat_kodu": "325",
+      "guzergah": "EKİN MH.-BOSTANCIK-YILDIRIM BEYAZIT-ULUS"
+    },
+    {
+      "hat_kodu": "326",
+      "guzergah": "BAHÇELERÜSTÜ TOKİ-DİKİMEVİ-15 TEMMUZ KIZILAY MİLLİ İRADE MEYDANI"
+    },
+    {
+      "hat_kodu": "328",
+      "guzergah": "DİRİLİŞ-ALTINEVLER MAHALLESİ-PLEVNE CD.-DİKİMEVİ"
+    },
+    {
+      "hat_kodu": "329",
+      "guzergah": "EKİN MH.-ALTMIŞEVLER-15 TEMMUZ KIZILAY MİLLİ İRADE MEYDANI"
+    },
+    {
+      "hat_kodu": "330",
+      "guzergah": "EGE MH.-LOJMAN-15 TEMMUZ KIZILAY MİLLİ İRADE MEYDANI-ABB BİNASI"
+    },
+    {
+      "hat_kodu": "330-2",
+      "guzergah": "ABB BİNASI-15 TEMMUZ KIZILAY MİLLİ İRADE MEYDANI-EGE MAHALLESİ-LOJMAN"
+    },
+    {
+      "hat_kodu": "333",
+      "guzergah": "İMRAHOR-BADEMLİ-15 TEMMUZ KIZILAY MİLLİ İRADE MEYDANI-SIHHİYE-ULUS"
+    },
+    {
+      "hat_kodu": "334",
+      "guzergah": "ZİRVEKENT-MAMAK-15 TEMMUZ KIZILAY MİLLİ İRADE MEYDANI-SIHHİYE ULUS"
+    },
+    {
+      "hat_kodu": "334-6",
+      "guzergah": "15 TEMMUZ KIZILAY MİLLİ İRADE MEYDANI-SIHHİYE-ULUS-MAMAK-BOĞAZİÇİ-AKŞEMSETT"
+    },
+    {
+      "hat_kodu": "335",
+      "guzergah": "AYDINCIK-KAVAKLI-SIHHİYE ULUS"
+    },
+    {
+      "hat_kodu": "336",
+      "guzergah": "YAKUPABDAL-OPERA"
+    },
+    {
+      "hat_kodu": "336-1",
+      "guzergah": "YAKUPABDAL-OPERA-ELMADAĞ KAYAK MERKEZİ-KARKENT SİTESİ"
+    },
+    {
+      "hat_kodu": "337",
+      "guzergah": "METEHAN-BOĞAZİÇİ-SİTELER"
+    },
+    {
+      "hat_kodu": "338",
+      "guzergah": "EGE MAHALLESİ-846.CD.-MAMAK-DİKİMEVİ-15 TEMMUZ KIZILAY MİLLİ İRADE MEYDANI-SIHHİYE-ULUS"
+    },
+    {
+      "hat_kodu": "339",
+      "guzergah": "EGE HAREKET NOKTASI-NATOYOLU-ŞEHİTLER CD.-RİNG"
+    },
+    {
+      "hat_kodu": "339-7",
+      "guzergah": "(ÖHO) EGE MH.-BEŞTEPE"
+    },
+    {
+      "hat_kodu": "340",
+      "guzergah": "EGE MAHALLESİ-15 TEMMUZ KIZILAY MİLLİ İRADE MEYDANI-BEŞEVLER-DDY"
+    },
+    {
+      "hat_kodu": "340-2",
+      "guzergah": "DDY-BEŞEVLER-15 TEMMUZ KIZILAY MİLLİ İRADE MEYDANI-EGE MAHALLESİ"
+    },
+    {
+      "hat_kodu": "341",
+      "guzergah": "EGE MAHALLESİ-15 TEMMUZ KIZILAY MİLLİ İRADE MEYDANI"
+    },
+    {
+      "hat_kodu": "341-6",
+      "guzergah": "15 TEMMUZ KIZILAY MİLLİ İRADE MEYDANI-SIH.-ULUS-EGE MH.-MİSKET MH."
+    },
+    {
+      "hat_kodu": "342",
+      "guzergah": "KAYAŞ-EGE MAHALLESİ-ORAN SİTESİ"
+    },
+    {
+      "hat_kodu": "343",
+      "guzergah": "ALTIAĞAÇ-MAMAK-15 TEMMUZ KIZILAY MİLLİ İRADE MEYDANI-SIHHİYE-ULUS"
+    },
+    {
+      "hat_kodu": "344",
+      "guzergah": "ZİRVEKENT MAHALLESİ-SİTELER"
+    },
+    {
+      "hat_kodu": "346",
+      "guzergah": "EGE MAHALLESİ-DİKİMEVİ"
+    },
+    {
+      "hat_kodu": "349",
+      "guzergah": "ARAPLAR-DERBENT-MAMAK-15 TEMMUZ KIZILAY MİLLİ İRADE MEYDANI-SIHHİYE-ULUS"
+    },
+    {
+      "hat_kodu": "350",
+      "guzergah": "TEPECİK-MAMAK-15 TEMMUZ KIZILAY MİLLİ İRADE MEYDANI-SIHHİYE-ULUS"
+    },
+    {
+      "hat_kodu": "351",
+      "guzergah": "AKŞEMSETTİN-SU DEPOSU-MAMAK-15 TEMMUZ KIZILAY MİLLİ İRADE MEYDANI-SIHHİYE-ULUS"
+    },
+    {
+      "hat_kodu": "352",
+      "guzergah": "KUTLUDÜĞÜN-MAMAK-OPERA-GAR"
+    },
+    {
+      "hat_kodu": "352-1",
+      "guzergah": "KUTLUDÜĞÜN-YUNUS EMRE CD.-MAMAK-OPERA-GAR"
+    },
+    {
+      "hat_kodu": "353",
+      "guzergah": "BOĞAZİÇİ-4.CD.-MAMAK-15 TEMMUZ KIZILAY MİLLİ İRADE MEYDANI-SIHHİYE-ULUS"
+    },
+    {
+      "hat_kodu": "354",
+      "guzergah": "ELMADAĞ-SİTELER-GÜLVEREN-GENÇLİK PARKI"
+    },
+    {
+      "hat_kodu": "354-3",
+      "guzergah": "(ÖTA) ELMADAĞ-ANKARA"
+    },
+    {
+      "hat_kodu": "355",
+      "guzergah": "ZERDALİTEPE-MAMAK-15 TEMMUZ KIZILAY MİLLİ İRADE MEYDANI-SIHHİYE-ULUS"
+    },
+    {
+      "hat_kodu": "355-6",
+      "guzergah": "15 TEMMUZ KIZILAY MİLLİ İRADE MEYDANI-SIH.-ULS-ZERDALİTEPE-YEŞİLBAYIR-MAMAK"
+    },
+    {
+      "hat_kodu": "356",
+      "guzergah": "KIBRISKÖYÜ-YEŞİLBAYIR-ZERDALİTEPE-KAYAŞ BANLİYÖ TREN İSTASYONU"
+    },
+    {
+      "hat_kodu": "357",
+      "guzergah": "KIBRISKÖYÜ-SAĞDUYU CD.-MAMAK-15 TEMMUZ KIZILAY MİLLİ İRADE MEYDANI-SIHHİYE-ULUS"
+    },
+    {
+      "hat_kodu": "358",
+      "guzergah": "AKŞEMSETTİN-DURALİ ALIÇ-BOĞAZİÇİ-BAĞDERESİ BANLİYÖ TREN İSTASYONU"
+    },
+    {
+      "hat_kodu": "359",
+      "guzergah": "GÖKÇEYURT-ORTAKÖY-KIZILCAKÖY-MAMAK-OPERA"
+    },
+    {
+      "hat_kodu": "359-1",
+      "guzergah": "GÖKÇEYURT-ORTAKÖY-ORTAKÖY MEZARLIĞI-KIZILCAKÖY-MAMAK-OPERA"
+    },
+    {
+      "hat_kodu": "360",
+      "guzergah": "MUTLU CD.-OKULLAR CD.-DİKİMEVİ"
+    },
+    {
+      "hat_kodu": "361",
+      "guzergah": "YEŞİLBAYIR-MAMAK-15 TEMMUZ KIZILAY MİLLİ İRADE MEYDANI-SIHHİYE-ULUS"
+    },
+    {
+      "hat_kodu": "363",
+      "guzergah": "KUSUNLAR-MAMAK-OPERA"
+    },
+    {
+      "hat_kodu": "364",
+      "guzergah": "ZİRVEKENT-EGE MAHALLESİ-METEHAN-NATOYOLU CD.-DİKİMEVİ"
+    },
+    {
+      "hat_kodu": "365",
+      "guzergah": "MİSKET MH.-15 TEMMUZ KIZILAY MİLLİ İRADE MEYDANI-SIHHİYE-ULUS"
+    },
+    {
+      "hat_kodu": "366",
+      "guzergah": "ARAPLAR ESENKENT KONUTLARI-ÜREĞİL BANLİYO TREN İSTASYONU"
+    },
+    {
+      "hat_kodu": "367",
+      "guzergah": "ŞİRİNTEPE-15 TEMMUZ KIZILAY MİLLİ İRADE MEYDANI-SIHHİYE-ULUS"
+    },
+    {
+      "hat_kodu": "369",
+      "guzergah": "KUTLUDÜĞÜN-SİTELER-AKKÖPRÜ"
+    },
+    {
+      "hat_kodu": "372",
+      "guzergah": "MUTLU MAHALLESİ-AKDERE-ETLİK ŞEHİR HASTANESİ"
+    },
+    {
+      "hat_kodu": "373",
+      "guzergah": "ZABITA BLOKLARI-ULUS"
+    },
+    {
+      "hat_kodu": "374",
+      "guzergah": "ZERDALİTEPE-MAMAK-DİKİMEVİ"
+    },
+    {
+      "hat_kodu": "375",
+      "guzergah": "AKDERE-ULUS"
+    },
+    {
+      "hat_kodu": "377",
+      "guzergah": "ŞAHAPGÜRLER-MAMAK-15 TEMMUZ KIZILAY MİLLİ İRADE MEYDANI-SIHHİYE-ULUS"
+    },
+    {
+      "hat_kodu": "380",
+      "guzergah": "AKDERE-PEYAMİSAFA-15 TEMMUZ KIZILAY MİLLİ İRADE MEYDANI"
+    },
+    {
+      "hat_kodu": "381",
+      "guzergah": "TÜRKÖZÜ-15 TEMMUZ KIZILAY MİLLİ İRADE MEYDANI-SIHHİYE-ULUS"
+    },
+    {
+      "hat_kodu": "381-1",
+      "guzergah": "TÜRKÖZÜ-558.CD.-15 TEMMUZ KIZILAY MİLLİ İRADE MEYDANI-SIHHİYE-ULUS"
+    },
+    {
+      "hat_kodu": "382",
+      "guzergah": "MUTLU MH.-AKDERE-15 TEMMUZ KIZILAY MİLLİ İRADE MEYDANI-SIHHİYE"
+    },
+    {
+      "hat_kodu": "383",
+      "guzergah": "AKDERE-PEYAMİSAFA-15 TEMMUZ KIZILAY MİLLİ İRADE MEYDANI-BEŞEVLER-DDY"
+    },
+    {
+      "hat_kodu": "384",
+      "guzergah": "MUTLU-AKDERE-ŞEHİT AYHAN BABADAĞ CD.-KOLEJ-KURTULUŞ-RİNG"
+    },
+    {
+      "hat_kodu": "385",
+      "guzergah": "PEYAMİSAFA-DİKİMEVİ"
+    },
+    {
+      "hat_kodu": "385-2",
+      "guzergah": "KOLEJ-DİKİMEVİ-PEYAMİSAFA"
+    },
+    {
+      "hat_kodu": "386",
+      "guzergah": "MUTLU-EGE-ŞİRİNTEPE-MİSKET-MAMAK BANLİYÖ TREN İSTASYONU"
+    },
+    {
+      "hat_kodu": "387",
+      "guzergah": "EGO 3.BÖLGE-NATOYOLU-SULTAN FATİH CD."
+    },
+    {
+      "hat_kodu": "389",
+      "guzergah": "KIBRISKÖYÜ-MAVİGÖL-ZERDALİTEPE-SİTELER-AKKÖPRÜ-ETLİK ŞEHİR HASTANESİ"
+    },
+    {
+      "hat_kodu": "390",
+      "guzergah": "HASANOĞLAN-ELMADAĞ"
+    },
+    {
+      "hat_kodu": "390-3",
+      "guzergah": "(ÖTA) ELMADAĞ-HASANOĞLAN"
+    },
+    {
+      "hat_kodu": "391",
+      "guzergah": "D.TEPE 2.CD-ULUS-SIHHİYE-15 TEMMUZ KIZILAY MİLLİ İRADE MEYDANI KUĞULU-GOP"
+    },
+    {
+      "hat_kodu": "392",
+      "guzergah": "DOĞANTEPE-4 CD.-DİKİMEVİ-15 TEMMUZ KIZILAY MİLLİ İRADE MEYDANI-ULUS"
+    },
+    {
+      "hat_kodu": "393",
+      "guzergah": "D.TEPE 8.CD.-GÜLVEREN-SIHHİYE-ULUS"
+    },
+    {
+      "hat_kodu": "394",
+      "guzergah": "HASANOĞLAN-SİTELER-GÜLVEREN-GENÇLİK PARKI"
+    },
+    {
+      "hat_kodu": "394-5",
+      "guzergah": "(ÖTA) HASANOĞLAN-ANKARA"
+    },
+    {
+      "hat_kodu": "395",
+      "guzergah": "DOĞANTEPE-4 CAD,-SİTELER-GÜLVEREN-SIHHİYE-ULUS"
+    },
+    {
+      "hat_kodu": "396",
+      "guzergah": "D.TEPE 2.CD-ULUS-SIHHİYE-15 TEMMUZ KIZILAY MİLLİ İRADE MEYDANI"
+    },
+    {
+      "hat_kodu": "397",
+      "guzergah": "YEŞİLDERE-ANKARA"
+    },
+    {
+      "hat_kodu": "398",
+      "guzergah": "LALAHAN-SİTELER-GÜLVEREN-GENÇLİK PARKI"
+    },
+    {
+      "hat_kodu": "398-5",
+      "guzergah": "(ÖTA) LALAHAN-ANKARA"
+    },
+    {
+      "hat_kodu": "400",
+      "guzergah": "ŞEHİTLER METRO İST.-AKM-OPERA-15 TEMMUZ KIZILAY MİLLİ İRADE MEYDANI"
+    },
+    {
+      "hat_kodu": "401",
+      "guzergah": "DIŞKAPI METRO İST.-ULUS METRO İST.-AKM METRO İST.-KAZIM KARABEKİR CD."
+    },
+    {
+      "hat_kodu": "402",
+      "guzergah": "BAŞKENT KÜLTÜR TURU-ULUS-GAR-ANITKBİR-KIZILAY-HAMAMÖNÜ-ULUCANLAR-KALE"
+    },
+    {
+      "hat_kodu": "403-6",
+      "guzergah": "GÜLPINAR-GÜNEŞEVLER-15 TEMMUZ KIZILAY MİLLİ İRADE MEYDANI-ATAKULE-BİRLİK MA"
+    },
+    {
+      "hat_kodu": "405",
+      "guzergah": "AKTEPE-494.CD.-ULUS-15 TEMMUZ KIZILAY MİLLİ İRADE MEYDANI"
+    },
+    {
+      "hat_kodu": "405-1",
+      "guzergah": "AKTEPE-494.CD.-DIŞKAPI METRO İSTASYONU"
+    },
+    {
+      "hat_kodu": "407",
+      "guzergah": "SIHHİYE-15 TEMMUZ KIZILAY MİLLİ İRADE MEYDANI-ATAKULE-ÇANKAYA"
+    },
+    {
+      "hat_kodu": "408",
+      "guzergah": "GÜLPINAR-GÜNEŞEVLER-15 TEMMUZ KIZILAY MİLLİ İRADE MEYDANI-ATAKULE-BİRLİK MA"
+    },
+    {
+      "hat_kodu": "409",
+      "guzergah": "DIŞKAPI-ETLİK ŞEHİR HASTANESİ-AKKÖPRÜ"
+    },
+    {
+      "hat_kodu": "409-5",
+      "guzergah": "(ÖTA) DIŞKAPI-ETLİK ŞEHİR HASTANESİ-AKKÖPRÜ"
+    },
+    {
+      "hat_kodu": "411-7",
+      "guzergah": "(ÖHO) AKTEPE-YÜZÜNCÜYIL"
+    },
+    {
+      "hat_kodu": "412",
+      "guzergah": "AKTEPE-1055 SK.-ÖZYURT CD.-DUTLUK METRO İSTASYONU"
+    },
+    {
+      "hat_kodu": "413",
+      "guzergah": "ALTINPARK-15 TEMMUZ KIZILAY MİLLİ İRADE MEYDANI-ÇANKAYA"
+    },
+    {
+      "hat_kodu": "413-7",
+      "guzergah": "(ÖHO) ALTINPARK-ÇANKAYA"
+    },
+    {
+      "hat_kodu": "414",
+      "guzergah": "AKTEPE-İVEDİK METRO İST."
+    },
+    {
+      "hat_kodu": "415",
+      "guzergah": "AKTEPE-YEŞİLTEPE-ULUS-15 TEMMUZ KIZILAY MİLLİ İRADE MEYDANI"
+    },
+    {
+      "hat_kodu": "415-6",
+      "guzergah": "AKTEPE-YEŞİLTEPE-ULUS-15 TEMMUZ KIZILAY MİLLİ İRADE MEYDANI"
+    },
+    {
+      "hat_kodu": "416",
+      "guzergah": "AKTEPE-KAMİL OCAK MH.-FELEK CD.-DİVRİK CD.-MECİDİYE METRO İST."
+    },
+    {
+      "hat_kodu": "418",
+      "guzergah": "AKTEPE-BURSA CD.-431.CD.-ULUS-15 TEMMUZ KIZILAY MİLLİ İRADE MEYDANI"
+    },
+    {
+      "hat_kodu": "418-1",
+      "guzergah": "AKTEPE-BURSA CD.-431.CD.-DIŞKAPI METRO İSTASYONU"
+    },
+    {
+      "hat_kodu": "419",
+      "guzergah": "AKTEPE-İSKİTLER-EMNİYET SARAYI-AŞTİ-ÇUKURAMBAR-YÜZÜNCÜYIL"
+    },
+    {
+      "hat_kodu": "421-7",
+      "guzergah": "(ÖHO) KEÇİÖREN GAZİNO-BAKANLIK-ODTÜ"
+    },
+    {
+      "hat_kodu": "427",
+      "guzergah": "SUBAYEVLERİ-ULUS-15 TEMMUZ KIZILAY MİLLİ İRADE MEYDANI-A.AYRANCI"
+    },
+    {
+      "hat_kodu": "427-7",
+      "guzergah": "(ÖHO) SUBAYEVLERİ-A.AYRANCI"
+    },
+    {
+      "hat_kodu": "430",
+      "guzergah": "AKKÖPRÜ METRO İSTASYONU-VARLIK MH."
+    },
+    {
+      "hat_kodu": "431",
+      "guzergah": "AKKÖPRÜ METRO İSTASYONU-İSKİTLER"
+    },
+    {
+      "hat_kodu": "432",
+      "guzergah": "AŞTİ-İLÇE ARAÇLARI DEPOLAMA ALANI"
+    },
+    {
+      "hat_kodu": "434",
+      "guzergah": "AYBÜ-SARAY-KAYMAKAMLIK-HASTANE-PURSAKLAR MERKEZ"
+    },
+    {
+      "hat_kodu": "436",
+      "guzergah": "SARAY-EMEK CD.-AYYILDIZ-BURSA CD.-KUYUBAŞI METRO İSTASYONU"
+    },
+    {
+      "hat_kodu": "437",
+      "guzergah": "PURSAKLAR-MİMAR SİNAN MH.-ULUS-SIHHİYE"
+    },
+    {
+      "hat_kodu": "438",
+      "guzergah": "PURSAKLAR-KAFKASLAR-BAĞLUM-TAŞTEPE-YAVUZ BLV.-ULUS-SIHHİYE"
+    },
+    {
+      "hat_kodu": "438-1",
+      "guzergah": "PURSAKLAR-KAFKASLAR-BAĞLUM-TAŞTEPE-YAVUZ BLV.-DIŞKAPI METRO İSTASYONU"
+    },
+    {
+      "hat_kodu": "439",
+      "guzergah": "PURSAKLAR-AYYILDIZ MH.-ULUS-15 TEMMUZ KIZILAY MİLLİ İRADE MEYDANI"
+    },
+    {
+      "hat_kodu": "439-6",
+      "guzergah": "PURSAKLAR-AYYILDIZ MH.-ULUS-BAKANLIKLAR"
+    },
+    {
+      "hat_kodu": "440",
+      "guzergah": "PURSAKLAR-MERKEZ MH.-ULUS-15 TEMMUZ KIZILAY MİLLİ İRADE MEYDANI"
+    },
+    {
+      "hat_kodu": "441",
+      "guzergah": "PURSAKLAR-BELEDİYE CD.-KARACAÖREN-SANAYİ-TOKİ-ULUS-SIHHİYE"
+    },
+    {
+      "hat_kodu": "441-1",
+      "guzergah": "PURSAKLAR-BELEDİYE CD.-KARACAÖREN-SANAYİ-TOKİ-DIŞKAPI METRO İSTASYONU"
+    },
+    {
+      "hat_kodu": "442",
+      "guzergah": "AŞTİ-15 TEMMUZ KIZILAY MİLLİ İRADE MEYDANI-HAVALİMANI"
+    },
+    {
+      "hat_kodu": "443",
+      "guzergah": "VAKIF MH.-TOKİ-ULUS-15 TEMMUZ KIZILAY MİLLİ İRADE MEYDANI"
+    },
+    {
+      "hat_kodu": "443-1",
+      "guzergah": "VAKIF MH.-TOKİ-DIŞKAPI METRO İSTASYONU"
+    },
+    {
+      "hat_kodu": "444",
+      "guzergah": "SIHHİYE-ULUS-KARAKÖY-KARACÖREN-ALTINOVA-GİCİK-PEÇENEK"
+    },
+    {
+      "hat_kodu": "444-1",
+      "guzergah": "KARAKÖY-KARACÖREN-ALTINOVA-GİCİK-PEÇENEK-DIŞKAPI METRO İSTASYONU"
+    },
+    {
+      "hat_kodu": "445",
+      "guzergah": "SOLFASOL-BAHÇELİEVLER-AŞTİ"
+    },
+    {
+      "hat_kodu": "446",
+      "guzergah": "SOLFASOL-ULUS-15 TEMMUZ KIZILAY MİLLİ İRADE MEYDANI"
+    },
+    {
+      "hat_kodu": "446-1",
+      "guzergah": "SOLFASOL-DIŞKAPI METRO İSTASYONU"
+    },
+    {
+      "hat_kodu": "447",
+      "guzergah": "BARAJ MESİRE ALANI-KUZEYKENT 11.-12.ETAP-MELİKŞAH CD.HASKÖY-ULUS-SIHHİYE"
+    },
+    {
+      "hat_kodu": "447-1",
+      "guzergah": "BARAJ MESİRE ALANI-KUZEYKENT 11.-12.ETAP-MELİKŞAH CD.HASKÖY-DIŞKAPI METRO İSTASYONU"
+    },
+    {
+      "hat_kodu": "448",
+      "guzergah": "BEŞEVLER-BAHÇELİEVLER"
+    },
+    {
+      "hat_kodu": "449",
+      "guzergah": "AKKÖPRÜ-MİLLET KÜTÜPHANESİ-GAZİ MAHALLESİ-ÇİFTLİK KAVŞAĞI"
+    },
+    {
+      "hat_kodu": "450",
+      "guzergah": "GÜLPINAR-GÜNEŞEVLER-SİTELER-İSKİTLER-EMNİYET SARAYI-ANKARA ŞEHİR HAST."
+    },
+    {
+      "hat_kodu": "451",
+      "guzergah": "ULUS-15 TEMMUZ KIZILAY MİLLİ İRADE MEYDANI-ÖVEÇLER-KABİL CD.-1112.CD."
+    },
+    {
+      "hat_kodu": "454",
+      "guzergah": "ÖRNEK-15 TEMMUZ KIZILAY MİLLİ İRADE MEYDANI-ÖVEÇLER-LİZBON CD."
+    },
+    {
+      "hat_kodu": "454-6",
+      "guzergah": "ÖRNEK-15 TEMMUZ KIZILAY MİLLİ İRADE MEYDANI-ÖVEÇLER-LİZBON CD."
+    },
+    {
+      "hat_kodu": "455",
+      "guzergah": "ÖRNEK-ÇALIŞKANLAR-CEBECİ-DİKİMEVİ"
+    },
+    {
+      "hat_kodu": "456",
+      "guzergah": "ÖRNEK-ÇALIŞKANLAR-ULUS-15 TEMMUZ KIZILAY MİLLİ İRADE MEYDANI"
+    },
+    {
+      "hat_kodu": "458",
+      "guzergah": "ESENBOĞA AYBÜ-ÇUBUK KYK YURDU"
+    },
+    {
+      "hat_kodu": "459",
+      "guzergah": "ESENBOĞA AYBÜ-ETLİK AYBÜ"
+    },
+    {
+      "hat_kodu": "460",
+      "guzergah": "UYANIŞ-PINARBAŞI-SANATORYUM CD.-ŞEHİTLER METRO İST."
+    },
+    {
+      "hat_kodu": "461",
+      "guzergah": "UYANIŞ-PINARBAŞI MH.-BELEDİYE METRO İSTASYONU"
+    },
+    {
+      "hat_kodu": "462",
+      "guzergah": "OPERA-15 TEMMUZ KIZILAY MİLLİ İRADE MEYDANI-BALGAT-CEYHUN A.K.CAD"
+    },
+    {
+      "hat_kodu": "464",
+      "guzergah": "SUBAYEVLERİ-ULUS-EMEK-BAHÇELİEVLER"
+    },
+    {
+      "hat_kodu": "466",
+      "guzergah": "ÇUBUK-TAHTAYAZI-DAĞKALFAT-KÖSRELİK-DEMİRCİ"
+    },
+    {
+      "hat_kodu": "467",
+      "guzergah": "ÇUBUK-KIŞLACIK-YEŞİLKENT-KARAGÖL MESİRE ALANI"
+    },
+    {
+      "hat_kodu": "468",
+      "guzergah": "AKYURT-KIZIK MH.-BALIKHİSAR-BÜĞDÜZ-SIHHİYE"
+    },
+    {
+      "hat_kodu": "469",
+      "guzergah": "AKYURT-ÇİFTLİKKÖY-KARAHÖYÜK-DEĞİRMENKAYA-HASAYAZ-YEŞİLÖZ-KUYUCAK-KOYUNBABA-ŞEMSETTİNKÖY-BEYKAVAĞI-EŞ"
+    },
+    {
+      "hat_kodu": "470",
+      "guzergah": "PURSAKLAR-ABADAN-SİRKELİ-KÖSRELİK KIZIĞI"
+    },
+    {
+      "hat_kodu": "471",
+      "guzergah": "AYBÜ-KIZILCA-İKİPINAR-GÜMÜŞYAYLA-TUĞLA"
+    },
+    {
+      "hat_kodu": "472",
+      "guzergah": "AYBÜ-SARAY FATİH MH.-KARYAĞDI-ULUS-SIHHİYE"
+    },
+    {
+      "hat_kodu": "473",
+      "guzergah": "PURSAKLAR-SİRKELİ-KARAKÖY-YUVA-GÜZELYURT"
+    },
+    {
+      "hat_kodu": "474",
+      "guzergah": "AYBÜ-SARAY-ULUS-15 TEMMUZ KIZILAY MİLLİ İRADE MEYDANI"
+    },
+    {
+      "hat_kodu": "477",
+      "guzergah": "AYBÜ-MAHMUDİYE-SARAY-KAYMAKAMLIK-ULUS-15 TEMMUZ KIZILAY MİLLİ İRADE MEYDANI"
+    },
+    {
+      "hat_kodu": "479",
+      "guzergah": "UYANIŞ-PINARBAŞI-İSKİTLER-EMNİYET SARAYI-AŞTİ-BEŞTEPE"
+    },
+    {
+      "hat_kodu": "480",
+      "guzergah": "UYANIŞ-İVEDİK METRO İSTASYONU"
+    },
+    {
+      "hat_kodu": "481",
+      "guzergah": "UYANIŞ-ASFALT-15 TEMMUZ KIZILAY MİLLİ İRADE MEYDANI-BALGAT-CEYHUN A.K.CAD"
+    },
+    {
+      "hat_kodu": "481-6",
+      "guzergah": "UYANIŞ-ASFALT-15 TEMMUZ KIZILAY MİLLİ İRADE MEYDANI-BALGAT-CEYHUN A.K.CAD"
+    },
+    {
+      "hat_kodu": "482",
+      "guzergah": "UYANIŞ-HACIKADIN-ULUS-15 TEMMUZ KIZILAY MİLLİ İRADE MEYDANI"
+    },
+    {
+      "hat_kodu": "482-7",
+      "guzergah": "(ÖHO) BADEMLİK-HACIKADIN-YÜZÜNCÜYIL-ODTÜ"
+    },
+    {
+      "hat_kodu": "483",
+      "guzergah": "UYANIŞ-HACIKADIN-BADEMLİK YOLU CD.-ANAVATAN CD.-DUTLUK METRO İST."
+    },
+    {
+      "hat_kodu": "484",
+      "guzergah": "PURSAKLAR-TEKNİKOKULLAR-BEŞEVLER-AŞTİ"
+    },
+    {
+      "hat_kodu": "485",
+      "guzergah": "SIHHİYE-ULUS-GÜZELHİSAR-ALTINOVA"
+    },
+    {
+      "hat_kodu": "486",
+      "guzergah": "AYBÜ-SARAY-KAYMAKAMLIK-ULUS-15 TEMMUZ KIZILAY MİLLİ İRADE MEYDANI"
+    },
+    {
+      "hat_kodu": "486-6",
+      "guzergah": "YILDIRIM BEYAZIT ÜNİV.-DUMLUPINAR-SARAY-ULUS-SIHHİYE"
+    },
+    {
+      "hat_kodu": "487",
+      "guzergah": "ÇUBUK-ANKARA"
+    },
+    {
+      "hat_kodu": "487-5",
+      "guzergah": "(ÖTA) ÇUBUK-İVEDİK O.S.B.-OSTİM"
+    },
+    {
+      "hat_kodu": "488",
+      "guzergah": "AKYURT-ALTINOVA-ULUS-SIHHİYE"
+    },
+    {
+      "hat_kodu": "488-6",
+      "guzergah": "ULUS-OTONOMİ-BALIKHİSAR-BÜĞDÜZ-AKYURT"
+    },
+    {
+      "hat_kodu": "489",
+      "guzergah": "KALABA MH.-CÜCÜK MH.-TAŞPINAR MH."
+    },
+    {
+      "hat_kodu": "489-5",
+      "guzergah": "(ÖTA) SİRKELİ-ANKARA"
+    },
+    {
+      "hat_kodu": "490",
+      "guzergah": "ULUS-KALECİK"
+    },
+    {
+      "hat_kodu": "490-8",
+      "guzergah": "(ÖTA) KALECİK CEZA İNFAZ KURUMU-ANKARA"
+    },
+    {
+      "hat_kodu": "491",
+      "guzergah": "AYBÜ-ESENBOĞA-MELİHŞAH-YAZIR-KUTUÖREN"
+    },
+    {
+      "hat_kodu": "492",
+      "guzergah": "KUZEYKENT 10.ETAP-ULUS-15 TEMMUZ KIZILAY MİLLİ İRADE MEYDANI"
+    },
+    {
+      "hat_kodu": "493",
+      "guzergah": "KUZEYKENT-SELÇUKBEY CD.-ULUS-15 TEMMUZ KIZILAY MİLLİ İRADE MEYDANI"
+    },
+    {
+      "hat_kodu": "494",
+      "guzergah": "KUZEYKENT 16.ETAP-11.ETAP-HASKÖY-ULUS-15 TEMMUZ KIZILAY MİLLİ İRADE MEYDANI"
+    },
+    {
+      "hat_kodu": "495",
+      "guzergah": "AKTEPE-KUYUBAŞI METRO İST.-DUTLUK-SELÇUK BEY CD.-10.-11.ETAP"
+    },
+    {
+      "hat_kodu": "497",
+      "guzergah": "ÇUBUK TERMİNALİ-TOKİ"
+    },
+    {
+      "hat_kodu": "500",
+      "guzergah": "OSB TÖREKENT METRO-BATIKENT METRO İSTASYONU"
+    },
+    {
+      "hat_kodu": "501",
+      "guzergah": "AKINCI-SIHHİYE"
+    },
+    {
+      "hat_kodu": "501-2",
+      "guzergah": "AKINCI-ERYAMAN 1.2 ETAP İSTASYONU"
+    },
+    {
+      "hat_kodu": "502",
+      "guzergah": "KAHRAMANKAZAN-SIHHİYE"
+    },
+    {
+      "hat_kodu": "502-2",
+      "guzergah": "KAHRAMANKAZAN-ERYAMAN 1-2 İSTASYONU"
+    },
+    {
+      "hat_kodu": "503",
+      "guzergah": "YENİKENT-ÇAYIRLIK BÖLGESİ-CUMHURİYET BLV.-SİNCAN"
+    },
+    {
+      "hat_kodu": "503-1",
+      "guzergah": "YENİKENT-ÇAYIRLIK BÖLGESİ-CUMHURİYET BLV-TÖREKENT-SİNCAN"
+    },
+    {
+      "hat_kodu": "504",
+      "guzergah": "YENİKENT-SIHHİYE"
+    },
+    {
+      "hat_kodu": "504-6",
+      "guzergah": "YENİKENT-ORTAPINAR TOKİ-İLKSAN TOKİ-SIHHİYE"
+    },
+    {
+      "hat_kodu": "505",
+      "guzergah": "SİNCAN-M.AKSOY SK.-SIHHİYE(1.HAT)"
+    },
+    {
+      "hat_kodu": "505-2",
+      "guzergah": "SİNCAN-SIHHİYE-M.AKSOY SK.(2.HAT)"
+    },
+    {
+      "hat_kodu": "506-2",
+      "guzergah": "BEŞEVLER-SİNCAN AHİ MESUD BLV."
+    },
+    {
+      "hat_kodu": "507",
+      "guzergah": "PLEVNE MAHALLESİ-ÜMİTKÖY METRO İSTASYONU"
+    },
+    {
+      "hat_kodu": "507-2",
+      "guzergah": "FATİH-PLEVNE MAH-ÜMİTKÖY METRO İST."
+    },
+    {
+      "hat_kodu": "508-1",
+      "guzergah": "SİNCAN-115.SK.-AHİ MESUD BLV.-SIHHİYE"
+    },
+    {
+      "hat_kodu": "509",
+      "guzergah": "SİNCAN-FATİH(TÖREKENT)"
+    },
+    {
+      "hat_kodu": "510",
+      "guzergah": "SİNCAN-SIHHİYE"
+    },
+    {
+      "hat_kodu": "510-6",
+      "guzergah": "SİNCAN-SIHHİYE"
+    },
+    {
+      "hat_kodu": "511",
+      "guzergah": "SİNCAN-ÜMİTKÖY METRO İSTASYONU"
+    },
+    {
+      "hat_kodu": "512",
+      "guzergah": "SİNCAN-YAŞAR KEMAL CD.-AHİ MESUD BLV.-KORU METRO İSTASYONU"
+    },
+    {
+      "hat_kodu": "512-5",
+      "guzergah": "(ÖTA) ÇİMŞİT-KORU METRO İSTASYONU"
+    },
+    {
+      "hat_kodu": "513-2",
+      "guzergah": "BEŞEVLER-SİNCAN"
+    },
+    {
+      "hat_kodu": "514",
+      "guzergah": "ÇİMŞİT-SIHHİYE"
+    },
+    {
+      "hat_kodu": "514-2",
+      "guzergah": "ÇİMŞİT-SIHHİYE(MEZARLIK)"
+    },
+    {
+      "hat_kodu": "515",
+      "guzergah": "FATİH-SIHHİYE"
+    },
+    {
+      "hat_kodu": "516",
+      "guzergah": "SİNCAN-PEÇENEK-ÇİÇEKTEPE-YAPRACIK TOKİ KONUTLARI"
+    },
+    {
+      "hat_kodu": "517",
+      "guzergah": "FATİH-ÜMİTKÖY METRO İSTASYONU"
+    },
+    {
+      "hat_kodu": "518-2",
+      "guzergah": "BEŞEVLER-FATİH"
+    },
+    {
+      "hat_kodu": "519-2",
+      "guzergah": "BEŞEVLER-GOP(FATİH)"
+    },
+    {
+      "hat_kodu": "520",
+      "guzergah": "FATİH(GOP)-SIHHİYE"
+    },
+    {
+      "hat_kodu": "521",
+      "guzergah": "FATİH(GOP)-ÜMİTKÖY METRO İSTASYONU"
+    },
+    {
+      "hat_kodu": "523",
+      "guzergah": "SİNCAN-POLATLI 2.CD.-SIHHİYE"
+    },
+    {
+      "hat_kodu": "523-6",
+      "guzergah": "SİNCAN-POLATLI 2.CD.-SIHHİYE"
+    },
+    {
+      "hat_kodu": "524",
+      "guzergah": "SİNCAN-POLATLI 2.CD.-ÜMİTKÖY METRO İSTASYONU"
+    },
+    {
+      "hat_kodu": "525",
+      "guzergah": "PLEVNE MH.-SIHHİYE"
+    },
+    {
+      "hat_kodu": "525-6",
+      "guzergah": "FATİH-PLEVNE MH.-SIHHİYE"
+    },
+    {
+      "hat_kodu": "526",
+      "guzergah": "TEMELLİ-SİNCAN"
+    },
+    {
+      "hat_kodu": "527-3",
+      "guzergah": "(ÖTA) KIZILCAHAMAM-ANKARA"
+    },
+    {
+      "hat_kodu": "528",
+      "guzergah": "POLATLI-ÜMİTKÖY METRO İSTASYONU"
+    },
+    {
+      "hat_kodu": "528-3",
+      "guzergah": "(ÖTA) ANKARA-POLATLI"
+    },
+    {
+      "hat_kodu": "529",
+      "guzergah": "OSMANİYE-SİNCAN"
+    },
+    {
+      "hat_kodu": "530",
+      "guzergah": "ETİMESGUT-ÜMİTKÖY METRO İSTASYONU-KIZILAY-SIHHİYE-ULUS"
+    },
+    {
+      "hat_kodu": "530-2",
+      "guzergah": "ETİMESGUT-HİKMET ÖZER CD.-ÜMİTKÖY METRO İST."
+    },
+    {
+      "hat_kodu": "531",
+      "guzergah": "ERYAMAN-FATİH-SİNCAN-ELVANKENT-ETİMESGUT"
+    },
+    {
+      "hat_kodu": "532",
+      "guzergah": "ELVANKENT-ÜMİTKÖY METRO İSTASYONU"
+    },
+    {
+      "hat_kodu": "533",
+      "guzergah": "ELVANKENT-İSTANBUL YOLU-SIHHİYE"
+    },
+    {
+      "hat_kodu": "534",
+      "guzergah": "AHİ MESUT MH.-KORU METRO İSTASYONU"
+    },
+    {
+      "hat_kodu": "535",
+      "guzergah": "ETİMESGUT-ULUS"
+    },
+    {
+      "hat_kodu": "536",
+      "guzergah": "ETİMESGUT-SUVARİ MH.-SIHHİYE"
+    },
+    {
+      "hat_kodu": "536-1",
+      "guzergah": "ETİMESGUT-SUVARİ MH.-SIHHİYE"
+    },
+    {
+      "hat_kodu": "537",
+      "guzergah": "TOPÇU MAHALLESİ-KORU METRO İSTASYONU"
+    },
+    {
+      "hat_kodu": "537-5",
+      "guzergah": "(ÖTA) TOPÇU MAHALLESİ-KORU METRO İSTASYONU"
+    },
+    {
+      "hat_kodu": "538",
+      "guzergah": "ETİMESGUT-HİKMET ÖZER CD.-ÜMİTKÖY METRO İSTASYONU"
+    },
+    {
+      "hat_kodu": "539",
+      "guzergah": "DEVLET MAHALLESİ METRO İSTASYONU-ATAKENT MAHALLESİ-AYYILDIZ MAHALLESİ"
+    },
+    {
+      "hat_kodu": "540",
+      "guzergah": "ERYAMAN-SIHHİYE"
+    },
+    {
+      "hat_kodu": "540-6",
+      "guzergah": "ERYAMAN-SIHHİYE"
+    },
+    {
+      "hat_kodu": "541",
+      "guzergah": "ERYAMAN-ÜMİTKÖY METRO İSTASYONU"
+    },
+    {
+      "hat_kodu": "542",
+      "guzergah": "ERYAMAN-SEZENLER"
+    },
+    {
+      "hat_kodu": "542-1",
+      "guzergah": "ERYAMAN-SEZENLER"
+    },
+    {
+      "hat_kodu": "543-2",
+      "guzergah": "BEŞEVLER-ERYAMAN"
+    },
+    {
+      "hat_kodu": "545",
+      "guzergah": "ERYAMAN-GÜZELKENT-ÜMİTKÖY METRO İSTASYONU"
+    },
+    {
+      "hat_kodu": "546",
+      "guzergah": "ELVANKENT-ETİMESGUT-BAĞLICA-ATAYURT MH.-TURKUAZ MH."
+    },
+    {
+      "hat_kodu": "547",
+      "guzergah": "TOPÇU MAHALLESİ-ULUS-SIHHİYE"
+    },
+    {
+      "hat_kodu": "548",
+      "guzergah": "BEYPAZARI-FATİH METRO İSTASYONU-SİNCAN"
+    },
+    {
+      "hat_kodu": "548-4",
+      "guzergah": "(ÖTA) BEYPAZARI-ÇAYIRHAN"
+    },
+    {
+      "hat_kodu": "549",
+      "guzergah": "SİNCAN-FATİH METRO İST.-ATA MH.-ŞEYH ŞAMİL MH."
+    },
+    {
+      "hat_kodu": "551",
+      "guzergah": "SİNCAN-MERKEZ-ERYAMAN 1-2 METRO"
+    },
+    {
+      "hat_kodu": "552",
+      "guzergah": "ELVANKENT-ERYAMAN 1.2.ETAP METRO İSTASYONU"
+    },
+    {
+      "hat_kodu": "553",
+      "guzergah": "ETİMESGUT-ERYAMAN 1-2 METRO"
+    },
+    {
+      "hat_kodu": "554",
+      "guzergah": "YENİKENT CEZAEVİ-SIHHİYE"
+    },
+    {
+      "hat_kodu": "555-4",
+      "guzergah": "ANKARA LOJİSTİK ÜSSÜ-BİTİK MAHALLESİ-ERYAMAN 1.2.ETAP METRO İSTASYONU"
+    },
+    {
+      "hat_kodu": "556-4",
+      "guzergah": "KERESTECİLER SİTESİ-ERYAMAN 1.2.ETAP METRO İSTASYONU"
+    },
+    {
+      "hat_kodu": "557",
+      "guzergah": "YENİKENT-ORTAPINAR TOKİ-İLKSAN TOKİ-SIHHİYE"
+    },
+    {
+      "hat_kodu": "558",
+      "guzergah": "İSTANBUL YOLU METRO İSTASYONU-YENİ BATI MAHALLESİ"
+    },
+    {
+      "hat_kodu": "559",
+      "guzergah": "KORU METRO İSTASYONU-BEYLER CD.-ORHAN GAZİ BLV."
+    },
+    {
+      "hat_kodu": "560-9",
+      "guzergah": "AYAŞ-HASTANE-FATİH METRO İSTASYONU-SİNCAN"
+    },
+    {
+      "hat_kodu": "561",
+      "guzergah": "ETİMESGUT-ELVANKENT-SİNCAN-FATİH-ERYAMAN"
+    },
+    {
+      "hat_kodu": "562",
+      "guzergah": "KORU METRO İST.-BAĞLICA MH.-ÇAMBAYIRI CD.-ESKİBAĞLAR CD."
+    },
+    {
+      "hat_kodu": "563-4",
+      "guzergah": "(ÖTA) KAHRAMANKAZAN-KERESTECİLER"
+    },
+    {
+      "hat_kodu": "566",
+      "guzergah": "SİNCAN-AHİ MESUD BLV.-2149.CD.-2157.CD.-KORU METRO İSTASYONU"
+    },
+    {
+      "hat_kodu": "566-5",
+      "guzergah": "(ÖTA) ÇİMŞİT-BAĞLICA-KORU METRO İSTASYONU"
+    },
+    {
+      "hat_kodu": "567",
+      "guzergah": "AYYILDIZ MAHALLESİ-AHİ MESUD MAHALLESİ-KORU METRO İSTASYONU"
+    },
+    {
+      "hat_kodu": "568",
+      "guzergah": "KORU METRO İSTASYONU-BAĞLICA BLV."
+    },
+    {
+      "hat_kodu": "570",
+      "guzergah": "ÜMİTKÖY METRO İST-ÜMİTKÖY"
+    },
+    {
+      "hat_kodu": "570-1",
+      "guzergah": "ÜMİTKÖY METRO İSTASYONU-ÜMİT MAHALLESİ-S.SALTOĞLU BLV."
+    },
+    {
+      "hat_kodu": "571",
+      "guzergah": "SİNCAN ADLİYE-SIHHİYE ADLİYE"
+    },
+    {
+      "hat_kodu": "572",
+      "guzergah": "YENİKENT-CEZAEVİ-OSB-TÖREKENT METRO İSTASYONU"
+    },
+    {
+      "hat_kodu": "573",
+      "guzergah": "YENİKENT-ÜMİTKÖY METRO İSTASYONU"
+    },
+    {
+      "hat_kodu": "575",
+      "guzergah": "LALEKENT-ŞEKER MH.-GÖKSU MH.-ERYAMAN 1.2.ETAP METRO İSTASYONU"
+    },
+    {
+      "hat_kodu": "575-1",
+      "guzergah": "LALEKENT-ŞEKER MH.-GÖKSU MH.-ERYAMAN 1.2.ETAP METRO İSTASYONU"
+    },
+    {
+      "hat_kodu": "576",
+      "guzergah": "KORU METRO İSTASYONU-VENÜSKENT-YAŞAMKENT-ÜMİT MAHALLESİ"
+    },
+    {
+      "hat_kodu": "577",
+      "guzergah": "YENİKENT-ORTAPINAR-İLKSAN TOKİ KONT.-SİNCAN"
+    },
+    {
+      "hat_kodu": "577-3",
+      "guzergah": "(ÖTA) ANKARA-NALLIHAN"
+    },
+    {
+      "hat_kodu": "578",
+      "guzergah": "DEMPA SANAYİ SİTESİ-SIHHİYE"
+    },
+    {
+      "hat_kodu": "579",
+      "guzergah": "SİNCAN-ÇOKÖREN-ÜCRET-YENİHİSAR"
+    },
+    {
+      "hat_kodu": "580",
+      "guzergah": "SUSUZ MAHALLESİ-GÖKSU MAHALLESİ-ERYAMAN 1.2.ETAP METRO İST."
+    },
+    {
+      "hat_kodu": "580-1",
+      "guzergah": "GÜZELKENT MH.-SUSUZ MH.-YAVUZ SELİM MH.-ŞEYH ŞM.MH.-GÖKSU MH.-ERYAMAN"
+    },
+    {
+      "hat_kodu": "581",
+      "guzergah": "KORU METRO İSTASYONU-ORGANİZE SANAYİ BÖLGESİ"
+    },
+    {
+      "hat_kodu": "581-1",
+      "guzergah": "KORU METRO İSTASYONU-ORGANİZE SANAYİ BÖLGESİ"
+    },
+    {
+      "hat_kodu": "582",
+      "guzergah": "KORU METRO İSTASYONU-ŞEHİTALİ MAHALLESİ"
+    },
+    {
+      "hat_kodu": "583",
+      "guzergah": "KORU METRO İST.-BALLIKUYUMCU"
+    },
+    {
+      "hat_kodu": "584",
+      "guzergah": "KORU METRO İSTASYONU-İNCEK MAHALLESİ-BEYTEPE DEVLET HASTANESİ"
+    },
+    {
+      "hat_kodu": "584-1",
+      "guzergah": "KORU METRO İSTASYONU-İNCEK MAHALLESİ-BEYTEPE DEVLET HASTANESİ"
+    },
+    {
+      "hat_kodu": "585-1",
+      "guzergah": "GÜZELKENT MH.-YAVUZ SELİM MH.-ŞEYH ŞAMİL MH.-ERYAMAN 1.2.ETAP METRO İST"
+    },
+    {
+      "hat_kodu": "586",
+      "guzergah": "KORU METRO İST.-OYAK 4-PARK CD.-ALACAATLI MH."
+    },
+    {
+      "hat_kodu": "587",
+      "guzergah": "KORU METRO İSTASYONU-BAĞLICA MAHALLESİ(1.ETAP)"
+    },
+    {
+      "hat_kodu": "588",
+      "guzergah": "KORU METRO İST.-YAPRACIK TOKİ"
+    },
+    {
+      "hat_kodu": "588-1",
+      "guzergah": "KORU METRO İST.-TURKUAZ TOKİ KONUTLARI-YAPRACIK TOKİ KONUTLARI"
+    },
+    {
+      "hat_kodu": "589",
+      "guzergah": "KORU METRO İST.-TURKUAZ MAHALLESİ"
+    },
+    {
+      "hat_kodu": "589-1",
+      "guzergah": "KORU METRO İST.-TURKUAZ MAHALLESİ"
+    },
+    {
+      "hat_kodu": "590",
+      "guzergah": "KORU METRO İST.-YAŞAMKENT"
+    },
+    {
+      "hat_kodu": "591",
+      "guzergah": "KORU METRO İST.-TEMELLİ"
+    },
+    {
+      "hat_kodu": "591-1",
+      "guzergah": "KORU METRO İST.-TEMELLİ"
+    },
+    {
+      "hat_kodu": "592",
+      "guzergah": "KORU METRO İST.-YILDIZ 88"
+    },
+    {
+      "hat_kodu": "592-1",
+      "guzergah": "KORU MET.-KONUTKENT-Y.BARIŞ.SİTESİ-BEYLER CD.-KANUNİ SULTAN SÜLEYMAN BLV."
+    },
+    {
+      "hat_kodu": "593",
+      "guzergah": "KORU METRO İST-KONUTKENT-BEYLER CD.-KANUNİ SULTAN SÜLEYMAN BLV."
+    },
+    {
+      "hat_kodu": "594",
+      "guzergah": "KORU METRO İST.-YAPRACIK 1.BÖLGE"
+    },
+    {
+      "hat_kodu": "594-1",
+      "guzergah": "KORU METRO İSTASYONU-YAPRACIK(1.BÖLGE)"
+    },
+    {
+      "hat_kodu": "595",
+      "guzergah": "KORU METRO İST.-YAPRACIK 2.BÖLGE"
+    },
+    {
+      "hat_kodu": "596",
+      "guzergah": "KORU METRO İST.-KOZA EVLERİ-TÜRKKONUT"
+    },
+    {
+      "hat_kodu": "597",
+      "guzergah": "KORU METRO İSTASYONU-BAĞLICA MAHALLESİ(2.ETAP)"
+    },
+    {
+      "hat_kodu": "597-1",
+      "guzergah": "KORU METRO İSTASYONU-BAĞLICA MAHALLESİ(BİRLEŞİK)"
+    },
+    {
+      "hat_kodu": "598",
+      "guzergah": "KORU METRO İST.-TÜRKKONUT"
+    },
+    {
+      "hat_kodu": "598-1",
+      "guzergah": "KORU METRO İST.-TÜRKKONUT-DODURGA MH."
+    },
+    {
+      "hat_kodu": "600",
+      "guzergah": "KORU METRO İST.-15 TEMMUZ KIZILAY MİLLİ İRADE MEYDANI"
+    },
+    {
+      "hat_kodu": "602-6",
+      "guzergah": "SIHHİYE-KIZILAY-BEYTEPE-ÇAYYOLU-YAŞAMKENT"
+    },
+    {
+      "hat_kodu": "607",
+      "guzergah": "KORU METRO İSTASYONU-YARGITAY"
+    },
+    {
+      "hat_kodu": "608",
+      "guzergah": "SİNCAN SARAYCIK TOKİ-İSTANBUL YOLU-SIHHİYE-BEŞEVLER"
+    },
+    {
+      "hat_kodu": "610",
+      "guzergah": "ÇAMLIDERE-ULUS"
+    },
+    {
+      "hat_kodu": "611",
+      "guzergah": "SİNCAN SARAYCIK TOKİ-ÜMİTKÖY METRO İSTASYONU-ESKİŞEHİR YOLU-15 TEMMUZ KIZILAY MİLLİ İRADE MEYDANI"
+    },
+    {
+      "hat_kodu": "611-1",
+      "guzergah": "SİNCAN-SARAYCIK TOKİ-BİLKENT METRO İSTASYONU"
+    },
+    {
+      "hat_kodu": "612",
+      "guzergah": "ÇİMŞİT-ÜMİTKÖY METRO İSTASYONU-ESKİŞEHİR YOLU-KIZILAY"
+    },
+    {
+      "hat_kodu": "612-1",
+      "guzergah": "ÇİMŞİT-BİLKENT METRO İSTASYONU"
+    },
+    {
+      "hat_kodu": "615",
+      "guzergah": "GÜDÜL-ULUS"
+    },
+    {
+      "hat_kodu": "615-3",
+      "guzergah": "(ÖTA) GÜDÜL-ANKARA"
+    },
+    {
+      "hat_kodu": "616",
+      "guzergah": "SİNCAN-VATAN CD.-PEÇENEK-ÇİÇEKTEPE-YAPRACIK TOKİ KONUTLARI"
+    },
+    {
+      "hat_kodu": "632",
+      "guzergah": "SİNCAN SARAYCIK TOKİ-ELVANKENT-ÜMİTKÖY METRO İSTASYONU-ESKİŞEHİR YOLU-15 TEMMUZ KIZILAY MİLLİ İRADE"
+    },
+    {
+      "hat_kodu": "632-1",
+      "guzergah": "SARAYCIK TOKİ-ELVANKENT-BİLKENT METRO İSTASYONU"
+    },
+    {
+      "hat_kodu": "641",
+      "guzergah": "ERYAMAN-ÜMİTKÖY METRO İSTASYONU-ESKİŞEHİR YOLU-15 TEMMUZ KIZILAY MİLLİ İRADE MEYDANI"
+    },
+    {
+      "hat_kodu": "641-1",
+      "guzergah": "ERYAMAN-BİLKENT METRO İSTASYONU"
+    },
+    {
+      "hat_kodu": "677",
+      "guzergah": "ANKARA(ULUS)-NALLIHAN"
+    },
+    {
+      "hat_kodu": "711",
+      "guzergah": "ÇANKAYA-İSTİNAF MAHKEMESİ"
+    },
+    {
+      "hat_kodu": "712",
+      "guzergah": "DİKMEN-İSTİNAF MAHKEMESİ"
+    },
+    {
+      "hat_kodu": "713",
+      "guzergah": "DİKMEN-ADLİYE"
+    },
+    {
+      "hat_kodu": "714",
+      "guzergah": "ÇANKAYA-ADLİYE"
+    },
+    {
+      "hat_kodu": "715",
+      "guzergah": "SHHIYE-SÖĞÜTÖZÜ-BALGAT ADLİYE RİNG"
+    },
+    {
+      "hat_kodu": "721",
+      "guzergah": "URANKENT-ANKARA ADLİYESİ"
+    },
+    {
+      "hat_kodu": "721-1",
+      "guzergah": "ANKARA ADLİYESİ-URANKENT"
+    },
+    {
+      "hat_kodu": "722",
+      "guzergah": "YAYLA MAHALLESİ-ANKARA ADLİYESİ"
+    },
+    {
+      "hat_kodu": "722-1",
+      "guzergah": "ANKARA ADLİYESİ-YAYLA MAHALLESİ"
+    },
+    {
+      "hat_kodu": "723",
+      "guzergah": "SERHAT-ANKARA BÖLGE ADLİYE MAHKEMESİ"
+    },
+    {
+      "hat_kodu": "723-1",
+      "guzergah": "ANKARA BÖLGE ADLİYE MAHKEMESİ-SERHAT"
+    },
+    {
+      "hat_kodu": "724",
+      "guzergah": "BATIKENT-ANKARA BÖLGE ADLİYE MAHKEMESİ"
+    },
+    {
+      "hat_kodu": "724-1",
+      "guzergah": "ANKARA BÖLGE ADLİYE MAHKEMESİ-BATIKENT"
+    },
+    {
+      "hat_kodu": "725",
+      "guzergah": "ETLİK-ANKARA BÖLGE ADLİYE MAHKEMESİ"
+    },
+    {
+      "hat_kodu": "725-1",
+      "guzergah": "ANKARA BÖLGE ADLİYE MAHKEMESİ-ETLİK"
+    },
+    {
+      "hat_kodu": "726",
+      "guzergah": "KEÇİÖREN-ADLİYE SERVİSİ"
+    },
+    {
+      "hat_kodu": "726-1",
+      "guzergah": "ADLİYE SERVİSİ-KEÇİÖREN"
+    },
+    {
+      "hat_kodu": "731",
+      "guzergah": "MAMAK BÖLGE ADLİYE-BALGAT EK BİNA"
+    },
+    {
+      "hat_kodu": "732",
+      "guzergah": "MAMAK DIŞKAPI ADLİYE-ADALET SARAYI-AİLE-İCRA MAHKEMELERİ BALGAT ADLİYE"
+    },
+    {
+      "hat_kodu": "741",
+      "guzergah": "KEÇİÖREN-ANKARA BÖLGE ADLİYE MAHKEMESİ"
+    },
+    {
+      "hat_kodu": "742",
+      "guzergah": "ALTINDAĞ-ANKARA BÖLGE ADLİYE MAHKEMESİ"
+    },
+    {
+      "hat_kodu": "743",
+      "guzergah": "PURSAKLAR-ANKARA BÖLGE ADLİYE MAHKEMESİ"
+    },
+    {
+      "hat_kodu": "744",
+      "guzergah": "ALTINDAĞ-SÖĞÜTÖZÜ BALGAT ADLİYESİ"
+    },
+    {
+      "hat_kodu": "745",
+      "guzergah": "DIŞKAPI ANKARA ADLİYE MAHKEMESİ-SIHHİYE ANKARA ADALET SARAYI"
+    },
+    {
+      "hat_kodu": "751",
+      "guzergah": "TURKUAZ TOKİ-KONUTKENT-ANKARA ADALET SARAYI"
+    },
+    {
+      "hat_kodu": "752",
+      "guzergah": "YAŞAMKENT-BALGAT-ANKARA ADALET SARAYI"
+    },
+    {
+      "hat_kodu": "753",
+      "guzergah": "ERYAMAN-ANKARA ADALET SARAYI"
+    },
+    {
+      "hat_kodu": "754",
+      "guzergah": "FATİH-ERYAMAN-ANKARA ADALET SARAYI"
+    },
+    {
+      "hat_kodu": "755",
+      "guzergah": "SİNCAN-ANKARA ADALET SARAYI"
+    },
+    {
+      "hat_kodu": "756",
+      "guzergah": "ELVANKENT-ANKARA ADALET SARAYI-DIŞKAPI EK BİNA"
+    },
+    {
+      "hat_kodu": "757",
+      "guzergah": "SİNCAN-BAĞLICA-İSTİNAF MAHKEMESİ-BÖLGE İDARE MAHKEMESİ"
+    },
+    {
+      "hat_kodu": "758",
+      "guzergah": "SİNCAN-İSTİNAF MAHKEMESİ-BÖLGE İDARE MAHKEMESİ"
+    },
+    {
+      "hat_kodu": "759",
+      "guzergah": "FATİH-ERYAMAN-İSTİNAF MAHKEMESİ-BÖLGE İDARE MAHKEMESİ"
+    },
+    {
+      "hat_kodu": "760",
+      "guzergah": "KONUTKENT-YAŞAMKENT-İSTİNAF MAHKEMESİ-BÖLGE İDARE MAHKEMESİ"
+    },
+    {
+      "hat_kodu": "761",
+      "guzergah": "YENİKENT-İCRA MAHKEMESİ-BALGAT ADLİYESİ-SIHHİYE ADLİYESİ-DIŞKAPI ADLİYESİ"
+    },
+    {
+      "hat_kodu": "762",
+      "guzergah": "SİNCAN-ELVANKENT-ETİMESGUT-BÖLGE İDARE MAHKEMESİ"
+    },
+    {
+      "hat_kodu": "763",
+      "guzergah": "FATİH-ERYAMAN-BÖLGE İDARE MAHKEMESİ"
+    }
+  ]
+}

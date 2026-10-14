@@ -1,0 +1,40 @@
+{
+    "name": "framio/content",
+    "description": "Taslaklar, emoji desteği, zengin metin biçimlendirme, etiketler, özel sayfalar ve tartışma küçük resimleri paketi.",
+    "type": "flarum-extension",
+    "version": "1.0.0",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Framio-Dev",
+            "homepage": "https://dev.framiomedia.com"
+        }
+    ],
+    "require": {
+        "ext-json": "*",
+        "flarum/core": "^2.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "Framio\\Content\\DiscussionThumbnail\\": "modules/discussion-thumbnail/src/",
+            "Framio\\Content\\Drafts\\": "modules/drafts/src/",
+            "Framio\\Content\\Formatting\\": "modules/formatting/src/",
+            "Framio\\Content\\Pages\\": "modules/pages/src/",
+            "Framio\\Content\\Flamoji\\": "modules/flamoji/src/",
+            "Framio\\Content\\Links\\": "modules/links/src/",
+            "Ernestdefoe\\Hashtags\\": "modules/hashtags/src/",
+            "Framio\\Content\\DeepTags\\": "modules/deep-tags/src/"
+        }
+    },
+    "extra": {
+        "flarum-extension": {
+            "title": "Framio Content",
+            "category": "feature",
+            "icon": {
+                "name": "fas fa-file-alt",
+                "backgroundColor": "#e74c3c",
+                "color": "#fff"
+            }
+        }
+    }
+}

@@ -1,0 +1,77 @@
+.FoFMergeDiscussionsModal {
+  .MergeDiscussions-Discussions {
+    ul {
+      list-style-type: none;
+      padding-left: 5px;
+      margin: 0;
+    }
+
+    .DeleteEntry-Button {
+      color: var(--control-danger-color);
+      font-weight: bold;
+      margin-right: 10px;
+    }
+  }
+
+  // Instead of removing the element from DOM, to avoid re-instantiating the DiscussionSearch component and
+  // losing the search state (e.g. cached results), we just hide it with CSS.
+  .FormGroup.hidden {
+    display: none;
+    visibility: hidden;
+  }
+
+  .MergeDiscussions-Search {
+    .Search-input input {
+      width: 100%;
+    }
+
+    .Search-results {
+      left: 0;
+      position: relative;
+    }
+
+    .DiscussionSearchResult--noResults {
+      padding: 8px;
+      text-align: center;
+      color: var(--text-muted-color);
+    }
+  }
+
+  .MergeDiscussions-Preview {
+    .Hero {
+      margin-left: -10px;
+      margin-right: -10px;
+      padding: 10px 0;
+    }
+
+    .MergeDiscussions-PostStream {
+      margin-top: 10px;
+      padding: 0 10px;
+
+      background-color: var(--body-bg);
+      box-shadow: 0 2px 6px var(--shadow-color);
+      border-radius: 5px;
+
+
+      height: 400px;
+      resize: vertical;
+      overflow-y: auto;
+      overflow-x: hidden;
+    }
+  }
+
+  // *** Decrease overall spacing between elements in 2.x
+  h3 {
+    // Counteract extra spacing that was added in 2.x due to Form-group flex gap.
+    margin-top: 0;
+    margin-bottom: 6px;
+  }
+
+  .Form-body {
+    --gap: 18px;
+  }
+
+  .Form-group {
+    gap: 4px;
+  }
+}

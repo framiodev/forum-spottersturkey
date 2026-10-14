@@ -1,0 +1,38 @@
+img.emoji {
+  height: 1.5em;
+  aspect-ratio: 1; // reserve a square box while the SVG loads to avoid layout shift (CLS)
+  margin: 0 .1em;
+  vertical-align: -0.3em;
+}
+
+.EmojiDropdown {
+  max-width: 500px;
+  max-height: 200px;
+  overflow: visible;
+  position: absolute;
+  padding: 8px;
+
+  > li {
+    display: inline-block;
+
+    > button {
+      color: var(--text-color);
+      font-weight: bold;
+      padding: 8px;
+      border-radius: var(--border-radius);
+    }
+  }
+
+  > .Dropdown-header {
+    display: block;
+    color: var(--muted-more-color);
+    text-transform: none;
+    font-weight: normal;
+    padding: 4px 8px;
+    margin: 0 0 4px 0;
+  }
+}
+
+.ComposerBody-emojiWrapper {
+  position: relative;
+}

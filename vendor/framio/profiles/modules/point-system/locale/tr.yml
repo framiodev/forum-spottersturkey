@@ -1,0 +1,631 @@
+ramon-point-system:
+  forum:
+    currency_name: Puan
+    user_card:
+      balance: '{count, plural, one {# Puan} other {# Puan}}'
+      trades_link: 'Takas Geçmişi'
+    award_modal:
+      title: '{name} kullanıcısının puanlarını yönet'
+      current_balance: 'Mevcut Bakiye'
+      current_lifetime: 'Toplam Kazanılan'
+      amount_label: Miktar
+      amount_help: 'Eklenen miktar bakiyeye ve toplam puana yansır; silinen miktar yalnızca bakiyeden düşer.'
+      reason_label: 'Açıklama (isteğe bağlı)'
+      reason_placeholder: 'örn. faydalı katkı'
+      add: Ekle
+      remove: Çıkar
+      added: '{name} kullanıcısına {amount} puan verildi.'
+      removed: '{name} kullanıcısından {amount} puan silindi.'
+    nav:
+      shop: Ödüller
+      my_decorations: Süslemelerim
+    session_dropdown:
+      my_decorations: Süslemelerim
+      trades: Takaslar
+    trades_page:
+      title: Takaslar
+      subtitle: 'Diğer kullanıcılarla süsleme ve puan takası yapın. Bir takasın tamamlanması için her iki tarafın da onaylaması gerekir.'
+      no_permission: 'Grubunuzun takas başlatma yetkisi bulunmuyor.'
+      pending_heading: 'Bekleyen Takaslar'
+      pending_empty: 'Şu anda bekleyen açık bir takasınız yok.'
+      history_heading: 'Geçmiş Takaslar'
+      history_empty: 'Henüz tamamlanmış veya iptal edilmiş bir takas yok.'
+      your_side: 'Sizin Teklifiniz'
+      their_side: 'Karşı Tarafın Teklifi'
+      items_short: '{count, plural, one {# öğe} other {# öğe}}'
+      status_pending: Açık
+      status_completed: Tamamlandı
+      status_cancelled: 'İptal Edildi'
+      open: Aç
+      start_new: 'Takas Başlat'
+      start_title: 'Yeni Takas Başlat'
+      start_help: 'Takas yapmak istediğiniz kullanıcının adını yazın.'
+      start_username_label: 'Kullanıcı Adı'
+      start_username_placeholder: 'örn. ahmet'
+      start_clear: Temizle
+      start_submit: 'Takas Penceresini Aç'
+      start_cancel: İptal
+      start_not_found: 'Bu isimle eşleşen kullanıcı bulunamadı.'
+      start_search_failed: 'Kullanıcı aranamadı. Bağlantınızı kontrol edin.'
+      load_failed: 'Takaslar yüklenemedi.'
+      retry: 'Tekrar Dene'
+    confirm:
+      title: 'Satın Almayı Onayla'
+      title_tier: 'Bu gruba katılmak istiyor musunuz?'
+      title_purchase: 'Bu gruba erişim satın al?'
+      title_cover: 'Satın Almayı Onayla'
+      price: Fiyat
+      current_balance: 'Mevcut Bakiye'
+      after_purchase: 'Kalan Bakiye'
+      cancel: İptal
+      confirm: Onayla
+    how_to_earn:
+      open: 'Nasıl puan kazanırım?'
+      title: 'Puan Kazanma Rehberi'
+      intro: 'Aşağıdaki eylemleri gerçekleştirdiğinizde puanlarınız otomatik olarak bakiyenize eklenir.'
+      rule_discussion: 'Yeni bir tartışma konusu açmak'
+      rule_post: 'Bir tartışmaya yanıt yazmak'
+      rule_daily_login: 'Her gün ilk kez oturum açmak'
+      rule_registration: 'Foruma üye olmak'
+      rule_like_received: 'Gönderinize beğeni almak'
+      rule_like_given: 'Başka birinin gönderisini beğenmek'
+      no_rules: 'Otomatik puan kazanımı şu an kapalıdır. Puanlar yönetim tarafından verilmektedir.'
+      system_off: 'Puan dağıtımı şu an duraklatılmıştır. Mevcut bakiyeniz korunur ve mağazada harcayabilirsiniz.'
+      footer: 'Puanlar eylem gerçekleştiği anda hesabınıza geçer.'
+      close: Anladım
+    badge:
+      tooltip: '{balance} {currency} (toplam: {lifetime})'
+    shop:
+      title: 'Ödül & Süsleme Mağazası'
+      subtitle: 'Kazandığınız puanları profil süslemeleri ve ayrıcalıklar için harcayın.'
+      your_balance: 'Mevcut Bakiyeniz'
+      lifetime: 'Toplam Kazanılan'
+      my_decorations: Süslemelerim
+      tab_avatar: 'Avatar Çerçeveleri'
+      tab_name: 'İsim Renk & Efektleri'
+      tab_cover: 'Profil Kapakları'
+      tab_title: 'Özel Rozet & Ünvanlar'
+      tab_post_hl: 'Gönderi Vurguları'
+      tab_tiers: 'Üyelik Grupları'
+      toggle_nav_label: 'Ödüller menüsünü aç/kapat'
+      tiers_empty: 'Şu an mevcut bir grup bulunmuyor.'
+      empty: 'Şu an bu kategoride ürün bulunmuyor.'
+      claim: Al
+      equip: Kullan
+      equipped: Kullanılıyor
+      unequip: Çıkar
+      preview: Önizle
+      buy: 'Satın Al'
+      free: Ücretsiz
+      truncated: 'İlk {count} öğe gösteriliyor. Kataloğu yönetim panelinden düzenleyebilir veya diğer sekmelerden kalanları görebilirsiniz.'
+      equipped_label: KUŞANILDI
+      not_enough: 'Yetersiz puan'
+      must_login: 'Öğeleri almak için giriş yapmalısınız'
+      login_to_claim: 'Giriş Yap'
+      claimed: '{name} başarıyla alındı!'
+      equipped_alert: '{name} kuşanıldı'
+      claim_failed: 'Öğe alınamadı.'
+      equip_failed: 'Öğe kuşanılamadı.'
+      not_found: 'Sayfa bulunamadı.'
+      tiers_title: 'Üye Grupları'
+      tiers_help: 'Toplam kazanılan puan eşiğine ulaştığınızda grupların kilidini otomatik olarak açın veya doğrudan mevcut puanınızla satın alın.'
+      tier_points: 'toplam puan'
+      tier_cost: 'katılım puanı'
+      tier_threshold: 'kilit açma puanı'
+      tier_buy_cost: 'satın alma puanı'
+      tier_claim: 'Gruba Katıl'
+      tier_buy: 'Erişim Satın Al'
+      tier_claimed: Katılınmış
+      tier_locked: Kilitli
+      tier_not_enough: 'Yetersiz puan'
+      tier_claimed_alert: '{name} grubuna katıldınız!'
+      tier_claim_failed: 'Gruba katılınamadı.'
+      badge_remaining: '{count, plural, one {# left} other {# left}}'
+      badge_ends_in_days: '{count, plural, one {Ends in # day} other {Ends in # days}}'
+      badge_ends_in_hours: '{count, plural, one {Ends in # hour} other {Ends in # hours}}'
+      badge_starts_on: 'Başlangıç {date}'
+      by_creator: 'tasarlayan: {name}'
+      creator_tooltip: '{name} tarafından tasarlandı'
+    notifications:
+      points_added: '{admin} size {amount} puan verdi'
+      points_removed: '{admin} sizden {amount} puan sildi'
+      admin_fallback: 'Bir yönetici'
+      earned_discussion: 'Yeni bir tartışma başlattığınız için {amount} puan kazandınız'
+      earned_post: 'Bir tartışmaya yanıt yazdığınız için {amount} puan kazandınız'
+      earned_like_received: 'Birisi gönderinizi beğendiği için {amount} puan kazandınız'
+      earned_like_given: 'Bir gönderiyi beğendiğiniz için {amount} puan kazandınız'
+      earned_daily_login: 'Günlük giriş bonusu olarak {amount} puan kazandınız'
+      earned_registered: 'Foruma kayıt olduğunuz için {amount} puan kazandınız'
+      earned_other: '{amount} puan kazandınız'
+      earned_preference_label: 'Biri hesabıma puan eklediğinde bildirim gönder'
+      tier_claimed: '{name} grubuna katıldınız!'
+      tier_excerpt: 'Gereksinim: {points} toplam kazanılan puan'
+      item_granted: '{admin} size "{item}" ({family}) süslemesini hediye etti'
+      item_family_avatar: 'avatar çerçevesi'
+      item_family_name: 'isim stili'
+      item_family_cover: 'profil kapağı'
+      item_family_title: 'özel unvan'
+      item_family_post_highlight: 'gönderi vurgusu'
+      trade_requested: '{username} sizinle bir takas başlattı.'
+      trade_accepted: '{name} teklifi onayladı — tamamlamak için siz de onaylayın'
+      trade_completed: '{username} ile olan takasınız tamamlandı.'
+    user_controls:
+      award_points: 'Puanları Yönet'
+      trade: 'Takas Yap'
+    user_profile:
+      trades_link: 'Takas Geçmişi'
+    submit:
+      title_with: 'Yeni {family} Gönder'
+      family_avatar: 'avatar çerçevesi'
+      family_name: 'isim stili'
+      family_cover: 'profil kapağı'
+      family_title: 'özel unvan'
+      family_post_hl: 'gönderi vurgusu'
+      intro: 'Kendi süslemenizi tasarlayın. Gönderildikten sonra bir yönetici inceler ve onaylarsa mağazada yerini alır veya reddeder.'
+      name_label: 'Tasarım Adı'
+      name_placeholder: 'örn. "Günbatımı Degradesi"'
+      description_label: 'Açıklama (isteğe bağlı)'
+      source_label: 'Görsel Kaynağı'
+      source_file: 'Dosya Yükle'
+      source_url: "Görsel URL'si Kullan"
+      image_file_label: 'Görsel Dosyası'
+      image_file_help: 'PNG / GIF / WebP / APNG (en fazla 4 MB). Dosya yönetici yüklemeleriyle aynı güvenlik denetimlerinden geçer.'
+      image_url_label: "Görsel URL'si"
+      image_url_help: 'PNG / GIF / WebP / APNG formatında doğrudan https:// bağlantısı.'
+      preset_label: 'Hazır Şablon (isteğe bağlı başlangıç)'
+      title_text_label: 'Görünecek Unvan Metni'
+      title_text_placeholder: 'örn. "Kıdemli Üye"'
+      color_label: 'Vurgu Rengi (isteğe bağlı)'
+      custom_css_label: 'Özel CSS (isteğe bağlı)'
+      custom_css_help: 'İsteğe bağlı. Seçici yer tutucusu olarak `&` kullanın. CSS kaydedilirken temizlenir ve filtrelenir.'
+      moderation_notice: 'Tasarımınız mağazada yayınlanmadan önce yönetici onayına sunulacaktır.'
+      submit: Gönder
+      submitted_alert: 'Tasarım gönderildi. Bir yönetici en kısa sürede inceleyecektir.'
+    trade:
+      title_loading: 'Takas açılıyor…'
+      title_with: '{name} ile Takas'
+      your_offer: 'Sizin Teklifiniz'
+      their_offer: '{name} adlı üyenin teklifi'
+      your_points: 'Teklif Ettiğiniz Puan'
+      their_points: 'Teklif Edilen Puan'
+      balance: Bakiyeniz
+      add_item: 'Öğe Ekle'
+      remove_item: Kaldır
+      no_items_yet: 'İsteğe bağlı — yalnızca puan göndermek istiyorsanız (veya hiçbir şey) boş kalabilir.'
+      picker_empty: 'Eklenebilecek başka öğe kalmadı.'
+      accept: 'Takası Onayla'
+      unaccept: 'Onayı Geri Çek'
+      close_keep: 'Kapat (Takası Koru)'
+      close_final: Kapat
+      persist_hint: 'Teklifiniz otomatik olarak kaydedilir. İstediğiniz zaman kapatabilirsiniz — takas listenizde bekler ve tekrar açıldığında her şey korunur.'
+      cancel: 'Takası İptal Et'
+      confirm_cancel: 'Bu takas iptal edilsin mi?'
+      status_pending: 'Öğe / puan ekleyin ve takası kesinleştirmek için her iki taraf da Onayla butonuna bassın.'
+      status_both_accepted: 'Her iki taraf da onayladı — kesinleştiriliyor…'
+      finalizing_in: 'Takas kesinleştiriliyor…'
+      error_recipient_owns_item: 'Takas reddedildi: karşı taraf teklif ettiğiniz öğelerden birine zaten sahip. Tekliften çıkarıp tekrar deneyin.'
+      error_not_both_accepted: 'Karşı taraf onayını geri çekti. Teklifi kontrol edip yeniden onaylayın.'
+      error_insufficient_points: 'Takas reddedildi: taraflardan birinin teklif edilen puanı karşılayacak yeterli bakiyesi yok.'
+      error_item_unavailable: 'Takas reddedildi: teklif edilen öğelerden biri artık sahibinin envanterinde değil. Yenileyip tekrar oluşturun.'
+      status_completed: 'Takas tamamlandı!'
+      status_cancelled: 'Takas iptal edildi.'
+      completed_alert: 'Takas tamamlandı.'
+      accepted_waiting_alert: 'Teklifinizi onayladınız. Diğer taraf onaylayana kadar takas beklemede kalacaktır; bu pencereyi kapatıp daha sonra dönebilirsiniz.'
+      error_open_failed: 'Takas açılamadı.'
+      error_load: 'Takas yüklenemedi.'
+      error_refresh_failed: 'Takas yenilenemedi.'
+      error_patch_failed: 'Teklif güncellenemedi.'
+      error_accept_failed: 'Takas onaylanamadı.'
+      error_cancel_failed: 'Takas iptal edilemedi.'
+      error_no_target: 'Kullanıcı seçilmedi.'
+      error_initiator_insufficient_points: 'Teklif ettiğiniz puanı karşılayacak bakiyeniz yok.'
+      error_recipient_insufficient_points: 'Karşı tarafın puanı bu teklif için yetersiz.'
+      error_not_owned: 'Bu öğeye sahip değilsiniz.'
+      error_duplicate_with_other_side: 'Karşı taraf bu öğeyi zaten eklemiş.'
+      error_too_many: 'Teklifte çok fazla öğe var.'
+      error_cannot_trade_with_self: 'Kendinizle takas yapamazsınız.'
+      error_item_equipped: 'Şu anda kuşanılmış durumda olan bir öğeyi takas edemezsiniz. Süslemelerim sayfasından çıkarıp tekrar deneyin.'
+    my_decorations:
+      title: Süslemelerim
+      preview: 'Canlı Önizleme'
+      back_to_shop: 'Mağazaya Dön'
+      submit_cta: 'Kendi Tasarımını Gönder'
+      tab_all: Tümü
+      avatar: 'Avatar Çerçeveleri'
+      name: 'İsim Stilleri'
+      cover: 'Profil Kapakları'
+      custom_title: 'Özel Unvanlar'
+      post_hl: 'Gönderi Vurguları'
+      none: 'Henüz bu türde bir süslemeye sahip değilsiniz.'
+      equip: Kuşan
+      unequip: Çıkar
+      toggle_nav_label: 'Süslemeler menüsünü aç/kapat'
+  admin:
+    nav:
+      label: 'Puan & Süsleme Sistemi'
+      desc: 'Puan ekonomisi, profil çerçeveleri ve mağaza ayarları.'
+    enable: Etkinleştir
+    disable: 'Devre Dışı Bırak'
+    edit: Düzenle
+    save: Kaydet
+    cancel: İptal
+    delete: Sil
+    confirm_delete: 'Bu öğeyi silmek istediğinize emin misiniz? Bu işlem geri alınamaz.'
+    permissions:
+      view_shop: 'Ödül dükkanını görüntüle'
+      view_others: 'Diğer kullanıcıların puanlarını görüntüleme'
+      claim: 'Ödülleri ve süslemeleri alabilme'
+      manage: 'Puan sistemini yönetebilme'
+      trade: 'Diğer kullanıcılarla takas yap'
+    tabs:
+      rules: 'Puan Kuralları'
+      users: 'Kullanıcı Bakiyeleri'
+      avatar: 'Avatar Çerçeveleri'
+      name: 'Kullanıcı Adı Stilleri'
+      cover: 'Profil Kapakları'
+      title: 'Özel Başlıklar'
+      post_hl: 'Gönderi Vurguları'
+      groups: 'Grup Üyelikleri'
+      manual: 'Manuel Puan İşlemleri'
+      submissions: 'Tasarım Onayları'
+      all_trades: 'Tüm Takaslar'
+    cover:
+      title: 'Profil Kapakları'
+      help: 'Dükkanda satılmak üzere tanımlanmış profil kapağı görselleri.'
+      upload_title: 'Yeni Profil Kapağı Ekle'
+      edit_title: 'Profil Kapağını Düzenle — {name}'
+      field_name: İsim
+      field_description: Açıklama
+      field_price: 'Fiyat (Puan)'
+      field_image: 'Kapak Görseli'
+      field_image_help: 'En fazla 6 MB. Hareketli formatlar: GIF, APNG, WebP.'
+      replace_image: 'Görseli Değiştir'
+      upload: 'Kapağı Yükle'
+      uploaded: 'Profil kapağı yüklendi.'
+      existing: 'Mevcut Kapaklar'
+      none: 'Henüz profil kapağı eklenmemiş.'
+    users:
+      title: 'Kullanıcı Puanları'
+      help: 'Kullanıcıların mevcut bakiyelerini ve toplam kazanılan puanlarını görüntüleyin veya düzenleyin.'
+      search_placeholder: 'Kullanıcı ara...'
+      filter_all: 'Tüm Kullanıcılar'
+      filter_positive: 'Bakiyesi Olanlar'
+      filter_zero: 'Sıfır Bakiyeliler'
+      sort_balance: 'Bakiyeye Göre Sırala'
+      sort_lifetime: 'Toplam Puana Göre Sırala'
+      sort_username: 'Kullanıcı Adına Göre Sırala'
+      apply: Filtrele
+      no_results: 'Eşleşen kullanıcı bulunamadı.'
+      col_user: Kullanıcı
+      col_balance: Bakiye
+      col_lifetime: 'Toplam Kazanılan'
+      col_groups: Gruplar
+      prev: Önceki
+      next: Sonraki
+      page_x_of_y: 'Sayfa {x} / {y}'
+    rules:
+      title: 'Puan Kazanma Kuralları'
+      help: 'Kullanıcıların forumdaki etkinliklerine göre otomatik olarak ne kadar puan kazanacağını veya kaybedeceğini yapılandırın.'
+      save: 'Değişiklikleri Kaydet'
+      unsaved: '{count} kaydedilmemiş değişiklik'
+      section_general_title: Genel
+      section_general_help: 'Puan sistemi ve temel alt özellikler için genel açma/kapatma anahtarları.'
+      section_currency_title: 'Para Birimi'
+      section_currency_help: 'Puan adı ve simgesinin forum genelinde nasıl görüneceği.'
+      section_decorations_title: 'Süsleme Kategorileri'
+      section_decorations_help: 'Her süsleme kategorisi bağımsız olarak kapatılabilir — buradan kapatmak mağaza sekmesini gizler ve API isteklerini reddeder.'
+      section_placement_title: 'Görünüm ve Konumlandırma'
+      section_placement_help: 'Puan rozeti ve kuşanılan süslemelerin forum arayüzünde nerelerde görüntüleneceği.'
+      section_awards_title: 'Eylem Başına Verilecek Puanlar'
+      section_awards_help: 'Kullanıcıların her forum eyleminde kaç puan kazanacağı.'
+      section_award_notifications_title: 'Puan Bildirimleri'
+      section_award_notifications_help: 'Otomatik bir kural puan kazandırdığında kullanıcıyı uyarın. Bildirim çanı ve websocket üzerinden anlık iletilir. Kullanıcılar isterse kendi ayarlarından kapatabilir.'
+      notify_on_award: 'Otomatik puan kazançlarında bildirim gönder'
+      notify_on_award_help: 'Varsayılan olarak kapalıdır: aktif bir forumda her gönderi veya beğeni için bildirim göndermek rahatsız edici olabilir. Açıp aşağıdaki seçenekle sınırlandırabilirsiniz.'
+      notify_bonus_only: 'Yalnızca bonuslarda bildirim gönder (günlük giriş ve kayıt)'
+      notify_bonus_only_help: 'Düşük sıklıklı bonuslar için bildirim gönderir, tartışma ve yanıtlardaki bildirimleri atlar.'
+      user_submissions_enabled: 'Kullanıcıların süsleme tasarımı göndermesine izin ver'
+      user_submissions_enabled_help: 'Açık olduğunda kayıtlı kullanıcılar kendi süsleme tasarımlarını gönderebilir. Mağazaya çıkmadan önce yönetici onayına düşer.'
+      enabled: 'Puan sistemini etkinleştir'
+      enabled_help: 'Ana şalter. Kapalı olduğunda hiçbir puan verilmez. Mevcut bakiyeler ve mağaza korunur.'
+      auto_group_enabled: 'Otomatik grup yükseltmelerini etkinleştir'
+      auto_group_enabled_help: 'Kullanıcılar belirlenen toplam puan eşiğine ulaştığında otomatik olarak ilgili üye grubuna yükseltilir.'
+      lifetime_enabled: 'Toplam kazanılan puanları takip et ve göster'
+      lifetime_enabled_help: 'Toplam kazanılan puan, harcandığında düşmeyen kümülatif puandır. Kullanıcının foruma kattığı toplam değeri temsil eder.'
+      show_in_post_header: 'Gönderi başlığında puanı göster'
+      show_in_post_header_help: 'Gönderilerde kullanıcı adının yanında küçük puan rozeti gösterir.'
+      show_in_user_profile: 'Kullanıcı profilinde puanı göster'
+      show_in_user_profile_help: 'Kullanıcı profili ve kullanıcı kartında puan rozetini gösterir.'
+      avatar_deco_enabled: 'Avatar çerçevelerini etkinleştir'
+      avatar_deco_enabled_help: 'Avatarların görüntülendiği her yerde kuşanılan dekoratif çerçeveleri gösterir.'
+      name_deco_enabled: 'Kullanıcı adı stillerini etkinleştir'
+      name_deco_enabled_help: 'Kullanıcı adına kuşanılan renk ve efekt stilini uygular.'
+      cover_deco_enabled: 'Profil kapaklarını etkinleştir'
+      cover_deco_enabled_help: 'Profil ve kullanıcı kartında kuşanılan kapak afişini gösterir.'
+      title_deco_enabled: 'Özel unvanları etkinleştir'
+      title_deco_enabled_help: 'Gönderilerde kullanıcı adının yanında kuşanılan unvan rozetini gösterir.'
+      post_hl_deco_enabled: 'Gönderi vurgularını etkinleştir'
+      post_hl_deco_enabled_help: 'Kullanıcının gönderilerini kuşanılan vurgu efektiyle (kenarlık/ışıma/kurdele) sarar.'
+      deco_in_posts: 'Gönderi akışında süslemeleri göster'
+      deco_in_posts_help: 'Tartışma mesajları ve yanıtlarda avatar ve isim süslemelerini uygular.'
+      deco_in_user_card: 'Kullanıcı kartı ve profilde süslemeleri göster'
+      deco_in_user_card_help: 'Profil kartında ve fareyle üzerine gelindiğinde süslemeleri gösterir.'
+      deco_in_lists: 'Tartışma listesinde süslemeleri göster'
+      deco_in_lists_help: 'Tartışma listesindeki öğelerde kullanıcı adı süslemelerini gösterir.'
+      avatar_deco_in_lists: 'Tartışma listesinde avatar çerçevelerini göster'
+      avatar_deco_in_lists_help: 'Tartışma listesindeki avatarlarda çerçeveleri gösterir. Listeyi sade tutmak için kapatabilirsiniz.'
+      hide_badges_with_avatar_deco: 'Avatar çerçevesi kuşanıldığında rozetleri gizle'
+      hide_badges_with_avatar_deco_help: 'Çerçevenin sade görünmesi için çerçeve takan üyelerde avatar yanındaki moderatör/yönetici rozetlerini gizler.'
+      trade_enabled: 'Kullanıcılar arası takası etkinleştir'
+      trade_enabled_help: 'Takas özelliğinin ana şalteri. Kapatıldığında Takas butonu ve sayfası gizlenir.'
+      currency_name: 'Para birimi adı'
+      currency_name_help: "Puanların çoğul adı (örn. 'Puan', 'Jeton', 'Altın')."
+      currency_icon: 'Para birimi simge sınıfı'
+      currency_icon_help: 'FontAwesome sınıfı — örn. fas fa-coins.'
+      points_short: 'Puan kısaltması / birim etiketi'
+      points_short_help: "Rakamların yanında görünen kısa etiket (örn. 'puan', 'pt')."
+      points_per_discussion: 'Yeni tartışma başına puan'
+      points_per_discussion_help: 'Yeni bir tartışma konusu açan yazara verilecek puan.'
+      points_per_post: 'Yanıt başına puan'
+      points_per_post_help: 'Bir konuya yanıt yazıldığında verilecek puan.'
+      points_per_like_received: 'Alınan beğeni başına puan'
+      points_per_like_received_help: 'flarum/likes eklentisi gerektirir.'
+      points_per_like_given: 'Verilen beğeni başına puan'
+      points_per_like_given_help: 'flarum/likes eklentisi gerektirir. Etkileşimi artırır.'
+      points_per_registration: 'Kayıt olma bonusu'
+      points_per_registration_help: 'Yeni bir kullanıcı kayıt olduğunda bir defaya mahsus verilir.'
+      daily_login_bonus: 'Günlük giriş bonusu'
+      daily_login_bonus_help: 'Kullanıcının gün içinde ilk kez oturum açtığında kazanacağı puan.'
+      auto_awards_enabled: 'Eylem başına otomatik puan ver'
+      auto_awards_enabled_help: 'Kapalıyken otomatik kurallar çalışmaz; tartışma, yanıt veya beğeniler için puan verilmez. Yöneticiler manuel puan dağıtabilir.'
+      earn_help_extra: '"Nasıl puan kazanırım?" paneli için ek not'
+      earn_help_extra_help: 'İsteğe bağlı. Kullanıcıların ödüller sayfasından açtığı kural listesinin altında gösterilir; yarışmalar veya özel etkinlikler için duyuru metni ekleyebilirsiniz.'
+    avatar:
+      title: 'Avatar Çerçeveleri'
+      help: 'Kullanıcıların profillerinde ve gönderilerinde avatarlarının etrafında görüntüleyebileceği dekoratif çerçeveler.'
+      upload_title: 'Yeni Çerçeve Yükle'
+      edit_title: 'Avatar Çerçevesini Düzenle — {name}'
+      source_label: 'Görsel Kaynağı'
+      source_file: 'Dosya Yükle'
+      source_url: "Görsel URL'si Kullan"
+      field_name: İsim
+      field_description: Açıklama
+      field_price: Fiyat
+      field_image: 'Çerçeve Görseli'
+      field_image_help: 'Önerilen: 256×256 şeffaf PNG, APNG veya GIF. En fazla 4 MB.'
+      field_image_url: "Görsel URL'si"
+      field_image_url_help: 'Doğrudan https:// görsel bağlantısı yapıştırın.'
+      replace_image: 'Görseli Değiştir (isteğe bağlı)'
+      upload: 'Çerçeveyi Yükle'
+      uploaded: 'Çerçeve yüklendi.'
+      existing: 'Mevcut Çerçeveler'
+      none: 'Henüz çerçeve yüklenmemiş.'
+    availability:
+      legend: 'Erişim ve Satış Ayarları'
+      is_listed: 'Genel mağazada listele'
+      is_listed_help: 'Kapalı olduğunda bu öğe mağazada gizlenir. Yalnızca belirli kullanıcılara hediye edilecek süslemeler için idealdir.'
+      unlisted_tag: Gizli
+      max_claims: 'Maksimum Alım Sınırı (Toplam Stok)'
+      max_claims_placeholder: Sınırsız
+      max_claims_help: 'Bu sayıda kullanıcı aldığında ürün otomatik olarak kilitlenir.'
+      claims_so_far: 'Şu ana kadar alınan:'
+      available_from: 'Başlangıç Tarihi'
+      available_until: 'Bitiş Tarihi'
+      dates_help: 'Süre sınırı olmaması için boş bırakın. Her iki tarih de isteğe bağlıdır.'
+      allowed_groups: 'Belirli Gruplarla Sınırla'
+      allowed_groups_help: 'En az bir grup işaretlendiğinde yalnızca o gruplardaki kullanıcılar alabilir.'
+      groups_loading: 'Gruplar yükleniyor…'
+    grant:
+      title: 'Doğrudan Verilen Öğeler'
+      action_button: 'Hediye Et'
+      help: 'Bu öğeyi doğrudan bir kullanıcıya verin. Kullanıcıdan puan düşmez, ücretsiz alır.'
+      username_label: 'Kullanıcı Adı'
+      username_placeholder: 'örn. ahmet'
+      username_help: 'Kullanıcı adını tam olarak yazın.'
+      ignore_limit: 'Maksimum alım sınırını yok say'
+      ignore_limit_help: 'Öğede stok limiti olsa bile bu hediyeyi limite dahil etmeden verir.'
+      submit: 'Hediye Et'
+      success: '{item} süslemesi {name} kullanıcısına hediye edildi.'
+      user_not_found: 'Bu isimle eşleşen kullanıcı bulunamadı.'
+    name:
+      title: 'Kullanıcı Adı Stilleri'
+      help: 'Kullanıcı adlarının renklerini, degradelerini (gradient) veya ışıma efektlerini özelleştiren stiller.'
+      create_title: 'Yeni İsim Stili Oluştur'
+      edit_title: 'İsim Stilini Düzenle — {name}'
+      create: 'Yeni Stil Ekle'
+      created: 'İsim stili oluşturuldu.'
+      field_name: İsim
+      field_description: Açıklama
+      field_preset: 'Hazır Şablon'
+      field_price: Fiyat
+      field_css: 'Özel CSS (isteğe bağlı)'
+      field_css_help: 'İki mod: Mod 1 — doğrudan kullanıcı adına uygulanan özellikler (örn. color: gold; font-weight: 700;). Mod 2 — `&` seçici yer tutucusu kullanan tam CSS kuralları (@keyframes ve sözde öğeleri destekler).'
+      preset: 'Hazır Şablon'
+      preview: 'Canlı Önizleme'
+      preset_gold: '🥇 Altın'
+      preset_gold-pulse: '✨ Altın Parıltı'
+      preset_rainbow: '🌈 Gökkuşağı'
+      preset_neon: '💡 Neon Parlama'
+      preset_fire: '🔥 Ateş'
+      preset_ice: '❄️ Buzul'
+      preset_glitch: '👾 Glitch Efekti'
+      preset_shine: '💫 Işıltı'
+      preset_galaxy: '🌌 Galaksi'
+      preset_breath: '🌸 Nefes'
+      preset_royal: '👑 Asil Mor'
+      preset_matrix: '🟢 Matrix'
+      preset_typer: '⌨️ Daktilo'
+      preset_mercury: '🪞 Cıva'
+      preset_huecycle: '🎨 Renk Döngüsü'
+      preset_blur: '🌫 Sis'
+      preset_lightning: '⚡ Şimşek'
+      preset_underline: '〰 Dalgalı Alt Çizgi'
+      preset_toxic: '☣ Zehirli Yeşil'
+      preset_vhs: '📼 VHS Retro'
+      preset_glass: '🪟 Buzlu Cam'
+      preset_stamp: '🔖 Mühür / Damga'
+      preset_hearts: '💖 Kalpler'
+      preset_sparkle: '✦ Kıvılcım'
+      preset_wave: '🌊 Dalga'
+      preset_custom: '🛠 Özel (CSS)'
+      existing: 'Mevcut İsim Stilleri'
+      none: 'Henüz isim stili oluşturulmamış.'
+    title:
+      title: 'Özel Başlıklar'
+      help: 'Kullanıcıların profillerinde ve gönderi kartlarında adlarının altında görüntülenen özel unvanlar.'
+      create_title: 'Yeni Unvan Oluştur'
+      create: 'Yeni Başlık Ekle'
+      created: 'Unvan oluşturuldu.'
+      field_name: 'İsim (Yönetici Etiketi)'
+      field_title_text: 'Görünecek Unvan Metni'
+      field_title_text_help: 'Kullanıcıların göreceği metin (en fazla 60 karakter). Kullanıcı adının yanında duracağı için kısa tutun.'
+      field_description: Açıklama
+      field_color: 'Vurgu Rengi'
+      field_color_help: 'CSS renk değeri (#hex, rgb veya renk adı). Rozet arka plan rengini belirler.'
+      field_price: Fiyat
+      field_css: 'Özel CSS (isteğe bağlı)'
+      field_css_help: 'İsim süslemeleriyle aynı mantıkta çalışır (`&` yer tutucusu desteklenir).'
+      existing: 'Mevcut Unvanlar'
+      none: 'Henüz unvan oluşturulmamış.'
+    post_hl:
+      title: 'Gönderi Vurguları'
+      help: 'Kullanıcı gönderilerinin arka planını veya kenarlıklarını özel stillerle vurgulayan süslemeler.'
+      create_title: 'Yeni Gönderi Vurgusu Oluştur'
+      edit_title: 'Gönderi Vurgusunu Düzenle — {name}'
+      create: 'Yeni Gönderi Vurgusu Ekle'
+      created: 'Gönderi vurgusu oluşturuldu.'
+      field_name: İsim
+      field_description: Açıklama
+      field_preset: 'Hazır Şablon'
+      field_price: Fiyat
+      field_css: 'Özel CSS (isteğe bağlı)'
+      field_css_help: 'Gönderi kapsayıcısıyla eşleşen `&` seçici yer tutucusunu kullanır.'
+      preset: 'Hazır Şablon'
+      preset_gold-border: '🥇 Altın Kenarlık'
+      preset_silver-border: '🥈 Gümüş Kenarlık'
+      preset_glow-blue: '💎 Mavi Işıma'
+      preset_glow-purple: '🔮 Mor Işıma'
+      preset_glow-green: '🌿 Yeşil Işıma'
+      preset_ribbon-red: '🎀 Kırmızı Kurdele'
+      preset_ribbon-gold: '🎗 Altın Kurdele'
+      preset_dashed-accent: '✂ Kesikli Çizgi Vurgusu'
+      preset_gradient-edge: '🌈 Degrade Kenar'
+      preset_shadow-soft: '🌫 Yumuşak Gölge'
+      preset_custom: '🛠 Özel (CSS)'
+      existing: 'Mevcut Gönderi Vurguları'
+      none: 'Henüz gönderi vurgusu oluşturulmamış.'
+    groups:
+      title: 'Grup Erişimleri'
+      help: 'Kullanıcıların puan karşılığında belirli üye gruplarına katılmasına olanak tanıyın.'
+      create: 'Grup Erişimi Ekle'
+      field_group: Grup
+      field_points_required: 'Gereken Toplam Kazanılan Puan (Otomatik Geçiş Eşiği)'
+      field_price: 'Satın Alma Fiyatı (Bakiyeden Düşecek Puan)'
+      field_is_auto: 'Toplam puana ulaşıldığında otomatik ata'
+      field_is_auto_help: 'Üyeler toplam kazanılan puan eşiğine ulaştıkları anda otomatik olarak bu gruba eklenir (satın alma gerekmez).'
+      field_is_purchasable: 'Puanla satın alınabilir'
+      field_is_purchasable_help: 'Üyeler toplam puana bakılmaksızın bakiyelerindeki puanla bu grubu hemen satın alabilir.'
+      choose_group: '— bir grup seçin —'
+      add: Ekle
+      existing: 'Yapılandırılmış Grup Teklifleri'
+      none: 'Henüz grup teklifi yapılandırılmamış.'
+      col_group: Grup
+      col_mode: Modlar
+      col_points: 'Toplam Puan Eşiği'
+      col_price: Fiyat
+      col_status: Durum
+    all_trades:
+      title: 'Tüm Kullanıcı Takasları'
+      help: 'Sistemdeki kullanıcılar arasında gerçekleşen veya devam eden tüm takas işlemleri.'
+      list_heading: 'Takas Listesi'
+      list_help: 'En son işlemler en üstte gösterilir. Duruma göre filtreleyebilirsiniz.'
+      filter_all: 'Tüm Durumlar'
+      filter_pending: Bekleyenler
+      filter_completed: Tamamlananlar
+      filter_cancelled: 'İptal Edilenler'
+      refresh: Yenile
+      empty: 'Bu filtreye uygun takas bulunamadı.'
+      col_id: '#'
+      col_initiator: Başlatan
+      col_recipient: Alıcı
+      col_offer: Teklifler
+      col_status: Durum
+      col_updated: Güncellenme
+      initiator_offer: 'Başlatanın Teklifi'
+      recipient_offer: 'Alıcının Teklifi'
+      items_short: '{count, plural, one {# öğe} other {# öğe}}'
+      status_pending: Beklemede
+      status_completed: Tamamlandı
+      status_cancelled: 'İptal Edildi'
+      prev: Önceki
+      next: Sonraki
+      page_x_of_y: 'Sayfa {x} / {y}'
+    trade_detail:
+      title: 'Takas Detayı'
+      title_with: 'Takas #{id}'
+      initiator: 'Başlatan Kullanıcı'
+      recipient: 'Hedef Kullanıcı'
+      no_items: 'Teklif edilen öğe yok'
+      status_pending: Beklemede
+      status_completed: Tamamlandı
+      status_cancelled: 'İptal Edildi'
+      updated_at: Güncellenme
+      completed_at: Tamamlanma
+      cancelled_at: 'İptal Tarihi'
+      family_avatar: 'Avatar Çerçevesi'
+      family_name: 'Kullanıcı Adı Stili'
+      family_cover: 'Profil Kapağı'
+      family_title: 'Özel Başlık'
+      family_post_hl: 'Gönderi Vurgusu'
+      revert: 'Takası Geri Al'
+      confirm_revert: 'Bu takas geri alınsın mı? Öğeler ve puanlar orijinal sahiplerine iade edilecektir.'
+      revert_not_completed: 'Yalnızca tamamlanan takaslar geri alınabilir.'
+      reverted_alert: 'Takas geri alındı. Öğeler ve puanlar iade edildi.'
+      error_revert: 'Takas geri alınamadı.'
+      error_item_re_traded: 'Öğelerden biri daha sonra başka bir takasta kullanıldığı için geri alınamıyor.'
+      close: Kapat
+    submissions:
+      title: 'Onay Bekleyen Tasarımlar'
+      help: 'Kullanıcılar tarafından dükkanda yayınlanmak üzere gönderilen ve onayınızı bekleyen süsleme tasarımları.'
+      queue_heading: 'Onay Kuyruğu'
+      refresh: Yenile
+      empty: 'Şu anda onay bekleyen tasarım bulunmuyor.'
+      by: Gönderen
+      image_url: 'Görsel Bağlantısını Aç'
+      show_custom_css: 'Gönderilen CSS Kodunu Göster'
+      price_label: 'Dükkan Fiyatı (Puan)'
+      approve: 'Onayla ve Yayınla'
+      reject: Reddet
+      approved_alert: '"{name}" tasarımı onaylandı ve dükkana eklendi.'
+      rejected_alert: '"{name}" tasarımı reddedildi.'
+    manual:
+      title: 'Manuel Puan Verme / Silme'
+      help: 'Bir kullanıcıya manuel olarak puan ekleyin veya çıkarın. Negatif sayılar puan düşer.'
+      field_username: 'Kullanıcı Adı'
+      field_amount: 'Puan Miktarı'
+      field_amount_help: 'Puan vermek için pozitif, silmek için negatif sayı girin.'
+      field_reason: 'Gerekçe (isteğe bağlı)'
+      submit: Uygula
+      success: 'Puan ayarlaması başarıyla uygulandı.'
+      user_not_found: 'Kullanıcı bulunamadı.'
+      result: 'Yeni Bakiye'
+      balance: 'Mevcut Bakiye'
+      lifetime: 'Toplam Kazanılan'
+      bulk_title: 'Tüm Kullanıcılara Toplu Puan'
+      bulk_help: 'Kayıtlı tüm kullanıcılara tek seferde puan verin veya puanlarını silin.'
+      bulk_submit: 'Tüm Kullanıcılara Uygula'
+      bulk_confirm: 'Emin misiniz? Bu işlem forumdaki TÜM kayıtlı kullanıcıları etkileyecektir.'
+      bulk_confirm_yes: 'Evet, herkese uygula'
+      bulk_confirm_no: İptal
+      bulk_result: 'Toplu İşlem Sonucu'
+      bulk_awarded: 'Güncellenen Kullanıcı Sayısı'
+      bulk_errors: Hatalar
+      bulk_success: 'Toplu puan ayarlaması başarıyla tamamlandı.'
+      bulk_queued: '{total} kullanıcı için kuyruğa alındı.'
+flarum-gdpr:
+  lib:
+    data:
+      pointsystem:
+        export_description: 'Puan bakiyeniz, toplam kazancınız, geçmiş takaslarınız ve sahip olduğunuz süslemelerin dökümü.'
+        anonymize_description: 'Puan geçmişinizdeki kişisel veriler anonimleştirilir.'
+        delete_description: 'Puan bakiyeniz, işlem kayıtlarınız ve süsleme sahiplikleriniz kalıcı olarak silinir.'

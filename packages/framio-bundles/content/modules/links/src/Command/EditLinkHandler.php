@@ -1,0 +1,83 @@
+<?php
+
+/*
+ * This file is part of fof/links.
+ *
+ * Copyright (c) FriendsOfFlarum.
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
+namespace Framio\Content\Links\Command;
+
+use Framio\Content\Links\Event\Saving;
+use Framio\Content\Links\LinkRepository;
+use Framio\Content\Links\LinkValidator;
+use Illuminate\Contracts\Events\Dispatcher;
+use Illuminate\Support\Arr;
+
+class EditLinkHandler
+{
+    public function __construct(protected LinkRepository $links, protected LinkValidator $validator, protected Dispatcher $events)
+    {
+    }
+
+    /**
+     * @param EditLink $command
+     *
+     * @throws \Flarum\User\Exception\PermissionDeniedException
+     *
+     * @return \Framio\Content\Links\Link
+     */
+    public function handle(EditLink $command)
+    {
+        $actor = $command->actor;
+        $data = $command->data;
+
+        $link = $this->links->findOrFail($command->linkId, $actor);
+
+        $actor->assertAdmin();
+
+        $attributes = Arr::get($data, 'attributes', []);
+
+        if (isset($attributes['title'])) {
+            $link->title = $attributes['title'];
+        }
+
+        if (isset($attributes['icon'])) {
+            $link->icon = $attributes['icon'];
+        }
+
+        if (isset($attributes['url'])) {
+            $link->url = $attributes['url'];
+        }
+
+        if (isset($attributes['isInternal'])) {
+            $link->is_internal = $attributes['isInternal'];
+        }
+
+        if (isset($attributes['isNewtab'])) {
+            $link->is_newtab = $attributes['isNewtab'];
+        }
+
+        if (isset($attributes['useRelMe'])) {
+            $link->use_relme = $attributes['useRelMe'];
+        }
+
+        if (isset($attributes['guestOnly'])) {
+            $link->guest_only = $attributes['guestOnly'];
+        }
+
+        $this->events->dispatch(new Saving($link, $actor, $data));
+
+        $this->validator->assertValid($link->getDirty());
+
+        if ($link->isDirty()) {
+            $link->save();
+        }
+
+        return $link;
+    }
+}
+

@@ -1,0 +1,58 @@
+stezkoy-modularis:
+  admin:
+    heading: Modüler CSS
+    help_block: Modüler CSS (Modularis), forum ve yönetim paneli için özel CSS blokları oluşturup yönetmenizi sağlar. Stiller anında sayfaya eklenir ve uygulanır. Düzenleme sonrası genellikle önbelleği temizlemek gerekmez ancak ihtiyaç duyarsanız butonu kullanabilirsiniz.
+    forum_section: Site Stilleri (Ön Yüz)
+    forum_section_help: Bu stiller forumun ana ziyaretçi ve üye arayüzüne uygulanır.
+    admin_section: Yönetim Paneli Stilleri
+    admin_section_help: Bu stiller yalnızca yönetim (admin) paneli arayüzüne uygulanır.
+    section_counter: "{total} stilden {enabled} tanesi etkin"
+    empty: Henüz stil eklenmemiş. Yeni bir tane oluşturmak için «Stil Ekle» butonuna tıklayın.
+    add_button: Stil Ekle
+    clear_cache_button: Önbelleği Temizle
+    clear_cache_confirm: Flarum önbelleği temizlensin mi? Bu işlem stil önbelleğini de yeniden derleyecektir.
+    cache_cleared: Önbellek başarıyla temizlendi.
+    clear_cache_failed: Önbellek temizlenirken hata oluştu.
+
+    export_button: Dışa Aktar
+    import_button: İçe Aktar
+    export_success: Stiller dışa aktarıldı.
+    export_failed: Stiller dışa aktarılamadı.
+    export_modal_title: Stilleri Dışa Aktar
+    export_modal_help: Dışa aktarmak istediğiniz stilleri seçin.
+    export_selected: "Seçilenleri Dışa Aktar ({count})"
+    export_select_all: Tümünü Seç
+    export_select_none: Temizle
+    export_modal_count: "{count} seçildi"
+    import_confirm: "İçe aktarılacak stil sayısı: {count}. Devam edilsin mi?"
+    import_confirm_button: İçe Aktar
+    import_success: "Başarıyla içe aktarıldı: {count} stil."
+    import_failed: Stiller içe aktarılamadı.
+    import_invalid: Seçilen dosya geçerli bir Modularis JSON dışa aktarım dosyası değil.
+
+    modal_title_create: Yeni Stil Ekle
+    modal_title_edit: Stili Düzenle
+    save_button: Kaydet
+    cancel_button: İptal
+    delete_button: Sil
+    edit_button: Düzenle
+    active_switch: Etkin
+    active_switch_help: Bu stili uygulamak veya duraklatmak için anahtarı değiştirin.
+
+    name_label: Stil Adı
+    name_placeholder: Örn. Gece Modu İyileştirmeleri
+    name_help: Bu stili tanımlamak için kısa bir başlık.
+
+    css_label: CSS Kodları
+    css_placeholder: "/* CSS kodlarınızı buraya yazın */"
+    css_help: Geçerli CSS kuralları girin. Kaydedilirken güvenlik ve sözdizimi denetlenir.
+
+    confirm_delete: "«{name}» stilini silmek istediğinize emin misiniz? Bu işlem geri alınamaz."
+
+    error_syntax: CSS sözdizimi geçersiz — dengesiz süslü parantezler, parantezler veya tırnak işaretleri var.
+    error_import: "@import ve @charset güvenlik sebebiyle kullanılamaz."
+    error_script: JavaScript veya komut dosyası benzeri içerikler kullanılamaz.
+    error_closing_tag: HTML kapatma etiketleri kullanılamaz.
+    error_data_uri: Data URI yapıları kullanılamaz.
+    request_error: Stil kaydedilemedi. Lütfen girdileri kontrol edip tekrar deneyin.
+    load_error: Stiller yüklenemedi.

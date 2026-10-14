@@ -1,0 +1,1922 @@
+[
+    {
+        "hat_kodu": 5,
+        "guzergah": ": NARLIDERE - ÜÇKUYULAR İSKELE"
+    },
+    {
+        "hat_kodu": 6,
+        "guzergah": ": ARIKENT - FAHRETTİN ALTAY AKTARMA"
+    },
+    {
+        "hat_kodu": 7,
+        "guzergah": ": SAHİLEVLERİ - FAHRETTİN ALTAY AKTARMA"
+    },
+    {
+        "hat_kodu": 8,
+        "guzergah": ": GÜZELBAHÇE - F.ALTAY AKTARMA MERKEZİ"
+    },
+    {
+        "hat_kodu": 9,
+        "guzergah": ": ÖZZÜMRÜT EVLERİ - SİTELER"
+    },
+    {
+        "hat_kodu": 10,
+        "guzergah": "NO.LU ÜÇKUYULAR İSKELE - KONAK HATTIMIZDA GEÇİCİ GÜZERGAH DEĞİŞİKLİĞİ DETAY"
+    },
+    {
+        "hat_kodu": 15,
+        "guzergah": ": İNÖNÜ - KONAK"
+    },
+    {
+        "hat_kodu": 16,
+        "guzergah": ": VATAN MAHALLESİ - ÜÇYOL"
+    },
+    {
+        "hat_kodu": 17,
+        "guzergah": ": UZUNDERE TOPLU KONUTLARI - F.ALTAY AKTARMA MERKEZİ"
+    },
+    {
+        "hat_kodu": 18,
+        "guzergah": ": YEŞİLYURT - KONAK"
+    },
+    {
+        "hat_kodu": 19,
+        "guzergah": "NO.LU HAT GÜZERGAH DEĞİŞİKLİK DUYURUSU DETAY"
+    },
+    {
+        "hat_kodu": 20,
+        "guzergah": ": KOOPERATİF EVLERİ - KONAK"
+    },
+    {
+        "hat_kodu": 21,
+        "guzergah": ": HALİL RIFAT PAŞA - KONAK"
+    },
+    {
+        "hat_kodu": 23,
+        "guzergah": ": UZUNDERE - KONAK"
+    },
+    {
+        "hat_kodu": 24,
+        "guzergah": ": KAVACIK - FAHRETTİN ALTAY AKTARMA"
+    },
+    {
+        "hat_kodu": 25,
+        "guzergah": ": OYUNLAR KÖYÜ - FAHRETTİN ALTAY AKTARMA"
+    },
+    {
+        "hat_kodu": 27,
+        "guzergah": ": ÇAMLIK - KONAK"
+    },
+    {
+        "hat_kodu": 28,
+        "guzergah": ": KAVACIK - GÜZELBAHÇE"
+    },
+    {
+        "hat_kodu": 29,
+        "guzergah": ": KADRİYE MAH. - KONAK"
+    },
+    {
+        "hat_kodu": 30,
+        "guzergah": ": KAYNAK - KONAK"
+    },
+    {
+        "hat_kodu": 32,
+        "guzergah": ": ÇİMENTEPE SİTESİ - KONAK"
+    },
+    {
+        "hat_kodu": 33,
+        "guzergah": ": KADİFEKALE - KONAK"
+    },
+    {
+        "hat_kodu": 34,
+        "guzergah": ": ESENTEPE - GÜMRÜK"
+    },
+    {
+        "hat_kodu": 35,
+        "guzergah": ": BALLIKUYU - KONAK"
+    },
+    {
+        "hat_kodu": 36,
+        "guzergah": ": ŞİRİNYER AKTARMA MERKEZİ - KONAK"
+    },
+    {
+        "hat_kodu": 39,
+        "guzergah": ": İSMETPAŞA MAH. - GÜMRÜK"
+    },
+    {
+        "hat_kodu": 41,
+        "guzergah": ": LEVENT - GÜMRÜK"
+    },
+    {
+        "hat_kodu": 42,
+        "guzergah": ": ÇINARTEPE - GÜMRÜK"
+    },
+    {
+        "hat_kodu": 44,
+        "guzergah": ": MERSİNPINAR - GÜMRÜK"
+    },
+    {
+        "hat_kodu": 45,
+        "guzergah": ": GÜLTEPE - GÜMRÜK"
+    },
+    {
+        "hat_kodu": 46,
+        "guzergah": ": ÇOBANÇEŞME - GÜMRÜK"
+    },
+    {
+        "hat_kodu": 49,
+        "guzergah": ": TEPECİK EĞİTİM ARAŞTIRMA HASTANESİ - LOZAN MEYDANI"
+    },
+    {
+        "hat_kodu": 53,
+        "guzergah": ": MTK ALTINDAĞ - HALKAPINAR METRO"
+    },
+    {
+        "hat_kodu": 54,
+        "guzergah": ": OTOGAR - KEMER AKTARMA MERKEZİ"
+    },
+    {
+        "hat_kodu": 55,
+        "guzergah": ": HALKAPINAR METRO - YEŞİLOVA RİNG"
+    },
+    {
+        "hat_kodu": 57,
+        "guzergah": ": ALTINDAĞ - KEMER AKTARMA MERKEZİ"
+    },
+    {
+        "hat_kodu": 58,
+        "guzergah": ": KANDERE - KEMER AKTARMA MERKEZİ"
+    },
+    {
+        "hat_kodu": 59,
+        "guzergah": ": BORNOVA METRO - KEMER AKTARMA MERKEZİ"
+    },
+    {
+        "hat_kodu": 60,
+        "guzergah": ": PINARBAŞI - KEMER AKTARMA MERKEZİ"
+    },
+    {
+        "hat_kodu": 64,
+        "guzergah": ": AYAKKABICILAR SİT. - KEMER AKTARMA MERKEZİ"
+    },
+    {
+        "hat_kodu": 67,
+        "guzergah": ": PINARBAŞI - EVKA3 METRO"
+    },
+    {
+        "hat_kodu": 72,
+        "guzergah": ": İŞÇİEVLERİ - KONAK"
+    },
+    {
+        "hat_kodu": 74,
+        "guzergah": ": YENİGÜN MAH. - ŞİRİNYER AKTARMA MERKEZİ"
+    },
+    {
+        "hat_kodu": 77,
+        "guzergah": ": NAFİZ GÜRMAN - HALKAPINAR METRO 2"
+    },
+    {
+        "hat_kodu": 78,
+        "guzergah": ": YAMANLAR - HALKAPINAR METRO 2"
+    },
+    {
+        "hat_kodu": 82,
+        "guzergah": ": SİTELER - F.ALTAY AKTARMA MERKEZİ"
+    },
+    {
+        "hat_kodu": 84,
+        "guzergah": ": SALİH OMURTAK - ÜÇYOL METRO"
+    },
+    {
+        "hat_kodu": 89,
+        "guzergah": ": CENNETOĞLU - ÜÇYOL METRO"
+    },
+    {
+        "hat_kodu": 92,
+        "guzergah": ": FUAR İZMİR - ÜÇYOL METRO"
+    },
+    {
+        "hat_kodu": 102,
+        "guzergah": ": ALPASLAN MAH. - HALKAPINAR METRO"
+    },
+    {
+        "hat_kodu": 104,
+        "guzergah": ": BUCA TOPLU KONUTLARI - KONAK"
+    },
+    {
+        "hat_kodu": 105,
+        "guzergah": ": ÇAMLIKULE - KONAK"
+    },
+    {
+        "hat_kodu": 108,
+        "guzergah": ": ESERKENT - ÜÇYOL METRO"
+    },
+    {
+        "hat_kodu": 111,
+        "guzergah": ": NALDÖKEN - EVKA3 METRO"
+    },
+    {
+        "hat_kodu": 114,
+        "guzergah": ": EVKA 3 - EVKA3 METRO"
+    },
+    {
+        "hat_kodu": 117,
+        "guzergah": ": KAVAKLIDERE - KEMER AKTARMA MERKEZİ"
+    },
+    {
+        "hat_kodu": 119,
+        "guzergah": ": ALTINDAĞ - BORNOVA METRO"
+    },
+    {
+        "hat_kodu": 121,
+        "guzergah": ": MAVİŞEHİR AKTARMA MERKEZİ - KONAK"
+    },
+    {
+        "hat_kodu": 123,
+        "guzergah": ": ŞİRİNEVLER - ÇİĞLİ AKTARMA MERKEZİ"
+    },
+    {
+        "hat_kodu": 124,
+        "guzergah": ": ALİ FUAT ERDEN - ÜÇYOL METRO"
+    },
+    {
+        "hat_kodu": 125,
+        "guzergah": ": MUSTAFA KEMAL MAH - HALKAPINAR METRO2"
+    },
+    {
+        "hat_kodu": 126,
+        "guzergah": ": CUMHURİYET MAH. - KARŞIYAKA"
+    },
+    {
+        "hat_kodu": 128,
+        "guzergah": ": EGEKENT 2 - EGEKENT AKTARMA"
+    },
+    {
+        "hat_kodu": 135,
+        "guzergah": ": DOĞANÇAY - KARŞIYAKA"
+    },
+    {
+        "hat_kodu": 136,
+        "guzergah": ": ÖRNEKKÖY - KARŞIYAKA"
+    },
+    {
+        "hat_kodu": 137,
+        "guzergah": ": YAMANLAR - KARŞIYAKA"
+    },
+    {
+        "hat_kodu": 140,
+        "guzergah": ": ÖRNEKKÖY - HALKAPINAR METRO2"
+    },
+    {
+        "hat_kodu": 147,
+        "guzergah": ": POSTACILAR - HALKAPINAR METRO2"
+    },
+    {
+        "hat_kodu": 148,
+        "guzergah": ": ONUR MAH. - HALKAPINAR METRO2"
+    },
+    {
+        "hat_kodu": 149,
+        "guzergah": ": KAKLIÇ - ÇİĞLİ AKTARMA MERKEZİ"
+    },
+    {
+        "hat_kodu": 152,
+        "guzergah": ": GAZİEMİR - KONAK"
+    },
+    {
+        "hat_kodu": 153,
+        "guzergah": ": ÇAMKULE - KEMER AKTARMA MERKEZİ"
+    },
+    {
+        "hat_kodu": 154,
+        "guzergah": ": ALTINDAĞ - HALKAPINAR METRO"
+    },
+    {
+        "hat_kodu": 156,
+        "guzergah": ": SAĞLIK OCAĞI - ÜÇYOL METRO"
+    },
+    {
+        "hat_kodu": 157,
+        "guzergah": ": AKTEPE MAHALLESİ - KONAK"
+    },
+    {
+        "hat_kodu": 167,
+        "guzergah": ": BALÇOVA KABRİSTAN - F.ALTAY AKTARMA MERKEZİ"
+    },
+    {
+        "hat_kodu": 168,
+        "guzergah": ": EVKA 4 - HALKAPINAR METRO"
+    },
+    {
+        "hat_kodu": 171,
+        "guzergah": ": TINAZTEPE - KONAK"
+    },
+    {
+        "hat_kodu": 174,
+        "guzergah": ": KIRKLAR - ADATEPE"
+    },
+    {
+        "hat_kodu": 175,
+        "guzergah": ": DAĞKIZILCA - ADATEPE"
+    },
+    {
+        "hat_kodu": 176,
+        "guzergah": ": DEMİRCİKÖY - ADATEPE"
+    },
+    {
+        "hat_kodu": 177,
+        "guzergah": "NO.LU HATTIMIZDA GEÇİCİ GÜZERGAH DEĞİŞİKLİĞİ DETAY"
+    },
+    {
+        "hat_kodu": 179,
+        "guzergah": ": AHMETLİ-ÇAYBAŞI"
+    },
+    {
+        "hat_kodu": 193,
+        "guzergah": ": YURTOĞLU - KONAK"
+    },
+    {
+        "hat_kodu": 196,
+        "guzergah": ": NAFİZ GÜRMAN - KARŞIYAKA İSKELE"
+    },
+    {
+        "hat_kodu": 197,
+        "guzergah": ": NAFİZ GÜRMAN - KARŞIYAKA"
+    },
+    {
+        "hat_kodu": 200,
+        "guzergah": ": MAVİŞEHİR AKTARMA MERKEZİ - HAVALİMANI"
+    },
+    {
+        "hat_kodu": 202,
+        "guzergah": ": CUMHURİYET MEYDANI - HAVALİMANI"
+    },
+    {
+        "hat_kodu": 204,
+        "guzergah": ": BORNOVA METRO - HAVALİMANI"
+    },
+    {
+        "hat_kodu": 206,
+        "guzergah": ": ŞİRİNYER AKTARMA MERKEZİ - HAVALİMANI"
+    },
+    {
+        "hat_kodu": 214,
+        "guzergah": ": EVKA3 METRO - KEMER"
+    },
+    {
+        "hat_kodu": 221,
+        "guzergah": ": ŞEMİKLER - BOSTANLI İSKELE"
+    },
+    {
+        "hat_kodu": 222,
+        "guzergah": ": ŞEMİKLER - KARŞIYAKA İSKELE"
+    },
+    {
+        "hat_kodu": 224,
+        "guzergah": ": CENNETÇEŞME - KONAK"
+    },
+    {
+        "hat_kodu": 229,
+        "guzergah": ": YAKAKENT MAHALLESİ - BOSTANLI İSKELE"
+    },
+    {
+        "hat_kodu": 233,
+        "guzergah": ": ESBAŞ AKTARMA MERKEZİ - KONAK"
+    },
+    {
+        "hat_kodu": 240,
+        "guzergah": ": ZÜBEYDE HANIM MAH. - HALKAPINAR METRO2"
+    },
+    {
+        "hat_kodu": 247,
+        "guzergah": ": EVKA 6 - ÇİĞLİ AKTARMA MERKEZİ"
+    },
+    {
+        "hat_kodu": 249,
+        "guzergah": ": EVKA 4 - KEMER"
+    },
+    {
+        "hat_kodu": 253,
+        "guzergah": ": H.PINAR METRO 2 - KONAK"
+    },
+    {
+        "hat_kodu": 258,
+        "guzergah": ": ONUR MAH. - KARŞIYAKA"
+    },
+    {
+        "hat_kodu": 259,
+        "guzergah": ": YEŞİLOVA MAHALLESİ - BORNOVA METRO"
+    },
+    {
+        "hat_kodu": 267,
+        "guzergah": ": PINARBAŞI - BORNOVA METRO"
+    },
+    {
+        "hat_kodu": 268,
+        "guzergah": ": DOĞANLAR - BORNOVA METRO"
+    },
+    {
+        "hat_kodu": 277,
+        "guzergah": ": OTOGAR - TINAZTEPE"
+    },
+    {
+        "hat_kodu": 284,
+        "guzergah": ": EVKA 1 - KONAK"
+    },
+    {
+        "hat_kodu": 285,
+        "guzergah": ": EVKA 1 - KONAK"
+    },
+    {
+        "hat_kodu": 290,
+        "guzergah": ": BOSTANLI İSKELE - TINAZTEPE"
+    },
+    {
+        "hat_kodu": 295,
+        "guzergah": ": HARMANDALI - EGEKENT AKTARMA MERKEZİ"
+    },
+    {
+        "hat_kodu": 302,
+        "guzergah": ": OTOGAR - KONAK"
+    },
+    {
+        "hat_kodu": 304,
+        "guzergah": ": TINAZTEPE-KONAK"
+    },
+    {
+        "hat_kodu": 305,
+        "guzergah": ": 2. İNÖNÜ MAH. - F.ALTAY AKTARMA MERKEZİ"
+    },
+    {
+        "hat_kodu": 311,
+        "guzergah": ": İNCİRALTI - F.ALTAY"
+    },
+    {
+        "hat_kodu": 313,
+        "guzergah": ": YENİ MEZARLIK - BORNOVA METRO"
+    },
+    {
+        "hat_kodu": 314,
+        "guzergah": ": EVKA 3 - BORNOVA METRO"
+    },
+    {
+        "hat_kodu": 315,
+        "guzergah": ": KARAÇAM - EVKA3 METRO"
+    },
+    {
+        "hat_kodu": 316,
+        "guzergah": ": BEŞYOL - EVKA3 METRO"
+    },
+    {
+        "hat_kodu": 317,
+        "guzergah": ": KAVAKLIDERE - EVKA3 METRO"
+    },
+    {
+        "hat_kodu": 321,
+        "guzergah": ": ÇAMLI - F. ALTAY AKTARMA MERKEZİ"
+    },
+    {
+        "hat_kodu": 322,
+        "guzergah": ": MUSTAFA KEMAL MAHALLESİ - BOSTANLI İSKELE"
+    },
+    {
+        "hat_kodu": 326,
+        "guzergah": ": MUSTAFA KEMAL MAH. - KARŞIYAKA"
+    },
+    {
+        "hat_kodu": 327,
+        "guzergah": ": İNÖNÜ MAHALLESİ-BOSTANLI İSKELE"
+    },
+    {
+        "hat_kodu": 328,
+        "guzergah": ": EVKA 3 METRO - SALHANE AKTARMA MERKEZİ"
+    },
+    {
+        "hat_kodu": 329,
+        "guzergah": ": GÜZELTEPE - ÇİĞLİ AKTARMA MERKEZİ"
+    },
+    {
+        "hat_kodu": 330,
+        "guzergah": ": BOSTANLI İSKELE - EVKA3 METRO"
+    },
+    {
+        "hat_kodu": 335,
+        "guzergah": ": DOĞANÇAY - HALKAPINAR METRO 2"
+    },
+    {
+        "hat_kodu": 338,
+        "guzergah": ": EVKA 3 METRO - SALHANE AKTARMA MERKEZİ"
+    },
+    {
+        "hat_kodu": 342,
+        "guzergah": ": EGEKENT - ÇİĞLİ AKTARMA MERKEZİ"
+    },
+    {
+        "hat_kodu": 344,
+        "guzergah": ": EVKA 2 - ÇİĞLİ AKTARMA MERKEZİ"
+    },
+    {
+        "hat_kodu": 346,
+        "guzergah": ": EVKA 5 - EGEKENT AKTARMA MERKEZİ"
+    },
+    {
+        "hat_kodu": 353,
+        "guzergah": ": GAZİEMİR - TINAZTEPE"
+    },
+    {
+        "hat_kodu": 358,
+        "guzergah": ": PINARBAŞI - BORNOVA METRO"
+    },
+    {
+        "hat_kodu": 359,
+        "guzergah": ": R.ŞEVKET İNCE MAH. - SALHANE AKTARMA MERKEZİ"
+    },
+    {
+        "hat_kodu": 361,
+        "guzergah": ": BAHRİYE ÜÇOK - KARŞIYAKA İSKELE"
+    },
+    {
+        "hat_kodu": 364,
+        "guzergah": ": GERİKAZANIMCILAR SİTESİ - HALKAPINAR METRO"
+    },
+    {
+        "hat_kodu": 365,
+        "guzergah": ": KAYADİBİ - EVKA3 METRO"
+    },
+    {
+        "hat_kodu": 367,
+        "guzergah": ": ÜMİT MAH. - KEMER AKTARMA MERKEZİ"
+    },
+    {
+        "hat_kodu": 368,
+        "guzergah": ": ÜMİT MAH. - BORNOVA METRO"
+    },
+    {
+        "hat_kodu": 374,
+        "guzergah": ": İZKENT - KONAK"
+    },
+    {
+        "hat_kodu": 390,
+        "guzergah": ": TINAZTEPE - BORNOVA METRO"
+    },
+    {
+        "hat_kodu": 399,
+        "guzergah": ": CENGİZHAN - BAYRAKLI ŞEHİR HASTANESİ"
+    },
+    {
+        "hat_kodu": 412,
+        "guzergah": ": TINAZTEPE - YERLEŞKE"
+    },
+    {
+        "hat_kodu": 417,
+        "guzergah": ": BUCA KOOP - KONAK"
+    },
+    {
+        "hat_kodu": 418,
+        "guzergah": ": ŞİRİNYER AKTARMA MERKEZİ - H.PINAR METRO"
+    },
+    {
+        "hat_kodu": 423,
+        "guzergah": ": ŞİRİNEVLER - BOSTANLI İSKELE"
+    },
+    {
+        "hat_kodu": 426,
+        "guzergah": ": MUSTAFA KEMAL MAH - HALKAPINAR METRO2"
+    },
+    {
+        "hat_kodu": 428,
+        "guzergah": ": EGEKENT 2 - BOSTANLI İSKELE"
+    },
+    {
+        "hat_kodu": 429,
+        "guzergah": ": GÜZELTEPE - BOSTANLI İSKELE"
+    },
+    {
+        "hat_kodu": 430,
+        "guzergah": ": YAKAKENT MAHALLESİ - BOSTANLI İSKELE"
+    },
+    {
+        "hat_kodu": 434,
+        "guzergah": ": KÖRFEZ MAHALLESI - HALKAPINAR METRO 2"
+    },
+    {
+        "hat_kodu": 435,
+        "guzergah": ": KÖRFEZ MAHALLESI - BOSTANLI İSKELE"
+    },
+    {
+        "hat_kodu": 441,
+        "guzergah": ": ÇINARTEPE - ŞİRİNYER AKTARMA MERKEZİ"
+    },
+    {
+        "hat_kodu": 442,
+        "guzergah": ": ATATÜRK MAHALLESİ - BOSTANLI İSKELE"
+    },
+    {
+        "hat_kodu": 443,
+        "guzergah": ": EGEKENT - BOSTANLI İSKELE"
+    },
+    {
+        "hat_kodu": 445,
+        "guzergah": ": EVKA 2 - BOSTANLI İSKELE"
+    },
+    {
+        "hat_kodu": 446,
+        "guzergah": ": EVKA 5 - BOSTANLI İSKELE"
+    },
+    {
+        "hat_kodu": 447,
+        "guzergah": ": EVKA 6 - BOSTANLI İSKELE"
+    },
+    {
+        "hat_kodu": 449,
+        "guzergah": ": İZYUVA - EVKA3 METRO"
+    },
+    {
+        "hat_kodu": 465,
+        "guzergah": ": TINAZTEPE - KONAK"
+    },
+    {
+        "hat_kodu": 466,
+        "guzergah": ": ŞİRİNYER AKTARMA MERKEZİ - KONAK"
+    },
+    {
+        "hat_kodu": 470,
+        "guzergah": ": TINAZTEPE - LOZAN MEYDANI"
+    },
+    {
+        "hat_kodu": 471,
+        "guzergah": ": TINAZTEPE - KONAK"
+    },
+    {
+        "hat_kodu": 472,
+        "guzergah": ": İŞÇİEVLERİ - TINAZTEPE"
+    },
+    {
+        "hat_kodu": 475,
+        "guzergah": ": TINAZTEPE ÜNİVERSİTESİ - HALKAPINAR METRO"
+    },
+    {
+        "hat_kodu": 476,
+        "guzergah": ": TINAZTEPE - ŞİRİNYER AKTARMA MERKEZİ"
+    },
+    {
+        "hat_kodu": 477,
+        "guzergah": ": NAFİZ GÜRMAN - HALKAPINAR METRO2"
+    },
+    {
+        "hat_kodu": 480,
+        "guzergah": ": İNCİRALTI - ÜÇKUYULAR İSKELE"
+    },
+    {
+        "hat_kodu": 481,
+        "guzergah": ": İNCİRALTI - BALÇOVA"
+    },
+    {
+        "hat_kodu": 484,
+        "guzergah": ": YEŞİLBAĞLAR - KONAK"
+    },
+    {
+        "hat_kodu": 485,
+        "guzergah": ": GAZİEMİR İLÇE TERMİNALİ - KONAK"
+    },
+    {
+        "hat_kodu": 486,
+        "guzergah": ": OYAK SİTESİ - İNCİRALTI"
+    },
+    {
+        "hat_kodu": 487,
+        "guzergah": ": DEMİRKÖPRÜ - KARŞIYAKA"
+    },
+    {
+        "hat_kodu": 490,
+        "guzergah": ": TINAZTEPE - ÜÇYOL"
+    },
+    {
+        "hat_kodu": 491,
+        "guzergah": ": EVKA 7 - ESBAŞ AKTARMA MERKEZİ"
+    },
+    {
+        "hat_kodu": 498,
+        "guzergah": ": EVKA 3 METRO - HALKAPINAR METRO"
+    },
+    {
+        "hat_kodu": 501,
+        "guzergah": ": ÇİÇEK MAH. - HALKAPINAR METRO"
+    },
+    {
+        "hat_kodu": 502,
+        "guzergah": ": CENGİZHAN - HALKAPINAR METRO"
+    },
+    {
+        "hat_kodu": 503,
+        "guzergah": ": BARIŞ KAHVESİ - HALKAPINAR METRO"
+    },
+    {
+        "hat_kodu": 504,
+        "guzergah": ": FUAT EDİP BAKSI - HALKAPINAR METRO"
+    },
+    {
+        "hat_kodu": 505,
+        "guzergah": ": ÇAMKULE - BORNOVA METRO"
+    },
+    {
+        "hat_kodu": 508,
+        "guzergah": ": MENDERES - KONAK"
+    },
+    {
+        "hat_kodu": 510,
+        "guzergah": ": GAZİEMİR - BALÇOVA"
+    },
+    {
+        "hat_kodu": 513,
+        "guzergah": ": GAZİ MEYDANI - HALKAPINAR METRO"
+    },
+    {
+        "hat_kodu": 515,
+        "guzergah": ": TINAZTEPE - EVKA3 METRO"
+    },
+    {
+        "hat_kodu": 516,
+        "guzergah": ": YENİTEPE EVLERİ - GAZİEMİR SEMT GARAJI"
+    },
+    {
+        "hat_kodu": 517,
+        "guzergah": ": UZUNDERE TOPLU KONUTLARI - F.ALTAY"
+    },
+    {
+        "hat_kodu": 520,
+        "guzergah": ": SALİH OMURTAK - ÜÇYOL METRO"
+    },
+    {
+        "hat_kodu": 522,
+        "guzergah": ": UZUNDERE TOPLU KONUTLARI - ÜÇYOL METRO"
+    },
+    {
+        "hat_kodu": 523,
+        "guzergah": ": UZUNDERE - ÜÇYOL METRO"
+    },
+    {
+        "hat_kodu": 524,
+        "guzergah": ": CENNETÇEŞME - ÜÇYOL METRO"
+    },
+    {
+        "hat_kodu": 529,
+        "guzergah": ": YAKAKENT MAHALLESİ - ÇİĞLİ AKTARMA MERKEZİ"
+    },
+    {
+        "hat_kodu": 532,
+        "guzergah": ": BAYRAKLI ŞEHİR HASTANESİ - BOSTANLI İSKELE"
+    },
+    {
+        "hat_kodu": 533,
+        "guzergah": ": BAYRAKLI ŞEHİR HASTANESİ - BORNOVA METRO"
+    },
+    {
+        "hat_kodu": 534,
+        "guzergah": ": BAYRAKLI ŞEHİR HASTANESİ - HALKAPINAR METRO"
+    },
+    {
+        "hat_kodu": 535,
+        "guzergah": ": BAYRAKLI ŞEHİR HASTANESİ - EGEKENT AKTARMA MERKEZİ"
+    },
+    {
+        "hat_kodu": 536,
+        "guzergah": ": BAYRAKLI ŞEHİR HASTANESİ - ŞİRİNYER AKTARMA MERKEZİ"
+    },
+    {
+        "hat_kodu": 537,
+        "guzergah": ": BAYRAKLI ŞEHİR HASTANESİ-DOĞANÇAY"
+    },
+    {
+        "hat_kodu": 539,
+        "guzergah": ": YENİTEPE EVLERİ - SALHANE AKTARMA MERKEZİ"
+    },
+    {
+        "hat_kodu": 543,
+        "guzergah": ": BOSTANLI İSKELE - H.PINAR METRO"
+    },
+    {
+        "hat_kodu": 547,
+        "guzergah": ": ÇİĞLİ AKTARMA MERKEZİ - BOSTANLI İSKELE"
+    },
+    {
+        "hat_kodu": 550,
+        "guzergah": ": GÜNALTAY - KONAK"
+    },
+    {
+        "hat_kodu": 551,
+        "guzergah": ": NARLIDERE - F.ALTAY"
+    },
+    {
+        "hat_kodu": 555,
+        "guzergah": ": OTOGAR - HALKAPINAR METRO"
+    },
+    {
+        "hat_kodu": 556,
+        "guzergah": ": ÇAMLIK - ÜÇYOL METRO"
+    },
+    {
+        "hat_kodu": 557,
+        "guzergah": ": BAYRAKLI TOPLU KONUTLAR - BAYRAKLI İZBAN"
+    },
+    {
+        "hat_kodu": 558,
+        "guzergah": ": BAYRAKLI TOPLU KONUTLARI - BORNOVA METRO EKSPRES"
+    },
+    {
+        "hat_kodu": 559,
+        "guzergah": ": BAYRAKLI TOPLU KONUTLARI - EVKA3 METRO"
+    },
+    {
+        "hat_kodu": 560,
+        "guzergah": ": PINARBAŞI - HALKAPINAR METRO"
+    },
+    {
+        "hat_kodu": 564,
+        "guzergah": ": AYAKKABICILAR SİTESİ - HALKAPINAR METRO"
+    },
+    {
+        "hat_kodu": 565,
+        "guzergah": ": EVKA 4 - BORNOVA METRO"
+    },
+    {
+        "hat_kodu": 566,
+        "guzergah": ": EVKA 4 - BORNOVA METRO"
+    },
+    {
+        "hat_kodu": 568,
+        "guzergah": ": EVKA 4 - BORNOVA METRO"
+    },
+    {
+        "hat_kodu": 570,
+        "guzergah": ": LAKA MAHALLESİ - BORNOVA METRO"
+    },
+    {
+        "hat_kodu": 575,
+        "guzergah": ": MALİYECİLER MAHALLESİ - ÜÇYOL METRO"
+    },
+    {
+        "hat_kodu": 579,
+        "guzergah": ": YEŞİLYURT - ÜÇYOL METRO"
+    },
+    {
+        "hat_kodu": 584,
+        "guzergah": ": İNÖNÜ MAH. - BORNOVA METRO"
+    },
+    {
+        "hat_kodu": 585,
+        "guzergah": ": EVKA 4 - BORNOVA METRO"
+    },
+    {
+        "hat_kodu": 587,
+        "guzergah": ": LİMONTEPE - KONAK"
+    },
+    {
+        "hat_kodu": 588,
+        "guzergah": ": YENİ ÇAMLIK - KONAK"
+    },
+    {
+        "hat_kodu": 595,
+        "guzergah": ": 9 EYLÜL MAHALLESI - BOSTANLI İSKELE"
+    },
+    {
+        "hat_kodu": 596,
+        "guzergah": ": KATIP ÇELEBI ÜNIVERSITESI - EGEKENT AKTARMA MERKEZİ"
+    },
+    {
+        "hat_kodu": 597,
+        "guzergah": ": M. ERENER - BAYRAKLI SEVGİ YOLU"
+    },
+    {
+        "hat_kodu": 598,
+        "guzergah": ": BAYRAKLI TOPLU KONUTLARI - BAYRAKLI İZBAN"
+    },
+    {
+        "hat_kodu": 599,
+        "guzergah": ": M.ERENER - HALKAPINAR METRO"
+    },
+    {
+        "hat_kodu": 602,
+        "guzergah": ": MENEMEN AKTARMA - İZMİR OTOGAR"
+    },
+    {
+        "hat_kodu": 608,
+        "guzergah": "VE 827 NOLU HATLAR İÇİN GEÇİCİ GÜZERGAH DEĞİŞİKLİĞİ DETAY"
+    },
+    {
+        "hat_kodu": 609,
+        "guzergah": ": KÖFÜNDERE-ÖDEMİŞ"
+    },
+    {
+        "hat_kodu": 610,
+        "guzergah": ": FUAR İZMİR - GAZİEMİR SEMT GARAJI"
+    },
+    {
+        "hat_kodu": 611,
+        "guzergah": ": ÇAYLI-ÖDEMİŞ"
+    },
+    {
+        "hat_kodu": 616,
+        "guzergah": ": KAYMAKÇI-ÖDEMİŞ"
+    },
+    {
+        "hat_kodu": 618,
+        "guzergah": ": ERTUĞRULKÖY-ÖDEMİŞ"
+    },
+    {
+        "hat_kodu": 619,
+        "guzergah": ": SEYREK - ULUKENT AKTARMA MERKEZİ 2"
+    },
+    {
+        "hat_kodu": 621,
+        "guzergah": ": KURUCUOVA-ÖDEMİŞ"
+    },
+    {
+        "hat_kodu": 640,
+        "guzergah": ": SIĞACIK - SEFERİHİSAR"
+    },
+    {
+        "hat_kodu": 641,
+        "guzergah": ": SEFERİHİSAR TOKİ - SEFERİHİSAR"
+    },
+    {
+        "hat_kodu": 642,
+        "guzergah": ": AKARCA - SEFERİHİSAR"
+    },
+    {
+        "hat_kodu": 643,
+        "guzergah": ": DEREKÖY - BERGAMA"
+    },
+    {
+        "hat_kodu": 644,
+        "guzergah": ": GÖÇBEYLİ - BERGAMA"
+    },
+    {
+        "hat_kodu": 645,
+        "guzergah": ": YENİKENT - BERGAMA"
+    },
+    {
+        "hat_kodu": 646,
+        "guzergah": ": BERGAMA ORGANİZE SANAYİ BÖLGESİ - BERGAMA"
+    },
+    {
+        "hat_kodu": 648,
+        "guzergah": ": GAZİ MAHALLESİ - MENEMEN AKTARMA MERKEZİ"
+    },
+    {
+        "hat_kodu": 650,
+        "guzergah": ": FUAR İZMİR - BALÇOVA"
+    },
+    {
+        "hat_kodu": 651,
+        "guzergah": "NO.LU HAT GEÇİCİ GÜZERGAH DEĞİŞİKLİĞİ DETAY"
+    },
+    {
+        "hat_kodu": 652,
+        "guzergah": "NO.LU HATTA GEÇİCİ GÜZERGAH DEĞİŞİKLİĞİ DETAY"
+    },
+    {
+        "hat_kodu": 653,
+        "guzergah": ": OTOGAR - TEPEKÖY"
+    },
+    {
+        "hat_kodu": 656,
+        "guzergah": ": DEVLET HASTANESİ - DİKİLİSULTAN"
+    },
+    {
+        "hat_kodu": 657,
+        "guzergah": ": MALTEPE - MENEMEN AKTARMA MERKEZİ"
+    },
+    {
+        "hat_kodu": 658,
+        "guzergah": ": TOKİ - MENEMEN AKTARMA MERKEZİ"
+    },
+    {
+        "hat_kodu": 660,
+        "guzergah": ": YENİ FOÇA - İZMİR OTOGAR"
+    },
+    {
+        "hat_kodu": 662,
+        "guzergah": ": CENGİZHAN - KEMER"
+    },
+    {
+        "hat_kodu": 664,
+        "guzergah": ": YENİ FOÇA - ESKI FOÇA"
+    },
+    {
+        "hat_kodu": 665,
+        "guzergah": ": YENİ FOÇA - SİTELER"
+    },
+    {
+        "hat_kodu": 666,
+        "guzergah": ": YENİ FOÇA - KOZBEYLI"
+    },
+    {
+        "hat_kodu": 668,
+        "guzergah": ": NAZARKÖY - KEMALPAŞA"
+    },
+    {
+        "hat_kodu": 671,
+        "guzergah": ": ŞİRİNYER AKTARMA MERKEZİ - F.ALTAY AKTARMA MERKEZİ"
+    },
+    {
+        "hat_kodu": 675,
+        "guzergah": ": SEFERİHİSAR - F.ALTAY AKT. MER. EKSPRES"
+    },
+    {
+        "hat_kodu": 676,
+        "guzergah": ": TINAZTEPE - ŞİRİNYER AKTARMA MERKEZİ"
+    },
+    {
+        "hat_kodu": 678,
+        "guzergah": ": ALANKIYI-BAYINDIR"
+    },
+    {
+        "hat_kodu": 679,
+        "guzergah": ": SARIYURT-BAYINDIR"
+    },
+    {
+        "hat_kodu": 680,
+        "guzergah": ": BOZYAKA - LOZAN MEYDANI"
+    },
+    {
+        "hat_kodu": 681,
+        "guzergah": ": F.ALTAY - LOZAN MEYDANI"
+    },
+    {
+        "hat_kodu": 684,
+        "guzergah": ": URLA - F.ALTAY AKT. MER. EKSPRES"
+    },
+    {
+        "hat_kodu": 690,
+        "guzergah": ": TINAZTEPE - F.ALTAY"
+    },
+    {
+        "hat_kodu": 691,
+        "guzergah": ": GAZİEMİR - LOZAN MEYDAN"
+    },
+    {
+        "hat_kodu": 692,
+        "guzergah": ": KARAKUYU - PANCAR AKTARMA"
+    },
+    {
+        "hat_kodu": 693,
+        "guzergah": ": ZEYTİNKÖY - SELÇUK"
+    },
+    {
+        "hat_kodu": 694,
+        "guzergah": "NO.LU GÜZERGAH DEĞİŞİKLİĞİ (GÖKÇEALAN) DETAY"
+    },
+    {
+        "hat_kodu": 695,
+        "guzergah": ": ULUKENT KOOP - EGEKENT AKTARMA MERKEZİ"
+    },
+    {
+        "hat_kodu": 697,
+        "guzergah": ": BEYDAĞ - İZMİR OTOGAR"
+    },
+    {
+        "hat_kodu": 698,
+        "guzergah": ": ASARLIK TOPLU KONUTLARI - ULUKENT AKTARMA MERKEZİ 1"
+    },
+    {
+        "hat_kodu": 699,
+        "guzergah": ": M.ERENER - KEMER"
+    },
+    {
+        "hat_kodu": 701,
+        "guzergah": ": TORBALI - TEKELİ"
+    },
+    {
+        "hat_kodu": 705,
+        "guzergah": ": AYRANCILAR - SARNIÇ AKTARMA MERKEZİ"
+    },
+    {
+        "hat_kodu": 707,
+        "guzergah": ": PANCAR AKTARMA MERKEZİ - MENDERES"
+    },
+    {
+        "hat_kodu": 709,
+        "guzergah": ": DEMİRCİ - PANCAR AKTARMA MERKEZİ"
+    },
+    {
+        "hat_kodu": 710,
+        "guzergah": ": YAZIBAŞI - KUŞÇUBURUN AKTARMA MERKEZİ"
+    },
+    {
+        "hat_kodu": 712,
+        "guzergah": ": PANCAR AKTARMA - TORBALI"
+    },
+    {
+        "hat_kodu": 713,
+        "guzergah": ": DEÜ MESLEK YÜKSEK OKULU - TORBALI"
+    },
+    {
+        "hat_kodu": 714,
+        "guzergah": ": DEÜ MESLEK YÜKSEK OKULU - TORBALI AKTARMA MERKEZİ"
+    },
+    {
+        "hat_kodu": 715,
+        "guzergah": ": DEÜ MESLEK YÜKSEK OKULU - TORBALI AKTARMA MERKEZİ"
+    },
+    {
+        "hat_kodu": 719,
+        "guzergah": ": ÇAPAK - TORBALI"
+    },
+    {
+        "hat_kodu": 721,
+        "guzergah": ": KARAKUYU - TORBALI"
+    },
+    {
+        "hat_kodu": 722,
+        "guzergah": ": YAZIBAŞI - TORBALI"
+    },
+    {
+        "hat_kodu": 724,
+        "guzergah": ": ŞEHİTLER - TORBALI AKTARMA MERKEZİ"
+    },
+    {
+        "hat_kodu": 727,
+        "guzergah": ": BAYINDIR - TORBALI AKTARMA MERKEZİ"
+    },
+    {
+        "hat_kodu": 728,
+        "guzergah": ": KISIK SANAYİ - SARNIÇ AKTARMA MERKEZİ"
+    },
+    {
+        "hat_kodu": 729,
+        "guzergah": ": ATAKÖY - CUMAOVASI AKTARMA MERKEZİ"
+    },
+    {
+        "hat_kodu": 732,
+        "guzergah": ": SEFERİHİSAR - URLA"
+    },
+    {
+        "hat_kodu": 733,
+        "guzergah": ": YAĞCILAR - URLA"
+    },
+    {
+        "hat_kodu": 734,
+        "guzergah": ": ÖZBEK - URLA"
+    },
+    {
+        "hat_kodu": 737,
+        "guzergah": ": KADIOVACIK - URLA"
+    },
+    {
+        "hat_kodu": 738,
+        "guzergah": "NOLU HAT GEÇİCİ DEĞİŞİKLİK DETAY"
+    },
+    {
+        "hat_kodu": 741,
+        "guzergah": ": YAMANLAR KÖYÜ - KARŞIYAKA"
+    },
+    {
+        "hat_kodu": 742,
+        "guzergah": ": SANCAKLI KÖYÜ - KARŞIYAKA"
+    },
+    {
+        "hat_kodu": 743,
+        "guzergah": ": TİRE - SELÇUK"
+    },
+    {
+        "hat_kodu": 744,
+        "guzergah": ": FOÇA - HATUNDERE AKTARMA MERKEZİ"
+    },
+    {
+        "hat_kodu": 745,
+        "guzergah": ": YENİ FOÇA - BİÇEROVA AKTARMA MERKEZİ"
+    },
+    {
+        "hat_kodu": 746,
+        "guzergah": ": ÇAKMAKLI - BİÇEROVA AKTARMA MERKEZİ"
+    },
+    {
+        "hat_kodu": 747,
+        "guzergah": ": EMİRALEM - MENEMEN AKTARMA MERKEZİ"
+    },
+    {
+        "hat_kodu": 748,
+        "guzergah": ": ULUKENT AKTARMA MERKEZİ 1- MENEMEN AKTARMA MERKEZİ"
+    },
+    {
+        "hat_kodu": 749,
+        "guzergah": ": ULUKENT AKTARMA MERKEZİ 1 - MENEMEN AKTARMA MERKEZİ"
+    },
+    {
+        "hat_kodu": 750,
+        "guzergah": ": YENİ FOÇA - ULUKENT AKTARMA MERKEZİ 2"
+    },
+    {
+        "hat_kodu": 751,
+        "guzergah": ": SASALI - ÇİĞLİ AKTARMA MERKEZİ"
+    },
+    {
+        "hat_kodu": 752,
+        "guzergah": ": BURUNCUK - HATUNDERE AKTARMA MERKEZİ"
+    },
+    {
+        "hat_kodu": 753,
+        "guzergah": ": GÖKTEPE - MENEMEN AKTARMA MERKEZİ"
+    },
+    {
+        "hat_kodu": 754,
+        "guzergah": ": BOZALAN - MENEMEN AKTARMA MERKEZİ"
+    },
+    {
+        "hat_kodu": 755,
+        "guzergah": ": SÜLEYMANLI - MENEMEN AKTARMA MERKEZİ"
+    },
+    {
+        "hat_kodu": 756,
+        "guzergah": ": KOZBEYLİ - MENEMEN AKTARMA"
+    },
+    {
+        "hat_kodu": 757,
+        "guzergah": ": MALTEPE - ULUKENT AKTARMA MERKEZİ 2"
+    },
+    {
+        "hat_kodu": 758,
+        "guzergah": ": ÇUKURKÖY - MENEMEN AKTARMA MERKEZİ"
+    },
+    {
+        "hat_kodu": 759,
+        "guzergah": ": KARAORMAN - MENEMEN AKTARMA MERKEZİ"
+    },
+    {
+        "hat_kodu": 760,
+        "guzergah": ": ÇEŞME-URLA"
+    },
+    {
+        "hat_kodu": 761,
+        "guzergah": ": KARABURUN-URLA"
+    },
+    {
+        "hat_kodu": 762,
+        "guzergah": ": GÜZELBAHÇE - URLA"
+    },
+    {
+        "hat_kodu": 763,
+        "guzergah": ": DÜVERLİK - TORBALI"
+    },
+    {
+        "hat_kodu": 766,
+        "guzergah": ": ANSIZCA - KEMALPAŞA"
+    },
+    {
+        "hat_kodu": 767,
+        "guzergah": ": HALİLBEYLİ - KEMALPAŞA"
+    },
+    {
+        "hat_kodu": 768,
+        "guzergah": ": VİŞNELİ - KEMALPAŞA"
+    },
+    {
+        "hat_kodu": 769,
+        "guzergah": ": ÇAMBEL - KEMALPAŞA"
+    },
+    {
+        "hat_kodu": 770,
+        "guzergah": "NO.LU HAT GÜZERGAH DEĞİŞİKLİĞİ (PAMUCAK) DETAY"
+    },
+    {
+        "hat_kodu": 772,
+        "guzergah": ": BEŞPINAR - KEMALPAŞA"
+    },
+    {
+        "hat_kodu": 774,
+        "guzergah": ": TİRE TOPLU KONUTLAR - KAHRAT"
+    },
+    {
+        "hat_kodu": 775,
+        "guzergah": ": ÖZDERE - CUMAOVASI AKTARMA MERKEZİ"
+    },
+    {
+        "hat_kodu": 776,
+        "guzergah": ": DOĞANBEY - CUMAOVASI AKTARMA MERKEZİ"
+    },
+    {
+        "hat_kodu": 777,
+        "guzergah": ": DOĞAL YAŞAM PARKI - KARŞIYAKA"
+    },
+    {
+        "hat_kodu": 778,
+        "guzergah": ": ÖZDERE - ÜRKMEZ"
+    },
+    {
+        "hat_kodu": 780,
+        "guzergah": ": BÜLBÜLDERE - TORBALI AKTARMA MERKEZİ"
+    },
+    {
+        "hat_kodu": 781,
+        "guzergah": ": TULUMKÖY - TORBALI AKTARMA MERKEZİ"
+    },
+    {
+        "hat_kodu": 782,
+        "guzergah": ": TAŞKESİK - TORBALI AKTARMA MERKEZİ"
+    },
+    {
+        "hat_kodu": 783,
+        "guzergah": ": BELEVİ - TORBALI"
+    },
+    {
+        "hat_kodu": 784,
+        "guzergah": ": DOĞANCILAR - TORBALI"
+    },
+    {
+        "hat_kodu": 785,
+        "guzergah": ": DAĞTEKKE - TORBALI"
+    },
+    {
+        "hat_kodu": 786,
+        "guzergah": ": KARAOT - TORBALI"
+    },
+    {
+        "hat_kodu": 787,
+        "guzergah": ": OSMANLAR - BAYINDIR"
+    },
+    {
+        "hat_kodu": 788,
+        "guzergah": ": HAVUZBAŞI - BAYINDIR"
+    },
+    {
+        "hat_kodu": 789,
+        "guzergah": ": EFEMÇUKURU - CUMAOVASI AKTARMA MERKEZİ"
+    },
+    {
+        "hat_kodu": 790,
+        "guzergah": ": HİSARLIK - BAYINDIR"
+    },
+    {
+        "hat_kodu": 791,
+        "guzergah": ": ÇAMLIBEL - BAYINDIR"
+    },
+    {
+        "hat_kodu": 792,
+        "guzergah": ": GÖLOVA - CUMAOVASI AKTARMA MERKEZİ"
+    },
+    {
+        "hat_kodu": 793,
+        "guzergah": ": BALCILAR - BAYINDIR"
+    },
+    {
+        "hat_kodu": 794,
+        "guzergah": ": KÜNER - CUMAOVASI AKTARMA MERKEZİ"
+    },
+    {
+        "hat_kodu": 795,
+        "guzergah": ": ÖDEMİŞ-TORBALI"
+    },
+    {
+        "hat_kodu": 796,
+        "guzergah": ": BEYDAĞ-ÖDEMİŞ"
+    },
+    {
+        "hat_kodu": 798,
+        "guzergah": ": TİRE-TORBALI AKTARMA MERKEZİ"
+    },
+    {
+        "hat_kodu": 799,
+        "guzergah": ": ÇATALCA - CUMAOVASI AKTARMA"
+    },
+    {
+        "hat_kodu": 800,
+        "guzergah": ": MENEMEN AKTARMA - BORNOVA METRO"
+    },
+    {
+        "hat_kodu": 801,
+        "guzergah": ": KİRAZ - BEYDAĞ"
+    },
+    {
+        "hat_kodu": 803,
+        "guzergah": ": KİRAZ - ÖDEMİŞ"
+    },
+    {
+        "hat_kodu": 804,
+        "guzergah": ": DEREKÖY - CUMAOVASI AKTARMA MERKEZI"
+    },
+    {
+        "hat_kodu": 805,
+        "guzergah": ": ÇAMLIKULE - ŞİRİNYER AKTARMA MERKEZİ"
+    },
+    {
+        "hat_kodu": 806,
+        "guzergah": ": KİRAZ - OTOGAR"
+    },
+    {
+        "hat_kodu": 808,
+        "guzergah": ": CUMAOVASI AKTARMA MERKEZİ - ESBAŞ AKTARMA MERKEZİ"
+    },
+    {
+        "hat_kodu": 810,
+        "guzergah": ": ATATÜRK MAHALLESİ - EGEKENT AKTARMA MERKEZİ"
+    },
+    {
+        "hat_kodu": 811,
+        "guzergah": ": ENGELLİLER MERKEZİ - MONTRÖ"
+    },
+    {
+        "hat_kodu": 812,
+        "guzergah": ": BAKIRÇAY ÜNİVERSİTESİ - ULUKENT AKTARMA MERKEZİ 2"
+    },
+    {
+        "hat_kodu": 814,
+        "guzergah": ": MENDERES - CUMAOVASI AKTARMA MERKEZİ"
+    },
+    {
+        "hat_kodu": 816,
+        "guzergah": ": ÇİĞLİ BÖLGE EĞİTİM HASTANESİ - EGEKENT AKTARMA MERKEZİ"
+    },
+    {
+        "hat_kodu": 817,
+        "guzergah": ": EGEKENT AKTARMA MERKEZİ - ÇİĞLİ AKTARMA MERKEZİ"
+    },
+    {
+        "hat_kodu": 818,
+        "guzergah": ": ESBAŞ AKTARMA MERKEZİ - ŞİRİNYER AKTARMA MERKEZİ"
+    },
+    {
+        "hat_kodu": 820,
+        "guzergah": ": HARMANDALI - BOSTANLI İSKELE"
+    },
+    {
+        "hat_kodu": 821,
+        "guzergah": ": MAVİŞEHİR AKTARMA MERKEZİ - BOSTANLI İSKELE"
+    },
+    {
+        "hat_kodu": 823,
+        "guzergah": ": ÜÇYOL - GAZİEMİR SEMT GARAJI"
+    },
+    {
+        "hat_kodu": 826,
+        "guzergah": ": GAZİ MAHALLESI - ULUKENT AKTARMA MERKEZİ 1"
+    },
+    {
+        "hat_kodu": 827,
+        "guzergah": ": ULUKENT AKTARMA MERKEZİ - BOSTANLI İSKELE"
+    },
+    {
+        "hat_kodu": 828,
+        "guzergah": ": SARNIÇ - YENİ ÇAMLIK"
+    },
+    {
+        "hat_kodu": 829,
+        "guzergah": ": ÜRKMEZ-CUMAOVASI AKTARMA"
+    },
+    {
+        "hat_kodu": 831,
+        "guzergah": ": DEMİRCİDERE - BERGAMA"
+    },
+    {
+        "hat_kodu": 832,
+        "guzergah": ": YUKARICUMA - BERGAMA"
+    },
+    {
+        "hat_kodu": 833,
+        "guzergah": ": GÜNEŞLİ - BERGAMA"
+    },
+    {
+        "hat_kodu": 834,
+        "guzergah": ": YENİ MAHALLE - ALİAĞA AKTARMA MERKEZİ"
+    },
+    {
+        "hat_kodu": 835,
+        "guzergah": ": BERGAMA - ALİAĞA AKTARMA MERKEZİ"
+    },
+    {
+        "hat_kodu": 836,
+        "guzergah": ": KINIK-BERGAMA"
+    },
+    {
+        "hat_kodu": 837,
+        "guzergah": ": DİKİLİ-ALİAĞA AKTARMA MERKEZİ"
+    },
+    {
+        "hat_kodu": 838,
+        "guzergah": ": ŞİRİNYER AKTARMA MERKEZİ - KONAK"
+    },
+    {
+        "hat_kodu": 839,
+        "guzergah": ": DİKİLİ DEVLET HASTANESİ - DİKİLİ İLÇE GARAJI"
+    },
+    {
+        "hat_kodu": 842,
+        "guzergah": ": ZEYTİNDAĞ - BERGAMA"
+    },
+    {
+        "hat_kodu": 847,
+        "guzergah": ": POSTACILAR MAHALLESİ - KARŞIYAKA İSKELE"
+    },
+    {
+        "hat_kodu": 848,
+        "guzergah": ": KOYUNDERE - ULUKENT AKTARMA MERKEZİ 1"
+    },
+    {
+        "hat_kodu": 849,
+        "guzergah": ": YENİ ŞAKRAN MAHALLESİ - ALİAĞA AKTARMA"
+    },
+    {
+        "hat_kodu": 850,
+        "guzergah": ": TUZÇULLU -SEYREK - ULUKENT AKTARMA MERKEZİ 2"
+    },
+    {
+        "hat_kodu": 853,
+        "guzergah": ": EGEKENT AKTARMA MERKEZİ - KARŞIYAKA İSKELE"
+    },
+    {
+        "hat_kodu": 858,
+        "guzergah": ": BAYINDIR - İZMİR OTOGAR"
+    },
+    {
+        "hat_kodu": 865,
+        "guzergah": ": KIZILKEÇİLİ - BAYINDIR"
+    },
+    {
+        "hat_kodu": 866,
+        "guzergah": ": BUCA TOPLU KONUTLARI - ŞİRİNYER AKTARMA MERKEZİ"
+    },
+    {
+        "hat_kodu": 868,
+        "guzergah": ": MENEMEN PLASTİK İHTİSAS ORGANİZE SANAYİ - ATATÜRK MAHALLESİ - MENEMEN AKTARMA MERKEZİ"
+    },
+    {
+        "hat_kodu": 871,
+        "guzergah": ": İŞÇİEVLERİ - ŞİRİNYER AKTARMA MERKEZİ"
+    },
+    {
+        "hat_kodu": 873,
+        "guzergah": ": YENİTEPE EVLERİ - FAHRETTİN ALTAY AKTARMA"
+    },
+    {
+        "hat_kodu": 874,
+        "guzergah": ": İZKENT - ŞİRİNYER AKTARMA MERKEZİ"
+    },
+    {
+        "hat_kodu": 875,
+        "guzergah": ": EVKA 1 - ŞİRİNYER AKTARMA MERKEZİ"
+    },
+    {
+        "hat_kodu": 876,
+        "guzergah": ": ŞİRİNKAPI - ŞİRİNYER AKTARMA MERKEZİ"
+    },
+    {
+        "hat_kodu": 877,
+        "guzergah": ": UZUNDERE TOPLU KONUTLARI - GAZİEMİR SEMT GARAJI"
+    },
+    {
+        "hat_kodu": 878,
+        "guzergah": ": TINAZTEPE - ŞİRİNYER AKTARMA MERKEZİ"
+    },
+    {
+        "hat_kodu": 879,
+        "guzergah": ": F.ALTAY - GAZİEMİR SEMT GARAJI"
+    },
+    {
+        "hat_kodu": 882,
+        "guzergah": ": İYTE - URLA"
+    },
+    {
+        "hat_kodu": 883,
+        "guzergah": ": İYTE - F.ALTAY AKT. MER. EKSPRES"
+    },
+    {
+        "hat_kodu": 887,
+        "guzergah": ": SARNIÇ AKTARMA MERKEZİ - KONAK"
+    },
+    {
+        "hat_kodu": 889,
+        "guzergah": "NO.LU HAT GEÇİCİ GÜZERGAH DEĞİŞİKLİK DUYURUSU DETAY"
+    },
+    {
+        "hat_kodu": 891,
+        "guzergah": ": EVKA 7 - GAZİEMİR SEMT GARAJI"
+    },
+    {
+        "hat_kodu": 906,
+        "guzergah": ": ÇEŞME - URLA"
+    },
+    {
+        "hat_kodu": 909,
+        "guzergah": ": ZEYTİNALANI - F. ALTAY AKTARMA MERKEZİ"
+    },
+    {
+        "hat_kodu": 910,
+        "guzergah": ": GAZİEMİR - KONAK"
+    },
+    {
+        "hat_kodu": 912,
+        "guzergah": ": EGEKENT AKTARMA MERKEZİ - ALSANCAK GAR"
+    },
+    {
+        "hat_kodu": 920,
+        "guzergah": ": ÇİĞLİ - KONAK"
+    },
+    {
+        "hat_kodu": 930,
+        "guzergah": ": BORNOVA - KONAK"
+    },
+    {
+        "hat_kodu": 935,
+        "guzergah": ": ALİAĞA OSB - ALİAĞA AKTARMA MERKEZİ"
+    },
+    {
+        "hat_kodu": 936,
+        "guzergah": ": KINIK - ALİAĞA AKTARMA MERKEZİ"
+    },
+    {
+        "hat_kodu": 940,
+        "guzergah": ": BUCA - KONAK"
+    },
+    {
+        "hat_kodu": 945,
+        "guzergah": ": ESENTEPE - FAHRETTİN ALTAY AKTARMA"
+    },
+    {
+        "hat_kodu": 949,
+        "guzergah": ": ÇAMBEL - EVKA 3 METRO"
+    },
+    {
+        "hat_kodu": 950,
+        "guzergah": ": NARLIDERE - KONAK"
+    },
+    {
+        "hat_kodu": 951,
+        "guzergah": ": HALKAPINAR METRO2-KONAK"
+    },
+    {
+        "hat_kodu": 961,
+        "guzergah": ": İÇMELER - URLA"
+    },
+    {
+        "hat_kodu": 963,
+        "guzergah": ": EVKA 3 METRO - ALSANCAK GAR"
+    },
+    {
+        "hat_kodu": 966,
+        "guzergah": ": ULUCAK - EVKA3 METRO"
+    },
+    {
+        "hat_kodu": 967,
+        "guzergah": ": ARMUTLU - KEMALPAŞA"
+    },
+    {
+        "hat_kodu": 969,
+        "guzergah": ": BALÇOVA - F.ALTAY AKTARMA MERKEZİ"
+    },
+    {
+        "hat_kodu": 971,
+        "guzergah": ": NARBEL - F.ALTAY AKTARMA MERKEZİ"
+    },
+    {
+        "hat_kodu": 975,
+        "guzergah": ": SEFERİHİSAR - F.ALTAY AKTARMA"
+    },
+    {
+        "hat_kodu": 976,
+        "guzergah": ": MORDOĞAN - KARABURUN"
+    },
+    {
+        "hat_kodu": 977,
+        "guzergah": ": İZMİR DEMOKRASİ ÜNİVERSİTESİ - ÜÇKUYULAR İSKELE"
+    },
+    {
+        "hat_kodu": 978,
+        "guzergah": ": PARLAK-URLA"
+    },
+    {
+        "hat_kodu": 979,
+        "guzergah": ": ÖMÜR BELDESİ - SEFERİHİSAR"
+    },
+    {
+        "hat_kodu": 981,
+        "guzergah": ": BALIKLIOVA - F.ALTAY AKTARMA MERKEZİ"
+    },
+    {
+        "hat_kodu": 982,
+        "guzergah": ": İYTE - F.ALTAY AKTARMA MERKEZİ"
+    },
+    {
+        "hat_kodu": 983,
+        "guzergah": ": BADEMLER - F.ALTAY AKTARMA MERKEZİ"
+    },
+    {
+        "hat_kodu": 984,
+        "guzergah": ": URLA - F.ALTAY AKTARMA MERKEZİ"
+    },
+    {
+        "hat_kodu": 985,
+        "guzergah": ": SEFERİHİSAR - F.ALTAY AKTARMA MERKEZİ"
+    },
+    {
+        "hat_kodu": 986,
+        "guzergah": ": ÜRKMEZ - SEFERİHİSAR"
+    },
+    {
+        "hat_kodu": 987,
+        "guzergah": ": ÜRKMEZ - F. ALTAY AKTARMA MERKEZİ"
+    },
+    {
+        "hat_kodu": 988,
+        "guzergah": ": KEMALPAŞA - EVKA3 METRO"
+    },
+    {
+        "hat_kodu": 989,
+        "guzergah": ": ORHANLI - SEFERİHİSAR"
+    },
+    {
+        "hat_kodu": 990,
+        "guzergah": ": BEYLER - SEFERİHİSAR"
+    },
+    {
+        "hat_kodu": 991,
+        "guzergah": ": ÇAMTEPE - SEFERİHİSAR"
+    },
+    {
+        "hat_kodu": 2025,
+        "guzergah": "Mali Yılı Kesin Hesabı"
+    },
+    {
+        "hat_kodu": 2026,
+        "guzergah": "Mali Yılı Bütçesi"
+    },
+    {
+        "hat_kodu": 10814,
+        "guzergah": "ID NO.LU AYRANCILAR UN FABRİKASI DURAĞININ GEÇİCİ OLARAK HİZMET DIŞI KALMASI DETAY"
+    },
+    {
+        "hat_kodu": "Bilgi",
+        "guzergah": "Edinme"
+    },
+    {
+        "hat_kodu": "GENEL",
+        "guzergah": "MÜDÜR"
+    },
+    {
+        "hat_kodu": "KURUMSAL",
+        "guzergah": "Tarihçe Kurumsal Mevzuat Misyon - Vizyon Kurumsal Etik İlke ve Değerlerimiz Faaliyetler Birimlerimiz İnsan Kaynakları Politikamız Organizasyon Yapısı Kişisel Verilerin Korunması EYS Politikamız Kurumsal Sürdürülebilirlik Çalışmalarımız VARLIKLARIMIZ Otobüs Filomuz Atölye ve Garajlarımız Hizmet Binamız Kurumsal Kimlik DİĞER İhale İlanları Doğrudan Temin Alım İlanları Doğrudan Temin Sonuç İlanları Sıkça Sorulan Sorular Hizmet Standartları Hizmet Envanterleri Toplu Taşımada Uyulması Gereken Kurallar Vatandaş Memnuniyet Anketi Haber Arşivi Tüm Duyurular E-Dergi BAŞKAN Özgeçmiş GENEL MÜDÜR Özgeçmiş RAPORLAR Tüm Raporlar 2025 Faaliyet Raporu 2025 - 2029 Stratejik Planı 2026 Mali Yılı Performans Programı 2026 Mali Yılı Performans Programı İngilizce 2025 Mali Yılı Kesin Hesabı 2026 Mali Yılı Bütçesi 2023-2024 ESHOT Eylem Planı"
+    },
+    {
+        "hat_kodu": "Kurumsal",
+        "guzergah": "Kimlik"
+    },
+    {
+        "hat_kodu": "Misyon",
+        "guzergah": "- Vizyon"
+    },
+    {
+        "hat_kodu": "EYS",
+        "guzergah": "Politikamız"
+    },
+    {
+        "hat_kodu": "Hizmet",
+        "guzergah": "Envanterleri"
+    },
+    {
+        "hat_kodu": "Toplu",
+        "guzergah": "Ulaşımda Uyulması Gereken Kurallar"
+    },
+    {
+        "hat_kodu": "Haber",
+        "guzergah": "Arşivi"
+    },
+    {
+        "hat_kodu": "2023-2024",
+        "guzergah": "ESHOT Eylem Planı"
+    },
+    {
+        "hat_kodu": "ADRESE",
+        "guzergah": "YAKIN DURAKLAR"
+    },
+    {
+        "hat_kodu": "NASIL",
+        "guzergah": "GİDERİM"
+    },
+    {
+        "hat_kodu": "DURAKTAN",
+        "guzergah": "GEÇEN HATLAR"
+    },
+    {
+        "hat_kodu": "METRO",
+        "guzergah": "BAĞLANTILI HATLAR"
+    },
+    {
+        "hat_kodu": "VAPUR",
+        "guzergah": "BAĞLANTILI HATLAR"
+    },
+    {
+        "hat_kodu": "HAVAALANI",
+        "guzergah": "SEFERLERİ"
+    },
+    {
+        "hat_kodu": "OTOGAR",
+        "guzergah": "BAĞLANTILI HATLAR"
+    },
+    {
+        "hat_kodu": "Adrese",
+        "guzergah": "Yakın Duraklar"
+    },
+    {
+        "hat_kodu": "Duraktan",
+        "guzergah": "Geçen Hatlar"
+    },
+    {
+        "hat_kodu": "Metro",
+        "guzergah": "Bağlantılı Hatlar"
+    },
+    {
+        "hat_kodu": "Vapur",
+        "guzergah": "Bağlantılı Hatlar"
+    },
+    {
+        "hat_kodu": "Otogar",
+        "guzergah": "Bağlantılı Hatlar"
+    },
+    {
+        "hat_kodu": "Bisiklet",
+        "guzergah": "Taşıma Aparatlı Seferler"
+    },
+    {
+        "hat_kodu": "Hat",
+        "guzergah": "Seçiniz"
+    },
+    {
+        "hat_kodu": "Durak",
+        "guzergah": "Seçiniz"
+    },
+    {
+        "hat_kodu": "DURAK",
+        "guzergah": "BİLGİLERİ"
+    },
+    {
+        "hat_kodu": "KENT",
+        "guzergah": "MEYDANI VE OTOPARK PROJESİ KAPSAMINDA GEÇİCİ GÜZERGAH DEĞİŞİKLİKLERİ DETAY"
+    },
+    {
+        "hat_kodu": "BAYRAKLI",
+        "guzergah": "MUHİTTİN ERENER DOĞALGAZ ÇALIŞMALARI DETAY"
+    },
+    {
+        "hat_kodu": "TORBALI",
+        "guzergah": "DURAKLARININ GEÇİCİ HİZMET DIŞI KALMASI (KGM ÇALIŞMASI) DETAY"
+    },
+    {
+        "hat_kodu": "GDZ",
+        "guzergah": "ELEKTRİK DAĞITIM A.Ş. - BURAK REIS CADDESI ALTYAPI ÇALIŞMALARI DETAY"
+    },
+    {
+        "hat_kodu": "BORNOVA",
+        "guzergah": "AKTARMA MERKEZİ YENİ YERLEŞİM PLANI DETAY"
+    },
+    {
+        "hat_kodu": "ATA",
+        "guzergah": "CADDESİ İZSU ÇALIŞMASI-969-167-480-551-950 NOLU HATLARDA GEÇİCİ GÜZERGAH DEĞİŞİKLİĞİ DETAY"
+    },
+    {
+        "hat_kodu": "YAZ",
+        "guzergah": "TATİLI BAŞLANGIÇ 2026 DUYURU DETAY"
+    },
+    {
+        "hat_kodu": "ERENER",
+        "guzergah": "MAHALLESİ 1637\/17 SOKAK İZMİRGAZ ALTYAPI ÇALIŞMASI DETAY"
+    },
+    {
+        "hat_kodu": "URLA",
+        "guzergah": "DEVLET HASTANESİ 51060ID DURAK GEÇİCİ OLARAK KULLANIM DIŞI DETAY"
+    },
+    {
+        "hat_kodu": "136-240",
+        "guzergah": "GEÇİCİ GÜZERGAH DEĞİŞİKLİĞİ DETAY"
+    },
+    {
+        "hat_kodu": "Bornova",
+        "guzergah": "Aktarma İstasyonu yeni yüzüne kavuşuyor 12.06.2026"
+    },
+    {
+        "hat_kodu": "Kurban",
+        "guzergah": "Bayramı’nda toplu ulaşım düzenlemesi 23.05.2026"
+    },
+    {
+        "hat_kodu": "Bayram",
+        "guzergah": "öncesi Tugay’dan personele moral ve vizyon mesajı 19.03.2026"
+    },
+    {
+        "hat_kodu": "Bayramda",
+        "guzergah": "toplu ulaşım yüzde 50 indirimli 18.03.2026"
+    },
+    {
+        "hat_kodu": "Banliyo",
+        "guzergah": "Bağlantılı Hatlar"
+    },
+    {
+        "hat_kodu": "Bakiye",
+        "guzergah": "Sorgulama"
+    },
+    {
+        "hat_kodu": "Kart",
+        "guzergah": "Başvurusu"
+    },
+    {
+        "hat_kodu": "Site",
+        "guzergah": "Haritası"
+    }
+]

@@ -1,0 +1,118 @@
+.SocialNewsletterModal-overlay {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,0.7);
+    backdrop-filter: blur(5px);
+    z-index: 10000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    animation: fadeIn 0.3s ease;
+
+    .SocialNewsletterModal-content {
+        background: #fff;
+        border-radius: 12px;
+        padding: 30px;
+        width: 100%;
+        max-width: 400px;
+        position: relative;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        animation: slideUp 0.3s ease;
+
+        h3 {
+            margin-top: 0;
+            color: #2a5298;
+            font-size: 22px;
+            font-weight: 700;
+            text-align: center;
+            margin-bottom: 10px;
+        }
+
+        p {
+            color: #666;
+            text-align: center;
+            margin-bottom: 25px;
+            font-size: 14px;
+        }
+
+        .Form-group {
+            margin-bottom: 15px;
+
+            label {
+                font-weight: 600;
+                color: #333;
+                display: block;
+                margin-bottom: 5px;
+            }
+
+            .FormControl {
+                width: 100%;
+                padding: 12px;
+                border: 1px solid #ddd;
+                border-radius: 8px;
+                font-size: 15px;
+                transition: border-color 0.2s;
+
+                &:focus {
+                    border-color: #2a5298;
+                    outline: none;
+                }
+            }
+            
+            select.FormControl {
+                height: 46px; /* fixed height instead of auto padding to prevent text cutoff */
+                padding: 0 12px;
+                line-height: 44px;
+            }
+        }
+
+        .Button--block {
+            width: 100%;
+            padding: 12px;
+            font-size: 16px;
+            border-radius: 8px;
+            margin-top: 20px;
+            background: #2a5298;
+            color: #fff;
+            
+            i { margin-right: 8px; }
+        }
+
+        .SocialNewsletterModal-close {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: transparent;
+            border: none;
+            font-size: 20px;
+            color: #999;
+            cursor: pointer;
+            transition: color 0.2s;
+
+            &:hover { color: #333; }
+        }
+
+        .SocialNewsletterModal-success {
+            text-align: center;
+            padding: 20px 0;
+
+            i {
+                font-size: 50px;
+                color: #2ecc71;
+                margin-bottom: 15px;
+            }
+
+            h3 { color: #2ecc71; }
+        }
+    }
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes slideUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}

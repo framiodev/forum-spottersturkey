@@ -1,0 +1,116 @@
+forumaker-friendship:
+  lib:
+    errors:
+      user_not_found: "Kullanıcı bulunamadı"
+      request_not_found: "Arkadaşlık isteği bulunamadı"
+      not_friends: "Bu kullanıcıyla arkadaş değilsiniz"
+      self_request: "Kendinize arkadaşlık isteği gönderemezsiniz"
+      already_friends: "Bu kullanıcıyla zaten arkadaşsınız"
+
+  forum:
+    user:
+      friends_tab: "Arkadaşlar"
+      friends_count: "{count, plural, one {# arkadaş} other {# arkadaş}}"
+      requests_btn: "İstekler"
+      requests_btn_count: "{count, plural, one {# istek} other {# istek}}"
+      no_friends: "Henüz arkadaş yok"
+      friends_hidden: "Arkadaşlar gizli"
+      friends_since: "{date} tarihinden beri arkadaşlar"
+      load_more: "Daha fazla"
+
+    dropdown:
+      add_friend_btn: "Arkadaş Ekle"
+      cancel_request_btn: "İsteği İptal Et"
+      remove_friend_btn: "Arkadaşlıktan Çıkar"
+
+    add_modal:
+      title: "Arkadaş Ekle"
+      text: "{username} adlı kişiye arkadaşlık isteği gönderilsin mi?"
+      confirm_btn: "Arkadaş Ekle"
+      cancel_btn: "Vazgeç"
+      success: "Arkadaşlık isteği gönderildi"
+
+    pending_modal:
+      text: "Bu kullanıcı zaten sana arkadaşlık isteği göndermiş"
+      accept_btn: "Arkadaş Ekle"
+      decline_btn: "Reddet"
+
+    cancel_request_modal:
+      title: "İsteği İptal Et"
+      text: "{username} adlı kişiye gönderilen istek iptal edilsin mi?"
+      confirm_btn: "İptal Et"
+      cancel_btn: "Bırak"
+
+    remove_modal:
+      title: "Arkadaşlıktan Çıkar"
+      text: "{username} adlı kişi arkadaş listesinden çıkarılsın mı?"
+      confirm_btn: "Çıkar"
+      cancel_btn: "Çıkarma"
+      success: "Artık arkadaş değilsiniz"
+
+    requests_modal:
+      title: "Arkadaşlık İstekleri"
+      incoming_tab: "Gelenler — {count}"
+      outgoing_tab: "Gönderilenler — {count}"
+      history_btn: "Geçmiş"
+      search_placeholder: "İsme göre ara"
+      no_incoming: "Gelen istek yok"
+      no_outgoing: "Gönderilmiş istek yok"
+      accept_btn: "Kabul Et"
+      decline_btn: "Reddet"
+      cancel_btn: "İptal Et"
+      cancel_success: "İstek iptal edildi"
+      accept_success: "Artık arkadaşsınız"
+
+    history_modal:
+      title: "Geçmiş"
+      empty: "Henüz geçmiş yok"
+      load_more: "Daha fazla"
+
+    history:
+      requested_self: "{username} adlı kişiye arkadaşlık isteği gönderdiniz"
+      requested_other: "{username} adlı kişi size arkadaşlık isteği gönderdi"
+      cancelled_self: "{username} için fikrinizi değiştirdiniz"
+      cancelled_other: "{username} isteğini iptal etti"
+      accepted_self: "{username} adlı kişinin isteğini kabul ettiniz"
+      accepted_other: "{username} isteğinizi kabul etti"
+      declined_self: "{username} adlı kişinin isteğini reddettiniz"
+      declined_other: "{username} isteğinizi reddetti"
+      removed_self: "{username} adlı kişiyi arkadaş listesinden çıkardınız"
+      removed_other: "{username} sizi arkadaş listesinden çıkardı"
+
+    notifications:
+      requested_text: "{name} sizi arkadaş olarak eklemek istiyor"
+      removed_text: "{name} sizi arkadaş listesinden çıkardı"
+      declined_text: "{name} arkadaşlık isteğinizi reddetti"
+
+    settings:
+      section_label: "Arkadaşlar"
+      show_on_usercard: "Profilde avatarın yanında arkadaş sayısını göster"
+      show_in_posts: "Gönderilerde avatarın yanında arkadaş sayısını göster"
+      notify_requested_label: "Biri bana arkadaşlık isteği gönderdiğinde"
+      notify_removed_label: "Biri beni arkadaş listesinden çıkardığında"
+      notify_declined_label: "Biri arkadaşlık isteğimi reddettiğinde"
+
+  admin:
+    sections:
+      badges: "Rozet"
+      history: "Geçmiş"
+
+    settings:
+      badges_intro: "Etkinleştirildiğinde kullanıcılar bunu kendi ayarlarından kontrol edebilir"
+      show_badge_on_usercard: "Profilde avatarın yanında arkadaş sayısını göster"
+      show_badge_on_usercard_help: "Profil kartında çevrimiçi durum / katılım tarihi yanında gösterilir"
+      show_badge_on_post: "Gönderilerde avatarın yanında arkadaş sayısını göster"
+      show_badge_on_post_help: "Gönderi başlığında avatarın yanında gösterilir"
+      badge_color: "Profildeki renk ve ikon"
+      badge_bg_color: "Gönderilerdeki arka plan rengi"
+      event_retention_intro: "Eski istek geçmişi kayıtları günde bir kez otomatik olarak temizlenir"
+      event_retention_days: "Geçmişi sakla (gün)"
+      event_retention_days_help: "0 = asla silme, geçmiş sonsuza kadar saklanır"
+
+    permissions:
+      add_friends: "Arkadaş ekle"
+      view_others: "Diğer kullanıcıların arkadaşlarını görüntüle"
+      moderate: "Arkadaşlıkları denetle"
+      manage: "Arkadaşlıkları yönet"

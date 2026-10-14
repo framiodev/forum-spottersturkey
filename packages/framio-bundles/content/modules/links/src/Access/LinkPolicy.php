@@ -1,0 +1,50 @@
+<?php
+
+/*
+ * This file is part of fof/links.
+ *
+ * Copyright (c) FriendsOfFlarum.
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
+namespace Framio\Content\Links\Access;
+
+use Flarum\User\Access\AbstractPolicy;
+use Flarum\User\User;
+use Framio\Content\Links\Link;
+
+class LinkPolicy extends AbstractPolicy
+{
+    public function view(User $actor, Link $link): string|bool|null
+    {
+        if ($link->parent_id !== null && !$actor->can('view', $link->parent)) {
+            return $this->deny();
+        }
+
+        if ($link->is_restricted) {
+            $id = $link->id;
+
+            return $actor->hasPermission("link$id.view");
+        }
+
+        return null;
+    }
+
+    public function update(User $actor, Link $link): ?bool
+    {
+        return $actor->isAdmin();
+    }
+
+    public function delete(User $actor, Link $link): ?bool
+    {
+        return $actor->isAdmin();
+    }
+
+    public function moderate(User $actor): ?bool
+    {
+        return $actor->isAdmin();
+    }
+}
+

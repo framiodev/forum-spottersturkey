@@ -1,0 +1,87 @@
+fof-links:
+
+  admin:
+    edit_link:
+      title: => fof-links.ref.create_link
+      title_child: "{parent} altına yeni bağlantı"
+      title_label: => fof-links.ref.title
+      title_placeholder: => fof-links.ref.title
+
+      icon_label: => core.ref.icon
+      icon_text: => core.ref.icon_text
+      icon_additional_text: Bir marka ikonu kullanmak istiyorsanız önek olarak <code>fab fa-</code> kullanabilirsiniz.
+
+      type:
+        heading: Bağlantı Türü
+        internal:
+          label: Forum içi bir sayfaya gider
+          help: Sayfayı yeniden yüklemeden hızlıca açar.
+        external:
+          label: Başka bir web sitesine gider
+          help: Bu forumun dışındaki bir adresi açar.
+        label:
+          label: Hiçbir yere gitmez (Başlık / Etiket)
+          help: Tıklanamayan bir grup başlığı olarak gösterilir. Bir bağlantı grubunu adlandırmak için kullanın.
+
+      url_label: => fof-links.ref.url
+      url_help:
+        internal: "{baseUrl} adresinden sonraki kısım, başında eğik çizgi (/) ile (örn: /tags veya /p/kurallar). "
+        external: "<code>https://</code> dahil tam web adresi (örn: https://ulasim.info)."
+      url_placeholder:
+        internal: /tags
+        external: https://example.com
+
+      options_label: Seçenekler
+      open_newtab: Yeni sekmede aç
+      use_rel_me: <code>rel="me"</code> niteliği ekle
+      use_rel_me_help: Bağlantı verdiğiniz sitenin bu forumun size ait olduğunu doğrulamasına olanak tanır.
+
+      visibility:
+        label: Kimler Görebilir?
+        help: Yeni oluşturulan bir bağlantı varsayılan olarak yalnızca {admin} kullanıcılar tarafından görülebilir. Kapsamı genişletmek için izinleri ayarlayın.
+        help-disabled: Kimlerin görebileceğini seçmeden önce bağlantıyı kaydedin.
+        guest-only:
+          label: "Yalnızca {guest} kullanıcılara göster"
+          help: "Giriş yapmış üyeler bu bağlantıyı görmez. Yukarıdaki iznin {everyone} olarak ayarlanması gerekir."
+
+      submit_button: => core.ref.save_changes
+      delete_link_button: Bağlantıyı Sil
+      delete_link_confirmation: "“{title}” bağlantısını silmek istediğinizden emin misiniz?"
+
+    links:
+      links: => fof-links.ref.links
+      description: Bu bağlantılar forumunuzun üst gezinme çubuğunda burada listelendikleri sırada görünür.
+      create_button: => fof-links.ref.create_link
+      preconfigured: Bu forumdaki bağlantılar kod üzerinden önceden tanımlanmıştır ve buradan düzenlenemez.
+      no_url: Bağlantı yok, başlık olarak gösterilir
+
+      reorder_help: Sıralamak için bağlantıyı tutamacından sürükleyin veya bir alt menü yapmak için başka bir bağlantının üzerine bırakın. Odaklandığında ok tuşlarıyla da taşıyabilirsiniz.
+      reorder_loading: Liste sıralama için hazırlanıyor…
+      reorder_accessible_label: "{title} öğesini yeniden sıralayın. Yukarı, aşağı veya alt menüye taşımak için ok tuşlarını kullanın."
+
+      edit_accessible_label: "{title} bağlantısını düzenle"
+      add_child_accessible_label: "{title} altına yeni bir alt bağlantı ekle"
+
+      audience_everyone: Herkese açık
+      flag:
+        new_tab: Yeni sekme
+        rel_me: rel="me"
+        guest_only: Yalnızca misafirler
+
+      moved: "{title}, {position} / {total} konumuna taşındı."
+      moved_under: "{title}, {parent} altına {position} / {total} konumuna taşındı."
+
+    settings:
+      heading: Ayarlar
+      show_icons_only_on_tablet: Tablet ekranlarında yalnızca ikonları göster
+      show_icons_only_on_tablet_help: Üst menünün en dar olduğu 768px ile 991px genişlik arasındaki ekranlarda bağlantı başlıklarını gizler. Başlıklar ekran okuyucular tarafından okunmaya devam eder.
+
+  forum:
+    header:
+      toggle_dropdown_accessible_label: "{title} altındaki bağlantıları göster"
+
+  ref:
+    create_link: Bağlantı Ekle
+    links: Menü Bağlantıları
+    title: Başlık
+    url: Bağlantı Adresi (URL)

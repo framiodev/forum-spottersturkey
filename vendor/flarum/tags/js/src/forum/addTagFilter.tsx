@@ -1,0 +1,168 @@
+import app from 'flarum/forum/app';
+import type Mithril from 'mithril';
+import { extend, override } from 'flarum/common/extend';
+import IndexPage from 'flarum/forum/components/IndexPage';
+import IndexSidebar from 'flarum/forum/components/IndexSidebar';
+import DiscussionListState from 'flarum/forum/states/DiscussionListState';
+import GlobalSearchState from 'flarum/forum/states/GlobalSearchState';
+import classList from 'flarum/common/utils/classList';
+import textContrastClass from 'flarum/common/helpers/textContrastClass';
+import type { ComponentAttrs } from 'flarum/common/Component';
+
+import TagHero from './components/TagHero';
+import type Tag from '../common/models/Tag';
+
+const findTag = (slug: string) => app.store.all<Tag>('tags').find((tag) => tag.slug().localeCompare(slug, undefined, { sensitivity: 'base' }) === 0);
+
+export default function addTagFilter() {
+  app.currentTag = function (reload?: boolean) {
+    const slug = this.search.state.params().tags;
+
+    // The cache is only valid for the tag the current route actually points
+    // at. Without this check, the cached tag from a previously visited tag
+    // page leaks into any route that doesn't call currentTag(true) — e.g. a
+    // custom homepage — preselecting composer tags and mis-styling the
+    // "Start a Discussion" button there.
+    if (this.currentActiveTag && !reload) {
+      if (!slug) {
+        this.currentActiveTag = undefined;
+      } else if (this.currentActiveTag.slug().localeCompare(slug, undefined, { sensitivity: 'base' }) === 0) {
+        return this.currentActiveTag;
+      }
+    }
+
+    let tag = null;
+
+    if (slug) {
+      tag = findTag(slug);
+    }
+
+    if ((slug && !tag) || (tag && !tag.isChild() && !tag.children())) {
+      if (this.currentTagLoading) {
+        return;
+      }
+
+      this.currentTagLoading = true;
+
+      // Unlike the backend, no need to fetch parent.children because if we're on
+      // a child tag page, then either:
+      //    - We loaded in that child tag (and its siblings) in the API document
+      //    - We first navigated to the current tag's parent, which would have loaded in the current tag's siblings.
+      this.store
+        .find('tags', slug, { include: 'children,children.parent,parent' })
+        .then(() => {
+          this.currentActiveTag = findTag(slug);
+
+          m.redraw();
+        })
+        .finally(() => {
+          this.currentTagLoading = false;
+        });
+    }
+
+    if (tag) {
+      this.currentActiveTag = tag;
+      return this.currentActiveTag;
+    }
+
+    this.currentActiveTag = undefined;
+
+    return;
+  };
+
+  extend(IndexPage.prototype, 'view', function (vdom: Mithril.Vnode<ComponentAttrs, {}>) {
+    app.currentTag(true);
+  });
+
+  // If currently viewing a tag, insert a tag hero at the top of the view.
+  override(IndexPage.prototype, 'hero', function (original) {
+    const tag = app.currentTag();
+
+    if (tag) return <TagHero model={tag} />;
+
+    return original();
+  });
+
+  extend(IndexPage.prototype, 'view', function (vdom: Mithril.Vnode<ComponentAttrs, {}>) {
+    const tag = app.currentTag();
+
+    if (tag) vdom.attrs.className += ' IndexPage--tag' + tag.id();
+  });
+
+  extend(IndexPage.prototype, 'setTitle', function () {
+    const tag = app.currentTag();
+
+    if (tag) {
+      app.setTitle(tag.name());
+    }
+  });
+
+  // Name the current tag in the index title control. The nav dropdown only falls
+  // back to this label when none of its items is active, so it surfaces exactly
+  // when the current tag has no item in the sidebar nav, which is the case for
+  // any secondary tag outside the 3 most discussed ones.
+  extend(IndexPage.prototype, 'view', function () {
+    const tag = app.currentTag();
+
+    if (tag) app.current.set('titleControlLabel', tag.name());
+  });
+
+  // If currently viewing a tag, restyle the 'new discussion' button to use
+  // the tag's color, and disable if the user isn't allowed to edit.
+  extend(IndexSidebar.prototype, 'items', function (items) {
+    const tag = app.currentTag();
+
+    if (tag) {
+      const color = tag.color();
+      const canStartDiscussion = tag.canStartDiscussion() || !app.session.user;
+      const newDiscussion = items.get('newDiscussion') as Mithril.Vnode<ComponentAttrs, {}>;
+
+      if (color) {
+        newDiscussion.attrs.className = classList([newDiscussion.attrs.className, 'Button--tagColored', textContrastClass(color)]);
+        newDiscussion.attrs.style = { '--color': color };
+      }
+
+      newDiscussion.attrs.disabled = !canStartDiscussion;
+      newDiscussion.children = app.translator.trans(
+        canStartDiscussion ? 'core.forum.index.start_discussion_button' : 'core.forum.index.cannot_start_discussion_button'
+      );
+    }
+  });
+
+  // Add a parameter for the global search state to pass on to the
+  // DiscussionListState that will let us filter discussions by tag.
+  extend(GlobalSearchState.prototype, 'params', function (params) {
+    params.tags = m.route.param('tags');
+
+    // A tag can name the order its page opens with. The server already applies
+    // it when rendering the page, but the first client-side request is built
+    // from the URL alone — so without this the list is fetched again in the
+    // default order and replaces the one the reader arrived to.
+    //
+    // Only when nothing was asked for: a sort in the URL is the reader's own
+    // choice and outranks the tag's default. An unrecognised sort is left
+    // alone, since the extension that provided it may simply be disabled for
+    // now, and passing it on would have the API reject the request.
+    if (!params.sort && params.tags) {
+      const defaultSort = findTag(params.tags)?.defaultSort();
+
+      if (defaultSort && defaultSort in app.discussions.sortMap()) {
+        params.sort = defaultSort;
+      }
+    }
+  });
+
+  // Translate that parameter into a gambit appended to the search query.
+  extend(DiscussionListState.prototype, 'requestParams', function (this: DiscussionListState, params) {
+    if (typeof params.include === 'string') {
+      params.include = [params.include];
+    } else {
+      params.include?.push('tags', 'tags.parent');
+    }
+
+    if (this.params.tags) {
+      params.filter ||= {};
+      params.filter.tag = this.params.tags;
+    }
+  });
+}

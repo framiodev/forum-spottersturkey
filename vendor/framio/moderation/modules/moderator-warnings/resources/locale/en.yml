@@ -1,0 +1,89 @@
+fof-moderator-warnings:
+  admin:
+    permissions:
+      manage_warnings: Create and remove moderator warnings
+      view_warnings: View moderator warnings
+      delete_warnings: Permanently delete moderator warnings
+  emails:
+    post_warned:
+      subject: "{warner_display_name} warned you with {strikes, plural, one {# strike} other {# strikes}} in {discussion_title}"
+      body: |
+        Hey {warnee_display_name}!
+
+        {warner_display_name} warned you with {strikes, plural, one {# strike} other {# strikes}} in {discussion_title}
+
+        The following reason was given:
+
+        ---
+
+        {public_comment}
+    user_warned:
+      subject: "{warner_display_name} warned you with {strikes, plural, one {# strike} other {# strikes}}"
+      body: |
+        Hey {warnee_display_name}!
+
+        {warner_display_name} warned you with {strikes, plural, one {# strike} other {# strikes}}
+
+        The following reason was given:
+
+        ---
+
+        {public_comment}
+  forum:
+    notifications:
+      warning_text: '{strikes, plural, one {You were warned with # strike by {mod_username}} other {You were warned with # strikes by {mod_username}}}'
+      warning_no_strikes_text: You were warned by {mod_username} (no strikes)
+    post:
+      warning: '{strikes, plural, one {Warned with # strike by {mod_username}} other {Warned with # strikes by {mod_username}}}'
+      warning_no_strikes: Warned with no strikes by {mod_username}
+    post_controls:
+      warning_button: Warn User
+    user:
+      warnings: Warnings
+    settings:
+      warning_notification_label: A moderator warns me
+    validation:
+      public_comment_required: You most provide a public comment.
+      invalid_strike_count: The number of strikes must be an integer between 0 and 5.
+    warning_controls:
+      delete_button: Remove
+      restore_button: Restore
+      delete_forever_button: Permanently Delete
+    warning_list:
+      add_button: New Warning
+      no_warnings: It looks like there are no warnings here.
+      warnings: "{strikes, plural, one {Moderator Warnings: # Strike Received} other {Moderator Warnings: # Strikes Received}}"
+      warnings_no_strikes: "Moderator Warnings: No Strikes Received"
+    warning_list_item:
+      list_item_heading: '{strikes, plural, one {# strike, {time}} other {# strikes, {time}}}'
+      list_item_heading_hidden: '{strikes, plural, one {# strike, {time} (removed)} other {# strikes, {time} (removed)}}'
+      public_comment: Warning
+      private_comment: Moderator-Visible Comments
+      linked_post: Linked Post
+    warning_modal:
+      confirmation_message: Your warning has been saved.
+      heading: Warn <strong>{username}</strong>
+      strikes_heading: How many strikes should be applied?
+      public_comment_heading: Why is <strong>{username}</strong> receiving these warnings? These comments will be visible to the user and other moderators.
+      private_comment_heading: Why is <strong>{username}</strong> receiving these warnings? These comments will ONLY be visible to other moderators.
+      submit_button: Save warning
+
+# Messages for the optional flarum/audit integration. AuditItem looks these up as
+# `flarum-audit.lib.browser.<action>`, so they have to live in the audit namespace
+# rather than ours; without them the browser falls back to raw JSON. They are
+# harmless when audit isn't installed — nothing reads them.
+#
+# Only the parameters AuditItem builds itself can be interpolated. {username} is one
+# of them and always resolves, so these messages stick to it. {post} and {discussion}
+# are also available, but a warning doesn't have to be attached to a post, and audit
+# interpolates one message per action with no way to branch on the payload — so naming
+# them here would render a dangling "Post #" on standalone warnings. The post, the
+# discussion and the strike count all remain visible via "Show raw log".
+flarum-audit:
+  lib:
+    browser:
+      warning:
+        created: Warned {username}
+        hidden: "Removed {username}'s warning"
+        restored: "Restored {username}'s warning"
+        deleted: "Permanently deleted {username}'s warning"

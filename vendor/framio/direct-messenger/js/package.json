@@ -1,0 +1,14 @@
+{
+  "name": "@framio/direct-messenger",
+  "private": true,
+  "scripts": {
+    "dev": "webpack --mode development --watch",
+    "build": "webpack --mode production"
+  },
+  "dependencies": {
+    "flarum-webpack-config": "^3.0.0",
+    "peerjs": "^1.5.5",
+    "webpack": "^5.0.0",
+    "webpack-cli": "^4.0.0"
+  }
+}

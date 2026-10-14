@@ -1,0 +1,22 @@
+<?php
+
+/*
+ * This file is part of fof/moderator-notes.
+ *
+ * Copyright (c) FriendsOfFlarum.
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
+namespace Framio\Moderation\ModeratorNotes\Events;
+
+use Flarum\User\User;
+use Framio\Moderation\ModeratorNotes\Model\ModeratorNote;
+
+class ModeratorNoteCreated
+{
+    public function __construct(public User $actor, public ModeratorNote $note)
+    {
+    }
+}

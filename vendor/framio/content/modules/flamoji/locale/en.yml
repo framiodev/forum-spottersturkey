@@ -1,0 +1,151 @@
+pianotell-flamoji:
+  ##
+  # UNIQUE KEYS - The following keys are used in only one location each.
+  ##
+
+  # Translations in this namespace are used by the admin interface.
+  admin:
+    # These translations are used in the Settings page.
+    settings:
+      emoji_settings_heading: Emoji Settings
+      category_settings_heading: Category Settings
+      general_ui_settings_heading: General UI Settings
+      show_variants_label: Show skin-tone variants
+      show_variants_text: Some emojis have skin tone variants. When an emoji is selected in the picker that has variants, a variant popup will appear so the user can select the desired variant. This has no effect in sticker mode, since custom emoji don't have skin-tone variants.
+      sticker_mode_label: Sticker mode
+      sticker_mode_text: Render custom emoji as large stickers — in posts, the live composer preview, and an enlarged picker grid. Because only custom emoji are enlarged, the picker is restricted to your custom emoji while this is on. Off by default.
+      auto_hide_label: Auto hide
+      auto_hide_text: Hide the picker when an emoji is selected.
+      show_preview_label: Show preview section
+      show_preview_text: Show the emoji name, shortcode, and skin-tone selector in a preview pane below the picker grid.
+      show_category_buttons_label: Show category buttons
+      show_category_buttons_text: Show the row of category icons at the top of the picker. Useful to disable when only one or two categories are enabled.
+      show_search_label: Show search input
+      show_search_text: Show the search box at the top of the picker.
+      use_cdn_label: Load Emoji-Mart via CDN
+      use_cdn_text: Load the emoji-mart library and emoji data from a third-party CDN (e.g. jsDelivr) instead of serving them from your own server. Off by default. If the CDN fails to load — or a Subresource Integrity (SRI) hash doesn't match — the picker automatically falls back to the copy bundled with this extension. Note that loading from an external origin requires your Content-Security-Policy (if any) to allow it.
+      cdn_js_url_label: CDN JavaScript URL
+      cdn_js_sri_label: JavaScript SRI Hash (Optional)
+      cdn_data_url_label: CDN Data URL
+      cdn_data_sri_label: Data SRI Hash (Optional)
+      cdn_advanced_text: The defaults are pinned to the exact emoji-mart version this extension was built against, with matching SRI hashes. If you change a URL, update its SRI hash to match (or clear it to disable integrity checking), and keep the data version aligned with the emoji sprite sheet — mismatched versions can render emojis incorrectly. Leave a URL empty to force that resource to load locally.
+      show_recents_label: Show (and save) frequently used emojis
+      show_recents_text: Show the Frequently Used tab at the top of the picker. It starts empty and fills as each member picks emojis. Each user's frequents are saved in their own browser only.
+      frequent_rows_label: Frequent emoji rows
+      frequent_rows_text: Number of rows of recently/frequently used emojis to display at the top of the picker (1-10).
+      picker_set_label: Emoji style
+      picker_set_text: How emojis appear in the picker. "Auto" matches the Flarum Emoji extension — Twemoji when it's enabled, native OS fonts otherwise — so the picker mirrors what posts actually display.
+      picker_set_auto: Auto
+      picker_set_twemoji: Twemoji
+      picker_set_native: Native
+      specify_categories_label: Specify categories
+      specify_categories_text: You can specify a list of categories here, and the picker will only show those categories.
+
+      emoji_categories:
+        people: => pianotell-flamoji.ref.emoji_categories.people
+        nature: => pianotell-flamoji.ref.emoji_categories.nature
+        foods: => pianotell-flamoji.ref.emoji_categories.foods
+        activity: => pianotell-flamoji.ref.emoji_categories.activity
+        places: => pianotell-flamoji.ref.emoji_categories.places
+        objects: => pianotell-flamoji.ref.emoji_categories.objects
+        symbols: => pianotell-flamoji.ref.emoji_categories.symbols
+        flags: => pianotell-flamoji.ref.emoji_categories.flags
+
+    custom_emojis_section:
+      heading_title: Custom Emojis
+      import_json_button: Import JSON
+      export_json_button: Export JSON
+      upload_json_button: Upload JSON
+      import_emojis_message: This will import emoji configurations only. You need to upload emoji images manually.
+      import_override_mode: Override Mode (Replace all existing emojis)
+      import_override_warning: "Warning: This will delete all your current custom emojis!"
+      import_override_confirm: Yes, I want to replace all existing emojis.
+      import_legacy_shortcodes: "Imported {count} emoji whose shortcodes don't follow the recommended :word: convention: {shortcodes}. They were imported as-is and still work, but consider updating them."
+
+      edit_emoji:
+        modal_title: Add Emoji
+        intro_text: "Custom emojis are your own images that members insert by typing a shortcode. The shortcode and image are required; a title and category are optional."
+        emoji_title_label: Emoji Title
+        emoji_title_text: "A friendly name shown in the picker preview and matched when searching. Optional."
+        delete_emoji_confirmation: "Are you sure you want to delete this emoji?"
+        text_to_replace_label: Shortcode
+        text_to_replace_text: "The text members type to insert this emoji. Must be wrapped in colons and contain only letters, numbers, and the characters _ + - (e.g. :myemoji_partyparrot:). Required, and must be unique. Tip: prefix your shortcodes so they read clearly and won't clash with standard emoji."
+        shortcode_invalid: "Wrap the shortcode in colons and use only letters, numbers, and _ + - (e.g. :myemoji_partyparrot:)."
+        category_label: Category
+        category_placeholder: e.g. Memes
+        category_text: "Optional. Custom emojis sharing the same category appear together in their own picker tab. Leave blank for the default Custom tab."
+        path_or_url_label: Path or URL
+        path_or_url_text: "Where the image is hosted: a full URL (https://…) or a forum-relative path (/assets/…). Required. Upload the image yourself first — this only records its location."
+        submit_button: => core.ref.save_changes
+        delete_emoji_button: Delete emoji
+        saved_message: => core.admin.settings.saved_message
+
+      emoji_list:
+        edit_button: Edit emoji
+        add_button: Add emoji
+        load_more_button: => core.forum.post_stream.load_more_button
+        uncategorized: Uncategorized
+        rename_save_button: Save
+        rename_cancel_button: Cancel
+
+  # Translations in this namespace are used by the forum user interface.
+  forum:
+    # These translations are used by the composer.
+    composer:
+      emoji_picker_label: Emoji picker
+      emoji_tooltip: Insert emoji
+      picker_loading: Loading emojis…
+      picker_load_error: Could not load the emoji picker. Please try again.
+      picker_load_retry: Retry
+
+    # These translations are used by the `emoji-mart` package, fed via
+    # its `i18n` prop. Anything we don't override here falls back to
+    # emoji-mart's built-in English defaults.
+    emoji-mart:
+      search_placeholder: Search
+      no_emojis_found_title: Oh no!
+      no_emojis_found_message: No emojis found
+      pick: Pick an emoji
+      add_custom: Add custom emoji
+      category_search: Search Results
+      skin_tone_choose: Choose default skin tone
+      skin_tone_default: Default
+      skin_tone_light: Light
+      skin_tone_medium_light: Medium-Light
+      skin_tone_medium: Medium
+      skin_tone_medium_dark: Medium-Dark
+      skin_tone_dark: Dark
+
+      # Category labels are aliased into the `forum.*` namespace so they
+      # ship to the browser in `forum-en.js`. Keys under `ref.*` are
+      # server-side only; the JS picker can't read them directly.
+      categories:
+        frequent: => pianotell-flamoji.ref.emoji_categories.frequent
+        people: => pianotell-flamoji.ref.emoji_categories.people
+        nature: => pianotell-flamoji.ref.emoji_categories.nature
+        foods: => pianotell-flamoji.ref.emoji_categories.foods
+        activity: => pianotell-flamoji.ref.emoji_categories.activity
+        places: => pianotell-flamoji.ref.emoji_categories.places
+        objects: => pianotell-flamoji.ref.emoji_categories.objects
+        symbols: => pianotell-flamoji.ref.emoji_categories.symbols
+        flags: => pianotell-flamoji.ref.emoji_categories.flags
+        custom: => pianotell-flamoji.ref.emoji_categories.custom
+
+  ##
+  # REUSED TRANSLATIONS - These keys should not be used directly in code!
+  ##
+
+  # Translations in this namespace are referenced by two or more unique keys.
+  ref:
+    # Translations in this namespace are used to translate emoji categories.
+    emoji_categories:
+      frequent: Frequently Used
+      people: Smileys & People
+      nature: Animals & Nature
+      foods: Food & Drink
+      activity: Activities
+      places: Travel & Places
+      objects: Objects
+      symbols: Symbols
+      flags: Flags
+      custom: Custom

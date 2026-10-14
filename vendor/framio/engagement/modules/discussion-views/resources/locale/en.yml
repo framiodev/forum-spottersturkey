@@ -1,0 +1,26 @@
+core:
+  forum:
+    index_sort:
+      most_viewed_button: Most Viewed
+      least_viewed_button: Least Viewed
+
+fof-discussion-views:
+  forum:
+    modal_resetviews:
+      title: Reset discussion view count
+      submit: Submit
+      label: Set to view count
+      invalid: Please enter a valid number greater than or equal to 0
+    discussion_controls:
+      resetviews_button: Set view count
+  admin:
+    permissions:
+      reset_views_label: Set discussion views
+    settings:
+      ignore_crawlers: Ignore crawler visits
+      dedupe_ttl: Seconds before a viewer is counted again
+      dedupe_ttl_help: How long a viewer is remembered after viewing a discussion, so that refreshing or returning to it does not count again. Set to 0 to count every view.
+  lib:
+    gambits:
+      popular:
+        key: popular

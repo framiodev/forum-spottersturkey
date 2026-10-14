@@ -1,0 +1,66 @@
+// Bold makes the active link wider, which would shift the rest of the row. The
+// bold width is reserved up front instead.
+.LinksButton-title::after {
+  content: attr(data-title);
+  display: block;
+  height: 0;
+  overflow: hidden;
+  visibility: hidden;
+  font-weight: 600;
+  pointer-events: none;
+}
+
+.Header-controls > li {
+  &.active > .LinksButton,
+  > .LinkDropdown--active > .LinksButton {
+    color: var(--header-color);
+    font-weight: 600;
+  }
+}
+
+@media @tablet-up {
+  // Core hides the first entry of a split menu, the link already shown beside
+  // the caret. A heading right after it would keep the rule meant to separate
+  // it from that entry.
+  .Dropdown--split > .LinkDropdown-menu > li:first-child + .LinksHeading {
+    margin-top: -8px;
+    border-top: 0;
+  }
+}
+
+// The overflow menu lays a group out inline and steps its entries in from the
+// group's title. Headings inside the group take the same step.
+.OverflowingList-dropdown .LinkDropdown-menu > .LinksHeading:not(:first-child) {
+  padding-left: 30px;
+}
+
+@media @phone {
+  // Header controls are full-width rows in the drawer, and a split group is two
+  // controls sharing one row.
+  .Header-controls > li > .LinkDropdown.Dropdown--split {
+    display: flex;
+    width: 100%;
+
+    > .SplitDropdown-button {
+      flex: 1 1 auto;
+      width: auto;
+    }
+
+    > .Dropdown-toggle {
+      flex: 0 0 auto;
+      width: 44px;
+      justify-content: center;
+    }
+  }
+}
+
+& when (@fof-links-show-only-icons-on-mobile = true) {
+  @media @tablet {
+    .Header-controls > li > .LinksButton.hasIcon,
+    .Header-controls > li > .LinkDropdown > .LinksButton.hasIcon {
+      .Button-label {
+        display: none;
+      }
+    }
+  }
+}

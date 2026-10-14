@@ -1,0 +1,116 @@
+forumaker-friendship:
+  lib:
+    errors:
+      user_not_found: "Пользователь не найден"
+      request_not_found: "Заявка в друзья не найдена"
+      not_friends: "Вы не друзья с этим пользователем"
+      self_request: "Нельзя отправить заявку в друзья самому себе"
+      already_friends: "Вы уже друзья с этим пользователем"
+
+  forum:
+    user:
+      friends_tab: "Друзья"
+      friends_count: "{count, plural, one {# друг} few {# друга} many {# друзей} other {# друзей}}"
+      requests_btn: "Заявки"
+      requests_btn_count: "{count, plural, one {# заявка} few {# заявки} many {# заявок} other {# заявок}}"
+      no_friends: "Пока нет друзей"
+      friends_hidden: "Друзья скрыты"
+      friends_since: "Друзья с {date}"
+      load_more: "Показать ещё"
+
+    dropdown:
+      add_friend_btn: "Добавить в друзья"
+      cancel_request_btn: "Отменить заявку в друзья"
+      remove_friend_btn: "Удалить из друзей"
+
+    add_modal:
+      title: "Добавление в друзья"
+      text: "Отправить {username} заявку в друзья?"
+      confirm_btn: "Хочу дружить"
+      cancel_btn: "Отмена"
+      success: "Заявка в друзья отправлена"
+
+    pending_modal:
+      text: "Этот пользователь уже предложил вам стать друзьями"
+      accept_btn: "Добавить в друзья"
+      decline_btn: "Отклонить"
+
+    cancel_request_modal:
+      title: "Отмена заявки в друзья"
+      text: "Отменить заявку в друзья {username}?"
+      confirm_btn: "Не хочу дружить"
+      cancel_btn: "Оставить заявку"
+
+    remove_modal:
+      title: "Удаление из друзей"
+      text: "Удалить {username} из друзей?"
+      confirm_btn: "Удалить"
+      cancel_btn: "Не удалять"
+      success: "Вы больше не друзья"
+
+    requests_modal:
+      title: "Заявки в друзья"
+      incoming_tab: "Входящие — {count}"
+      outgoing_tab: "Исходящие — {count}"
+      history_btn: "История"
+      search_placeholder: "Найти по имени"
+      no_incoming: "Нет входящих заявок"
+      no_outgoing: "Нет исходящих заявок"
+      accept_btn: "Принять"
+      decline_btn: "Отклонить"
+      cancel_btn: "Отменить"
+      cancel_success: "Вы передумали дружить"
+      accept_success: "Теперь вы друзья"
+
+    history_modal:
+      title: "История"
+      empty: "Пока не было заявок"
+      load_more: "Показать ещё"
+
+    history:
+      requested_self: "Вы отправили заявку в друзья {username}"
+      requested_other: "Вы получили заявку в друзья от {username}"
+      cancelled_self: "Вы передумали дружить с {username}"
+      cancelled_other: "Пользователь {username} отменил заявку в друзья"
+      accepted_self: "Вы приняли заявку в друзья от {username}"
+      accepted_other: "Пользователь {username} принял вашу заявку в друзья"
+      declined_self: "Вы отклонили заявку пользователя {username}"
+      declined_other: "Пользователь {username} отклонил вашу заявку в друзья"
+      removed_self: "Вы удалили {username} из друзей"
+      removed_other: "Пользователь {username} удалил вас из друзей"
+
+    notifications:
+      requested_text: "Пользователь {name} хочет добавить вас в друзья"
+      removed_text: "Пользователь {name} удалил вас из друзей"
+      declined_text: "Пользователь {name} отклонил заявку в друзья"
+
+    settings:
+      section_label: "Друзья"
+      show_on_usercard: "Показывать количество друзей рядом с аватаром в профиле"
+      show_in_posts: "Показывать количество друзей рядом с аватаром в сообщениях"
+      notify_requested_label: "Кто-то предложил мне дружить"
+      notify_removed_label: "Кто-то удалил меня из друзей"
+      notify_declined_label: "Кто-то отклонил мою заявку в друзья"
+
+  admin:
+    sections:
+      badges: "Значок"
+      history: "История"
+
+    settings:
+      badges_intro: "Если что-либо включено, пользователи смогут регулировать это в своих настройках"
+      show_badge_on_usercard: "Показывать количество друзей рядом с аватаром в профиле"
+      show_badge_on_usercard_help: "Отображается рядом со статусом и датой регистрации в карточке профиля"
+      show_badge_on_post: "Показывать количество друзей рядом с аватаром в сообщениях"
+      show_badge_on_post_help: "Отображается рядом с аватаром в шапке сообщения"
+      badge_color: "Цвет и иконка в профиле"
+      badge_bg_color: "Цвет подложки в сообщениях"
+      event_retention_intro: "Записи с заявками в друзья"
+      event_retention_days: "Сколько дней хранить историю"
+      event_retention_days_help: "0 — не удалять никогда"
+
+    permissions:
+      add_friends: "Добавлять в друзья"
+      view_others: "Смотреть друзей других пользователей"
+      moderate: "Модерировать друзей"
+      manage: "Управлять друзьями"

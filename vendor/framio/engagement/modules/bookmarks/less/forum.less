@@ -1,0 +1,40 @@
+:root {
+  --fof-bookmarks-color: #2756c6;
+}
+
+.Badge--bookmarked {
+  background: var(--fof-bookmarks-color);
+}
+
+// The sidebar control is a standalone button rather than a dropdown item, so it needs the
+// filled treatment when active to read as "on".
+.DiscussionPage-nav .Button--bookmark.Button--bookmarked {
+  background: var(--fof-bookmarks-color);
+  color: var(--body-bg);
+}
+
+// The post header is a row of inline text items (username, badges, date), but core's
+// `.Button` carries 8px vertical padding and `vertical-align: middle`, which makes the
+// bookmark control sit taller than — and off the baseline of — its neighbours. Strip the
+// box back to text metrics so it lines up with them.
+.Post-header .Button--bookmark-post {
+  padding: 0;
+  line-height: inherit;
+  vertical-align: baseline;
+  font-weight: inherit;
+
+  .Button-label {
+    font-weight: inherit;
+  }
+}
+
+.BookmarkedPostLabel {
+  color: var(--fof-bookmarks-color);
+  font-weight: bold;
+}
+
+// fof/blog's article page has no sidebar, so the button is placed in the content flow.
+.FlarumBlog-Article-Content-Bookmark-Button {
+  padding: 0 16px;
+  text-align: right;
+}

@@ -1,0 +1,237 @@
+<?php
+
+/*
+ * This file is part of fof/polls.
+ *
+ * Copyright (c) FriendsOfFlarum.
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
+namespace Framio\Engagement\Polls\Commands;
+
+use Flarum\Foundation\ErrorHandling\Reporter;
+use Flarum\Foundation\ValidationException;
+use Flarum\Settings\SettingsRepositoryInterface;
+use Flarum\User\Exception\PermissionDeniedException;
+use Framio\Engagement\Polls\Events\PollVotesChanged;
+use Framio\Engagement\Polls\Events\PollWasVoted;
+use Framio\Engagement\Polls\Poll;
+use Framio\Engagement\Polls\PollOption;
+use Framio\Engagement\Polls\PollRepository;
+use Framio\Engagement\Polls\PollVote;
+use Illuminate\Contracts\Container\Container;
+use Illuminate\Contracts\Events\Dispatcher;
+use Illuminate\Database\DatabaseManager;
+use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Arr;
+use Illuminate\Validation\Factory;
+
+class MultipleVotesPollHandler
+{
+    public function __construct(private PollRepository $polls, private Dispatcher $events, private SettingsRepositoryInterface $settings, private Container $container, private Factory $validation, private DatabaseManager $db)
+    {
+    }
+
+    /**
+     * @throws PermissionDeniedException
+     * @throws ValidationException
+     */
+    public function handle(MultipleVotesPoll $command): Poll
+    {
+        $actor = $command->actor;
+        $data = $command->data;
+
+        $poll = $this->polls->findOrFail($command->pollId, $actor);
+
+        $actor->assertCan('vote', $poll);
+
+        $optionIds = Arr::get($data, 'optionIds');
+        $options = $poll->options;
+        $myVotes = $poll->myVotes($actor)->get();
+
+        $maxVotes = $poll->allow_multiple_votes ? $poll->max_votes : 1;
+
+        if ($maxVotes == 0) {
+            $maxVotes = $options->count();
+        }
+
+        $this->validateInput($optionIds, $maxVotes, $options);
+
+        if ($this->isChangingVotes($optionIds, $myVotes->pluck('option_id')->toArray())) {
+            $actor->assertCan('changeVote', $poll);
+        }
+
+        $deletedVotes = $myVotes->filter(function ($vote) use ($optionIds) {
+            return $vote instanceof PollVote && !in_array((string) $vote->option_id, $optionIds);
+        });
+        $newOptionIds = collect((array) $optionIds)->filter(function ($optionId) use ($myVotes) {
+            return !$myVotes->contains('option_id', $optionId);
+        });
+
+        $this->db->transaction(function () use ($myVotes, $newOptionIds, $deletedVotes, $poll, $actor) {
+            // Unvote options
+            if ($deletedVotes->isNotEmpty()) {
+                $poll->myVotes($actor)->whereIn('id', $deletedVotes->pluck('id'))->delete();
+                $deletedVotes->each->unsetRelation('option');
+
+                $myVotes->forget($deletedVotes->pluck('id')->toArray());
+            }
+
+            // Vote options
+            $newOptionIds->each(function ($optionId) use ($myVotes, $poll, $actor) {
+                $vote = $poll->votes()->create([
+                    'user_id'   => $actor->id,
+                    'option_id' => $optionId,
+                ]);
+
+                $myVotes->push($vote);
+            });
+
+            // Update vote counts of options & poll
+            $changedOptionIds = array_merge(
+                $deletedVotes->pluck('option_id')->toArray(),
+                $newOptionIds->toArray()
+            );
+
+            foreach ($poll->options()->whereIn('id', $changedOptionIds)->get() as $opt) {
+                if ($opt instanceof PollOption) {
+                    $opt->refreshVoteCount()->save();
+                }
+            }
+
+            if ($deletedVotes->isNotEmpty() || $newOptionIds->isNotEmpty()) {
+                $poll->refreshVoteCount()->save();
+            }
+        });
+
+        $currentVoteOptions = $options->whereIn('id', $myVotes->pluck('option_id'))->except($deletedVotes->pluck('option_id')->toArray());
+        $deletedVoteOptions = $options->whereIn('id', $deletedVotes->pluck('option_id'));
+
+        // Legacy event for backward compatibility with single-vote polls. Can be removed in breaking release.
+        $firstVote = $myVotes->first();
+
+        if (!$poll->allow_multiple_votes && $firstVote instanceof PollVote) {
+            $this->events->dispatch(new PollWasVoted($actor, $poll, $firstVote, !$deletedVotes->isEmpty() && !$newOptionIds->isEmpty()));
+        }
+
+        $this->events->dispatch(new PollVotesChanged($actor, $poll, $deletedVoteOptions->pluck('option.id'), $newOptionIds));
+
+        try {
+            $changedOptionsIds = $currentVoteOptions->concat($deletedVoteOptions)->pluck('id');
+            $changedOptions = $options->whereIn('id', $changedOptionsIds);
+
+            $this->pushUpdatedOptions($poll, $changedOptions);
+        } catch (\Exception $e) {
+            // We don't want to display an error to the user if the websocket functionality fails.
+            $reporters = resolve('container')->tagged(Reporter::class);
+
+            foreach ($reporters as $reporter) {
+                $reporter->report($e);
+            }
+        }
+
+        return $poll;
+    }
+
+    /**
+     * Pushes an updated option through websocket.
+     *
+     * @param \Illuminate\Support\Collection $options
+     */
+    public function pushUpdatedOptions(Poll $poll, $options): void
+    {
+        if ($pusher = $this->getPusher()) {
+            $pusher->trigger('public', 'updatedPollOptions', [
+                'pollId'          => $poll->id,
+                'pollVoteCount'   => $poll->vote_count,
+                'options'         => $options->pluck('vote_count', 'id')->toArray(),
+            ]);
+        }
+    }
+
+    private function getPusher(): object|false
+    {
+        return self::pusher($this->container, $this->settings);
+    }
+
+    public static function pusher(Container $container, SettingsRepositoryInterface $settings): object|false
+    {
+        if (!class_exists(\Pusher::class)) {
+            return false;
+        }
+
+        if ($container->bound(\Pusher::class)) {
+            return $container->make(\Pusher::class);
+        } else {
+            $options = [];
+
+            if ($cluster = $settings->get('flarum-pusher.app_cluster')) {
+                $options['cluster'] = $cluster;
+            }
+
+            $appKey = $settings->get('flarum-pusher.app_key');
+            $appSecret = $settings->get('flarum-pusher.app_secret');
+            $appId = $settings->get('flarum-pusher.app_id');
+
+            // Don't create a Pusher instance if we don't have the required credentials.
+            // This is to prevent errors when e.g. the Pusher extension is disabled, since Pusher seems
+            // to throw a deprecated warning when trying to create a hash from a null secret.
+            if (!$appKey || !$appSecret || !$appId) {
+                return false;
+            }
+
+            return new \Pusher(
+                $appKey,
+                $appSecret,
+                $appId,
+                $options
+            );
+        }
+    }
+
+    protected function isChangingVotes(array $optionIds, array $myVotes): bool
+    {
+        // Cast the values to integers
+        foreach ($optionIds as $optionId => $value) {
+            $optionIds[$optionId] = (int) $value;
+        }
+
+        foreach ($myVotes as $voteId => $value) {
+            $myVotes[$voteId] = (int) $value;
+        }
+
+        // Check the arrays have the same values
+        $same = (count(array_diff($optionIds, $myVotes)) === 0 && count(array_diff($myVotes, $optionIds)) === 0);
+
+        // Only when we have already voted that we are changing votes
+        return count($myVotes) !== 0 && !$same;
+    }
+
+    protected function validateInput(?array $optionIds, int $maxVotes, Collection $options): void
+    {
+        $validator = $this->validation->make([
+            'options' => $optionIds,
+        ], [
+            'options' => [
+                'present',
+                'array',
+                'max:'.$maxVotes,
+                function ($attribute, $value, $fail) use ($options) {
+                    if (is_array($value)) {
+                        foreach ($value as $optionId) {
+                            if (!$options->contains('id', $optionId)) {
+                                $fail('Invalid option ID.');
+                            }
+                        }
+                    }
+                },
+            ],
+        ]);
+
+        if ($validator->fails()) {
+            throw new ValidationException(['options' => $validator->getMessageBag()->first('options')]);
+        }
+    }
+}

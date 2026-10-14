@@ -1,0 +1,31 @@
+<?php
+
+/*
+ * This file is part of fof/discussion-thumbnail.
+ *
+ * Copyright (c) FriendsOfFlarum.
+ *
+ * For the full copyright and license information, please view the LICENSE.md
+ * file that was distributed with this source code.
+ */
+
+namespace Framio\Content\DiscussionThumbnail;
+
+use Flarum\Api\Resource;
+use Flarum\Extend;
+
+return [
+    (new Extend\Frontend('forum'))
+        ->css(__DIR__.'/resources/less/forum.less'),
+
+    (new Extend\Frontend('admin')),
+
+    new Extend\Locales(__DIR__.'/resources/locale'),
+
+    (new Extend\ApiResource(Resource\DiscussionResource::class))
+        ->fields(Api\AddDiscussionThumbnailFields::class),
+
+    (new Extend\Settings())
+        ->default('fof-discussion-thumbnail.link_to_discussion', false)
+        ->serializeToForum('fof-discussion-thumbnail.link_to_discussion', 'fof-discussion-thumbnail.link_to_discussion', 'boolval'),
+];

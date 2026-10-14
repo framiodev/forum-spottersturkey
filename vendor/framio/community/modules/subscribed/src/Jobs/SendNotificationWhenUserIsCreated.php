@@ -1,0 +1,46 @@
+<?php
+
+/*
+ * This file is part of fof/subscribed.
+ *
+ * Copyright (c) FriendsOfFlarum.
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
+namespace Framio\Community\Subscribed\Jobs;
+
+use Flarum\Notification\NotificationSyncer;
+use Flarum\User\User;
+use Flarum\Queue\AbstractJob;
+use Framio\Community\Subscribed\Blueprints\UserCreatedBlueprint;
+use Illuminate\Database\Query\Expression;
+
+class SendNotificationWhenUserIsCreated extends AbstractJob
+{
+
+    public function __construct(protected User $user)
+    {
+    }
+
+    public function handle(NotificationSyncer $notifications): void
+    {
+        $user = $this->user;
+
+        $notify = User::query()
+            ->where('users.id', '!=', $user->id)
+            ->where('users.is_email_confirmed', '=', 1)
+            ->where('preferences', 'regexp', new Expression('\'"notify_userCreated_[a-z]+":true\''))
+            ->get();
+
+        $notify = $notify->filter(function (User $recipient) {
+            return $recipient->can('subscribeUserCreated');
+        });
+
+        $notifications->sync(
+            new UserCreatedBlueprint($user),
+            $notify->all()
+        );
+    }
+}

@@ -1,0 +1,106 @@
+<?php
+
+/*
+ * This file is part of Flarum.
+ *
+ * For detailed copyright and license information, please view the
+ * LICENSE file that was distributed with this source code.
+ */
+
+namespace Flarum\Likes;
+
+use Flarum\Api\Endpoint;
+use Flarum\Api\Resource;
+use Flarum\Extend;
+use Flarum\Likes\Api\PostResourceFields;
+use Flarum\Likes\Event\PostWasLiked;
+use Flarum\Likes\Event\PostWasUnliked;
+use Flarum\Likes\Notification\PostLikedBlueprint;
+use Flarum\Likes\Query\LikedByFilter;
+use Flarum\Likes\Query\LikedFilter;
+use Flarum\Post\Event\Deleted;
+use Flarum\Post\Filter\PostSearcher;
+use Flarum\Post\Post;
+use Flarum\Realtime\Extend\Realtime as RealtimeExtend;
+use Flarum\Search\Database\DatabaseSearchDriver;
+use Flarum\User\Search\UserSearcher;
+use Flarum\User\User;
+
+return [
+    (new Extend\Frontend('forum'))
+        ->js(__DIR__.'/js/dist/forum.js')
+        ->css(__DIR__.'/less/forum.less'),
+
+    (new Extend\Frontend('admin'))
+        ->js(__DIR__.'/js/dist/admin.js'),
+
+    (new Extend\Model(Post::class))
+        ->belongsToMany('likes', User::class, 'post_likes', 'post_id', 'user_id'),
+
+    new Extend\Locales(__DIR__.'/locale'),
+
+    (new Extend\Notification())
+        ->type(PostLikedBlueprint::class, ['alert']),
+
+    (new Extend\ApiResource(Resource\PostResource::class))
+        ->fields(PostResourceFields::class)
+        ->endpoint(
+            [Endpoint\Index::class, Endpoint\Show::class, Endpoint\Create::class, Endpoint\Update::class],
+            function (Endpoint\Index|Endpoint\Show|Endpoint\Create|Endpoint\Update $endpoint): Endpoint\Endpoint {
+                return $endpoint->addDefaultInclude(['likes']);
+            }
+        ),
+
+    (new Extend\ApiResource(Resource\DiscussionResource::class))
+        // Only default-include post likes where the post is actually displayed
+        // (Show/Create render the post stream). The discussion list (Index) never
+        // renders firstPost/lastPost likes, and default-including them there forces
+        // a full serialization of two posts per discussion — content rendering,
+        // per-post permission attributes and the likers — for data the list UI
+        // does not read. The relationships remain includable (see
+        // eagerLoadWhenIncluded below) for clients that explicitly request them.
+        // See flarum/framework#4788.
+        ->endpoint(
+            [Endpoint\Show::class, Endpoint\Create::class],
+            function (Endpoint\Show|Endpoint\Create $endpoint): Endpoint\Endpoint {
+                return $endpoint->addDefaultInclude(['firstPost.likes', 'lastPost.likes']);
+            }
+        )
+        ->endpoint(
+            Endpoint\Index::class,
+            function (Endpoint\Index $endpoint): Endpoint\Index {
+                return $endpoint->eagerLoadWhenIncluded([
+                    'firstPost' => ['firstPost.likes', 'firstPost.likes.groups'],
+                    'lastPost' => ['lastPost.likes', 'lastPost.likes.groups'],
+                ]);
+            }
+        ),
+
+    (new Extend\Event())
+        ->listen(PostWasLiked::class, Listener\SendNotificationWhenPostIsLiked::class)
+        ->listen(PostWasUnliked::class, Listener\SendNotificationWhenPostIsUnliked::class)
+        ->listen(Deleted::class, function (Deleted $event) {
+            $event->post->likes()->detach();
+        }),
+
+    (new Extend\SearchDriver(DatabaseSearchDriver::class))
+        ->addFilter(PostSearcher::class, LikedByFilter::class)
+        ->addFilter(UserSearcher::class, LikedFilter::class),
+
+    (new Extend\Settings())
+        ->default('flarum-likes.like_own_post', true),
+
+    (new Extend\Policy())
+        ->modelPolicy(Post::class, Access\LikePostPolicy::class),
+
+    (new Extend\Conditional())
+        ->whenExtensionEnabled('flarum-realtime', fn () => [
+            (new RealtimeExtend())
+                ->broadcastModelEvent(
+                    [PostWasLiked::class, PostWasUnliked::class],
+                    fn ($event) => $event->post,
+                    fn ($event) => $event->user,
+                    'likesMutation'
+                ),
+        ]),
+];

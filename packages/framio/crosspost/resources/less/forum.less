@@ -1,0 +1,968 @@
+.CrosspostAttributionBadge {
+  margin-top: 18px;
+  padding: 12px 16px;
+  background: rgba(14, 165, 233, 0.05);
+  border: 1px solid rgba(14, 165, 233, 0.18);
+  border-left: 4px solid var(--primary-color, #0ea5e9);
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+  font-size: 13px;
+  transition: all 0.2s ease;
+
+  &:hover {
+    background: rgba(14, 165, 233, 0.08);
+    border-color: rgba(14, 165, 233, 0.3);
+  }
+
+  .CrosspostAttributionBadge-main {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    color: var(--muted-color, #64748b);
+
+    .CrosspostAttributionBadge-icon {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      background: rgba(14, 165, 233, 0.14);
+      color: var(--primary-color, #0ea5e9);
+      font-size: 15px;
+      flex-shrink: 0;
+    }
+
+    .CrosspostAttributionBadge-text {
+      line-height: 1.4;
+
+      strong {
+        color: var(--text-color, #0f172a);
+      }
+
+      .CrosspostAttributionBadge-platform {
+        font-weight: 600;
+        color: var(--primary-color, #0ea5e9);
+      }
+    }
+  }
+
+  .CrosspostAttributionBadge-action {
+    .Button {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
+      font-weight: 600;
+      padding: 6px 14px;
+      border-radius: 6px;
+      text-decoration: none;
+    }
+  }
+}
+
+.CrosspostModal {
+  &.Modal--medium {
+    max-width: 680px;
+    width: 95%;
+  }
+
+  .Modal-body {
+    padding: 24px 28px;
+  }
+
+  .CrosspostModal-desc {
+    color: var(--muted-color, #64748b);
+    font-size: 13px;
+    margin-bottom: 20px;
+    line-height: 1.5;
+  }
+
+  // ==========================================
+  // STEPPER BİLEŞENİ
+  // ==========================================
+  .CrosspostStepper {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 24px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--control-bg, #e2e8f0);
+    gap: 12px;
+
+    .CrosspostStepper-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      opacity: 0.5;
+      transition: all 0.2s ease;
+
+      &.is-active {
+        opacity: 1;
+
+        .CrosspostStepper-circle {
+          background: var(--primary-color, #0ea5e9);
+          color: #fff;
+          border-color: var(--primary-color, #0ea5e9);
+          box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.2);
+        }
+
+        .CrosspostStepper-title {
+          color: var(--text-color, #0f172a);
+          font-weight: 600;
+        }
+      }
+
+      &.is-passed {
+        opacity: 0.85;
+
+        .CrosspostStepper-circle {
+          background: #059669;
+          color: #fff;
+          border-color: #059669;
+        }
+
+        .CrosspostStepper-title {
+          color: #059669;
+        }
+      }
+    }
+
+    .CrosspostStepper-circle {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      border: 2px solid var(--muted-color, #cbd5e1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+      color: var(--muted-color, #64748b);
+      transition: all 0.2s ease;
+      flex-shrink: 0;
+    }
+
+    .CrosspostStepper-label {
+      display: flex;
+      flex-direction: column;
+
+      .CrosspostStepper-num {
+        font-size: 10px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        color: var(--muted-color, #94a3b8);
+      }
+
+      .CrosspostStepper-title {
+        font-size: 13px;
+        color: var(--muted-color, #64748b);
+      }
+    }
+  }
+
+  // ==========================================
+  // ADIM 1: DÜĞÜM VE MOD SEÇİMİ
+  // ==========================================
+  .CrosspostModal-field-label {
+    font-size: 13px;
+    font-weight: 600;
+    margin-bottom: 6px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .CrosspostModal-node-list {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    margin: 16px 0 24px 0;
+  }
+
+  .CrosspostModal-node-item {
+    padding: 14px 18px;
+    border: 1px solid var(--control-bg, #e2e8f0);
+    border-radius: 10px;
+    background: var(--control-bg, rgba(248, 250, 252, 0.8));
+    transition: all 0.2s ease;
+
+    &.is-selected {
+      border-color: var(--primary-color, #0ea5e9);
+      background: rgba(14, 165, 233, 0.04);
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    }
+
+    .CrosspostModal-node-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+
+      label {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        cursor: pointer;
+        font-weight: 600;
+        margin: 0;
+
+        input[type="checkbox"] {
+          width: 17px;
+          height: 17px;
+        }
+
+        .CrosspostModal-node-name {
+          font-size: 15px;
+          color: var(--text-color, #0f172a);
+        }
+      }
+
+      .CrosspostModal-node-url {
+        font-size: 12px;
+        color: var(--muted-color, #64748b);
+        background: rgba(100, 116, 139, 0.08);
+        padding: 2px 8px;
+        border-radius: 4px;
+      }
+    }
+
+    .CrosspostModal-node-options {
+      margin-top: 14px;
+      padding-top: 12px;
+      border-top: 1px dashed var(--control-bg, #cbd5e1);
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .CrosspostModal-mode-radios {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+
+      .CrosspostModal-radio-pill {
+        flex: 1;
+        min-width: 180px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 14px;
+        border: 1px solid var(--control-bg, #cbd5e1);
+        border-radius: 6px;
+        font-size: 12px;
+        cursor: pointer;
+        background: #fff;
+        transition: all 0.15s ease;
+
+        input[type="radio"] {
+          margin: 0;
+        }
+
+        &.is-active {
+          border-color: var(--primary-color, #0ea5e9);
+          background: rgba(14, 165, 233, 0.08);
+          font-weight: 600;
+          color: var(--primary-color, #0ea5e9);
+        }
+      }
+    }
+
+    .CrosspostModal-node-tag-input {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 12px;
+
+      label {
+        font-weight: 500;
+        margin: 0;
+        white-space: nowrap;
+        color: var(--muted-color, #64748b);
+      }
+
+      input {
+        flex: 1;
+        height: 32px;
+        font-size: 12px;
+      }
+    }
+  }
+
+  // ==========================================
+  // ADIM 2: HEDEF KONU ARAMA & ÖNİZLEME
+  // ==========================================
+  .CrosspostModal-target-selection-section {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    margin-bottom: 24px;
+  }
+
+  .CrosspostTargetCard {
+    border: 1px solid var(--control-bg, #e2e8f0);
+    border-radius: 10px;
+    padding: 16px;
+    background: #fff;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
+
+    .CrosspostTargetCard-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 14px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid var(--control-bg, #f1f5f9);
+
+      .CrosspostTargetCard-title {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 15px;
+      }
+
+      .CrosspostTargetCard-badge {
+        font-size: 11px;
+        padding: 3px 8px;
+        border-radius: 4px;
+        font-weight: 600;
+        background: rgba(14, 165, 233, 0.1);
+        color: var(--primary-color, #0ea5e9);
+      }
+    }
+
+    .CrosspostTargetCard-new-info {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 14px;
+      background: rgba(14, 165, 233, 0.05);
+      border-radius: 6px;
+      font-size: 13px;
+      color: var(--muted-color, #475569);
+    }
+
+    .CrosspostSearch-bar {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 12px;
+
+      .CrosspostSearch-input-wrapper {
+        position: relative;
+        flex: 1;
+
+        .icon {
+          position: absolute;
+          left: 12px;
+          top: 50%;
+          transform: translateY(-50%);
+          color: var(--muted-color, #94a3b8);
+          font-size: 13px;
+        }
+
+        input {
+          padding-left: 34px;
+          height: 38px;
+          font-size: 13px;
+        }
+      }
+
+      .Button {
+        height: 38px;
+        padding: 0 18px;
+      }
+    }
+
+    .CrosspostDiscussionList {
+      max-height: 220px;
+      overflow-y: auto;
+      border: 1px solid var(--control-bg, #e2e8f0);
+      border-radius: 8px;
+      margin-bottom: 12px;
+
+      .CrosspostDiscussionItem {
+        padding: 10px 14px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        border-bottom: 1px solid var(--control-bg, #f1f5f9);
+        cursor: pointer;
+        transition: all 0.15s ease;
+
+        &:last-child {
+          border-bottom: none;
+        }
+
+        &:hover {
+          background: rgba(14, 165, 233, 0.04);
+        }
+
+        &.is-selected {
+          background: rgba(14, 165, 233, 0.08);
+          border-left: 3px solid var(--primary-color, #0ea5e9);
+
+          .CrosspostDiscussionItem-title {
+            font-weight: 600;
+            color: var(--primary-color, #0ea5e9);
+          }
+        }
+
+        .CrosspostDiscussionItem-main {
+          flex: 1;
+          margin-right: 12px;
+
+          .CrosspostDiscussionItem-title {
+            font-size: 13px;
+            color: var(--text-color, #0f172a);
+            margin-bottom: 3px;
+          }
+
+          .CrosspostDiscussionItem-meta {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 11px;
+            color: var(--muted-color, #64748b);
+
+            .CrosspostDiscussionItem-url {
+              max-width: 260px;
+              overflow: hidden;
+              text-overflow: ellipsis;
+              white-space: nowrap;
+            }
+          }
+        }
+      }
+    }
+
+    .CrosspostSearch-empty {
+      padding: 12px;
+      text-align: center;
+      font-size: 12px;
+      color: var(--muted-color, #64748b);
+      background: var(--control-bg, #f8fafc);
+      border-radius: 6px;
+      margin-bottom: 12px;
+    }
+
+    .CrosspostManualUrl-row {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      font-size: 12px;
+
+      label {
+        color: var(--muted-color, #64748b);
+        margin: 0;
+      }
+
+      input {
+        height: 32px;
+        font-size: 12px;
+        font-family: monospace;
+      }
+    }
+
+    // Hedef Kullanıcı Bölümü
+    .CrosspostTargetUserSection {
+      margin-top: 12px;
+      padding-top: 10px;
+      border-top: 1px dashed var(--control-bg, #cbd5e1);
+
+      .CrosspostTargetUserSection-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        font-size: 12px;
+
+        .CrosspostTargetUserSection-title {
+          display: flex;
+          align-items: center;
+          gap: 6px;
+          color: var(--muted-color, #64748b);
+
+          .icon {
+            color: var(--primary-color, #0ea5e9);
+          }
+
+          strong {
+            color: var(--primary-color, #0ea5e9);
+            font-weight: 600;
+          }
+        }
+      }
+
+      .CrosspostTargetUserSearch-dropdown {
+        margin-top: 8px;
+        padding: 10px;
+        background: var(--control-bg, #f8fafc);
+        border: 1px solid var(--control-bg, #e2e8f0);
+        border-radius: 8px;
+
+        .CrosspostSearch-input-wrapper {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          margin-bottom: 8px;
+
+          input {
+            height: 32px;
+            font-size: 12px;
+          }
+        }
+
+        .CrosspostTargetUser-list {
+          max-height: 160px;
+          overflow-y: auto;
+          display: flex;
+          flex-direction: column;
+          gap: 4px;
+
+          .CrosspostTargetUser-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 6px 10px;
+            background: #fff;
+            border: 1px solid var(--control-bg, #e2e8f0);
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.15s ease;
+
+            &:hover {
+              border-color: var(--primary-color, #0ea5e9);
+              background: rgba(14, 165, 233, 0.04);
+            }
+
+            &.is-selected {
+              border-color: var(--primary-color, #0ea5e9);
+              background: rgba(14, 165, 233, 0.08);
+            }
+
+            .CrosspostTargetUser-avatar {
+              width: 28px;
+              height: 28px;
+              border-radius: 50%;
+              overflow: hidden;
+              background: #e2e8f0;
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              flex-shrink: 0;
+
+              img {
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+              }
+
+              .icon {
+                font-size: 16px;
+                color: #94a3b8;
+              }
+            }
+
+            .CrosspostTargetUser-info {
+              flex: 1;
+              display: flex;
+              flex-direction: column;
+
+              .CrosspostTargetUser-name {
+                font-size: 12px;
+                font-weight: 600;
+                color: var(--text-color, #0f172a);
+              }
+
+              .CrosspostTargetUser-username {
+                font-size: 11px;
+                color: var(--muted-color, #64748b);
+              }
+            }
+
+            .CrosspostTargetUser-check {
+              color: #059669;
+              font-size: 13px;
+            }
+          }
+        }
+      }
+    }
+  }
+
+  // Önizleme Kutusu
+  .CrosspostPreviewBox {
+    background: var(--control-bg, #f8fafc);
+    border: 1px solid var(--control-bg, #e2e8f0);
+    border-radius: 10px;
+    padding: 16px;
+    margin-bottom: 24px;
+
+    .CrosspostPreviewBox-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+      margin-bottom: 12px;
+
+      .CrosspostPreviewBox-img-count {
+        margin-left: auto;
+        font-size: 11px;
+        background: rgba(14, 165, 233, 0.1);
+        color: var(--primary-color, #0ea5e9);
+        padding: 2px 8px;
+        border-radius: 4px;
+        font-weight: 600;
+      }
+    }
+
+    .CrosspostPreviewBox-thumbnails {
+      display: flex;
+      gap: 10px;
+      overflow-x: auto;
+      padding-bottom: 8px;
+      margin-bottom: 10px;
+
+      .CrosspostPreviewBox-thumb {
+        position: relative;
+        width: 80px;
+        height: 60px;
+        border-radius: 6px;
+        overflow: hidden;
+        border: 1px solid var(--control-bg, #cbd5e1);
+        flex-shrink: 0;
+        background: #fff;
+
+        img {
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+        }
+
+        .CrosspostPreviewBox-thumb-id {
+          position: absolute;
+          bottom: 2px;
+          right: 2px;
+          background: rgba(0, 0, 0, 0.7);
+          color: #fff;
+          font-size: 9px;
+          padding: 1px 4px;
+          border-radius: 3px;
+          font-family: monospace;
+        }
+      }
+    }
+
+    .CrosspostPreviewBox-excerpt {
+      font-size: 12px;
+      color: var(--muted-color, #64748b);
+      line-height: 1.5;
+      background: #fff;
+      padding: 10px 12px;
+      border-radius: 6px;
+      border: 1px solid var(--control-bg, #e2e8f0);
+    }
+  }
+
+  // ==========================================
+  // ADIM 3: İMZA (WATERMARK) SEÇİMİ
+  // ==========================================
+  .CrosspostWmChoiceList {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-bottom: 18px;
+  }
+
+  .CrosspostWmChoiceCard {
+    border: 1px solid var(--control-bg, #e2e8f0);
+    border-radius: 10px;
+    padding: 14px 16px;
+    background: #fff;
+    cursor: pointer;
+    transition: all 0.2s ease;
+
+    &:hover {
+      border-color: var(--primary-color, #0ea5e9);
+    }
+
+    &.is-selected {
+      border-color: var(--primary-color, #0ea5e9);
+      background: rgba(14, 165, 233, 0.03);
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+    }
+
+    label {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      cursor: pointer;
+      margin: 0;
+
+      input[type="radio"] {
+        margin-top: 3px;
+        width: 17px;
+        height: 17px;
+      }
+    }
+
+    .CrosspostWmChoiceCard-info {
+      flex: 1;
+
+      .CrosspostWmChoiceCard-title {
+        font-weight: 600;
+        font-size: 14px;
+        color: var(--text-color, #0f172a);
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 4px;
+
+        .icon {
+          color: var(--primary-color, #0ea5e9);
+        }
+      }
+
+      .CrosspostWmChoiceCard-desc {
+        font-size: 12px;
+        color: var(--muted-color, #64748b);
+        line-height: 1.4;
+      }
+    }
+  }
+
+  .CrosspostWmTargetSubList {
+    margin-top: 14px;
+    padding-top: 12px;
+    border-top: 1px dashed var(--control-bg, #cbd5e1);
+  }
+
+  .CrosspostWmThumbGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+    gap: 10px;
+    max-height: 220px;
+    overflow-y: auto;
+    padding: 4px;
+
+    .CrosspostWmThumbItem {
+      position: relative;
+      border: 1px solid var(--control-bg, #e2e8f0);
+      border-radius: 8px;
+      padding: 8px;
+      background: #fff;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      cursor: pointer;
+      transition: all 0.15s ease;
+
+      &:hover {
+        border-color: var(--primary-color, #0ea5e9);
+      }
+
+      &.is-selected {
+        border-color: var(--primary-color, #0ea5e9);
+        background: rgba(14, 165, 233, 0.08);
+        box-shadow: 0 0 0 2px var(--primary-color, #0ea5e9);
+      }
+
+      .CrosspostWmThumbItem-img {
+        width: 100%;
+        height: 50px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: #1e293b;
+        border-radius: 4px;
+        overflow: hidden;
+        margin-bottom: 6px;
+
+        img {
+          max-width: 90%;
+          max-height: 90%;
+          object-fit: contain;
+        }
+      }
+
+      .CrosspostWmThumbItem-meta {
+        text-align: center;
+        width: 100%;
+
+        .CrosspostWmThumbItem-name {
+          display: block;
+          font-size: 11px;
+          font-weight: 500;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+        }
+
+        .CrosspostWmThumbItem-type {
+          display: inline-block;
+          font-size: 9px;
+          padding: 1px 4px;
+          border-radius: 3px;
+          margin-top: 2px;
+          text-transform: uppercase;
+
+          &.portrait { background: #fef3c7; color: #92400e; }
+          &.landscape { background: #dbeafe; color: #1e40af; }
+          &.other { background: #f1f5f9; color: #475569; }
+        }
+      }
+
+      .CrosspostWmThumbItem-check {
+        position: absolute;
+        top: 4px;
+        right: 4px;
+        color: #059669;
+        font-size: 14px;
+        background: #fff;
+        border-radius: 50%;
+      }
+    }
+  }
+
+  .CrosspostWmUploadBox {
+    margin-top: 12px;
+    padding-top: 10px;
+    border-top: 1px dashed var(--control-bg, #cbd5e1);
+
+    input[type="file"] {
+      font-size: 12px;
+    }
+
+    .CrosspostWmUploadPreview {
+      margin-top: 10px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 8px 12px;
+      background: #1e293b;
+      border-radius: 6px;
+      color: #fff;
+      font-size: 12px;
+
+      img {
+        max-height: 40px;
+        max-width: 100px;
+        object-fit: contain;
+      }
+    }
+  }
+
+  .CrosspostApplyAllRow {
+    padding: 10px 14px;
+    background: rgba(14, 165, 233, 0.04);
+    border: 1px solid rgba(14, 165, 233, 0.15);
+    border-radius: 8px;
+    margin-bottom: 20px;
+    font-size: 12px;
+
+    label {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+      margin: 0;
+      color: var(--text-color, #0f172a);
+    }
+  }
+
+  // ==========================================
+  // BUTON AKSİYON ÇUBUĞU
+  // ==========================================
+  .CrosspostModal-actions {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding-top: 16px;
+    border-top: 1px solid var(--control-bg, #e2e8f0);
+
+    .Button {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+      padding: 8px 18px;
+      border-radius: 6px;
+    }
+  }
+
+  // Sonuçlar
+  .CrosspostModal-results {
+    margin-top: 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .CrosspostModal-result-item {
+    padding: 12px 16px;
+    border-radius: 8px;
+    font-size: 13px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+
+    &.is-success {
+      background: #ecfdf5;
+      color: #065f46;
+      border: 1px solid #a7f3d0;
+    }
+
+    &.is-error {
+      background: #fef2f2;
+      color: #991b1b;
+      border: 1px solid #fecaca;
+    }
+
+    a {
+      font-weight: 600;
+      color: inherit;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+  }
+}
+
+// Görsel seçimi (birden çok görselli mesaj)
+.CrosspostImagePicker {
+  &-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 12px;
+    color: var(--muted-color);
+    margin-bottom: 8px;
+  }
+  &-bulk a { cursor: pointer; font-weight: 600; }
+  &-check {
+    position: absolute;
+    top: 4px;
+    left: 4px;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, .92);
+    color: #059669;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, .25);
+  }
+  &-warn { margin-top: 6px; font-size: 12px; color: #dc2626; }
+}
+.CrosspostPreviewBox-thumb {
+  position: relative;
+  &.is-pickable { cursor: pointer; transition: opacity .15s, outline-color .15s; outline: 2px solid transparent; outline-offset: 1px; }
+  &.is-pickable.is-picked { outline-color: #10b981; }
+  &.is-excluded { opacity: .35; filter: grayscale(.8); }
+  &.is-excluded .CrosspostImagePicker-check { color: #94a3b8; }
+}

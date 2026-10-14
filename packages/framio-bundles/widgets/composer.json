@@ -1,0 +1,42 @@
+{
+    "name": "framio/widgets",
+    "description": "Forum ana sayfa vitrini, forum istatistikleri, çevrim içi üyeler, en çok yazanlar ve kenar çubuğu widget paketi.",
+    "type": "flarum-extension",
+    "version": "1.0.0",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Framio-Dev",
+            "homepage": "https://dev.framiomedia.com"
+        }
+    ],
+    "require": {
+        "flarum/core": "^2.0",
+        "flarum/tags": "^2.0.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "Framio\\Widgets\\ForumStatisticsWidget\\": "modules/forum-statistics-widget/src/",
+            "Framio\\Widgets\\ForumWidgets\\": "modules/forum-widgets-core/src/",
+            "Framio\\Widgets\\FrontPage\\": "modules/frontpage/src/",
+            "Framio\\Widgets\\OnlineUsersWidget\\": "modules/online-users-widget/src/",
+            "FoF\\OnlineUsers\\": "modules/online-users-widget/src/",
+            "Framio\\Widgets\\TopPostersWidget\\": "modules/top-posters-widget/src/",
+            "FoF\\TopPosters\\": "modules/top-posters-widget/src/"
+        },
+        "files": [
+            "modules/forum-widgets-core/src/helpers.php"
+        ]
+    },
+    "extra": {
+        "flarum-extension": {
+            "title": "Framio Widgets",
+            "category": "feature",
+            "icon": {
+                "name": "fas fa-th-large",
+                "backgroundColor": "#e74c3c",
+                "color": "#fff"
+            }
+        }
+    }
+}

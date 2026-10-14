@@ -1,0 +1,821 @@
+@media (max-width: 767px) {
+  .normal .ComposerBody-header > li:first-child {
+    margin: -46px 75px 0;
+  }
+}
+
+.App-backControl.item-save-draft {
+  left: unset;
+  right: 76px;
+}
+
+.App-backControl.item-schedule-draft {
+  left: unset;
+  right: 42px;
+}
+
+.scheduledValidationError {
+  color: var(--control-danger-color);
+}
+
+.item-draft-autosave-interval {
+  margin-top: 30px;
+  input {
+    width: 35%;
+    display: inline-block;
+    vertical-align: bottom;
+    border-radius: 4px 0 0 4px;
+  }
+  button {
+    vertical-align: bottom;
+    border-radius: 0 4px 4px 0;
+  }
+}
+
+.DraftsList {
+  h4 {
+    display: inline;
+  }
+}
+
+// Spacing between action buttons
+.Notification-action .draft--delete + .draft--schedule {
+  margin-left: 8px;
+}
+
+.draft--scheduledIcon {
+  margin-right: 4px;
+}
+
+.DraftListItem-tags {
+  margin-bottom: 4px;
+}
+
+// ScheduleDraftModal Styles
+.ModalManager:has(.ScheduleDraftModal) {
+  overflow-y: hidden !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+.Modal.ScheduleDraftModal {
+  max-width: 490px;
+  width: 92%;
+  margin: auto !important;
+  position: relative !important;
+  top: auto !important;
+  bottom: auto !important;
+
+  .Modal-content {
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 20px 48px rgba(0, 0, 0, 0.35);
+    border: 1px solid var(--control-border-color, rgba(255, 255, 255, 0.1));
+    background: var(--body-bg, #18191c);
+  }
+
+  .Modal-alert {
+    margin: 0;
+
+    .Alert {
+      margin: 0;
+      padding: 8px 14px;
+      font-size: 12px;
+      line-height: 1.35;
+    }
+  }
+
+  .Modal-header {
+    border-bottom: 1px solid var(--control-border-color, rgba(255, 255, 255, 0.08));
+    padding: 12px 20px;
+    background: rgba(255, 255, 255, 0.02);
+
+    .Modal-title {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--text-color);
+    }
+  }
+
+  .ScheduleDraftModal-body {
+    padding: 14px 18px 16px;
+  }
+
+  .ScheduleDraftModal-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 12px;
+    background: linear-gradient(135deg, rgba(var(--primary-color-rgb, 227, 85, 48), 0.12) 0%, rgba(var(--primary-color-rgb, 227, 85, 48), 0.04) 100%);
+    padding: 10px 14px;
+    border-radius: 10px;
+    border: 1px solid rgba(var(--primary-color-rgb, 227, 85, 48), 0.22);
+  }
+
+  .ScheduleDraftModal-iconBadge {
+    width: 44px;
+    height: 44px;
+    min-width: 44px;
+    border-radius: 11px;
+    background: rgba(var(--primary-color-rgb, 227, 85, 48), 0.18);
+    color: var(--primary-color);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    flex-shrink: 0;
+  }
+
+  .ScheduleDraftModal-headerText {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    min-width: 0;
+  }
+
+  .ScheduleDraftModal-title {
+    font-size: 14.5px;
+    font-weight: 700;
+    color: var(--text-color);
+    margin: 0;
+  }
+
+  .ScheduleDraftModal-desc {
+    margin: 0;
+    font-size: 12.5px;
+    line-height: 1.4;
+    color: var(--muted-color);
+  }
+
+  .ScheduleDraftModal-section {
+    margin-bottom: 12px;
+  }
+
+  .ScheduleDraftModal-sectionTitle {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--muted-color);
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    margin-bottom: 6px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+
+    i {
+      color: var(--primary-color);
+      font-size: 11px;
+    }
+  }
+
+  // Quick Preset Cards
+  .ScheduleDraftModal-presets {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+
+    @media (max-width: 480px) {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .ScheduleDraftModal-presetBtn {
+    background: var(--control-bg, rgba(255, 255, 255, 0.04));
+    border: 1px solid var(--control-border-color, rgba(255, 255, 255, 0.08));
+    color: var(--text-color);
+    padding: 7px 9px;
+    border-radius: 9px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.2s ease;
+    text-align: left;
+
+    i {
+      color: var(--primary-color);
+      font-size: 14px;
+      flex-shrink: 0;
+    }
+
+    &:hover {
+      background: rgba(var(--primary-color-rgb, 227, 85, 48), 0.12);
+      border-color: rgba(var(--primary-color-rgb, 227, 85, 48), 0.35);
+      transform: translateY(-1px);
+    }
+  }
+
+  .ScheduleDraftModal-presetInfo {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+    min-width: 0;
+  }
+
+  .ScheduleDraftModal-presetName {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--text-color);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .ScheduleDraftModal-presetDetail {
+    font-size: 10px;
+    color: var(--muted-color);
+    font-weight: 500;
+  }
+
+  // Inputs
+  .ScheduleDraftModal-inputs {
+    display: grid;
+    grid-template-columns: 1.2fr 1fr;
+    gap: 10px;
+
+    @media (max-width: 480px) {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .ScheduleDraftModal-fieldGroup {
+    margin-bottom: 0;
+  }
+
+  .ScheduleDraftModal-label {
+    display: block;
+    font-size: 11.5px;
+    font-weight: 600;
+    margin-bottom: 4px;
+    color: var(--text-color);
+  }
+
+  .ScheduleDraftModal-inputWrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+
+    .ScheduleDraftModal-inputIcon {
+      position: absolute;
+      left: 10px;
+      color: var(--muted-color);
+      font-size: 13px;
+      pointer-events: none;
+      z-index: 1;
+    }
+  }
+
+  .ScheduleDraftModal-dateInput,
+  .ScheduleDraftModal-timeInput {
+    background: var(--control-bg, rgba(255, 255, 255, 0.05));
+    border: 1px solid var(--control-border-color, rgba(255, 255, 255, 0.12));
+    border-radius: 8px;
+    padding: 7px 10px 7px 32px;
+    font-size: 13px;
+    color: var(--text-color);
+    width: 100%;
+    transition: all 0.2s ease;
+    font-weight: 500;
+
+    &:focus {
+      border-color: var(--primary-color);
+      box-shadow: 0 0 0 3px rgba(var(--primary-color-rgb, 227, 85, 48), 0.18);
+      background: var(--control-bg, rgba(255, 255, 255, 0.08));
+    }
+  }
+
+  // Summary Card
+  .ScheduleDraftModal-summaryCard {
+    background: rgba(var(--primary-color-rgb, 227, 85, 48), 0.06);
+    border: 1px solid rgba(var(--primary-color-rgb, 227, 85, 48), 0.2);
+    border-radius: 10px;
+    padding: 10px 14px;
+    margin-bottom: 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .ScheduleDraftModal-summaryHeader {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-bottom: 6px;
+    border-bottom: 1px solid rgba(var(--primary-color-rgb, 227, 85, 48), 0.14);
+  }
+
+  .ScheduleDraftModal-summaryBadge {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--primary-color);
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+
+  .ScheduleDraftModal-summaryStatus {
+    font-size: 10.5px;
+    font-weight: 600;
+    color: #40c057;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .ScheduleDraftModal-summaryBody {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .ScheduleDraftModal-summaryRow {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 12.5px;
+  }
+
+  .ScheduleDraftModal-summaryLabel {
+    color: var(--muted-color);
+    font-size: 12px;
+  }
+
+  .ScheduleDraftModal-summaryValue {
+    color: var(--text-color);
+    font-weight: 700;
+    font-size: 13px;
+  }
+
+  .ScheduleDraftModal-summaryHint {
+    font-size: 11px;
+    color: var(--muted-color);
+    line-height: 1.35;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+
+    i {
+      color: var(--primary-color);
+      font-size: 11px;
+    }
+  }
+
+  // Buttons
+  .ScheduleDraftModal-submitButtons {
+    display: flex;
+    gap: 10px;
+    justify-content: flex-end;
+    margin-top: 4px;
+
+    .Button {
+      border-radius: 8px;
+      font-weight: 600;
+      padding: 8px 16px;
+      font-size: 12.5px;
+      transition: all 0.2s ease;
+    }
+
+    .ScheduleDraftModal-scheduleBtn {
+      background: var(--primary-color);
+      border: none;
+      color: #fff;
+
+      &:hover {
+        opacity: 0.92;
+        transform: translateY(-1px);
+        box-shadow: 0 4px 14px rgba(var(--primary-color-rgb, 227, 85, 48), 0.35);
+      }
+    }
+
+    .ScheduleDraftModal-unscheduleBtn {
+      border-radius: 9px;
+    }
+  }
+}
+
+// Composer Status Indicator
+.Composer-draftStatus {
+  font-size: 12px;
+  color: var(--muted-color);
+  margin-right: 12px;
+  display: inline-flex;
+  align-items: center;
+  transition: opacity 0.3s ease;
+  font-weight: 500;
+
+  i {
+    font-size: 13px;
+    color: var(--primary-color);
+  }
+
+  @media (max-width: 767px) {
+    display: none;
+  }
+}
+
+// Composer Action Items (Bottom Bar Schedule Button)
+.TextEditor-controls,
+.ComposerBody {
+  .item-schedule-draft-action {
+    display: inline-block;
+    margin-right: 8px;
+
+    .Button {
+      background: var(--control-bg, rgba(255, 255, 255, 0.05));
+      border: 1px solid var(--control-border-color, rgba(255, 255, 255, 0.1));
+      color: var(--text-color);
+      font-weight: 600;
+      border-radius: var(--border-radius, 6px);
+      transition: all 0.2s ease;
+
+      i {
+        margin-right: 6px;
+        color: var(--primary-color);
+      }
+
+      &:hover {
+        background: rgba(var(--primary-color-rgb, 227, 85, 48), 0.12);
+        border-color: rgba(var(--primary-color-rgb, 227, 85, 48), 0.3);
+        color: var(--primary-color);
+      }
+
+      &.Button--scheduled {
+        background: rgba(var(--primary-color-rgb, 227, 85, 48), 0.15);
+        border-color: var(--primary-color);
+        color: var(--primary-color);
+      }
+    }
+  }
+}
+
+// Drafts List Filter Tabs
+.DraftsList-filterTabs {
+  display: flex;
+  gap: 8px;
+  padding: 8px 14px;
+  border-bottom: 1px solid var(--control-border-color, rgba(255, 255, 255, 0.08));
+  background: var(--body-bg);
+
+  button {
+    font-size: 12px;
+    padding: 4px 12px;
+    border-radius: 14px;
+    border: none;
+    background: transparent;
+    color: var(--muted-color);
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.2s ease;
+
+    &:hover {
+      color: var(--text-color);
+      background: var(--control-bg, rgba(255, 255, 255, 0.05));
+    }
+
+    &.active {
+      background: var(--primary-color);
+      color: #fff;
+    }
+  }
+}
+
+// Drafts List Item Card (Independent, clean, modern layout)
+.DraftListItem-wrapper {
+  list-style: none;
+  border-bottom: 1px solid var(--control-border-color, rgba(255, 255, 255, 0.06));
+
+  &:last-child {
+    border-bottom: none;
+  }
+}
+
+.DraftListItem {
+  display: flex;
+  padding: 12px 14px;
+  gap: 12px;
+  align-items: flex-start;
+  cursor: pointer;
+  transition: background 0.15s ease;
+
+  &:hover {
+    background: var(--control-bg, rgba(255, 255, 255, 0.04));
+  }
+
+  &-thumb {
+    width: 64px;
+    height: 64px;
+    min-width: 64px;
+    border-radius: 8px;
+    overflow: hidden;
+    background: var(--control-bg, #1a1a1a);
+    border: 1px solid var(--control-border-color, rgba(255, 255, 255, 0.1));
+
+    img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+  }
+
+  &-main {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  &-headerRow {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  &-titleLine {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    min-width: 0;
+    flex-wrap: wrap;
+  }
+
+  &-typeIcon {
+    color: var(--muted-color);
+    font-size: 13px;
+    opacity: 0.85;
+  }
+
+  &-titleText {
+    font-weight: 600;
+    font-size: 13.5px;
+    color: var(--text-color);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  &-scheduledBadge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 11px;
+    font-weight: 600;
+    padding: 2.5px 8px;
+    border-radius: 12px;
+    background: rgba(var(--primary-color-rgb, 227, 85, 48), 0.15);
+    color: var(--primary-color);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border: 1px solid rgba(var(--primary-color-rgb, 227, 85, 48), 0.25);
+
+    &:hover {
+      background: var(--primary-color);
+      color: #fff;
+      transform: translateY(-1px);
+      box-shadow: 0 2px 6px rgba(var(--primary-color-rgb, 227, 85, 48), 0.3);
+    }
+  }
+
+  &-text {
+    font-size: 12.5px;
+    line-height: 1.45;
+    color: var(--muted-color);
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    word-break: break-word;
+  }
+
+  &-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    margin-top: 4px;
+  }
+
+  &-meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+    font-size: 11px;
+    color: var(--muted-color);
+  }
+
+  &-stat {
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    background: rgba(255, 255, 255, 0.05);
+    padding: 2px 6px;
+    border-radius: 4px;
+
+    &--images {
+      color: #4dabf7;
+      background: rgba(77, 171, 247, 0.1);
+    }
+
+    &--music {
+      color: #e599f7;
+      background: rgba(229, 153, 247, 0.1);
+    }
+
+    &--time {
+      background: transparent;
+      padding: 0;
+      opacity: 0.75;
+    }
+  }
+
+  &-actions {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+
+    .Button {
+      padding: 4px 6px;
+      font-size: 13px;
+      color: var(--muted-color);
+      border-radius: 4px;
+
+      &:hover {
+        color: var(--text-color);
+        background: var(--control-bg, rgba(255, 255, 255, 0.08));
+      }
+
+      &.draft--delete:hover {
+        color: var(--control-danger-color, #e03131);
+      }
+
+      &.draft--schedule:hover {
+        color: var(--primary-color);
+      }
+    }
+  }
+}
+
+// Draft Preview Modal
+.DraftPreviewModal {
+  .DraftPreviewModal-meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 16px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--control-border-color, rgba(255, 255, 255, 0.1));
+    font-size: 12.5px;
+    color: var(--muted-color);
+  }
+
+  .DraftPreviewModal-badge {
+    background: var(--primary-color);
+    color: #fff;
+    padding: 3px 8px;
+    border-radius: 12px;
+    font-size: 11.5px;
+    font-weight: 600;
+  }
+
+  .DraftPreviewModal-scheduledBadge {
+    display: inline-flex;
+    align-items: center;
+    padding: 3px 10px;
+    border-radius: 12px;
+    background: rgba(var(--primary-color-rgb, 227, 85, 48), 0.15);
+    color: var(--primary-color);
+    font-weight: 600;
+    cursor: pointer;
+    border: 1px solid rgba(var(--primary-color-rgb, 227, 85, 48), 0.25);
+    transition: all 0.2s ease;
+
+    &:hover {
+      background: var(--primary-color);
+      color: #fff;
+      transform: translateY(-1px);
+      box-shadow: 0 2px 6px rgba(var(--primary-color-rgb, 227, 85, 48), 0.3);
+    }
+  }
+
+  .Button--scheduled {
+    background: rgba(var(--primary-color-rgb, 227, 85, 48), 0.15) !important;
+    border: 1px solid var(--primary-color) !important;
+    color: var(--primary-color) !important;
+
+    &:hover {
+      background: var(--primary-color) !important;
+      color: #fff !important;
+    }
+  }
+
+  .DraftPreviewModal-content {
+    background: var(--control-bg, rgba(255, 255, 255, 0.03));
+    border-radius: 8px;
+    padding: 16px;
+    margin-bottom: 20px;
+    max-height: 55vh;
+    overflow-y: auto;
+    font-size: 14px;
+    line-height: 1.6;
+    border: 1px solid var(--control-border-color, rgba(255, 255, 255, 0.06));
+  }
+
+  .DraftPreviewModal-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+  }
+}
+
+// Reply Draft Alert Banner (on DiscussionPage - Clean, compact & modern)
+.ReplyDraftAlert-card {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  background: var(--control-bg, rgba(255, 255, 255, 0.03));
+  border: 1px solid rgba(var(--primary-color-rgb, 227, 85, 48), 0.3);
+  border-left: 3px solid var(--primary-color);
+  border-radius: 8px;
+  padding: 12px 14px;
+  margin-bottom: 15px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+
+  .ReplyDraftAlert-header {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+  }
+
+  .ReplyDraftAlert-badge {
+    width: 28px;
+    height: 28px;
+    min-width: 28px;
+    border-radius: 6px;
+    background: rgba(var(--primary-color-rgb, 227, 85, 48), 0.15);
+    color: var(--primary-color);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    margin-top: 2px;
+  }
+
+  .ReplyDraftAlert-info {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+  }
+
+  .ReplyDraftAlert-title {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--text-color);
+  }
+
+  .ReplyDraftAlert-text {
+    font-size: 12px;
+    color: var(--muted-color);
+    margin: 0;
+    line-height: 1.4;
+  }
+
+  .ReplyDraftAlert-actions {
+    display: flex;
+    gap: 8px;
+    margin-left: 38px;
+
+    .Button {
+      font-size: 11.5px;
+      font-weight: 600;
+      padding: 4px 10px;
+      border-radius: 6px;
+    }
+
+    .ReplyDraftAlert-loadBtn {
+      background: var(--primary-color);
+      color: #fff;
+      border: none;
+
+      &:hover {
+        opacity: 0.9;
+      }
+    }
+
+    .ReplyDraftAlert-deleteBtn {
+      background: rgba(255, 255, 255, 0.06);
+      color: var(--muted-color);
+      border: 1px solid var(--control-border-color, rgba(255, 255, 255, 0.1));
+
+      &:hover {
+        background: rgba(224, 49, 49, 0.15);
+        color: #e03131;
+        border-color: rgba(224, 49, 49, 0.3);
+      }
+    }
+  }
+}

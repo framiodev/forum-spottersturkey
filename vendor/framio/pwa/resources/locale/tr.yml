@@ -1,0 +1,126 @@
+fof-pwa:
+  admin:
+    nav:
+      pwa_button: Progressive Web App (PWA)
+      pwa_text: Flarum'u mobil ve masaüstü cihazlara yüklenebilen İlerici Web Uygulaması (PWA) olarak yapılandırın.
+    pwa:
+      about:
+        description_label: Açıklama
+        description_text: Uygulama açıklamasını yönetim panelinizdeki 'Temel Bilgiler' sayfasından da belirleyebilirsiniz.
+        long_name_label: Tam Uygulama Adı
+        long_name_text: Kullanıcıya gösterilecek olan tam web uygulaması adı (örn. Ulaşım Info Forum).
+        heading: Hakkında
+        short_name_label: Kısa Ad
+        short_name_text: Tam adın sığmadığı cihazlarda (örneğin telefon ana ekranı simge altlarında) gösterilecek kısa ad.
+      colors:
+        heading: Renkler
+        background_color_label: Açılış / Arka Plan Rengi
+        background_color_text: PWA ilk açılırken yükleme ekranında (splash screen) arka plan olarak kullanılacak yer tutucu renk.
+        theme_color_label: Tema Rengi
+        theme_color_text: Cihazların üst tarayıcı çubuğunda ve çoklu görev ekranlarında siteyi çevreleyen vurgu rengi.
+      maintenance:
+        heading: Bakım & Güvenlik
+        debug_label: Hata ayıklama modunu etkinleştir
+        debug_text: Bildirimlerle ilgili ayrıntılı bilgileri `storage/logs` dosyasına kaydeder. Günlük dosyasının gereksiz şişmesini önlemek için kapalı tutulması önerilir.
+        reset_vapid_button: VAPID Anahtarlarını Sıfırla
+        reset_vapid_text: Yeni VAPID şifreleme anahtarları üretir ve mevcut anahtarlarla kayıtlı olan tüm push bildirim aboneliklerini sıfırlar.
+        reset_vapid_confirm: VAPID anahtarlarını sıfırlamak mevcut abonelikleri sileceğinden, kullanıcılar sitenizi tekrar ziyaret edene kadar bildirim alamazlar. Bu işlemi yalnızca push bildirimlerini ilk kez kurarken veya bildirimler tamamen çalışmadığında yapmalısınız. Devam etmek istiyor musunuz?
+        reset_vapid_success: VAPID anahtarları başarıyla sıfırlandı. {count} adet eski abonelik temizlendi. Güncel durumu görmek için sayfayı yenileyin.
+      firebase_config:
+        heading: Firebase
+        help_text: Uygulamanızı Apple App Store'da yayımlarken anlık bildirim desteği sunmak için Firebase Cloud Messaging kullanmanız gerekir. Lütfen oluşturduğunuz Firebase Hizmet Hesabı Yapılandırma Dosyasını (JSON) buradan yükleyin. <a>Belgeleri inceleyin</a>.
+        upload_successful: Firebase yapılandırma dosyanız başarıyla yüklendi.
+        upload_file: Dosya Yükle
+      other:
+        heading: Diğer Ayarlar
+        force_portrait_text: Dikey yönlendirmeyi zorla (Force Portrait)
+        push_notif_preference_default_to_email_label: E-posta bildirim tercihlerini varsayılan yap
+        push_notif_preference_default_to_email_text: Etkinleştirilirse, varsayılan olarak e-posta bildirimi gönderilen tüm bildirim türleri için kullanıcılara anlık web push bildirimleri de otomatik olarak açık gelir.
+        window_controls_overlay_label: Başlık Çubuğu Kontrollerini Entegre Et (Window Controls Overlay)
+        window_controls_overlay_text: |
+          Etkinleştirildiğinde, masaüstü uygulamalarında yerel başlık çubuğu gizlenerek daha modern bir pencere deneyimi sunulur. Bu ayar kullanıcının tercihlerine ve tarayıcı desteğine bağlıdır. Bunu açtıktan sonra sitenizin üst gezinme çubuğunu özel CSS ile uyumlu hale getirmeniz önerilir.
+        user_max_subscriptions_label: Kullanıcı Başına Azami Cihaz Aboneliği
+        user_max_subscriptions_text: Bir kullanıcının aynı anda en fazla kaç farklı tarayıcı/cihaz için push bildirimi kaydedebileceğini belirler. (Her abonelik bildirim gönderiminde ayrı bir API isteği oluşturur).
+        push_notification_ttl_label: Bildirim Yaşam Süresi (TTL - Saniye)
+        push_notification_ttl_text: İletilemeyen anlık bildirimlerin süresi dolmadan önce push servis sağlayıcısının kuyruğunda ne kadar süre bekletileceği (saniye cinsinden).
+        share_buttons_label: Paylaşım butonlarını göster
+        share_buttons_text: Etkinleştirilirse, tartışmalara, iletilere ve kullanıcı profillerine yerel cihaz paylaşımını tetikleyen bir "Paylaş" butonu eklenir.
+
+      heading: Progressive Web App (PWA) Yapılandırması
+      text: Flarum sitenizi modern bir mobil ve masaüstü Progressive Web App olarak çalışacak şekilde yapılandırın! Bu işlem sitenizi otomatik olarak uygulama mağazalarına yüklemez; bunun yerine kullanıcılara sitenizi tek tıkla 'Ana Ekrana Ekle / Uygulamayı Yükle' seçeneği sunar. PWA yükleme bildirimleri doğrudan tarayıcılar tarafından kontrol edilir ve harici olarak tetiklenemez.
+      status_check_heading: Sistem Durumu Denetimi
+      logo_heading: Logolar ve İkonlar
+      logo_text: |
+        PWA'nızın tarayıcılar tarafından yüklenebilir bir uygulama olarak tanınması için en az bir adet kare logo yüklemelisiniz. Tüm logolar mutlaka kare (1:1 oranında) olmalıdır; aksi halde otomatik yeniden boyutlandırılırken bozulmalar oluşabilir.
+
+        Aşağıda farklı cihaz ve ekran çözünürlükleri için boyut seçenekleri sunulmuştur. Mümkün olduğunca çok boyut için logo yüklemeniz tavsiye edilir.
+
+        Dilerseniz yüksek çözünürlüklü tek bir kare logoyu (örneğin 1000x1000 px PNG) tüm alanlara yükleyebilirsiniz; sistem otomatik olarak doğru boyutlara ölçekleyecektir.
+      logo_size_text: "{size}x{size} piksel boyutuna ölçeklenecek bir logo yükleyin."
+      submit_button: Ayarları Kaydet
+      refreshed_message: PWA yapılandırması başarıyla yenilendi.
+    status:
+      config_no_https: config.php dosyanızdaki URL HTTPS kullanmıyor. Progressive Web App (PWA) özelliklerinin çalışabilmesi için HTTPS zorunludur.
+      possible_https_disabled: Siteniz HTTPS üzerinden çalışmıyor olabilir. Önbelleği temizlemek (Yönetim Paneli => Araçlar => Önbelleği Temizle) bu durumu düzeltebilir. Siteniz zaten HTTPS kullanıyorsa bu uyarıyı göz ardı edebilirsiniz.
+      no_logo: PWA'nın yüklenebilir olması için en az 144x144 px boyutunda en az bir adet logo yüklemelisiniz.
+      no_name: Uygulamanın geçerli bir web manifest oluşturabilmesi için tam bir isim belirlemelisiniz.
+      no_vapid_keys: VAPID şifreleme anahtarları bulunamadı. Anlık web push bildirimlerinin gönderilebilmesi için VAPID anahtarları gereklidir. Aşağıdaki butondan anahtarları üretebilirsiniz.
+      key_gen_failed: "Anlık bildirimler için gereken anahtarların oluşturulması başarısız oldu. Hata mesajı: {error}"
+      suggest_gmp: Sunucunuzda gmp PHP eklentisi etkinleştirilmemiş görünüyor. Zorunlu olmasa da performansı önemli ölçüde artırır ve önerilir.
+      success: Harika! Hiçbir potansiyel sorun bulunamadı, PWA kullanıma hazır!
+  forum:
+    alerts:
+      optin: Bu forum cihazınıza anlık bildirimler gönderebilir. Bildirimleri açmak ister misiniz?
+      optin_enable_button: Bildirimleri Aç
+      optin_success: Bu cihazda anlık bildirimler başarıyla etkinleştirildi.
+      optin_declined: Bildirim izinleri engellendi. Dilediğiniz zaman tarayıcı izin ayarlarınızdan izin verebilirsiniz.
+      optin_deferred: Bildirimler henüz etkinleştirilmedi. Dilediğiniz zaman bildirim ayarlarınızdan açabilirsiniz.
+    discussion_controls:
+      share_button: Paylaş
+    post_controls:
+      share_button: Paylaş
+      share_api:
+        title: "{username} kullanıcısının \"{title}\" konusundaki yanıtı"
+    user_controls:
+      share_button: Profili Paylaş
+    settings:
+      push_header: Anlık Bildirimler (Push)
+      pwa_notifications:
+        access_default: Tarayıcı güvenlik kısıtlamaları nedeniyle bu cihazda anlık bildirim almak için izin vermelisiniz.
+        access_default_button: Bildirim İzni Ver
+        access_denied: Bu cihazda anlık bildirim alabilmek için tarayıcı ayarlarınızdan bildirimlere izin vermelisiniz.
+        access_denied_button: Nasıl Yapılır?
+        no_browser_support: Kullandığınız tarayıcı web uygulaması anlık bildirimlerini desteklemiyor.
+        no_browser_support_button: Daha Fazla Bilgi
+    notifications_help:
+      browser_notifications_title: Tarayıcı Bildirimleri Nasıl Etkinleştirilir?
+      title: Anlık Bildirimleri Etkinleştirme Rehberi
+      description: Daha önce bildirimleri engellediyseniz, cihazınızda bildirimleri tekrar açmak için aşağıdaki adımları izleyin.
+
+      chromium_title: Google Chrome, Microsoft Edge ve Android
+      chromium_instructions: Tarayıcınızın adres çubuğundaki kilit veya site ayarları simgesine tıklayın. "Site ayarları" veya "İzinler" bölümünü açın, "Bildirimler" seçeneğini bulun ve "İzin Ver" olarak değiştirin.
+
+      firefox_title: Mozilla Firefox
+      firefox_instructions: Adres çubuğundaki kilit simgesine tıklayın. "Bildirimler" kısmında "Engellendi" yazıyorsa yanındaki "X" işaretine basarak engeli kaldırın. Sayfayı yenileyin ve sorulduğunda bildirimlere izin verin.
+
+      safari_mac_title: Apple Safari (macOS)
+      safari_mac_instructions: Ekranın üst kısmındaki Safari menüsünü açıp "Ayarlar" (veya Tercihler) bölümüne gidin. "Web Siteleri" sekmesine tıklayın, sol menüden "Bildirimler"i seçin, listeden bu forumu bularak ayarını "İzin Ver" yapın.
+
+      safari_ios_title: Apple iPhone ve iPad (iOS / iPadOS)
+      safari_ios_instructions: iOS cihazlarda anlık bildirim alabilmek için öncelikle sitenin ana ekrana eklenmiş olması gerekir. Safari'de "Paylaş" simgesine dokunun ve "Ana Ekrana Ekle"yi seçin. Ardından ana ekrandaki yeni uygulamayı açın. Bildirimler engellendiyse, iPhone "Ayarlar" > "Bildirimler" menüsünden bu web uygulamasını bulup "Bildirimlere İzin Ver" seçeneğini açın.
+
+  api:
+    endpoint_https_required: Tarayıcınız geçersiz bir bildirim servisi adresi ("{url}") sağladığı için anlık bildirimler etkinleştirilemedi. Güvenli bir HTTPS adresi zorunludur.
+    endpoint_host_not_allowed: Tarayıcınızın kullandığı bildirim servisi sunucusuna ("{host}") izin verilmediği için bildirimler etkinleştirilemedi. Lütfen forum yöneticisiyle iletişime geçin.
+
+  views:
+    offline:
+      header: İnternet Bağlantısı Yok
+      text: Bu uygulama bir internet bağlantısı gerektirir ve çevrimdışı kullanılamaz. Lütfen ağ bağlantınızı kontrol edin.
+
+flarum-gdpr:
+  lib:
+    data:
+      pushsubscriptions:
+        export_description: "Kullanıcıya ait tüm anlık bildirim aboneliklerini ve cihaz belirteçlerini (token) dışa aktarır."
+        delete_description: "Kullanıcıya ait tüm anlık bildirim aboneliklerini ve cihaz belirteçlerini siler."

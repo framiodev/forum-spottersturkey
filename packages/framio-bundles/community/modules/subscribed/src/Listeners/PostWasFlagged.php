@@ -1,0 +1,56 @@
+<?php
+
+/*
+ * This file is part of fof/subscribed.
+ *
+ * Copyright (c) FriendsOfFlarum.
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
+namespace Framio\Community\Subscribed\Listeners;
+
+use Flarum\Flags\Event\Created;
+use Flarum\Flags\Event\Deleting;
+use Flarum\Flags\Flag;
+use Flarum\Notification\NotificationSyncer;
+use Flarum\Post\Post;
+use Framio\Community\Subscribed\Blueprints\PostFlaggedBlueprint;
+use Framio\Community\Subscribed\Jobs\SendNotificationWhenPostIsFlagged;
+use Illuminate\Contracts\Events\Dispatcher;
+use Illuminate\Contracts\Queue\Queue;
+
+class PostWasFlagged
+{
+    public function __construct(
+        protected NotificationSyncer $notifications,
+        protected Queue $queue,
+    ) {
+    }
+
+    /**
+     * @param Dispatcher $events
+     */
+    public function subscribe(Dispatcher $events): void
+    {
+        $events->listen(Created::class, [$this, 'whenFlagged']);
+        $events->listen(Deleting::class, [$this, 'whenFlagDismissed']);
+    }
+
+    public function whenFlagged(Created $event): void
+    {
+        $this->queue->push(new SendNotificationWhenPostIsFlagged($event->flag));
+    }
+
+    public function whenFlagDismissed(Deleting $event): void
+    {
+        // remove notifications for this flag when it is dismissed
+        $this->notifications->delete($this->getNotification($event->flag->post, $event->flag));
+    }
+
+    protected function getNotification(Post $post, Flag $flag): PostFlaggedBlueprint
+    {
+        return new PostFlaggedBlueprint($post, $flag);
+    }
+}

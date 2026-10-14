@@ -1,0 +1,62 @@
+flarum-sticky:
+
+  ##
+  # UNIQUE KEYS - The following keys are used in only one location each.
+  ##
+
+  # Translations in this namespace are used by the admin interface.
+  admin:
+    settings:
+      enable_display_excerpt: Show an excerpt of the first post when a sticky discussion is unread
+      only_sticky_unread_discussions_label: Only sticky unread discussions
+      only_sticky_unread_discussions_help: On the All Discussions page, unread sticky discussions pin to the top, while read sticky discussions follow the regular order.
+      pin_sticky_on_all_discussions_label: Pin stickied discussions on the All Discussions page
+      pin_sticky_on_all_discussions_help: When enabled (default), stickied discussions are pinned at the top of the All Discussions page. When disabled, they appear at their natural position by latest activity. Tag pages always pin stickied discussions to the top regardless of this setting.
+
+    # These translations are used in the Permissions page of the admin interface.
+    permissions:
+      sticky_discussions_label: Sticky discussions
+
+  # Translations in this namespace are used by the forum user interface.
+  forum:
+
+    # These translations are displayed as tooltips for discussion badges.
+    badge:
+      sticky_tooltip: => flarum-sticky.ref.sticky
+
+    # These translations are used by the discussion control buttons.
+    discussion_controls:
+      sticky_button: => flarum-sticky.ref.sticky
+      unsticky_button: Unsticky
+
+    # These translations are displayed between posts in the post stream.
+    post_stream:
+      discussion_stickied_text: "{username} stickied the discussion {time}."
+      discussion_unstickied_text: "{username} unstickied the discussion {time}."
+
+  ##
+  # REUSED TRANSLATIONS - These keys should not be used directly in code!
+  ##
+
+  # Translations in this namespace are used by the forum and admin interfaces.
+  lib:
+
+    # These translations are used by gambits. Gambit keys must be in snake_case, no spaces.
+    gambits:
+      discussions:
+        sticky:
+          key: sticky
+
+  # Translations in this namespace are referenced by two or more unique keys.
+  ref:
+    sticky: Sticky
+
+# Labels for the audit log entries this extension produces, rendered by the (optional)
+# flarum/audit browser. Defined under the flarum-audit namespace so the audit frontend
+# resolves them, but shipped here so they travel with the extension that owns the actions.
+flarum-audit:
+  lib:
+    browser:
+      discussion:
+        stickied: Stickied discussion {discussion}
+        unstickied: Unstickied discussion {discussion}

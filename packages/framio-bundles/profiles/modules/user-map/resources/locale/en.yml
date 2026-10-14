@@ -1,0 +1,25 @@
+framio-profiles-map:
+  admin:
+    tab_title: "Members Map"
+    settings:
+      map_height: "Map Height (px)"
+      map_height_help: "Height of the map on the standalone map page in pixels."
+      full_width: "Full Width Map"
+      full_width_help: "Span the map container across the full viewport width."
+      use_masquerade: "Integrate with Masquerade"
+      use_masquerade_help: "If enabled, location input is integrated into Masquerade profile tab."
+  forum:
+    nav_tab: "Members Map"
+    title: "Members Map"
+    members_count: "{count, plural, one {# member located} other {# members located}}"
+    location: "Location"
+    city_label: "Your City"
+    city_placeholder: "E.g. Istanbul, London, New York..."
+    locationDescription: "Enter your city to appear on the members map (powered by OpenStreetMap)."
+    save: "Save"
+    locationSaved: "Location saved successfully!"
+    your_position: "Your Location"
+    all_members_map: "Members Map"
+    show_members_map: "Show Members Map"
+    no_location_self: "You have not set your city yet. Use the field above."
+    no_location_other: "This user has not shared their location."

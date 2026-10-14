@@ -1,0 +1,78 @@
+<?php
+
+/*
+ * This file is part of fof/oauth.
+ *
+ * Copyright (c) FriendsOfFlarum.
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
+namespace Framio\Security\OAuth\Providers;
+
+use Flarum\Forum\Auth\Registration;
+use Framio\Security\OAuth\Provider;
+use Framio\Security\OAuth\Providers\Custom\LinkedIn\Provider\LinkedIn as LinkedInProvider;
+use Framio\Security\OAuth\Providers\Custom\LinkedIn\Provider\LinkedInResourceOwner;
+use League\OAuth2\Client\Provider\AbstractProvider;
+
+class LinkedIn extends Provider
+{
+    /**
+     * @var LinkedInProvider
+     */
+    protected $provider;
+
+    public function name(): string
+    {
+        return 'linkedin';
+    }
+
+    public function link(): string
+    {
+        return 'https://linkedin.com/developers/apps/new';
+    }
+
+    public function fields(): array
+    {
+        return [
+            'client_id'     => 'required',
+            'client_secret' => 'required',
+        ];
+    }
+
+    public function pkceEnabled(): bool
+    {
+        return false;
+    }
+
+    public function provider(string $redirectUri): AbstractProvider
+    {
+        return $this->provider = new LinkedInProvider([
+            'clientId'        => $this->getSetting('client_id'),
+            'clientSecret'    => $this->getSetting('client_secret'),
+            'redirectUri'     => $redirectUri,
+        ]);
+    }
+
+    /**
+     * @param LinkedInResourceOwner $user
+     */
+    public function suggestions(Registration $registration, mixed $user, string $token): void
+    {
+        $this->verifyEmail($email = $user->getEmail());
+
+        if ($user->getAttribute('email_verified')) {
+            $registration->provideTrustedEmail($email);
+        } else {
+            $registration->suggestEmail($email);
+        }
+
+        $registration
+        ->suggestUsername($user->getFirstName())
+        ->setPayload($user->toArray());
+
+        $this->provideAvatar($registration, $user->getImageUrl());
+    }
+}

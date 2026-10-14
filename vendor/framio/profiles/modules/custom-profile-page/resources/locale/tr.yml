@@ -1,0 +1,46 @@
+huseyinfiliz-custom-profile-page:
+  admin:
+    settings:
+      tab_title: Profil Sekme Başlığı
+      tab_icon: Sekme Simgesi (FontAwesome sınıfı)
+      tab_icon_help: "Örnek: fas fa-file-alt, fas fa-user, fas fa-star"
+      url_slug: URL Uzantısı (Slug)
+      url_slug_help: "Özel sayfanın URL yolu (örn. 'sayfam' yazıldığında /u/kullaniciadi/sayfam olur). Yalnızca harf, rakam, tire ve alt çizgi kullanın."
+      content_format: İçerik Biçimi
+      format_markdown: Markdown
+      format_html: HTML
+      format_text: Düz Metin
+      allowed_html_tags: İzin Verilen HTML Etiketleri
+      allowed_html_tags_help: "Virgülle ayrılmış izin verilen HTML etiketleri listesi (örn. b,i,u,strong,em,a). Kullanıcılara yalnızca bu etiketler gösterilir."
+      default_template: Varsayılan Şablon
+      default_template_help: "Kullanıcılar özel sayfalarını ilk oluşturduklarında düzenleyicide otomatik olarak bu içerik görünür. Boş düzenleyici için boş bırakın."
+      enable_media_embeds: Medya Gömme Özelliğini Etkinleştir
+      enable_media_embeds_help: "YouTube bağlantılarını otomatik olarak video oynatıcıya dönüştürür. Devre dışı bırakılırsa normal metin bağlantısı olarak kalır."
+    
+    permissions:
+      edit_own: Kendi özel profil sayfasını düzenle
+      view: Özel profil sayfalarını görüntüle
+      moderate: Özel profil sayfalarını yönet (herkesin sayfasını düzenleme)
+
+  forum:
+    profile_tab:
+      loading: Yükleniyor...
+      empty_own: Henüz özel sayfanızı oluşturmamışsınız gibi görünüyor.
+      empty_other: Burada henüz herhangi bir içerik bulunmuyor.
+      edit_button: Sayfayı Düzenle
+      save_button: Kaydet
+      cancel_button: İptal
+    
+    edit_modal:
+      title: Özel Profil Sayfasını Düzenle
+      content_label: İçerik
+      content_placeholder: İçeriğinizi buraya yazın...
+      submit_button: Değişiklikleri Kaydet
+      error: Değişiklikler kaydedilemedi. Lütfen tekrar deneyin.
+      markdown_help: "Markdown biçimlendirmesi kullanabilirsiniz: **kalın**, *italik*, [bağlantı](url), `kod`, vb."
+      html_help: "Şu HTML etiketlerini kullanabilirsiniz: {tags}"
+      text_help: "Yalnızca düz metin. HTML veya Markdown kullanılamaz."
+    
+    errors:
+      permission_denied: Bu sayfayı görüntüleme izniniz yok
+      load_failed: Özel sayfa yüklenemedi

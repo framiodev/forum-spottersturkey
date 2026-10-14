@@ -1,0 +1,54 @@
+# Gizli bilgiler
+/config.php
+firebase-auth.json
+firebase-key.json
+service_account.json
+*.env
+*.env.*
+*.sql
+/_kurulum/rc_ayarlar.sql
+
+# Yerel geliştirme araçları (sunucuya gitmez)
+/node_modules_build/
+/firebase-image/
+/.well-known/
+node_modules/
+**/node_modules/
+
+# Flarum storage: yalnızca boş klasör yapısı
+/storage/*
+!/storage/.gitkeep
+
+# assets: yalnızca koddan gelen sabit dosyalar; kullanıcı yüklemeleri ve
+# Flarum'un ürettiği derlenmiş dosyalar canlıda kendi hâliyle kalır
+/assets/*
+!/assets/fonts/
+!/assets/js/
+!/assets/sehirici/
+!/assets/xslt-polyfill/
+
+# vendor: kullanılmayan büyük kütüphane parçaları (canlıda da yok)
+/vendor/google/apiclient-services/src/*
+!/vendor/google/apiclient-services/src/Analytics/
+!/vendor/google/apiclient-services/src/Drive/
+!/vendor/google/apiclient-services/src/Indexing/
+!/vendor/google/apiclient-services/src/Oauth2/
+!/vendor/google/apiclient-services/src/SearchConsole/
+!/vendor/google/apiclient-services/src/YouTube/
+!/vendor/google/apiclient-services/src/*.php
+/vendor/fortawesome/font-awesome/*
+!/vendor/fortawesome/font-awesome/css/
+!/vendor/fortawesome/font-awesome/webfonts/
+!/vendor/fortawesome/font-awesome/composer.json
+!/vendor/fortawesome/font-awesome/LICENSE.txt
+/vendor/fortawesome/font-awesome/webfonts/*.ttf
+
+# Yedekler ve çöp
+*.bak
+*.bak-*
+*.old
+*.log
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/

@@ -1,0 +1,87 @@
+<?php
+
+/*
+ * This file is part of huseyinfiliz/language-detection.
+ *
+ * Copyright (c) 2026 Hüseyin Filiz.
+ *
+ * For the full copyright and license information, please view the LICENSE.md
+ * file that was distributed with this source code.
+ */
+
+namespace HuseyinFiliz\LanguageDetection\Console;
+
+use Flarum\Console\AbstractCommand;
+use Flarum\Locale\LocaleManager;
+use HuseyinFiliz\LanguageDetection\Cleanup;
+
+/**
+ * `php flarum language-detection:cleanup`, and the same thing once a day through
+ * `Extend\Console`'s scheduler.
+ *
+ * The command owns no policy: `Cleanup` reads the setting, computes the cutoff and writes the
+ * query, and the admin page's button calls the same object.
+ */
+class CleanupCommand extends AbstractCommand
+{
+    const KEY = 'huseyinfiliz-language-detection.admin.cleanup.';
+
+    /**
+     * `LocaleManager` rather than `TranslatorInterface`, and the difference is load-bearing.
+     *
+     * Symfony calls `configure()` from `Command::__construct()`, and this command is constructed on
+     * every HTTP request: `Extend\Console::schedule()` hands the class name to Laravel's scheduler,
+     * which resolves it from the container just to read the name and description. So `configure()`
+     * runs during boot, before any middleware.
+     *
+     * Translations reach the shared translator only as a side effect of constructing
+     * `LocaleManager`. Asking for the translator directly yields one with no resources, and the
+     * first `trans()` then compiles an empty catalogue for the forum's default locale and caches it
+     * in `storage/locale` with an empty resource list -- which Symfony treats as permanently fresh.
+     * Every translation key on the forum renders raw until that directory is cleared by hand.
+     */
+    public function __construct(protected Cleanup $cleanup, protected LocaleManager $locales)
+    {
+        parent::__construct();
+    }
+
+    protected function configure(): void
+    {
+        $this
+            ->setName('language-detection:cleanup')
+            ->setDescription($this->trans('command_description'));
+    }
+
+    protected function fire(): int
+    {
+        $result = $this->cleanup->run();
+
+        // Retention being off is reported rather than passed over in silence: somebody who
+        // scheduled this command and sees nothing happening is owed the reason.
+        if ($result === null) {
+            $this->info($this->trans('retention_disabled'));
+
+            return 0;
+        }
+
+        if ($result['deleted'] === 0) {
+            $this->info($this->trans('nothing_to_delete'));
+
+            return 0;
+        }
+
+        // Braces included in the keys because Symfony's message formatter is a plain `strtr` over
+        // the parameters, so `count` would not match `{count}` in the locale file.
+        $this->info($this->trans('deleted', [
+            '{count}' => $result['deleted'],
+            '{days}' => $result['days'],
+        ]));
+
+        return 0;
+    }
+
+    protected function trans(string $key, array $parameters = []): string
+    {
+        return $this->locales->getTranslator()->trans(self::KEY.$key, $parameters);
+    }
+}

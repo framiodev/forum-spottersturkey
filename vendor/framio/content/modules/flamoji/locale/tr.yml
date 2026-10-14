@@ -1,0 +1,131 @@
+pianotell-flamoji:
+  admin:
+    settings:
+      emoji_settings_heading: Emoji Ayarları
+      category_settings_heading: Kategori Ayarları
+      general_ui_settings_heading: Genel Arayüz Ayarları
+      show_variants_label: Ten rengi varyasyonlarını göster
+      show_variants_text: Bazı emojilerin ten rengi varyasyonları bulunur. Seçicide varyasyonu olan bir emoji seçildiğinde, kullanıcının istediği varyasyonu seçebilmesi için açılır pencere görüntülenir. Çıkartma modunda özel emojilerin varyasyonu olmadığı için etkisizdir.
+      sticker_mode_label: Çıkartma modu
+      sticker_mode_text: Özel emojileri büyük çıkartmalar şeklinde göster — gönderilerde, editör önizlemesinde ve büyütülmüş seçici tablosunda. Yalnızca özel emojiler büyütülür ve seçici yalnızca özel emojilerle sınırlandırılır. Varsayılan olarak kapalıdır.
+      auto_hide_label: Otomatik gizle
+      auto_hide_text: Bir emoji seçildiğinde seçiciyi otomatik kapat.
+      show_preview_label: Önizleme alanını göster
+      show_preview_text: Seçici tablosunun altında emoji adını, kısa kodunu ve ten rengi seçicisini göster.
+      show_category_buttons_label: Kategori düğmelerini göster
+      show_category_buttons_text: Seçicinin üst kısmındaki kategori simgelerini göster. Yalnızca bir veya iki kategori etkinken gizlemek faydalı olabilir.
+      show_search_label: Arama kutusunu göster
+      show_search_text: Seçicinin üst kısmında arama kutusunu göster.
+      use_cdn_label: Emoji-Mart'ı CDN üzerinden yükle
+      use_cdn_text: Emoji-mart kütüphanesini ve emoji verilerini kendi sunucunuz yerine harici bir CDN'den (örn. jsDelivr) yükleyin. Varsayılan kapalıdır. CDN yüklenemezse veya SRI hash'i eşleşmezse eklenti otomatik olarak yerel kopyaya döner.
+      cdn_js_url_label: CDN JavaScript URL'si
+      cdn_js_sri_label: JavaScript SRI Hash (İsteğe bağlı)
+      cdn_data_url_label: CDN Veri URL'si
+      cdn_data_sri_label: Veri SRI Hash (İsteğe bağlı)
+      cdn_advanced_text: Varsayılanlar eklentinin oluşturulduğu emoji-mart sürümüne sabitlenmiştir. URL değiştirirseniz SRI hash değerini güncelleyin veya boş bırakarak yerel yüklemeyi zorlayın.
+      show_recents_label: Sık kullanılan emojileri göster (ve kaydet)
+      show_recents_text: Seçicinin en üstünde Sık Kullanılanlar sekmesini göster. Başlangıçta boştur ve üye emoji seçtikçe dolar. Yalnızca kullanıcının kendi tarayıcısında saklanır.
+      frequent_rows_label: Sık kullanılan emoji satır sayısı
+      frequent_rows_text: Seçicinin üstünde gösterilecek yakın zamanda/sık kullanılan emoji satır sayısı (1-10).
+      picker_set_label: Emoji stili
+      picker_set_text: Emojilerin seçicide nasıl görüneceği. "Otomatik", forum gönderilerinin görünümüyle eşleşir.
+      picker_set_auto: Otomatik
+      picker_set_twemoji: Twemoji
+      picker_set_native: Sistem Yazı Tipi (Native)
+      specify_categories_label: Kategorileri belirle
+      specify_categories_text: Burada bir kategori listesi belirtebilirsiniz; seçici yalnızca bu kategorileri gösterir.
+
+      emoji_categories:
+        people: => pianotell-flamoji.ref.emoji_categories.people
+        nature: => pianotell-flamoji.ref.emoji_categories.nature
+        foods: => pianotell-flamoji.ref.emoji_categories.foods
+        activity: => pianotell-flamoji.ref.emoji_categories.activity
+        places: => pianotell-flamoji.ref.emoji_categories.places
+        objects: => pianotell-flamoji.ref.emoji_categories.objects
+        symbols: => pianotell-flamoji.ref.emoji_categories.symbols
+        flags: => pianotell-flamoji.ref.emoji_categories.flags
+
+    custom_emojis_section:
+      heading_title: Özel Emojiler
+      import_json_button: JSON İçe Aktar
+      export_json_button: JSON Dışa Aktar
+      upload_json_button: JSON Yükle
+      import_emojis_message: Bu işlem yalnızca emoji yapılandırmalarını içe aktarır. Emoji görsellerini sunucuya manuel yüklemeniz gerekir.
+      import_override_mode: Üzerine Yazma Modu (Tüm mevcut emojileri değiştir)
+      import_override_warning: "Uyarı: Bu işlem mevcut tüm özel emojilerinizi silecektir!"
+      import_override_confirm: Evet, mevcut tüm emojileri değiştirmek istiyorum.
+      import_legacy_shortcodes: "Önerilen :kelime: kuralına uymayan {count} emoji içe aktarıldı: {shortcodes}."
+
+      edit_emoji:
+        modal_title: Emoji Ekle
+        intro_text: "Özel emojiler, üyelerin kısa kod yazarak ekleyebileceği kendi görsellerinizdir. Kısa kod ve görsel zorunludur; başlık ve kategori isteğe bağlıdır."
+        emoji_title_label: Emoji Başlığı
+        emoji_title_text: "Seçici önizlemesinde gösterilen ve aramada eşleşen dostça bir ad. İsteğe bağlı."
+        delete_emoji_confirmation: "Bu emojiyi silmek istediğinizden emin misiniz?"
+        text_to_replace_label: Kısa Kod (Shortcode)
+        text_to_replace_text: "Üyelerin bu emojiyi eklemek için yazdığı metin. İki nokta üst üste arasına yazılmalı ve yalnızca harf, rakam ve _ + - karakterlerini içermelidir (örn. :ulasim_otobus:). Zorunludur ve benzersiz olmalıdır."
+        shortcode_invalid: "Kısa kodu iki nokta üst üste arasına alın ve yalnızca harf, rakam ile _ + - kullanın (örn. :ulasim_otobus:)."
+        category_label: Kategori
+        category_placeholder: örn. Ulaşım
+        category_text: "İsteğe bağlı. Aynı kategoriyi paylaşan özel emojiler seçicide kendi sekmelerinde görünür. Varsayılan Özel sekmesi için boş bırakın."
+        path_or_url_label: Yol veya URL
+        path_or_url_text: "Görselin barındırıldığı yer: tam URL (https://…) veya foruma göreli yol (/assets/…). Zorunludur. Önce görseli yükleyin — bu alan yalnızca konumunu kaydeder."
+        submit_button: => core.ref.save_changes
+        delete_emoji_button: Emojiyi sil
+        saved_message: => core.admin.settings.saved_message
+
+      emoji_list:
+        edit_button: Emojiyi düzenle
+        add_button: Emoji ekle
+        load_more_button: => core.forum.post_stream.load_more_button
+        uncategorized: Kategorisiz
+        rename_save_button: Kaydet
+        rename_cancel_button: İptal
+
+  forum:
+    composer:
+      emoji_picker_label: Emoji seçici
+      emoji_tooltip: Emoji ekle
+      picker_loading: Emojiler yükleniyor…
+      picker_load_error: Emoji seçici yüklenemedi. Lütfen tekrar deneyin.
+      picker_load_retry: Yeniden Dene
+
+    emoji-mart:
+      search_placeholder: Ara
+      no_emojis_found_title: Sonuç Yok
+      no_emojis_found_message: Emoji bulunamadı
+      pick: Bir emoji seçin
+      add_custom: Özel emoji ekle
+      category_search: Arama Sonuçları
+      skin_tone_choose: Varsayılan ten rengini seçin
+      skin_tone_default: Varsayılan
+      skin_tone_light: Açık
+      skin_tone_medium_light: Orta-Açık
+      skin_tone_medium: Orta
+      skin_tone_medium_dark: Orta-Koyu
+      skin_tone_dark: Koyu
+
+      categories:
+        frequent: => pianotell-flamoji.ref.emoji_categories.frequent
+        people: => pianotell-flamoji.ref.emoji_categories.people
+        nature: => pianotell-flamoji.ref.emoji_categories.nature
+        foods: => pianotell-flamoji.ref.emoji_categories.foods
+        activity: => pianotell-flamoji.ref.emoji_categories.activity
+        places: => pianotell-flamoji.ref.emoji_categories.places
+        objects: => pianotell-flamoji.ref.emoji_categories.objects
+        symbols: => pianotell-flamoji.ref.emoji_categories.symbols
+        flags: => pianotell-flamoji.ref.emoji_categories.flags
+        custom: => pianotell-flamoji.ref.emoji_categories.custom
+
+  ref:
+    emoji_categories:
+      frequent: Sık Kullanılanlar
+      people: İfadeler & Kişiler
+      nature: Hayvanlar & Doğa
+      foods: Yiyecek & İçecek
+      activity: Etkinlikler
+      places: Seyahat & Mekanlar
+      objects: Nesneler
+      symbols: Semboller
+      flags: Bayraklar
+      custom: Özel Emojiler

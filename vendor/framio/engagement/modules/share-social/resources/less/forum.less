@@ -1,0 +1,169 @@
+.Button--share {
+  .Button-label {
+    font-size: 13px;
+  }
+}
+
+.FofShareSocialModal .Modal-body {
+  .ShareUrl {
+    display: flex;
+    gap: 5px;
+    margin-top: 10px;
+  }
+
+  .Button:not(.ShareUrl .Button) {
+    width: 100%;
+    border-radius: var(--border-radius);
+    margin-top: 10px !important;
+  }
+}
+
+.item-share-social {
+  // Keep the ButtonGroup's main + toggle buttons on one line on mobile
+  @media @phone {
+    .ButtonGroup {
+      display: inline-flex;
+
+      > .Button {
+        float: none;
+      }
+    }
+  }
+}
+
+.item-share-social .Dropdown {
+  &:not(.itemCount1) {
+    .SplitDropdown-button {
+      width: unset;
+    }
+  }
+
+  .Dropdown-menu {
+    .Button {
+      width: 100% !important;
+      color: var(--button-color);
+      background: var(--button-bg);
+
+      .icon {
+        margin-top: 4px;
+      }
+
+      &:hover,
+      &:focus,
+      &.focus {
+        background-color: var(--button-bg-hover);
+      }
+
+      &:active,
+      &.active,
+      .open > .Dropdown-toggle& {
+        background-color: var(--button-bg-active);
+      }
+    }
+
+    @media @tablet-up {
+      padding: 0;
+
+      .Button {
+        margin: 4px 4px;
+        border-radius: var(--border-radius);
+        width: ~"calc(100% - 8px)" !important;
+      }
+    }
+  }
+}
+
+.item-share-social, .FofShareSocialModal {
+  .Share--facebook {
+    .Button--color(#fff, #3B5998);
+  }
+
+  .Share--vkontakte {
+    .Button--color(#fff, #567ca4);
+  }
+
+  .Share--twitter {
+    .Button--color(#fff, #000000);
+  }
+
+  .Share--reddit {
+    .Button--color(#fff, #FF4500);
+  }
+
+  .Share--odnoklassniki {
+    .Button--color(#fff, #EE8208);
+  }
+
+  .Share--my_mail {
+    .Button--color(#fff, #168DE2);
+  }
+
+  .Share--linkedin {
+    .Button--color(#fff, #0077B5);
+  }
+
+  .Share--qq {
+    .Button--color(#fff, #12B8F6);
+  }
+
+  .Share--qzone {
+    .Button--color(#fff, #FFBB30);
+  }
+
+  .Share--whatsapp {
+    .Button--color(#fff, #25D366);
+  }
+
+  .Share--telegram {
+    .Button--color(#fff, #24A1DE);
+  }
+
+  .Share--threads {
+    .Button--color(#fff, #000000);
+  }
+
+  .Share--bluesky {
+    .Button--color(#fff, #1185FE);
+  }
+
+  .Share--mastodon {
+    .Button--color(#fff, #6364FF);
+  }
+
+  .Share--pinterest {
+    .Button--color(#fff, #BD081C);
+  }
+
+  .Share--tumblr {
+    .Button--color(#fff, #36465D);
+  }
+
+  .Share--viber {
+    .Button--color(#fff, #7360F2);
+  }
+
+  .Share--skype {
+    .Button--color(#fff, #00AFF0);
+  }
+
+  .Share--email {
+    .Button--color(#fff, #EA4335);
+  }
+
+  .Share--native {
+    .Button--color(#fff, #4D698E);
+  }
+
+  .Share--custom {
+    transition: opacity 0.2s ease;
+    &:hover {
+      opacity: 0.9;
+    }
+  }
+
+  .fa-lg {
+    font-size: 1.33333333em;
+    line-height: 0.75em;
+    vertical-align: -15%;
+  }
+}

@@ -1,0 +1,126 @@
+// Friendship extension — admin styles
+// Same card look as Arena's admin settings tab (.card-style() mixin +
+// .SettingsTab-section pattern in forumaker/Arena's less/admin.less), so
+// this page reads as part of the same family of admin pages.
+
+.card-style() {
+  background: var(--body-bg);
+  border: 1px solid var(--control-border-color);
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.FriendshipAdminPage {
+  padding: 24px;
+
+  &-section {
+    .card-style();
+    padding: 20px;
+    margin-bottom: 20px;
+
+    h3 {
+      margin: 0 0 10px;
+      font-size: 16px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+
+      i {
+        color: var(--primary-color);
+        font-size: 0.95em;
+      }
+    }
+
+    // The intro line sits right under the title, with the divider below it
+    // separating the section's header from its actual toggles.
+    > .helpText {
+      padding-bottom: 14px;
+      border-bottom: 2px solid var(--control-bg);
+      margin-bottom: 20px;
+    }
+
+    .Form-group {
+      margin-bottom: 20px;
+
+      &:last-child {
+        margin-bottom: 0;
+      }
+    }
+  }
+
+  &-colorRow {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  // Removing the outer input's border isn't enough — Chrome/Edge render an
+  // inner ::-webkit-color-swatch with its own default gray border and
+  // square corners, and Firefox has an equivalent ::-moz-color-swatch.
+  // Both need their own overrides to actually get a borderless, rounded
+  // swatch matching the hex/icon inputs next to it.
+  &-colorInput {
+    width: 36px;
+    height: 36px;
+    padding: 0;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    background: none;
+    -webkit-appearance: none;
+    appearance: none;
+
+    &::-webkit-color-swatch-wrapper {
+      padding: 0;
+    }
+
+    &::-webkit-color-swatch {
+      border: none;
+      border-radius: 6px;
+    }
+
+    &::-moz-color-swatch {
+      border: none;
+      border-radius: 6px;
+    }
+  }
+
+  &-colorHex {
+    width: 90px;
+    font-family: monospace;
+  }
+
+  &-iconInput {
+    width: 140px;
+    font-family: monospace;
+  }
+
+  &-iconPreview {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border-radius: 6px;
+    background: var(--control-bg);
+    border: 1px solid var(--control-border-color);
+    font-size: 15px;
+  }
+
+  // Same metrics as .FriendshipPostBadge in forum.less, so the preview
+  // matches the real thing in posts pixel-for-pixel.
+  &-bgPreview {
+    width: auto !important;
+    border-radius: 100px !important;
+    padding: 0 7px 0 5px !important;
+    box-shadow: none !important;
+    gap: 4px;
+    display: inline-flex !important;
+    align-items: center;
+    font-size: .72em;
+    font-weight: 700;
+    line-height: 20px;
+  }
+}

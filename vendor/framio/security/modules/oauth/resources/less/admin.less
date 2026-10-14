@@ -1,0 +1,77 @@
+.AuthSettingsPage {
+  margin-top: 20px;
+  // Same max width as basics/mail page
+  // Without this the provider settings icon ends up very far from the label on wide screens
+  max-width: 600px;
+
+  .Provider--info {
+    display: flex;
+    gap: 15px;
+
+    label {
+      font-size: 16px;
+      font-weight: normal;
+
+      span {
+        margin-left: 10px;
+        line-height: 1;
+      }
+
+      span, .icon {
+        vertical-align: text-top;
+      }
+
+      .icon {
+        font-weight: normal;
+      }
+    }
+
+    .Form-group {
+      flex-grow: 1;
+      margin-bottom: 10px;
+    }
+
+    .Button--rounded {
+      height: 37px;
+    }
+
+    .Provider--group {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: bold;
+      margin-bottom: 10px;
+    }
+  }
+
+  .Provider--settings {
+    max-height: 0;
+    margin-bottom: 0;
+    transition:
+        max-height 0.5s,
+        margin-bottom 0.25s;
+    overflow-y: hidden;
+    overflow-x: visible;
+    padding: 0 5px 5px;
+  }
+
+  .Provider {
+    // Remove gap from Form component
+    margin-bottom: calc(-1 * var(--gap));
+
+    &.disabled .Button--rounded {
+      display: none;
+
+      &:before {
+        content: '';
+        height: 37px;
+      }
+    }
+
+    &.showing .Provider--settings {
+      max-height: 2000px;
+      margin-bottom: 25px;
+      overflow-y: visible;
+    }
+  }
+}

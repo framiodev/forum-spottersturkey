@@ -1,0 +1,126 @@
+// emoji-mart renders as a custom element <em-emoji-picker>. We portal it to
+// document.body (escaping the composer footer's `overflow: auto` clipping)
+// and absolutely position it via JS relative to the toolbar button. Theme
+// it via the documented CSS custom properties; anything not exposed as a
+// custom prop lives behind the picker's Shadow DOM and is intentionally
+// left untouched.
+em-emoji-picker.flamoji-picker-popup {
+  position: fixed;
+  z-index: @zindex-modal; // float above composer (~1080); fixed positioning is page-scope
+  border-radius: @border-radius;
+  // box-shadow set via JS (injectEmojiMartRgbVars) because emoji-mart's
+  // custom element overrides Flarum's --shadow-color CSS property.
+
+  // emoji-mart expects --rgb-* as comma-separated R,G,B triplets.
+  // These can't be derived from Flarum's CSS custom properties in LESS
+  // (LESS color functions only work on compile-time values). Instead,
+  // the JS picker code computes them at runtime from getComputedStyle()
+  // and injects them as inline styles so they match the active theme.
+  --color-border: var(--control-bg);
+  --color-border-over: var(--primary-color);
+  --font-family: inherit;
+  --font-size: 14px;
+
+  // Custom prop our shadow-DOM stylesheet (see injectShadowStyles in
+  // forum/index.js) reads to color the sticky category headers. Matches
+  // the original emoji-button extension, which mapped the picker's
+  // secondary text color to var(--muted-color).
+  --flamoji-category-header-color: var(--muted-color);
+}
+
+// Sticker mode: give the picker a responsive width/height so emoji-mart's
+// dynamicWidth computes perLine from it, and the popup stays mobile-friendly
+// (caps to the viewport on small screens). The loader uses the same footprint
+// (see .flamoji-picker-loader--sticker) so the swap isn't a size jump.
+@flamoji-sticker-width: ~"min(400px, calc(100vw - 16px))";
+@flamoji-sticker-height: ~"min(540px, calc(100vh - 140px))";
+
+em-emoji-picker.flamoji-picker-popup--sticker {
+  width: @flamoji-sticker-width;
+  height: @flamoji-sticker-height;
+}
+
+span.flamoji img {
+  height: 1.5em;
+  margin: 0 0.1em;
+  vertical-align: -0.3em;
+}
+
+// Sticker mode (admin toggle, flamoji.sticker_mode): render custom emoji at
+// sticker size in posts and the live composer preview, matching the enlarged
+// picker grid. Keyed on the root class set by forum/index.js's initializer.
+html.flamoji--sticker span.flamoji img {
+  height: 4em;
+  vertical-align: middle;
+}
+
+// Placeholder popup shown while emoji-mart chunks + the custom-emoji API
+// call are in flight on first picker open. Mimics the picker's chrome
+// (border, shadow, radius, body background) so the swap to the real
+// picker reads as the same surface "filling in" rather than two distinct
+// popups appearing.
+.flamoji-picker-loader {
+  position: fixed;
+  z-index: @zindex-modal;
+  width: 330px; // ~ perLine(9) * emojiButtonSize(36) + chrome (emoji-mart defaults)
+  min-height: 320px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  padding: 24px;
+  background: var(--body-bg);
+  color: var(--text-color);
+  border: 1px solid var(--control-bg);
+  border-radius: @border-radius;
+  box-shadow: 0 2px 6px var(--shadow-color);
+  font-size: 14px;
+  text-align: center;
+
+  // Sticker mode: match the responsive sticker picker footprint so the
+  // placeholder doesn't jump in size when the real picker mounts.
+  &--sticker {
+    width: @flamoji-sticker-width;
+    min-height: @flamoji-sticker-height;
+  }
+
+  &__spinner {
+    width: 36px;
+    height: 36px;
+    border: 3px solid color-mix(in srgb, var(--text-color) 15%, transparent);
+    border-top-color: var(--primary-color);
+    border-radius: 50%;
+    animation: flamoji-loader-spin 0.85s linear infinite;
+  }
+
+  &__label {
+    color: var(--muted-color);
+  }
+
+  &__retry {
+    margin-top: 4px;
+  }
+
+  &--error {
+    .flamoji-picker-loader__label {
+      color: var(--text-color);
+    }
+  }
+}
+
+@keyframes flamoji-loader-spin {
+  to { transform: rotate(360deg); }
+}
+
+// Honor reduced-motion preference: replace spin with subtle pulse.
+@media (prefers-reduced-motion: reduce) {
+  .flamoji-picker-loader__spinner {
+    animation: flamoji-loader-pulse 1.6s ease-in-out infinite;
+    border-top-color: var(--primary-color);
+  }
+  @keyframes flamoji-loader-pulse {
+    0%, 100% { opacity: 0.45; }
+    50%      { opacity: 1; }
+  }
+}

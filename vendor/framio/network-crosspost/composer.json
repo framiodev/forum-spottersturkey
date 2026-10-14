@@ -1,0 +1,32 @@
+{
+    "name": "framio/network-crosspost",
+    "description": "Evrensel platformlar ve forumlar arası çift yönlü tek tıkla çapraz gönderi paylaşımı ve kaynak entegrasyonu.",
+    "type": "flarum-extension",
+    "version": "1.0.0",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Framio-Dev",
+            "homepage": "https://dev.framiomedia.com"
+        }
+    ],
+    "require": {
+        "flarum/core": "^2.0.0-rc.1 || ^2.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "Framio\\NetworkCrosspost\\": "src/"
+        }
+    },
+    "extra": {
+        "flarum-extension": {
+            "title": "Framio Network Crosspost",
+            "category": "feature",
+            "icon": {
+                "name": "fas fa-network-wired",
+                "backgroundColor": "#e74c3c",
+                "color": "#fff"
+            }
+        }
+    }
+}

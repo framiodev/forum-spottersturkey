@@ -1,0 +1,11 @@
+flarum-ext-socialcards:
+  admin:
+    settings:
+      showfacebook: "Facebook'u Etkinleştir"
+      fblink: "Facebook Bağlantısı"
+      showyoutube: "YouTube'u Etkinleştir"
+      ytlink: "YouTube Bağlantısı"
+      showtwitter: "Twitter / X'i Etkinleştir"
+      twlink: "Twitter / X Bağlantısı"
+      showGithub: "GitHub'ı Etkinleştir"
+      ghlink: "GitHub Bağlantısı"

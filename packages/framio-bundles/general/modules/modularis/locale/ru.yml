@@ -1,0 +1,58 @@
+stezkoy-modularis:
+  admin:
+    heading: Modularis
+    help_block: Modularis позволяет создавать переиспользуемые CSS-блоки и применять их отдельно к сайту или панели управления. Стили добавляются на страницу и применяются сразу. Очищать кэш обычно не требуется — при необходимости это можно сделать вручную.
+    forum_section: Стили сайта
+    forum_section_help: Эти стили применяются к публичному фронтенду форума.
+    admin_section: Стили панели управления
+    admin_section_help: Эти стили применяются к панели администратора.
+    section_counter: Включено {enabled} из {total}
+    empty: Стилей пока нет. Нажмите «Добавить стиль», чтобы создать первый.
+    add_button: Добавить стиль
+    clear_cache_button: Очистить кэш
+    clear_cache_confirm: Очистить кэш Flarum? Стилевой кэш будет пересобран автоматически.
+    cache_cleared: Кэш успешно очищен.
+    clear_cache_failed: Не удалось очистить кэш.
+
+    export_button: Экспорт
+    import_button: Импорт
+    export_success: Стили экспортированы.
+    export_failed: Не удалось экспортировать стили.
+    export_modal_title: Экспорт стилей
+    export_modal_help: Выберите, какие стили экспортировать.
+    export_selected: "Экспортировать ({count})"
+    export_select_all: Выбрать всё
+    export_select_none: Снять всё
+    export_modal_count: "Выбрано: {count}"
+    import_confirm: "Будет импортировано стилей: {count}. Продолжить?"
+    import_confirm_button: Импортировать
+    import_success: "Импортировано стилей: {count}."
+    import_failed: Не удалось импортировать стили.
+    import_invalid: Файл не является корректным экспортом Modularis.
+
+    modal_title_create: Добавить стиль
+    modal_title_edit: Редактировать стиль
+    save_button: Сохранить
+    cancel_button: Отмена
+    delete_button: Удалить
+    edit_button: Редактировать
+    active_switch: Включён
+    active_switch_help: Переключите, чтобы применить или приостановить этот стиль.
+
+    name_label: Имя стиля
+    name_placeholder: например, Моя глянцевая тема
+    name_help: Короткая подпись для идентификации стиля.
+
+    css_label: Содержание CSS
+    css_placeholder: "/* Напишите свой CSS здесь */"
+    css_help: Вставьте корректный CSS. Он проверяется при сохранении.
+
+    confirm_delete: Удалить стиль «{name}»? Это действие необратимо.
+
+    error_syntax: CSS не корректен — несбалансированы скобки, круглые скобки или кавычки.
+    error_import: «@import» и «@charset» запрещены.
+    error_script: Содержимое, похожее на JavaScript, запрещено.
+    error_closing_tag: Закрывающие HTML-теги запрещены.
+    error_data_uri: Data URI запрещены.
+    request_error: Не удалось сохранить стиль. Проверьте ввод и попробуйте снова.
+    load_error: Не удалось загрузить стили.

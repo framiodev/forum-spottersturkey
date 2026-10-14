@@ -1,0 +1,1 @@
+{"version":3,"file":"js\\flarum-emoji\\forum\\emojiMap.js.map","sourceRoot":"","sources":["webpack://@flarum/emoji/./src/forum/emojiMap.ts"],"names":[],"mappings":"wIAEA,E","sourcesContent":["import emojiMap from 'simple-emoji-map';\nconst typedEmojiMap = emojiMap;\nexport default typedEmojiMap;"]}

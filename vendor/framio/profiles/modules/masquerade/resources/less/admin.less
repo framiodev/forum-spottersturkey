@@ -1,0 +1,67 @@
+.MasqueradePage-list {
+    list-style: none;
+    padding: 0;
+}
+
+.MasqueradeFieldListItem {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    cursor: grab;
+    padding: 0.3em 0.6em;
+    border-radius: var(--border-radius);
+
+    &:hover {
+        background-color: var(--control-bg);
+    }
+
+    &[aria-grabbed="true"] {
+        background-color: color-mix(in srgb, var(--control-bg), transparent 15%);
+        backdrop-filter: blur(2px);
+    }
+
+    &-icon {
+        margin-right: 0.8em;
+    }
+
+    &-edit {
+        margin-left: auto;
+
+        // pointer: fine = mouse — safe to use hover. Touch devices always show the button.
+        @media (pointer: fine) {
+            visibility: hidden;
+
+            .MasqueradeFieldListItem:hover & {
+                visibility: visible;
+            }
+        }
+    }
+}
+
+// ---
+.MasqueradeSelectOptionsList,
+.MasqueradeSelectOptionNewItem {
+    width: 100%;
+}
+
+.MasqueradeSelectOptionItem,
+.MasqueradeSelectOptionNewItem {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.MasqueradeSelectOptionItem {
+    margin-bottom: 10px;
+
+    &-handle {
+        cursor: grab;
+        color: var(--control-color);
+    }
+}
+
+.MasqueradeSelectOptionNewItem {
+    .Form-group {
+        width: 100%;
+    }
+}

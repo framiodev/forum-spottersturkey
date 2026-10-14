@@ -1,0 +1,16 @@
+framio-package-manager:
+  admin:
+    title: "Framio Paket Yöneticisi"
+    header_description: "Konsolide paketleri yönetin, alt modülleri anında açıp kapatın veya eklentileri özel kimlikle kurun."
+    tabs:
+      bundles: "Konsolide Paketler"
+      isolated: "İzole Eklentiler"
+      discover: "Eklenti Keşfet (Packagist)"
+    actions:
+      create_bundle: "Yeni Konsolide Paket"
+      install_wizard: "Eklenti Yükle / Kur"
+      clear_cache: "Önbelleği Temizle"
+      refresh: "Yenile"
+      delete: "Kaldır"
+      toggle_on: "Aktif"
+      toggle_off: "Pasif"

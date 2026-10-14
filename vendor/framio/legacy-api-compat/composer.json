@@ -1,0 +1,28 @@
+{
+    "name": "framio/legacy-api-compat",
+    "description": "Compatibility shims that let extensions written against Flarum 1.x's Tobscure-based JSON:API controller/serializer classes keep working on Flarum 2.0, which replaced that system entirely. Provides plain-JSON:API-shaped output (type/id/attributes/relationships) without depending on the removed tobscure/json-api package.",
+    "type": "flarum-extension",
+    "license": "MIT",
+    "require": {
+        "flarum/core": "^2.0.0-rc.1"
+    },
+    "autoload": {
+        "psr-4": {
+            "Framio\\LegacyApiCompat\\": "src/Extension/",
+            "Flarum\\Api\\Controller\\": "src/ApiController/",
+            "Flarum\\Api\\Serializer\\": "src/ApiSerializer/",
+            "Tobscure\\JsonApi\\": "src/TobscureJsonApi/"
+        }
+    },
+    "extra": {
+        "flarum-extension": {
+            "title": "Legacy API Compat",
+            "category": "utility",
+            "icon": {
+                "backgroundColor": "#e74c3c",
+                "color": "#fff",
+                "name": "fas fa-puzzle-piece"
+            }
+        }
+    }
+}

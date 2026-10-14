@@ -1,0 +1,65 @@
+<?php
+
+/*
+ * This file is part of fof/pwa
+ *
+ * Copyright (c) 2021 Alexander Skvortsov.
+ * Copyright (c) 2025 FriendsOfFlarum
+ *
+ * For detailed copyright and license information, please view the
+ * LICENSE file that was distributed with this source code.
+ */
+
+namespace Framio\PWA\Api\Controller;
+
+use ErrorException;
+use Exception;
+use Flarum\Http\RequestUtil;
+use Flarum\Settings\SettingsRepositoryInterface;
+use Flarum\User\Exception\PermissionDeniedException;
+use Framio\PWA\Model\PushSubscription;
+use Framio\PWA\VapidGenerator;
+use Laminas\Diactoros\Response\JsonResponse;
+use Minishlink\WebPush\VAPID;
+use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\ServerRequestInterface;
+use Psr\Http\Server\RequestHandlerInterface;
+
+class ResetVAPIDKeysController implements RequestHandlerInterface
+{
+    public function __construct(protected SettingsRepositoryInterface $settings)
+    {
+    }
+
+    /**
+     * {@inheritdoc}
+     *
+     * @throws PermissionDeniedException|ErrorException
+     * @throws Exception
+     */
+    public function handle(ServerRequestInterface $request): ResponseInterface
+    {
+        RequestUtil::getActor($request)->assertAdmin();
+
+        try {
+            $keys = VapidGenerator::generate();
+        } catch (ErrorException $e) {
+            $this->settings->set('fof-pwa.vapid.success', false);
+            $this->settings->set('fof-pwa.vapid.error', $e->getMessage());
+
+            throw new Exception($e->getMessage());
+        }
+
+        $this->settings->set('fof-pwa.vapid.success', true);
+        $this->settings->set('fof-pwa.vapid.private', $keys['privateKey']);
+        $this->settings->set('fof-pwa.vapid.public', $keys['publicKey']);
+
+        $count = PushSubscription::query()
+            ->where('vapid_public_key', '!=', $keys['publicKey'])
+            ->delete();
+
+        return new JsonResponse([
+            'deleted' => $count,
+        ]);
+    }
+}

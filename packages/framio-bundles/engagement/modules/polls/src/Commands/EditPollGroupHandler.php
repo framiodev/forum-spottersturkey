@@ -1,0 +1,50 @@
+<?php
+
+/*
+ * This file is part of fof/polls.
+ *
+ * Copyright (c) FriendsOfFlarum.
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
+namespace Framio\Engagement\Polls\Commands;
+
+use Framio\Engagement\Polls\Events\SavedPollGroup;
+use Framio\Engagement\Polls\Events\SavingPollGroup;
+use Framio\Engagement\Polls\PollGroup;
+use Framio\Engagement\Polls\Validators\PollGroupValidator;
+use Illuminate\Contracts\Events\Dispatcher;
+use Illuminate\Support\Arr;
+
+class EditPollGroupHandler
+{
+    public function __construct(protected PollGroupValidator $validator, protected Dispatcher $events)
+    {
+    }
+
+    public function handle(EditPollGroup $command): PollGroup
+    {
+        $actor = $command->actor;
+        $data = $command->data;
+        $attributes = Arr::get($data, 'attributes', []);
+
+        $group = PollGroup::findOrFail($command->groupId);
+        $actor->assertCan('edit', $group);
+
+        $this->validator->assertValid($data);
+
+        if (array_key_exists('name', $attributes)) {
+            $group->name = Arr::get($attributes, 'name');
+        }
+
+        $this->events->dispatch(new SavingPollGroup($actor, $group, $data));
+
+        $group->save();
+
+        $this->events->dispatch(new SavedPollGroup($actor, $group, $data));
+
+        return $group;
+    }
+}

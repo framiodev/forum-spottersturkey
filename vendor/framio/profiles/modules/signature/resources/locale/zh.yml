@@ -1,0 +1,25 @@
+signature:
+    forum:
+        buttons:
+            signature: 签名
+            save: 保存
+            edit: 编辑
+        errors:
+             max_char_limit_exceed: 超出最长字符限制.
+             max_image_count_exceed: 超出最大图片数量.
+        profile:
+            click: 点击编辑签名
+    admin:
+        permissions:
+            edit_signature_others: 编辑其他用户签名
+            allow_signature: 能拥有签名
+        settings:
+            maximum_image_count:
+                description : 最大图片数量.
+                help: 限制图片数量.
+            maximum_char_limit:
+                description : 最长字符长度.
+                help: 限制字符长度.
+            allow_inline_editing:
+                description : 行内编辑.
+                help: When enabled, users can edit their signature while viewing a post.

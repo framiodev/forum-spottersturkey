@@ -1,0 +1,31 @@
+{
+    "name": "framio/social-share",
+    "description": "Forum mesajlarını düzenleyip Meta Business Suite (Facebook/Instagram) üzerinde paylaşır ve hikaye oluşturur.",
+    "type": "flarum-extension",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Framio",
+            "homepage": "https://ulasimarsiv.com"
+        }
+    ],
+    "require": {
+        "flarum/core": "^2.0"
+    },
+    "extra": {
+        "flarum-extension": {
+            "title": "Framio Social Share",
+            "category": "feature",
+            "icon": {
+                "name": "fab fa-facebook-square",
+                "backgroundColor": "#e74c3c",
+                "color": "#fff"
+            }
+        }
+    },
+    "autoload": {
+        "psr-4": {
+            "Framio\\SocialShare\\": "src/"
+        }
+    }
+}

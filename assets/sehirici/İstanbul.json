@@ -1,0 +1,3034 @@
+[
+    {
+        "hat_kodu": 1,
+        "guzergah": "KİRAZLITEPE - ACIBADEM \/ KADIKÖY"
+    },
+    {
+        "hat_kodu": 2,
+        "guzergah": "BOSTANCI - HAREM"
+    },
+    {
+        "hat_kodu": 3,
+        "guzergah": "BURHANİYE MAHALLESİ - KADIKÖY"
+    },
+    {
+        "hat_kodu": 4,
+        "guzergah": "MALTEPE SAHİL - KADIKÖY"
+    },
+    {
+        "hat_kodu": 5,
+        "guzergah": "VALİEVLERİ - ÜSKÜDAR"
+    },
+    {
+        "hat_kodu": 6,
+        "guzergah": "ESATPAŞA \/ KÜÇÜKÇAMLICA - HAREM"
+    },
+    {
+        "hat_kodu": 7,
+        "guzergah": "TOPAĞACI MAHALLESİ \/ ÜMRANİYE - RASATHANE"
+    },
+    {
+        "hat_kodu": 8,
+        "guzergah": "VALİEVLERİ - KADIKÖY"
+    },
+    {
+        "hat_kodu": 10,
+        "guzergah": "Ü.EĞT.ARŞ.HASTANESİ - ATAŞEHİR \/ BOSTANCI"
+    },
+    {
+        "hat_kodu": 11,
+        "guzergah": "YENİDOĞAN - ALTUNİZADE METROBÜS"
+    },
+    {
+        "hat_kodu": 12,
+        "guzergah": "KADIKÖY - ÜSKÜDAR"
+    },
+    {
+        "hat_kodu": 13,
+        "guzergah": "ATAŞEHİR \/ ÇAKMAK MAHALLESİ - KADIKÖY"
+    },
+    {
+        "hat_kodu": 14,
+        "guzergah": "YENİDOĞAN\/ ÜMRANİYE - KADIKÖY"
+    },
+    {
+        "hat_kodu": 15,
+        "guzergah": "BEYKOZ - ÜSKÜDAR"
+    },
+    {
+        "hat_kodu": 16,
+        "guzergah": "PENDİK - KADIKÖY"
+    },
+    {
+        "hat_kodu": 17,
+        "guzergah": "PENDİK - KADIKÖY"
+    },
+    {
+        "hat_kodu": 18,
+        "guzergah": "SULTANBEYLİ - UZUNÇAYIR METROBÜS\/ ÜSKÜDAR"
+    },
+    {
+        "hat_kodu": 19,
+        "guzergah": "FERHATPAŞA \/ YEDİTEPE ÜNİVERSİTESİ - KADIKÖY"
+    },
+    {
+        "hat_kodu": 20,
+        "guzergah": "ORTAÇEŞME \/ KAVACIK - Ü.EĞT.ARŞ.HASTANESİ"
+    },
+    {
+        "hat_kodu": 22,
+        "guzergah": "İSTİNYE DEREİÇİ - KABATAŞ"
+    },
+    {
+        "hat_kodu": 25,
+        "guzergah": "HACIOSMAN METRO - HAVANTEPE"
+    },
+    {
+        "hat_kodu": 26,
+        "guzergah": "DİKİLİTAŞ - EMİNÖNÜ"
+    },
+    {
+        "hat_kodu": 28,
+        "guzergah": "TOPKAPI \/ EDİRNEKAPI - BEŞİKTAŞ"
+    },
+    {
+        "hat_kodu": 29,
+        "guzergah": "İSTİNYE DEREİÇİ - ZİNCİRLİKUYU METROBÜS"
+    },
+    {
+        "hat_kodu": 31,
+        "guzergah": "KUYUMCUKENT - YENİKAPI"
+    },
+    {
+        "hat_kodu": 32,
+        "guzergah": "CEVATPAŞA - EMİNÖNÜ"
+    },
+    {
+        "hat_kodu": 33,
+        "guzergah": "GİYİMKENT \/ TURGUTREİS - EMİNÖNÜ"
+    },
+    {
+        "hat_kodu": 34,
+        "guzergah": "AVCILAR-ZİNCİRLİKUYU"
+    },
+    {
+        "hat_kodu": 35,
+        "guzergah": "KOCAMUSTAFAPAŞA - EMİNÖNÜ"
+    },
+    {
+        "hat_kodu": 36,
+        "guzergah": "YENİ MAHALLE METRO - AKSARAY RİNG"
+    },
+    {
+        "hat_kodu": 38,
+        "guzergah": "SULTANGAZİ PERON-AKSARAY"
+    },
+    {
+        "hat_kodu": 40,
+        "guzergah": "RUMELİFENERİ \/ GARİPÇE - TAKSİM"
+    },
+    {
+        "hat_kodu": 41,
+        "guzergah": "SİNPAŞ SİTESİ - 4.LEVENT METRO"
+    },
+    {
+        "hat_kodu": 42,
+        "guzergah": "BAHÇEKÖY \/ FERAHEVLER - ZİNCİRLİKUYU METROBÜS"
+    },
+    {
+        "hat_kodu": 48,
+        "guzergah": "GÖKTÜRK - MECİDİYEKÖY"
+    },
+    {
+        "hat_kodu": 55,
+        "guzergah": "GAZİOSMANPAŞA - ŞİŞLİ"
+    },
+    {
+        "hat_kodu": 62,
+        "guzergah": "KAĞITHANE \/ GÜLTEPE - KABATAŞ"
+    },
+    {
+        "hat_kodu": 63,
+        "guzergah": "KAĞITHANE \/ ÇELİKTEPE - KABATAŞ"
+    },
+    {
+        "hat_kodu": 66,
+        "guzergah": "GÜLBAĞ - EMİNÖNÜ"
+    },
+    {
+        "hat_kodu": 73,
+        "guzergah": "YENİBOSNA METRO- TAKSİM"
+    },
+    {
+        "hat_kodu": 74,
+        "guzergah": "HİLTON SİTESİ - EMİNÖNÜ"
+    },
+    {
+        "hat_kodu": 76,
+        "guzergah": "BEYLİKDÜZÜ - BAKIRKÖY"
+    },
+    {
+        "hat_kodu": 77,
+        "guzergah": "YENİKAPI-ŞİŞLİ"
+    },
+    {
+        "hat_kodu": 78,
+        "guzergah": "METROKENT - EMİNÖNÜ"
+    },
+    {
+        "hat_kodu": 82,
+        "guzergah": "KUYUMCUKENT - EMİNÖNÜ"
+    },
+    {
+        "hat_kodu": 87,
+        "guzergah": "TOPKAPI \/ EDİRNEKAPI - TAKSİM"
+    },
+    {
+        "hat_kodu": 88,
+        "guzergah": "SULTANGAZİ PERON - TOPKAPI"
+    },
+    {
+        "hat_kodu": 89,
+        "guzergah": "K.S.S. HASTANESİ\/ATAKENT-AKSARAY"
+    },
+    {
+        "hat_kodu": 90,
+        "guzergah": "DRAMAN - EMİNÖNÜ"
+    },
+    {
+        "hat_kodu": 92,
+        "guzergah": "YENİ MAHALLE METRO - EMİNÖNÜ"
+    },
+    {
+        "hat_kodu": 93,
+        "guzergah": "ZEYTİNBURNU - EMİNÖNÜ"
+    },
+    {
+        "hat_kodu": 97,
+        "guzergah": "15 TEMMUZ MAHALLESİ - AKSARAY"
+    },
+    {
+        "hat_kodu": 98,
+        "guzergah": "FENERTEPE\/BAŞAKŞEHİR - BAKIRKÖY"
+    },
+    {
+        "hat_kodu": 132,
+        "guzergah": "AKFIRAT \/ TEPEÖREN - KARTAL"
+    },
+    {
+        "hat_kodu": 134,
+        "guzergah": "VIAPORT \/ HİLAL KONUTLARI - KARTAL"
+    },
+    {
+        "hat_kodu": 135,
+        "guzergah": "POYRAZKÖY - SULTANİYE"
+    },
+    {
+        "hat_kodu": 136,
+        "guzergah": "DEĞİRMENDERE - SULTANİYE"
+    },
+    {
+        "hat_kodu": 137,
+        "guzergah": "CUMHURİYET KÖYÜ \/ RİVA - BEYKOZ \/ SULTANİYE"
+    },
+    {
+        "hat_kodu": 138,
+        "guzergah": "CUMHURİYET KÖYÜ \/ ÖMERLİ - ÜMRANİYE"
+    },
+    {
+        "hat_kodu": 139,
+        "guzergah": "ÜSKÜDAR - ŞİLE"
+    },
+    {
+        "hat_kodu": 142,
+        "guzergah": "BOĞAZKÖY - AVCILAR METROBÜS"
+    },
+    {
+        "hat_kodu": 143,
+        "guzergah": "KÜÇÜKÇEKMECE - İSTOÇ"
+    },
+    {
+        "hat_kodu": 144,
+        "guzergah": "BOĞAZKÖY\/BAHÇEKENT-HARAMİDERE"
+    },
+    {
+        "hat_kodu": 145,
+        "guzergah": "İHLAS MARMARA EVLERİ - KÜÇÜKÇEKMECE MARMARAY"
+    },
+    {
+        "hat_kodu": 146,
+        "guzergah": "BOĞAZKÖY \/ BAHÇEŞEHİR - BAKIRKÖY"
+    },
+    {
+        "hat_kodu": 147,
+        "guzergah": "ŞAHİNTEPE İGTOT - AVCILAR CİHANGİR MAHALLESİ"
+    },
+    {
+        "hat_kodu": 150,
+        "guzergah": "HACIOSMAN METRO - RUMELİFENERİ"
+    },
+    {
+        "hat_kodu": 151,
+        "guzergah": "HACIOSMAN METRO - KİLYOS \/ DEMİRCİKÖY"
+    },
+    {
+        "hat_kodu": 152,
+        "guzergah": "HACIOSMAN METRO - ZEKERİYAKÖY \/ KISIRKAYA"
+    },
+    {
+        "hat_kodu": 153,
+        "guzergah": "BAHÇEKÖY - SARIYER"
+    },
+    {
+        "hat_kodu": 154,
+        "guzergah": "HACIOSMAN METRO - KOÇ ÜNİVERSİTESİ"
+    },
+    {
+        "hat_kodu": 251,
+        "guzergah": "PENDİK - MECİDİYEKÖY"
+    },
+    {
+        "hat_kodu": 256,
+        "guzergah": "YEDİTEPE ÜNİVERSİTESİ \/ ATAŞEHİR - TAKSİM"
+    },
+    {
+        "hat_kodu": 300,
+        "guzergah": "SİLİVRİ-TÜYAP"
+    },
+    {
+        "hat_kodu": 319,
+        "guzergah": "KAYIŞDAĞI - KADIKÖY"
+    },
+    {
+        "hat_kodu": 320,
+        "guzergah": "FERHATPAŞA - ÜMRANİYE METRO\/ÇAMLICA CAMİİ"
+    },
+    {
+        "hat_kodu": 336,
+        "guzergah": "ARNAVUTKÖY - EMİNÖNÜ"
+    },
+    {
+        "hat_kodu": 401,
+        "guzergah": "ÇATALCA - AVCILAR METROBÜS"
+    },
+    {
+        "hat_kodu": 402,
+        "guzergah": "BİNKILIÇ - ÇATALCA"
+    },
+    {
+        "hat_kodu": 403,
+        "guzergah": "ÇİFTLİKKÖY - ÇATALCA"
+    },
+    {
+        "hat_kodu": 404,
+        "guzergah": "YALIKÖY \/ KARACAKÖY - ÇATALCA"
+    },
+    {
+        "hat_kodu": 418,
+        "guzergah": "HADIMKÖY - HARAMİDERE"
+    },
+    {
+        "hat_kodu": 448,
+        "guzergah": "GÜZELCE - HARAMİDERE"
+    },
+    {
+        "hat_kodu": 458,
+        "guzergah": "GÜRPINAR - AVCILAR METROBÜS"
+    },
+    {
+        "hat_kodu": 522,
+        "guzergah": "ÖZYEĞİN ÜNİVERSİTESİ \/ ALEMDAĞ - MECİDİYEKÖY"
+    },
+    {
+        "hat_kodu": 622,
+        "guzergah": "YENİDOĞAN - MECİDİYEKÖY"
+    },
+    {
+        "hat_kodu": "10A",
+        "guzergah": "ESATPAŞA - YEDİTEPE ÜNİVERSİTESİ \/ FERHATPAŞA"
+    },
+    {
+        "hat_kodu": "10B",
+        "guzergah": "BOSTANCI - KADIKÖY"
+    },
+    {
+        "hat_kodu": "10E",
+        "guzergah": "ESATPAŞA - KADIKÖY"
+    },
+    {
+        "hat_kodu": "10EK",
+        "guzergah": "ESATPAŞA \/ ATAŞEHİR - KOZYATAĞI METRO"
+    },
+    {
+        "hat_kodu": "10F",
+        "guzergah": "ÜMRANİYE \/ FİNANS MERKEZİ - BOSTANCI"
+    },
+    {
+        "hat_kodu": "10G",
+        "guzergah": "ÜMRANİYE \/ ESATPAŞA - KADIKÖY"
+    },
+    {
+        "hat_kodu": "11A",
+        "guzergah": "ÖZYEĞİN ÜNİVERSİTESİ \/ ALEMDAĞ - ALTUNİZADE METROBÜS"
+    },
+    {
+        "hat_kodu": "11BE",
+        "guzergah": "BURHANİYE MAHALLESİ - ÜSKÜDAR"
+    },
+    {
+        "hat_kodu": "11C",
+        "guzergah": "BURHANİYE MAHALLESİ - ÜSKÜDAR MARMARAY"
+    },
+    {
+        "hat_kodu": "11D",
+        "guzergah": "İNKILAP MAHALLESİ - ÜMRANİYE METRO"
+    },
+    {
+        "hat_kodu": "11E",
+        "guzergah": "ESATPAŞA - ÜSKÜDAR"
+    },
+    {
+        "hat_kodu": "11ES",
+        "guzergah": "ESENEVLER - ACIBADEM METROBÜS \/ ÜSKÜDAR"
+    },
+    {
+        "hat_kodu": "11G",
+        "guzergah": "YENİDOĞAN - NECİP FAZIL METRO"
+    },
+    {
+        "hat_kodu": "11H",
+        "guzergah": "ORTAÇEŞME - ÜMRANİYE"
+    },
+    {
+        "hat_kodu": "11K",
+        "guzergah": "KAZIM KARABEKİR MAHALLESİ - ÜMRANİYE METRO"
+    },
+    {
+        "hat_kodu": "11L",
+        "guzergah": "ESATPAŞA \/ BULGURLU - ÜSKÜDAR"
+    },
+    {
+        "hat_kodu": "11M",
+        "guzergah": "EVTAŞ BLOKLARI - BULGURLU METRO"
+    },
+    {
+        "hat_kodu": "11P",
+        "guzergah": "EMEK MAHALLESİ - ÜSKÜDAR"
+    },
+    {
+        "hat_kodu": "11R",
+        "guzergah": "REŞADİYE - NECİP FAZIL METRO"
+    },
+    {
+        "hat_kodu": "11SA",
+        "guzergah": "UĞUR MUMCU \/ SAMANDIRA - YENİDOĞAN PERONLAR"
+    },
+    {
+        "hat_kodu": "11ST",
+        "guzergah": "DUMLUPINAR - ÜMRANIYE METRO"
+    },
+    {
+        "hat_kodu": "11T",
+        "guzergah": "ACARLAR SİTESİ - HAREM"
+    },
+    {
+        "hat_kodu": "11Y",
+        "guzergah": "YAVUZTÜRK MAHALLESİ - ÜSKÜDAR"
+    },
+    {
+        "hat_kodu": "121A",
+        "guzergah": "BEYKOZ - MECİDİYEKÖY"
+    },
+    {
+        "hat_kodu": "121B",
+        "guzergah": "KAVACIK - MECİDİYEKÖY"
+    },
+    {
+        "hat_kodu": "121BS",
+        "guzergah": "SULTANİYE \/ SOĞUKSU MAHALLESİ - MECİDİYEKÖY"
+    },
+    {
+        "hat_kodu": "122C",
+        "guzergah": "TEPEÜSTÜ - MECİDİYEKÖY"
+    },
+    {
+        "hat_kodu": "122D",
+        "guzergah": "ATATÜRK MAHALLESİ - MECİDİYEKÖY"
+    },
+    {
+        "hat_kodu": "122H",
+        "guzergah": "S.GÖKÇEN HAVALİMANI \/ YENİŞEHİR - 4.LEVENT METRO"
+    },
+    {
+        "hat_kodu": "122M",
+        "guzergah": "ŞAHİNBEY - MECİDİYEKÖY"
+    },
+    {
+        "hat_kodu": "122V",
+        "guzergah": "VEYSEL KARANİ - 4.LEVENT METRO"
+    },
+    {
+        "hat_kodu": "122Y",
+        "guzergah": "ÇEKMEKÖY - MECİDİYEKÖY"
+    },
+    {
+        "hat_kodu": "129L",
+        "guzergah": "KOZYATAĞI - 4.LEVENT METRO"
+    },
+    {
+        "hat_kodu": "129T",
+        "guzergah": "BOSTANCI - TAKSİM"
+    },
+    {
+        "hat_kodu": "12A",
+        "guzergah": "KADIKÖY - ÜSKÜDAR"
+    },
+    {
+        "hat_kodu": "12C",
+        "guzergah": "ÜSKÜDAR DEVLET HASTANESİ - ÜSKÜDAR"
+    },
+    {
+        "hat_kodu": "130A",
+        "guzergah": "DENİZ HARP OKULU - KADIKÖY"
+    },
+    {
+        "hat_kodu": "130E",
+        "guzergah": "TUZLA \/ EVORA KONUTLARI - KARTAL METRO \/ CEVİZLİ"
+    },
+    {
+        "hat_kodu": "130H",
+        "guzergah": "DENİZ HARP OKULU - SABİHA GÖKÇEN HAVALİMANI"
+    },
+    {
+        "hat_kodu": "130T",
+        "guzergah": "AYDINLI TOKİ KONUTLARI - TUZLA"
+    },
+    {
+        "hat_kodu": "131K",
+        "guzergah": "YEŞİLTEPE \/ ŞAHİNBEY - KARTAL"
+    },
+    {
+        "hat_kodu": "131SB",
+        "guzergah": "SULTANBEYLİ MERKEZ-SULTANBEYLİ YENİ DEVLET HAST."
+    },
+    {
+        "hat_kodu": "131T",
+        "guzergah": "ATATÜRK MAH.\/ TAŞDELEN - İMES\/ ÜMRANİYE"
+    },
+    {
+        "hat_kodu": "131V",
+        "guzergah": "VEYSEL KARANİ - YAKACIK \/ KARTAL"
+    },
+    {
+        "hat_kodu": "131Y",
+        "guzergah": "ÇEKMEKÖY\/SAMANDIRA-KARTAL"
+    },
+    {
+        "hat_kodu": "131YS",
+        "guzergah": "SULTANBEYLİ DEVLET HASTANESİ - YENİDOĞAN - ÜMRANİYE"
+    },
+    {
+        "hat_kodu": "132A",
+        "guzergah": "ÇAMLIK MAHALLESİ - KARTAL"
+    },
+    {
+        "hat_kodu": "132B",
+        "guzergah": "AKFIRAT EVLERİ - KARTAL METRO"
+    },
+    {
+        "hat_kodu": "132C",
+        "guzergah": "SULTANBEYLİ GÖLET - KARTAL"
+    },
+    {
+        "hat_kodu": "132D",
+        "guzergah": "KURTDOĞMUŞ \/ BALLICA - KARTAL"
+    },
+    {
+        "hat_kodu": "132E",
+        "guzergah": "EMİRLİ \/ KURNAKÖY - KARTAL"
+    },
+    {
+        "hat_kodu": "132F",
+        "guzergah": "ESENLER - TAVŞANTEPE METRO\/ KARTAL"
+    },
+    {
+        "hat_kodu": "132G",
+        "guzergah": "GÖZDAĞI - PENDİK YHT\/PENDİK"
+    },
+    {
+        "hat_kodu": "132H",
+        "guzergah": "PENDİK\/PENDİK YHT - SABİHA GÖKÇEN HAVALİMANI"
+    },
+    {
+        "hat_kodu": "132K",
+        "guzergah": "YENİŞEHİR - KARTAL"
+    },
+    {
+        "hat_kodu": "132M",
+        "guzergah": "SULTANBEYLİ MİMARSİNAN - KARTAL METRO \/ CEVİZLİ"
+    },
+    {
+        "hat_kodu": "132N",
+        "guzergah": "ÖZYEĞİN ÜNİ.\/NİŞANTEPE\/BÜYÜKBAKKALKÖY-KARTAL"
+    },
+    {
+        "hat_kodu": "132P",
+        "guzergah": "VEYSEL KARANİ \/ SULTANBEYLİ - KARTAL"
+    },
+    {
+        "hat_kodu": "132S",
+        "guzergah": "YENİDOĞAN - KARTAL"
+    },
+    {
+        "hat_kodu": "132SB",
+        "guzergah": "SULTANBEYLİ DEVLET HAST.- MARMARA ÜNİV. BAŞIBÜYÜK KAMPÜSÜ"
+    },
+    {
+        "hat_kodu": "132SP",
+        "guzergah": "SULTANBEYLİ PERONLAR-PENDİK YHT\/PENDİK"
+    },
+    {
+        "hat_kodu": "132T",
+        "guzergah": "TEPEÖREN - KARTAL METRO"
+    },
+    {
+        "hat_kodu": "132Y",
+        "guzergah": "HİLAL KONUTLARI \/ YAYALAR - KARTAL METRO"
+    },
+    {
+        "hat_kodu": "132YB",
+        "guzergah": "YENİDOĞAN - MARMARA ÜNİVERSİTESİ BAŞIBÜYÜK KAMPÜSÜ"
+    },
+    {
+        "hat_kodu": "132YM",
+        "guzergah": "YEŞİLTEPE-MARMARA EĞİTİM KÖYÜ"
+    },
+    {
+        "hat_kodu": "132YS",
+        "guzergah": "YENİDOĞAN\/SULTANBEYLİ DEVLET HAST.-SULTANBEYLİ PERONLAR"
+    },
+    {
+        "hat_kodu": "132Z",
+        "guzergah": "SULTANBEYLİ UZUNDERE - KARTAL"
+    },
+    {
+        "hat_kodu": "133A",
+        "guzergah": "AYDINLI BAHÇELER - KARTAL"
+    },
+    {
+        "hat_kodu": "133AK",
+        "guzergah": "TEPEÖREN - KARTAL"
+    },
+    {
+        "hat_kodu": "133F",
+        "guzergah": "ACARLAR SİTESİ - MALTEPE \/ CEVİZLİ PERONLAR"
+    },
+    {
+        "hat_kodu": "133G",
+        "guzergah": "GÜLENSU MAHALLESİ - KARTAL"
+    },
+    {
+        "hat_kodu": "133GP",
+        "guzergah": "GÖÇBEYLİ - KARTAL"
+    },
+    {
+        "hat_kodu": "133K",
+        "guzergah": "KURTKÖY SANAYİ MAHALLESİ \/ KAVAKPINAR - KARTAL"
+    },
+    {
+        "hat_kodu": "133KT",
+        "guzergah": "AYDINLI TOKİ KONUTLARI - KARTAL"
+    },
+    {
+        "hat_kodu": "133M",
+        "guzergah": "TUZLA ORGANİZE SANAYİ - KAFKALE TUZLA SAHİL"
+    },
+    {
+        "hat_kodu": "133N",
+        "guzergah": "MALTEPE ÜNİVERSİTESİ - MALTEPE METRO \/ KARTAL"
+    },
+    {
+        "hat_kodu": "133P",
+        "guzergah": "TEPEÖREN - TUZLA"
+    },
+    {
+        "hat_kodu": "133T",
+        "guzergah": "DENİZ HARP OKULU-MALTEPE PERONLAR"
+    },
+    {
+        "hat_kodu": "133TM",
+        "guzergah": "AYDINLI TOKİ\/MİMARSİNAN MAHALLESİ - TUZLA"
+    },
+    {
+        "hat_kodu": "134CK",
+        "guzergah": "ŞEYHLİ MEZARLIK\/CEZAEVİ - KARTAL"
+    },
+    {
+        "hat_kodu": "134GK",
+        "guzergah": "UĞUR MUMCU\/ GÜMÜŞPINAR - KARTAL"
+    },
+    {
+        "hat_kodu": "134UK",
+        "guzergah": "UĞUR MUMCU - KARTAL"
+    },
+    {
+        "hat_kodu": "134YK",
+        "guzergah": "UĞUR MUMCU - YAKACIK - KARTAL"
+    },
+    {
+        "hat_kodu": "135A",
+        "guzergah": "ACARKENT \/ GÖRELE MAHALLESİ - KAVACIK"
+    },
+    {
+        "hat_kodu": "135G",
+        "guzergah": "TOKATKÖY - ÇAVUŞBAŞI"
+    },
+    {
+        "hat_kodu": "135K",
+        "guzergah": "KARLITEPE - ORTAÇEŞME"
+    },
+    {
+        "hat_kodu": "135T",
+        "guzergah": "ARKBOYU - TOKATKÖY"
+    },
+    {
+        "hat_kodu": "136B",
+        "guzergah": "TÜRK ALMAN ÜNİVERSİTESİ - KAVACIK\/HEKİMBAŞI"
+    },
+    {
+        "hat_kodu": "136R",
+        "guzergah": "RİVA - KAVACIK"
+    },
+    {
+        "hat_kodu": "136T",
+        "guzergah": "TOYGAR \/ SULTANİYE - KAVACIK"
+    },
+    {
+        "hat_kodu": "136Z",
+        "guzergah": "ALİ BAHADIR \/ ZERZEVAT - SULTANİYE"
+    },
+    {
+        "hat_kodu": "138B",
+        "guzergah": "GÖLLÜ\/ÖMERLİ-ÜMRANİYE"
+    },
+    {
+        "hat_kodu": "139A",
+        "guzergah": "ÜSKÜDAR - ŞİLE \/ AĞVA"
+    },
+    {
+        "hat_kodu": "139D",
+        "guzergah": "NECİP FAZIL METRO-DARLIK"
+    },
+    {
+        "hat_kodu": "139S",
+        "guzergah": "NECİP FAZIL METRO-SOFULAR KÖYÜ"
+    },
+    {
+        "hat_kodu": "139T",
+        "guzergah": "TEPEÜSTÜ - ŞİLE"
+    },
+    {
+        "hat_kodu": "13AB",
+        "guzergah": "KISIKLI - ATAŞEHİR \/ BOSTANCI"
+    },
+    {
+        "hat_kodu": "13B",
+        "guzergah": "YENİŞEHİR - KADIKÖY"
+    },
+    {
+        "hat_kodu": "13FY",
+        "guzergah": "BATI ATAŞEHİR \/ FİNANS MERKEZİ - MEVLANA METRO \/ FERHATPAŞA"
+    },
+    {
+        "hat_kodu": "13H",
+        "guzergah": "EVTAŞ BLOKLARI - ÜMRANİYE METRO \/ Ü.EĞT.ARŞ.HASTANESİ"
+    },
+    {
+        "hat_kodu": "13M",
+        "guzergah": "ŞERİFALİ - ÜSKÜDAR"
+    },
+    {
+        "hat_kodu": "13Y",
+        "guzergah": "ÇAKMAK MAHALLESİ \/ YENİSAHRA - KADIKÖY"
+    },
+    {
+        "hat_kodu": "141A",
+        "guzergah": "K.S.S. HASTANESİ- MEHMET AKİF ERSOY CAD"
+    },
+    {
+        "hat_kodu": "141K",
+        "guzergah": "K.S.S. HASTANESİ - MAHMUTBEY METRO"
+    },
+    {
+        "hat_kodu": "141M",
+        "guzergah": "K.S.S. HASTANESİ - MECİDİYEKÖY"
+    },
+    {
+        "hat_kodu": "142A",
+        "guzergah": "BOĞAZKÖY - AVCILAR METROBÜS"
+    },
+    {
+        "hat_kodu": "142B",
+        "guzergah": "K.S.S. HASTANESİ - BÜYÜKÇEKMECE"
+    },
+    {
+        "hat_kodu": "142E",
+        "guzergah": "ESENYURT KİPTAŞ 4. ETAP - AKSARAY"
+    },
+    {
+        "hat_kodu": "142ES",
+        "guzergah": "İ.Ü.CERRAHPAŞA KAMPÜS - AVCILAR METROBÜS"
+    },
+    {
+        "hat_kodu": "142F",
+        "guzergah": "YEŞİLKENT - AVCILAR METROBÜS"
+    },
+    {
+        "hat_kodu": "142K",
+        "guzergah": "ESENYURT KİPTAŞ 4.ETAP - AVCILAR METROBÜS"
+    },
+    {
+        "hat_kodu": "142T",
+        "guzergah": "TÜYAP METROBÜS-K.S.S HASTANESİ"
+    },
+    {
+        "hat_kodu": "144A",
+        "guzergah": "DELİKLİKAYA - AVCILAR METROBÜS"
+    },
+    {
+        "hat_kodu": "144B",
+        "guzergah": "DELİKLİKAYA - YEŞİLBAYIR KÖYÜ - SU ÜRÜNLERİ HALİ"
+    },
+    {
+        "hat_kodu": "144H",
+        "guzergah": "HEYBETLİ SOK.\/DELİKLİKAYA - HARAMİDERE"
+    },
+    {
+        "hat_kodu": "144K",
+        "guzergah": "ÖMERLİ KİPTAŞ-ESENKENT"
+    },
+    {
+        "hat_kodu": "144M",
+        "guzergah": "DELİKLİKAYA-MAHMUTBEY METRO"
+    },
+    {
+        "hat_kodu": "145M",
+        "guzergah": "BEYKENT - TAKSİM"
+    },
+    {
+        "hat_kodu": "145T",
+        "guzergah": "BEYLİKDÜZÜ - TAKSİM"
+    },
+    {
+        "hat_kodu": "146A",
+        "guzergah": "ESENKENT - BİRLİK MAHALLESİ"
+    },
+    {
+        "hat_kodu": "146B",
+        "guzergah": "METROKENT-EMİNÖNÜ"
+    },
+    {
+        "hat_kodu": "146F",
+        "guzergah": "ŞEHİR HASTANESİ\/ ESENKENT - ESENYURT DEVLET HASTANESİ"
+    },
+    {
+        "hat_kodu": "146M",
+        "guzergah": "METROKENT - MECİDİYEKÖY"
+    },
+    {
+        "hat_kodu": "146T",
+        "guzergah": "BOĞAZKÖY \/ BAHÇEŞEHİR - YENİKAPI"
+    },
+    {
+        "hat_kodu": "14A",
+        "guzergah": "ÖZYEĞİN ÜNİVERSİTESİ \/ ALEMDAĞ - KADIKÖY"
+    },
+    {
+        "hat_kodu": "14AK",
+        "guzergah": "ÖZYEĞİN ÜNİ. \/ ALEMDAĞ - ZİVERBEY \/ KADIKÖY"
+    },
+    {
+        "hat_kodu": "14B",
+        "guzergah": "ADEM YAVUZ MAHALLESİ - KADIKÖY"
+    },
+    {
+        "hat_kodu": "14BK",
+        "guzergah": "ÇEKMEKÖY\/PARSELLER MAH-KADIKÖY"
+    },
+    {
+        "hat_kodu": "14C",
+        "guzergah": "ÜSKÜDAR DEVLET HASTANESİ - KADIKÖY"
+    },
+    {
+        "hat_kodu": "14CE",
+        "guzergah": "ÇEKMEKÖY - KADIKÖY"
+    },
+    {
+        "hat_kodu": "14D",
+        "guzergah": "DUMLUPINAR \/ KAZIMKARABEKİR - KADIKÖY"
+    },
+    {
+        "hat_kodu": "14DK",
+        "guzergah": "İNKILAP MAHALLESİ - LİBADİYE CADDESİ \/ KADIKÖY"
+    },
+    {
+        "hat_kodu": "14ES",
+        "guzergah": "ESENŞEHİR - KADIKÖY"
+    },
+    {
+        "hat_kodu": "14F",
+        "guzergah": "KÜPLÜCE - KADIKÖY"
+    },
+    {
+        "hat_kodu": "14FD",
+        "guzergah": "FERAH MAHALLESİ - ÜSKÜDAR DEVLET HASTANESİ"
+    },
+    {
+        "hat_kodu": "14K",
+        "guzergah": "KAZIM KARABEKİR - KADIKÖY"
+    },
+    {
+        "hat_kodu": "14KS",
+        "guzergah": "SULTANBEYLİ GÖLET - KOZYATAĞI METRO"
+    },
+    {
+        "hat_kodu": "14M",
+        "guzergah": "KAVACIK YENİ CAMİ - KADIKÖY"
+    },
+    {
+        "hat_kodu": "14R",
+        "guzergah": "RASATHANE - KADIKÖY"
+    },
+    {
+        "hat_kodu": "14S",
+        "guzergah": "SULTANBEYLİ - KOZYATAĞI METRO"
+    },
+    {
+        "hat_kodu": "14T",
+        "guzergah": "ATATÜRK MAH.\/ TAŞDELEN - KOZYATAĞI METRO"
+    },
+    {
+        "hat_kodu": "14TM",
+        "guzergah": "TEPEÜSTÜ-MALTEPE METRO\/CEVİZLİ PERONLAR"
+    },
+    {
+        "hat_kodu": "14Y",
+        "guzergah": "YAVUZTÜRK MAHALLESİ - KADIKÖY"
+    },
+    {
+        "hat_kodu": "14YE",
+        "guzergah": "YAVUZTÜRK MAHALLESİ \/ ÜMRANİYE - EMEK MAHALLESİ"
+    },
+    {
+        "hat_kodu": "14YK",
+        "guzergah": "YENİDOĞAN \/ ŞİLE YOLU - AYRILIK ÇEŞMESİ"
+    },
+    {
+        "hat_kodu": "15A",
+        "guzergah": "ANADOLUKAVAĞI - KAVACIK"
+    },
+    {
+        "hat_kodu": "15B",
+        "guzergah": "TOPAĞACI MAHALLESİ \/ GÜZELTEPE - ÜSKÜDAR"
+    },
+    {
+        "hat_kodu": "15BK",
+        "guzergah": "DERESEKİ \/ BEYKOZ - KADIKÖY"
+    },
+    {
+        "hat_kodu": "15C",
+        "guzergah": "BÜYÜK ÇAMLICA CAMİİ\/FERAH MAHALLESİ - ÜSKÜDAR"
+    },
+    {
+        "hat_kodu": "15CA",
+        "guzergah": "BÜYÜK ÇAMLICA CAMİİ \/ BULGURLU METRO - GÖZTEPE KÖPRÜSÜ"
+    },
+    {
+        "hat_kodu": "15D",
+        "guzergah": "ANADOLUFENERİ \/KAYNARCA \/ DERESEKİ - SULTANİYE"
+    },
+    {
+        "hat_kodu": "15E",
+        "guzergah": "TEKKE MEVKİİ - ÜSKÜDAR"
+    },
+    {
+        "hat_kodu": "15F",
+        "guzergah": "BEYKOZ - KADIKÖY"
+    },
+    {
+        "hat_kodu": "15H",
+        "guzergah": "HEKİMBAŞI - ÜSKÜDAR"
+    },
+    {
+        "hat_kodu": "15K",
+        "guzergah": "KİRAZLITEPE - ÜSKÜDAR"
+    },
+    {
+        "hat_kodu": "15KB",
+        "guzergah": "KAVACIK - KOZYATAĞI METRO"
+    },
+    {
+        "hat_kodu": "15M",
+        "guzergah": "KAVACIK YENİ CAMİ - ÜSKÜDAR"
+    },
+    {
+        "hat_kodu": "15N",
+        "guzergah": "ARKBOYU - ÜSKÜDAR"
+    },
+    {
+        "hat_kodu": "15P",
+        "guzergah": "SOĞUKSU MAHALLESİ - ÜSKÜDAR"
+    },
+    {
+        "hat_kodu": "15R",
+        "guzergah": "RASATHANE - ÜSKÜDAR"
+    },
+    {
+        "hat_kodu": "15S",
+        "guzergah": "SULTANMURAT - ÜSKÜDAR"
+    },
+    {
+        "hat_kodu": "15SD",
+        "guzergah": "ORTAÇEŞME\/SULTANİYE-DUDULLU İMES"
+    },
+    {
+        "hat_kodu": "15SK",
+        "guzergah": "SULTANMURAT - KADIKÖY"
+    },
+    {
+        "hat_kodu": "15T",
+        "guzergah": "TOKATKÖY - ÜSKÜDAR"
+    },
+    {
+        "hat_kodu": "15TA",
+        "guzergah": "TÜRK ALMAN ÜNİVERSİTESİ-KAVACIK"
+    },
+    {
+        "hat_kodu": "15TK",
+        "guzergah": "TOKATKÖY-KADIKÖY"
+    },
+    {
+        "hat_kodu": "15TY",
+        "guzergah": "TOKATKÖY \/ BEYKOZ - YENİMAHALLE"
+    },
+    {
+        "hat_kodu": "15U",
+        "guzergah": "TUFAN - ÜSKÜDAR"
+    },
+    {
+        "hat_kodu": "15Y",
+        "guzergah": "YENİMAHALLE - ÜSKÜDAR"
+    },
+    {
+        "hat_kodu": "15YK",
+        "guzergah": "YENİMAHALLE - KADIKÖY"
+    },
+    {
+        "hat_kodu": "15Z",
+        "guzergah": "GÜZELTEPE - ÜSKÜDAR"
+    },
+    {
+        "hat_kodu": "16A",
+        "guzergah": "PENDİK - ÜSKÜDAR"
+    },
+    {
+        "hat_kodu": "16D",
+        "guzergah": "ALTKAYNARCA \/ PENDİK - KADIKÖY"
+    },
+    {
+        "hat_kodu": "16F",
+        "guzergah": "FINDIKLI MAHALLESİ - HAREM"
+    },
+    {
+        "hat_kodu": "16M",
+        "guzergah": "ACARLAR SİTESİ \/ ATAŞEHİR - ÜSKÜDAR"
+    },
+    {
+        "hat_kodu": "16S",
+        "guzergah": "S. G. HAVALİMANI - UZUNÇAYIR METROBÜS\/HAREM PERONLAR"
+    },
+    {
+        "hat_kodu": "16U",
+        "guzergah": "UĞUR MUMCU - ÜSKÜDAR"
+    },
+    {
+        "hat_kodu": "16YK",
+        "guzergah": "Y.TEPE ÜNİV. \/ FINDIKLI MAHALLESİ - KOZYATAĞI METRO"
+    },
+    {
+        "hat_kodu": "17L",
+        "guzergah": "KÜÇÜKYALI LOJMANLARI \/ MARMARA ÜNİV. - BOSTANCI"
+    },
+    {
+        "hat_kodu": "17S",
+        "guzergah": "UĞUR MUMCU - BOSTANCI"
+    },
+    {
+        "hat_kodu": "18A",
+        "guzergah": "SULTANBEYLİ - ACIBADEM METRO\/HAREM"
+    },
+    {
+        "hat_kodu": "18D",
+        "guzergah": "SULTANBEYLİ - KADIKÖY"
+    },
+    {
+        "hat_kodu": "18E",
+        "guzergah": "YENİDOĞAN \/ SAMANDIRA - KADIKÖY"
+    },
+    {
+        "hat_kodu": "18F",
+        "guzergah": "VEYSEL KARANİ \/ FATİH MAH. - KADIKÖY"
+    },
+    {
+        "hat_kodu": "18K",
+        "guzergah": "SULTANBEYLİ - KADIKÖY"
+    },
+    {
+        "hat_kodu": "18M",
+        "guzergah": "SULTANBEYLİ MİMARSİNAN - UZUNÇAYIR METROBÜS\/HAREM"
+    },
+    {
+        "hat_kodu": "18UK",
+        "guzergah": "UZUNDERE-KOZYATAĞI"
+    },
+    {
+        "hat_kodu": "18V",
+        "guzergah": "VEYSEL KARANİ \/ SAMANDIRA - KADIKÖY"
+    },
+    {
+        "hat_kodu": "18Y",
+        "guzergah": "YENİDOĞAN \/ SAMANDIRA - ÜSKÜDAR"
+    },
+    {
+        "hat_kodu": "18YS",
+        "guzergah": "YENİDOĞAN-SULTANBEYLİ"
+    },
+    {
+        "hat_kodu": "19A",
+        "guzergah": "YENİDOĞAN - AYRILIK ÇEŞMESİ"
+    },
+    {
+        "hat_kodu": "19D",
+        "guzergah": "ÜMRANİYE - BOSTANCI"
+    },
+    {
+        "hat_kodu": "19E",
+        "guzergah": "YENİDOĞAN\/ ATAŞEHİR - KOZYATAĞI METRO"
+    },
+    {
+        "hat_kodu": "19EK",
+        "guzergah": "YENİDOĞAN\/ ATAŞEHİR - KADIKÖY"
+    },
+    {
+        "hat_kodu": "19ES",
+        "guzergah": "ESENŞEHİR - KADIKÖY"
+    },
+    {
+        "hat_kodu": "19F",
+        "guzergah": "YEDİTEPE ÜNİV. \/ FINDIKLI MAHALLESİ - KADIKÖY"
+    },
+    {
+        "hat_kodu": "19K",
+        "guzergah": "ACARLAR SİTESİ \/ KAYIŞDAĞI - KADIKÖY"
+    },
+    {
+        "hat_kodu": "19M",
+        "guzergah": "ACARLAR SİTESİ \/ ATAŞEHİR - KADIKÖY"
+    },
+    {
+        "hat_kodu": "19S",
+        "guzergah": "YENİDOĞAN \/ SARIGAZİ - KADIKÖY"
+    },
+    {
+        "hat_kodu": "19SK",
+        "guzergah": "YENIDOĞAN\/SARIGAZI-KOZYATAĞI METRO"
+    },
+    {
+        "hat_kodu": "19T",
+        "guzergah": "FERHATPAŞA - KADIKÖY"
+    },
+    {
+        "hat_kodu": "19V",
+        "guzergah": "VEYSEL KARANİ \/ SAMANDIRA - KOZYATAĞI METRO"
+    },
+    {
+        "hat_kodu": "19Y",
+        "guzergah": "FERHATPAŞA - KADIKÖY"
+    },
+    {
+        "hat_kodu": "19YK",
+        "guzergah": "YENİDOĞAN-KAYIŞDAĞI"
+    },
+    {
+        "hat_kodu": "20D",
+        "guzergah": "SARIGAZİ\/YENİŞEHİR-KADIKÖY"
+    },
+    {
+        "hat_kodu": "20E",
+        "guzergah": "ESATPAŞA - KADIKÖY"
+    },
+    {
+        "hat_kodu": "20K",
+        "guzergah": "KAZIM KARABEKİR - KADIKÖY"
+    },
+    {
+        "hat_kodu": "22B",
+        "guzergah": "BEBEK - KABATAŞ"
+    },
+    {
+        "hat_kodu": "22RE",
+        "guzergah": "FATİH SULTAN MEHMET - BEŞİKTAŞ"
+    },
+    {
+        "hat_kodu": "25A",
+        "guzergah": "RUMELİKAVAĞI - HACIOSMAN METRO"
+    },
+    {
+        "hat_kodu": "25C",
+        "guzergah": "TARABYAÜSTÜ \/ FERAHEVLER - İSTİNYE"
+    },
+    {
+        "hat_kodu": "25E",
+        "guzergah": "SARIYER - BALTALİMANI"
+    },
+    {
+        "hat_kodu": "25G",
+        "guzergah": "SARIYER - TAKSİM"
+    },
+    {
+        "hat_kodu": "25S1",
+        "guzergah": "HACIOSMAN METRO-SARIYER"
+    },
+    {
+        "hat_kodu": "25S2",
+        "guzergah": "HACIOSMAN METRO-SARIYER"
+    },
+    {
+        "hat_kodu": "25Y",
+        "guzergah": "HACIOSMAN METRO - YENİ UYUM SİTESİ"
+    },
+    {
+        "hat_kodu": "26A",
+        "guzergah": "FULYA MAHALLESİ - EMİNÖNÜ"
+    },
+    {
+        "hat_kodu": "26B",
+        "guzergah": "FULYA MAHALLESİ - KABATAŞ"
+    },
+    {
+        "hat_kodu": "27E",
+        "guzergah": "ŞİRİNTEPE - KABATAŞ"
+    },
+    {
+        "hat_kodu": "27SE",
+        "guzergah": "SEYRANTEPE - KABATAŞ"
+    },
+    {
+        "hat_kodu": "27T",
+        "guzergah": "ŞİRİNTEPE - ŞİŞLİ"
+    },
+    {
+        "hat_kodu": "28T",
+        "guzergah": "TOPKAPI - BEŞİKTAŞ"
+    },
+    {
+        "hat_kodu": "29A",
+        "guzergah": "DERBENT MAHALLESİ - BEŞİKTAŞ"
+    },
+    {
+        "hat_kodu": "29B",
+        "guzergah": "FATİH SULTAN MEHMET - 4.LEVENT METRO"
+    },
+    {
+        "hat_kodu": "29C",
+        "guzergah": "TARABYAÜSTÜ - KABATAŞ"
+    },
+    {
+        "hat_kodu": "29D",
+        "guzergah": "FERAHEVLER - KABATAŞ"
+    },
+    {
+        "hat_kodu": "29E",
+        "guzergah": "MASLAK GAZETECİLER SİTESİ - BEŞİKTAŞ"
+    },
+    {
+        "hat_kodu": "29GM",
+        "guzergah": "MASLAK GAZETECİLER SİTESİ - 4.LEVENT METRO"
+    },
+    {
+        "hat_kodu": "29M1",
+        "guzergah": "HACIOSMAN METRO - FERAHEVLER \/ İSTİNYE"
+    },
+    {
+        "hat_kodu": "29M2",
+        "guzergah": "HACIOSMAN METRO - İSTİNYE \/ FERAHEVLER"
+    },
+    {
+        "hat_kodu": "300B",
+        "guzergah": "SİLİVRİ BÜYÜKÇAVUŞLU-TÜYAP"
+    },
+    {
+        "hat_kodu": "300C",
+        "guzergah": "SİLİVRİ ÇANTA\/SANCAKTEPE-TÜYAP"
+    },
+    {
+        "hat_kodu": "300D",
+        "guzergah": "SİLİVRİ DEĞİRMENKÖY-TÜYAP"
+    },
+    {
+        "hat_kodu": "300G",
+        "guzergah": "SİLİVRİ GÜMÜŞYAKA-TÜYAP"
+    },
+    {
+        "hat_kodu": "300M",
+        "guzergah": "SİLİVRİ MİMARSİNAN\/KAVAKLI-TÜYAP"
+    },
+    {
+        "hat_kodu": "303A",
+        "guzergah": "SİLİVRİ - AVCILAR METROBÜS"
+    },
+    {
+        "hat_kodu": "303B",
+        "guzergah": "MARMARA CEZAEVİ - OTOGAR"
+    },
+    {
+        "hat_kodu": "30A",
+        "guzergah": "BEŞİKTAŞ - MECİDİYEKÖY"
+    },
+    {
+        "hat_kodu": "30D",
+        "guzergah": "ORTAKÖY DEREBOYU - YENİKAPI"
+    },
+    {
+        "hat_kodu": "30M",
+        "guzergah": "BEŞİKTAŞ - MECİDİYEKÖY"
+    },
+    {
+        "hat_kodu": "31E",
+        "guzergah": "KUYUMCUKENT - EMİNÖNÜ"
+    },
+    {
+        "hat_kodu": "31Y",
+        "guzergah": "TOKİ AYAZMA - YENİKAPI"
+    },
+    {
+        "hat_kodu": "320A",
+        "guzergah": "SULTANBEYLİ MİMARSİNAN \/ SAMANDIRA - ÜSKÜDAR"
+    },
+    {
+        "hat_kodu": "320Y",
+        "guzergah": "YENİDOĞAN - KOZYATAĞI METRO"
+    },
+    {
+        "hat_kodu": "32A",
+        "guzergah": "CEVATPAŞA - AKSARAY"
+    },
+    {
+        "hat_kodu": "32M",
+        "guzergah": "CEVATPAŞA - MECİDİYEKÖY"
+    },
+    {
+        "hat_kodu": "32T",
+        "guzergah": "CEVATPAŞA - TAKSİM"
+    },
+    {
+        "hat_kodu": "336A",
+        "guzergah": "BALABAN KÖYÜ - MESCİDİ SELAM"
+    },
+    {
+        "hat_kodu": "336E",
+        "guzergah": "SULTANÇİFTLİĞİ - EMİNÖNÜ"
+    },
+    {
+        "hat_kodu": "336G",
+        "guzergah": "TAŞOLUK PERON - TEKSTİLKENT METRO"
+    },
+    {
+        "hat_kodu": "336H",
+        "guzergah": "HADIMKÖY - MESCİDİ SELAM"
+    },
+    {
+        "hat_kodu": "336K",
+        "guzergah": "YENİKÖY \/ KARABURUN - MESCİD-İ SELAM"
+    },
+    {
+        "hat_kodu": "336M",
+        "guzergah": "ARNAVUTKÖY - MECİDİYEKÖY"
+    },
+    {
+        "hat_kodu": "336Y",
+        "guzergah": "CEBECİ - YENİKAPI MARMARAY"
+    },
+    {
+        "hat_kodu": "33B",
+        "guzergah": "GİYİMKENT \/ BİRLİK MAHALLESİ - EMİNÖNÜ"
+    },
+    {
+        "hat_kodu": "33ES",
+        "guzergah": "GİYİMKENT - EMİNÖNÜ"
+    },
+    {
+        "hat_kodu": "33M",
+        "guzergah": "GİYİMKENT - MECİDİYEKÖY"
+    },
+    {
+        "hat_kodu": "33TE",
+        "guzergah": "ESENLER TURGUTREİS - EMİNÖNÜ"
+    },
+    {
+        "hat_kodu": "33TM",
+        "guzergah": "GİYİMKENT \/ TURGUTREİS - MECİDİYEKÖY"
+    },
+    {
+        "hat_kodu": "33Y",
+        "guzergah": "GİYİMKENT \/ YÜZYIL MAHALLESİ - EMİNÖNÜ"
+    },
+    {
+        "hat_kodu": "34A",
+        "guzergah": "CEVİZLİBAĞ - SÖĞÜTLÜÇEŞME"
+    },
+    {
+        "hat_kodu": "34AS",
+        "guzergah": "AVCILAR - SÖĞÜTLÜÇEŞME"
+    },
+    {
+        "hat_kodu": "34B",
+        "guzergah": "BEYLİKDÜZÜ-AVCILAR"
+    },
+    {
+        "hat_kodu": "34BZ",
+        "guzergah": "BEYLİKDÜZÜ - ZİNCİRLİKUYU"
+    },
+    {
+        "hat_kodu": "34C",
+        "guzergah": "BEYLİKDÜZÜ-CEVİZLİBAĞ"
+    },
+    {
+        "hat_kodu": "34G",
+        "guzergah": "BEYLİKDÜZÜ-SÖĞÜTLÜÇEŞME"
+    },
+    {
+        "hat_kodu": "34T",
+        "guzergah": "AVCILAR -TOPKAPI"
+    },
+    {
+        "hat_kodu": "34U",
+        "guzergah": "ZİNCİRLİKUYU-UZUNÇAYIR"
+    },
+    {
+        "hat_kodu": "34Z",
+        "guzergah": "ZİNCİRLİKUYU-SÖĞÜTLÜÇEŞME"
+    },
+    {
+        "hat_kodu": "35C",
+        "guzergah": "KOCAMUSTAFAPAŞA - TAKSİM"
+    },
+    {
+        "hat_kodu": "35D",
+        "guzergah": "KOCAMUSTAFAPAŞA - BALAT"
+    },
+    {
+        "hat_kodu": "36AS",
+        "guzergah": "TAŞOLUK PERON - SEFAKÖY METROBÜS"
+    },
+    {
+        "hat_kodu": "36AY",
+        "guzergah": "ARNAVUTKÖY - YENİBOSNA METRO"
+    },
+    {
+        "hat_kodu": "36B",
+        "guzergah": "BOLLUCA \/ BOĞAZKÖY - CEBECİ"
+    },
+    {
+        "hat_kodu": "36C",
+        "guzergah": "ARNAVUTKÖY-CEBECI"
+    },
+    {
+        "hat_kodu": "36CB",
+        "guzergah": "CEBECİ KÖYÜ - HABİPLER"
+    },
+    {
+        "hat_kodu": "36D",
+        "guzergah": "ARNAVUTKÖY - DELİKLİKAYA"
+    },
+    {
+        "hat_kodu": "36ES",
+        "guzergah": "SULTANGAZİ PERON - AKSARAY"
+    },
+    {
+        "hat_kodu": "36F",
+        "guzergah": "CEBECİ - FENERTEPE\/OLİMPİYATKÖY METRO"
+    },
+    {
+        "hat_kodu": "36G",
+        "guzergah": "SULTANGAZİ PERON-BEŞİKTAŞ"
+    },
+    {
+        "hat_kodu": "36HT",
+        "guzergah": "FATİH MAHALLESİ- HARAÇÇI - CEBECİ"
+    },
+    {
+        "hat_kodu": "36KE",
+        "guzergah": "YENİ MAHALLE METRO - EMİNÖNÜ"
+    },
+    {
+        "hat_kodu": "36L",
+        "guzergah": "MESCİD-İ SELAM - 4.LEVENT METRO"
+    },
+    {
+        "hat_kodu": "36S",
+        "guzergah": "HABİPLER - YENİMAHALLE METRO"
+    },
+    {
+        "hat_kodu": "36V",
+        "guzergah": "YAYLA MAHALLESİ - VEZNECİLER"
+    },
+    {
+        "hat_kodu": "36Y",
+        "guzergah": "TAŞOLUK PERON - MAHMUTBEY METRO"
+    },
+    {
+        "hat_kodu": "36YS",
+        "guzergah": "YASSIÖREN - ARNAVUTKÖY"
+    },
+    {
+        "hat_kodu": "36Z",
+        "guzergah": "CEBECİ-ZİNCİRLİKUYU"
+    },
+    {
+        "hat_kodu": "38B",
+        "guzergah": "SULTANGAZİ PERON-VEZNECİLER"
+    },
+    {
+        "hat_kodu": "38E",
+        "guzergah": "G.O.P. DEVLET HASTANESİ - EMİNÖNÜ"
+    },
+    {
+        "hat_kodu": "38H",
+        "guzergah": "ZÜBEYDE HANIM MAHALLESİ - HABİBLER"
+    },
+    {
+        "hat_kodu": "38Z",
+        "guzergah": "ZÜBEYDE HANIM MAHALLESİ - AKSARAY"
+    },
+    {
+        "hat_kodu": "3A",
+        "guzergah": "KADIKÖY - ÜNALAN MAHALLESİ"
+    },
+    {
+        "hat_kodu": "3B",
+        "guzergah": "KADIKÖY - ÜNALAN MAHALLESİ"
+    },
+    {
+        "hat_kodu": "400A",
+        "guzergah": "BEYKENT - HARAMİDERE"
+    },
+    {
+        "hat_kodu": "401T",
+        "guzergah": "AREL ÜNİVERSİTESİ -TEPEKENT - HARAMİDERE"
+    },
+    {
+        "hat_kodu": "40B",
+        "guzergah": "SARIYER - BEŞİKTAŞ"
+    },
+    {
+        "hat_kodu": "40T",
+        "guzergah": "İSTİNYE DEREİÇİ - TAKSİM"
+    },
+    {
+        "hat_kodu": "41A",
+        "guzergah": "AYAZAĞA - 4. LEVENT METRO"
+    },
+    {
+        "hat_kodu": "41AT",
+        "guzergah": "AYAZAĞA - DAVUTPAŞA Y.T.Ü"
+    },
+    {
+        "hat_kodu": "41C",
+        "guzergah": "AYAZAĞA - SARIYER"
+    },
+    {
+        "hat_kodu": "41E",
+        "guzergah": "AYAZAĞA - KABATAŞ"
+    },
+    {
+        "hat_kodu": "41N",
+        "guzergah": "NİŞANTAŞI ÜNİVERSİTESİ - MASLAK"
+    },
+    {
+        "hat_kodu": "41SF",
+        "guzergah": "SARIYER - FATİH SULTAN MEHMET"
+    },
+    {
+        "hat_kodu": "41SM",
+        "guzergah": "YENİ AYAZAĞA MEZARLIĞI- 4.LEVENT METRO"
+    },
+    {
+        "hat_kodu": "41ST",
+        "guzergah": "SEYRANTEPE - TOPKAPI"
+    },
+    {
+        "hat_kodu": "429A",
+        "guzergah": "KIRAÇ - AVCILAR METROBÜS"
+    },
+    {
+        "hat_kodu": "42HM",
+        "guzergah": "BAHÇEKÖY - HACIOSMAN METRO"
+    },
+    {
+        "hat_kodu": "42K",
+        "guzergah": "SARIYER - KAZIM KARABEKİR"
+    },
+    {
+        "hat_kodu": "42KT",
+        "guzergah": "SARIYER - KOCATAŞ"
+    },
+    {
+        "hat_kodu": "42T",
+        "guzergah": "BAHÇEKÖY - BALTALİMANI"
+    },
+    {
+        "hat_kodu": "42Z",
+        "guzergah": "HACIOSMAN METRO - KAZIM KARABEKİR"
+    },
+    {
+        "hat_kodu": "43R",
+        "guzergah": "RUMELİ HİSARÜSTÜ - KABATAŞ"
+    },
+    {
+        "hat_kodu": "46KT",
+        "guzergah": "KUŞTEPE - ŞİŞLİ"
+    },
+    {
+        "hat_kodu": "46T",
+        "guzergah": "ÇAĞLAYAN - TOPKAPI"
+    },
+    {
+        "hat_kodu": "48C",
+        "guzergah": "KEMERBURGAZ - ÇİFTALAN KÖYÜ"
+    },
+    {
+        "hat_kodu": "48D",
+        "guzergah": "GÖKTÜRK - HACIOSMAN METRO"
+    },
+    {
+        "hat_kodu": "48G",
+        "guzergah": "GÖKTÜRK- MESCİDİ SELAM"
+    },
+    {
+        "hat_kodu": "48H",
+        "guzergah": "HAMİDİYE MAHALLESİ - ŞİŞLİ"
+    },
+    {
+        "hat_kodu": "48K",
+        "guzergah": "KEMERBURGAZ - AĞAÇLI KÖYÜ"
+    },
+    {
+        "hat_kodu": "48KA",
+        "guzergah": "KEMERBURGAZ - ARNAVUTKÖY"
+    },
+    {
+        "hat_kodu": "48L",
+        "guzergah": "GÖKTÜRK - 4.LEVENT METRO"
+    },
+    {
+        "hat_kodu": "48M",
+        "guzergah": "AKPINAR KÖYÜ-ARNAVUTKÖY"
+    },
+    {
+        "hat_kodu": "48N",
+        "guzergah": "EMNİYETTEPE - TAKSİM"
+    },
+    {
+        "hat_kodu": "48P",
+        "guzergah": "KEMERBURGAZ - AKPINAR KÖYÜ"
+    },
+    {
+        "hat_kodu": "48S",
+        "guzergah": "SADABAT EVLERİ - ŞİŞLİ"
+    },
+    {
+        "hat_kodu": "48T",
+        "guzergah": "HAMİDİYE MAHALLESİ - TAKSİM"
+    },
+    {
+        "hat_kodu": "48U",
+        "guzergah": "KENT ORMAN - KEMERBURGAZ"
+    },
+    {
+        "hat_kodu": "500L",
+        "guzergah": "CEVİZLİBAĞ - 4.LEVENT METRO"
+    },
+    {
+        "hat_kodu": "500T",
+        "guzergah": "TUZLA ŞİFA MAHALLESİ - 4. LEVENT METRO"
+    },
+    {
+        "hat_kodu": "50A",
+        "guzergah": "ALİBEYKÖY - EDİRNEKAPI METROBÜS"
+    },
+    {
+        "hat_kodu": "50AT",
+        "guzergah": "CEBECİ - GAZİ - ALİBEYKÖY"
+    },
+    {
+        "hat_kodu": "50B",
+        "guzergah": "ALİBEYKÖY - BAKIRKÖY"
+    },
+    {
+        "hat_kodu": "50C",
+        "guzergah": "ALİBEYKÖY - ŞİŞLİ"
+    },
+    {
+        "hat_kodu": "50D",
+        "guzergah": "AYAZAĞA - ALİBEYKÖY"
+    },
+    {
+        "hat_kodu": "50E",
+        "guzergah": "ALİBEYKÖY - EMİNÖNÜ"
+    },
+    {
+        "hat_kodu": "50F",
+        "guzergah": "ALİBEYKÖY - 4.LEVENT METRO"
+    },
+    {
+        "hat_kodu": "50G",
+        "guzergah": "GÖKTÜRK - TAKSİM"
+    },
+    {
+        "hat_kodu": "50H",
+        "guzergah": "ALİBEYKÖY - HACIOSMAN METRO"
+    },
+    {
+        "hat_kodu": "50K",
+        "guzergah": "ALİBEYKÖY - KAZLIÇEŞME"
+    },
+    {
+        "hat_kodu": "50L",
+        "guzergah": "ALİBEYKÖY - BEŞİKTAŞ"
+    },
+    {
+        "hat_kodu": "50M",
+        "guzergah": "ALİBEYKÖY-MECİDİYEKÖY"
+    },
+    {
+        "hat_kodu": "50N",
+        "guzergah": "ALİBEYKÖY - TAKSİM"
+    },
+    {
+        "hat_kodu": "50P",
+        "guzergah": "ÇIRÇIR METRO - EMİNÖNÜ"
+    },
+    {
+        "hat_kodu": "50R",
+        "guzergah": "ALİBEYKÖY - OTOGAR"
+    },
+    {
+        "hat_kodu": "50S",
+        "guzergah": "ALİBEYKÖY - ŞİŞLİ"
+    },
+    {
+        "hat_kodu": "50T",
+        "guzergah": "ALİBEYKÖY - TAKSİM"
+    },
+    {
+        "hat_kodu": "50V",
+        "guzergah": "ALİBEYKÖY - VEZNECİLER"
+    },
+    {
+        "hat_kodu": "50Y",
+        "guzergah": "ALİBEYKÖY - YENİKAPI"
+    },
+    {
+        "hat_kodu": "50Z",
+        "guzergah": "ALİBEYKÖY - ZİNCİRLİKUYU"
+    },
+    {
+        "hat_kodu": "522ST",
+        "guzergah": "SULTANBEYLİ - MECİDİYEKÖY"
+    },
+    {
+        "hat_kodu": "54E",
+        "guzergah": "OKMEYDANI - EMİNÖNÜ"
+    },
+    {
+        "hat_kodu": "54HT",
+        "guzergah": "HASKÖY - TAKSİM"
+    },
+    {
+        "hat_kodu": "54K",
+        "guzergah": "HASKÖY - KULAKSIZ - TAKSİM"
+    },
+    {
+        "hat_kodu": "54KT",
+        "guzergah": "KAPTANPAŞA - DOLAPDERE \/ TAKSİM"
+    },
+    {
+        "hat_kodu": "54P",
+        "guzergah": "PİYALEPAŞA MAHALLESİ - TAKSİM"
+    },
+    {
+        "hat_kodu": "54T",
+        "guzergah": "SADABAT EVLERİ \/ TALATPAŞA - TAKSİM"
+    },
+    {
+        "hat_kodu": "54TE",
+        "guzergah": "SADABAT EVLERİ \/ TALATPAŞA - EMİNÖNÜ"
+    },
+    {
+        "hat_kodu": "559C",
+        "guzergah": "RUMELİ HİSARÜSTÜ - TAKSİM"
+    },
+    {
+        "hat_kodu": "55ET",
+        "guzergah": "GAZİOSMANPAŞA - BEŞİKTAŞ"
+    },
+    {
+        "hat_kodu": "55G",
+        "guzergah": "GAZİOSMANPAŞA - BEŞİKTAŞ"
+    },
+    {
+        "hat_kodu": "55T",
+        "guzergah": "GAZİOSMANPAŞA - TAKSİM"
+    },
+    {
+        "hat_kodu": "55Y",
+        "guzergah": "KAĞITHANE GARAJI - YENİBOSNA METRO"
+    },
+    {
+        "hat_kodu": "57UL",
+        "guzergah": "BEŞİKTAŞ - KURUÇEŞMEÜSTÜ"
+    },
+    {
+        "hat_kodu": "58A",
+        "guzergah": "POLİGON MAHALLESİ- KABATAŞ"
+    },
+    {
+        "hat_kodu": "58N",
+        "guzergah": "FATİH SULTAN MEHMET - KABATAŞ"
+    },
+    {
+        "hat_kodu": "58S",
+        "guzergah": "LEVAZIM MAHALLESİ - KABATAŞ"
+    },
+    {
+        "hat_kodu": "58UL",
+        "guzergah": "ULUS MAHALLESİ - KABATAŞ"
+    },
+    {
+        "hat_kodu": "59A",
+        "guzergah": "İSTİNYE DEREİÇİ - ŞİŞLİ"
+    },
+    {
+        "hat_kodu": "59CH",
+        "guzergah": "ARNAVUTKÖY - MECİDİYEKÖY"
+    },
+    {
+        "hat_kodu": "59HS",
+        "guzergah": "HACIOSMAN METRO - SARITEPE KAMPÜSÜ"
+    },
+    {
+        "hat_kodu": "59K",
+        "guzergah": "KARAYOLLARI \/ ETİLER - ŞİŞLİ"
+    },
+    {
+        "hat_kodu": "59N",
+        "guzergah": "FATİH SULTAN MEHMET - ŞİŞLİ"
+    },
+    {
+        "hat_kodu": "59R",
+        "guzergah": "RUMELİ HİSARÜSTÜ - ŞİŞLİ"
+    },
+    {
+        "hat_kodu": "59RH",
+        "guzergah": "RUMELİ HİSARÜSTÜ - HACIOSMAN METRO"
+    },
+    {
+        "hat_kodu": "59RK",
+        "guzergah": "RUMELİ HİSARÜSTÜ - SARITEPE KAMPÜSÜ"
+    },
+    {
+        "hat_kodu": "59RS",
+        "guzergah": "SARIYER - RUMELİ HİSARÜSTÜ"
+    },
+    {
+        "hat_kodu": "62G",
+        "guzergah": "EMNİYETTEPE \/ HAMİDİYE - BEŞİKTAŞ"
+    },
+    {
+        "hat_kodu": "62H",
+        "guzergah": "EMNİYETTEPE - HACIOSMAN METRO"
+    },
+    {
+        "hat_kodu": "65A",
+        "guzergah": "SEYRANTEPE - KAĞITHANE GARAJI"
+    },
+    {
+        "hat_kodu": "65G",
+        "guzergah": "KAĞITHANE \/ GÜLTEPE - ŞİŞLİ"
+    },
+    {
+        "hat_kodu": "66Z",
+        "guzergah": "ZİNCİRLİDERE - ŞİŞLİ"
+    },
+    {
+        "hat_kodu": "70D",
+        "guzergah": "KURTULUŞ \/ DOLAPDERE - EMİNÖNÜ"
+    },
+    {
+        "hat_kodu": "70FE",
+        "guzergah": "FERİKÖY - EMİNÖNÜ"
+    },
+    {
+        "hat_kodu": "70FY",
+        "guzergah": "FERİKÖY - YENİKAPI"
+    },
+    {
+        "hat_kodu": "70KE",
+        "guzergah": "KURTULUŞ - EMİNÖNÜ"
+    },
+    {
+        "hat_kodu": "70KY",
+        "guzergah": "KURTULUŞ - YENİKAPI"
+    },
+    {
+        "hat_kodu": "71T",
+        "guzergah": "ATAKÖY - TAKSİM"
+    },
+    {
+        "hat_kodu": "72T",
+        "guzergah": "YEŞİLKÖY - TAKSİM"
+    },
+    {
+        "hat_kodu": "72YT",
+        "guzergah": "CERRAHPAŞA TIP FAK. MURAT DİLMENER ACİL DURUM HASTANESİ-YENİKAPI"
+    },
+    {
+        "hat_kodu": "73B",
+        "guzergah": "FLORYA - BAKIRKÖY"
+    },
+    {
+        "hat_kodu": "73F",
+        "guzergah": "FLORYA - TAKSİM"
+    },
+    {
+        "hat_kodu": "73H",
+        "guzergah": "CERRAHPAŞA MURAT DİLMENER HASTANESİ - YENİBOSNA METRO"
+    },
+    {
+        "hat_kodu": "73Y",
+        "guzergah": "KUYUMCUKENT - YEŞİLKÖY \/ AKVARYUM"
+    },
+    {
+        "hat_kodu": "74A",
+        "guzergah": "GAYRETTEPE - EMİNÖNÜ"
+    },
+    {
+        "hat_kodu": "76A",
+        "guzergah": "KİPTAŞ VADİTEPE - YENİKAPI"
+    },
+    {
+        "hat_kodu": "76B",
+        "guzergah": "AVCILAR CİHANGİR MAHALLESİ - AVCILAR METROBÜS"
+    },
+    {
+        "hat_kodu": "76BA",
+        "guzergah": "BÜYÜKÇEKMECE - AVCILAR METROBÜS"
+    },
+    {
+        "hat_kodu": "76D",
+        "guzergah": "BAHÇEŞEHİR \/ ESENKENT - TAKSİM"
+    },
+    {
+        "hat_kodu": "76G",
+        "guzergah": "GÜRPINAR - AVCILAR METROBÜS"
+    },
+    {
+        "hat_kodu": "76GM",
+        "guzergah": "GÜRPINAR-BEYKENT METROBÜS"
+    },
+    {
+        "hat_kodu": "76O",
+        "guzergah": "AVCILAR CİHANGİR MAHALLESİ - OTOGAR"
+    },
+    {
+        "hat_kodu": "76TM",
+        "guzergah": "TEPEKENT - HARAMİDERE"
+    },
+    {
+        "hat_kodu": "76V",
+        "guzergah": "KİPTAŞ VADİTEPE - BAKIRKÖY"
+    },
+    {
+        "hat_kodu": "77A",
+        "guzergah": "VEZNECİLER-ŞİŞLİ"
+    },
+    {
+        "hat_kodu": "78B",
+        "guzergah": "FENERTEPE PERON\/BAŞAKŞEHİR - YENİBOSNA METRO"
+    },
+    {
+        "hat_kodu": "78C",
+        "guzergah": "YUNUS EMRE MAHALLESİ - FENERTEPE"
+    },
+    {
+        "hat_kodu": "78E",
+        "guzergah": "FENERTEPE PERON\/BAŞAKŞEHİR - KAYABAŞI KİPTAŞ"
+    },
+    {
+        "hat_kodu": "78F",
+        "guzergah": "FENERTEPE - BAŞAKŞEHİR - METROKENT"
+    },
+    {
+        "hat_kodu": "78G",
+        "guzergah": "FENERTEPE PERON\/BAŞAKŞEHİR - KAYAŞEHİR"
+    },
+    {
+        "hat_kodu": "78H",
+        "guzergah": "FENERTEPE PERON\/BAŞAKŞEHİR - EMİNÖNÜ"
+    },
+    {
+        "hat_kodu": "78K",
+        "guzergah": "FENERTEPE PERON\/BAŞAKŞEHIR-K.S.S. HASTANESİ"
+    },
+    {
+        "hat_kodu": "78ZB",
+        "guzergah": "FENERTEPE PERON\/BAŞAKŞEHİR - ZEYTİNBURNU"
+    },
+    {
+        "hat_kodu": "79B",
+        "guzergah": "KAYAŞEHİR - BAKIRKÖY"
+    },
+    {
+        "hat_kodu": "79C",
+        "guzergah": "KAYAŞEHİR - CEBECİ MAHALLESİ"
+    },
+    {
+        "hat_kodu": "79E",
+        "guzergah": "KAYABAŞI KİPTAŞ \/ KAYAŞEHİR - EMİNÖNÜ"
+    },
+    {
+        "hat_kodu": "79F",
+        "guzergah": "KAYAŞEHİR - YENİBOSNA METRO"
+    },
+    {
+        "hat_kodu": "79FY",
+        "guzergah": "FENERTEPE-YENİBOSNA METRO"
+    },
+    {
+        "hat_kodu": "79G",
+        "guzergah": "KAYAŞEHİR - ZEYTİNBURNU"
+    },
+    {
+        "hat_kodu": "79GE",
+        "guzergah": "GÜVERCİNTEPE\/FENERTEPE-EMİNÖNÜ"
+    },
+    {
+        "hat_kodu": "79K",
+        "guzergah": "KAYAŞEHİR - YENİBOSNA METRO"
+    },
+    {
+        "hat_kodu": "79KM",
+        "guzergah": "KAYAŞEHİR - MECİDİYEKÖY"
+    },
+    {
+        "hat_kodu": "79KT",
+        "guzergah": "KAYABAŞI KİPTAŞ - TEKSTİLKENT METRO"
+    },
+    {
+        "hat_kodu": "79T",
+        "guzergah": "KAYABAŞI KİPTAŞ - TAKSİM"
+    },
+    {
+        "hat_kodu": "79Y",
+        "guzergah": "KAYABAŞI KİPTAŞ \/ KAYAŞEHİR - YENİBOSNA METRO"
+    },
+    {
+        "hat_kodu": "80T",
+        "guzergah": "KAZLIÇEŞME - TAKSİM"
+    },
+    {
+        "hat_kodu": "85C",
+        "guzergah": "DAVUTPAŞA YTÜ - KAZLIÇEŞME"
+    },
+    {
+        "hat_kodu": "86V",
+        "guzergah": "EYÜPSULTAN - VEZNECİLER"
+    },
+    {
+        "hat_kodu": "88A",
+        "guzergah": "SULTANGAZİ PERON-YENİKAPI"
+    },
+    {
+        "hat_kodu": "89A",
+        "guzergah": "K.S.S. HASTANESİ - ZEYTİNBURNU"
+    },
+    {
+        "hat_kodu": "89B",
+        "guzergah": "KÜÇÜKÇEKMECE - AKSARAY"
+    },
+    {
+        "hat_kodu": "89C",
+        "guzergah": "İETT İKİTELLİ GARAJI-TAKSİM"
+    },
+    {
+        "hat_kodu": "89F",
+        "guzergah": "KÜÇÜKÇEKMECE-İSTOÇ"
+    },
+    {
+        "hat_kodu": "89K",
+        "guzergah": "K.S.S. HASTANESİ - AKSARAY"
+    },
+    {
+        "hat_kodu": "89M",
+        "guzergah": "MEHMET AKİF MAHALLESİ - ZEYTİNBURNU"
+    },
+    {
+        "hat_kodu": "89S",
+        "guzergah": "SÖĞÜTLÜÇEŞME - ZEYTİNBURNU"
+    },
+    {
+        "hat_kodu": "89T",
+        "guzergah": "K.S.S. HASTANESİ\/ATAKENT-TAKSİM"
+    },
+    {
+        "hat_kodu": "89YB",
+        "guzergah": "K.S.S. HASTANESİ\/ATAKENT - BAKIRKÖY"
+    },
+    {
+        "hat_kodu": "8A",
+        "guzergah": "BATI ATAŞEHİR \/ FİKİRTEPE - KADIKÖY"
+    },
+    {
+        "hat_kodu": "8E",
+        "guzergah": "ESENEVLER - KADIKÖY"
+    },
+    {
+        "hat_kodu": "8K",
+        "guzergah": "TEPEÜSTÜ - ATAŞEHİR \/ KOZYATAĞI METRO"
+    },
+    {
+        "hat_kodu": "8Y",
+        "guzergah": "SOYAK YENİŞEHİR - YENİSAHRA METRO"
+    },
+    {
+        "hat_kodu": "90B",
+        "guzergah": "DRAMAN - AKSARAY"
+    },
+    {
+        "hat_kodu": "91E",
+        "guzergah": "GÖZTEPE MAHALLESİ - AKSARAY"
+    },
+    {
+        "hat_kodu": "91M",
+        "guzergah": "FATİH MAHALLESİ YANYOL- MECİDİYEKÖY METROBÜS"
+    },
+    {
+        "hat_kodu": "92B",
+        "guzergah": "YENİ MAHALLE METRO \/ ATEŞTUĞLA - AKSARAY"
+    },
+    {
+        "hat_kodu": "92C",
+        "guzergah": "HAZNEDAR - EMİNÖNÜ"
+    },
+    {
+        "hat_kodu": "92K",
+        "guzergah": "YENİ MAHALLE METRO \/ KİRAZLI - AKSARAY"
+    },
+    {
+        "hat_kodu": "92M",
+        "guzergah": "BAĞCILAR DEVLET HASTANESİ - MECİDİYEKÖY"
+    },
+    {
+        "hat_kodu": "92T",
+        "guzergah": "BAĞCILAR DEVLET HASTANESİ - TAKSİM"
+    },
+    {
+        "hat_kodu": "93M",
+        "guzergah": "ZEYTİNBURNU - MECİDİYEKÖY"
+    },
+    {
+        "hat_kodu": "93T",
+        "guzergah": "ZEYTİNBURNU - TAKSİM"
+    },
+    {
+        "hat_kodu": "97A",
+        "guzergah": "BASINSİTESİ - EMİNÖNÜ"
+    },
+    {
+        "hat_kodu": "97BT",
+        "guzergah": "KOCASİNAN İTFAİYE-TAKSİM"
+    },
+    {
+        "hat_kodu": "97E",
+        "guzergah": "MAHMUTBEY - KAZLIÇEŞME"
+    },
+    {
+        "hat_kodu": "97G",
+        "guzergah": "YENİ MAHALLE METRO - AKSARAY"
+    },
+    {
+        "hat_kodu": "97GE",
+        "guzergah": "15 TEMMUZ MAHALLESİ - EMİNÖNÜ"
+    },
+    {
+        "hat_kodu": "97KZ",
+        "guzergah": "KOCASİNAN - ZEYTİNBURNU"
+    },
+    {
+        "hat_kodu": "97M",
+        "guzergah": "15 TEMMUZ MAHALLESİ - MECİDİYEKÖY"
+    },
+    {
+        "hat_kodu": "97T",
+        "guzergah": "BASINSİTESİ - TAKSİM"
+    },
+    {
+        "hat_kodu": "98A",
+        "guzergah": "GÖZTEPE MAHALLESİ - BAKIRKÖY"
+    },
+    {
+        "hat_kodu": "98AB",
+        "guzergah": "ATAKENT\/HALKALI - BAKIRKÖY"
+    },
+    {
+        "hat_kodu": "98B",
+        "guzergah": "KUYUMCUKENT - BAKIRKÖY"
+    },
+    {
+        "hat_kodu": "98D",
+        "guzergah": "YENİ MAHALLE METRO - BAKIRKÖY"
+    },
+    {
+        "hat_kodu": "98E",
+        "guzergah": "GÜNEŞLİ BASIN TESİSLERİ - BAKIRKÖY"
+    },
+    {
+        "hat_kodu": "98G",
+        "guzergah": "GİYİMKENT \/ TURGUTREİS - BAKIRKÖY"
+    },
+    {
+        "hat_kodu": "98H",
+        "guzergah": "METROKENT - BAKIRKÖY"
+    },
+    {
+        "hat_kodu": "98KM",
+        "guzergah": "FENERTEPE - SEFAKÖY METROBÜS"
+    },
+    {
+        "hat_kodu": "98M",
+        "guzergah": "İSTOÇ - BAKIRKÖY"
+    },
+    {
+        "hat_kodu": "98MB",
+        "guzergah": "MEHMET AKİF MAHALLESİ - BAKIRKÖY"
+    },
+    {
+        "hat_kodu": "98S",
+        "guzergah": "K.S.S. HASTANESİ - BAKIRKÖY"
+    },
+    {
+        "hat_kodu": "98T",
+        "guzergah": "K.S.S. HASTANESİ\/ATAKENT-BAKIRKÖY"
+    },
+    {
+        "hat_kodu": "98TB",
+        "guzergah": "FATİH MAHALLESİ - BAKIRKÖY"
+    },
+    {
+        "hat_kodu": "98Y",
+        "guzergah": "GİYİMKENT \/ YÜZYIL MAHALLESİ - BAKIRKÖY"
+    },
+    {
+        "hat_kodu": "99A",
+        "guzergah": "GAZİOSMANPAŞA - EMİNÖNÜ"
+    },
+    {
+        "hat_kodu": "9A",
+        "guzergah": "ATAKENT - ÜMRANİYE METRO"
+    },
+    {
+        "hat_kodu": "9H",
+        "guzergah": "CUMHURİYETKÖY \/ HÜSEYİNLİ - ÇEKMEKÖY"
+    },
+    {
+        "hat_kodu": "9K",
+        "guzergah": "ATATÜRK MAH.\/ TAŞDELEN - KADIKÖY"
+    },
+    {
+        "hat_kodu": "9KS",
+        "guzergah": "KASABA EVLERİ\/ ÖMERLİ - NECİP FAZIL METRO"
+    },
+    {
+        "hat_kodu": "9S",
+        "guzergah": "YEŞILTEPE\/ÇEKMEKÖY METRO-ATATÜRK MAH."
+    },
+    {
+        "hat_kodu": "9T",
+        "guzergah": "ŞAHİNBEY - ALTUNİZADE METROBÜS"
+    },
+    {
+        "hat_kodu": "AND1A",
+        "guzergah": "ANADOLU1 \/ ANADOLU"
+    },
+    {
+        "hat_kodu": "AND2K",
+        "guzergah": "ANADOLU2 DEPAR\/ KURTKÖY"
+    },
+    {
+        "hat_kodu": "AND2S",
+        "guzergah": "ANADOLU2 DEPAR \/ SARIGAZİ"
+    },
+    {
+        "hat_kodu": "AND2Y",
+        "guzergah": "ANADOLU2 DEPAR \/ YUNUS"
+    },
+    {
+        "hat_kodu": "AVR1",
+        "guzergah": "AVRUPA 1 DEPAR \/ İKİTELLİ"
+    },
+    {
+        "hat_kodu": "AVR2",
+        "guzergah": "AVRUPA 2 DEPAR \/ TOPKAPI"
+    },
+    {
+        "hat_kodu": "AVR3",
+        "guzergah": "AVRUPA3 DEPAR"
+    },
+    {
+        "hat_kodu": "AVR3K",
+        "guzergah": "AVRUPA3 DEPAR \/ KAĞITHANE"
+    },
+    {
+        "hat_kodu": "BA-1",
+        "guzergah": "ÇARŞI-TEPEKÖY-KADIYORAN"
+    },
+    {
+        "hat_kodu": "BA-2",
+        "guzergah": "ÇARŞI-LUNAPARK"
+    },
+    {
+        "hat_kodu": "BA-4",
+        "guzergah": "ÇINAR-KUMSAL-MADEN"
+    },
+    {
+        "hat_kodu": "BA-5",
+        "guzergah": "ÇARŞI-NİZAM"
+    },
+    {
+        "hat_kodu": "BA-7",
+        "guzergah": "BÜYÜKADA TAKSİ"
+    },
+    {
+        "hat_kodu": "BM4",
+        "guzergah": "KAVAKLI - HARAMİDERE METROBÜS"
+    },
+    {
+        "hat_kodu": "BM5",
+        "guzergah": "SAHİL MAH.\/ KAVAKLI - HARAMİDERE"
+    },
+    {
+        "hat_kodu": "BM6",
+        "guzergah": "BEYLİKDÜZÜ - HARAMİDERE"
+    },
+    {
+        "hat_kodu": "BM7",
+        "guzergah": "HARAMİDERE - YAKUPLU - BEYLİKDÜZÜ"
+    },
+    {
+        "hat_kodu": "BM8",
+        "guzergah": "GÜRPINAR- A.KAHVECİ MAH. - CUMHURİYET MAH. METROBÜS"
+    },
+    {
+        "hat_kodu": "BN1",
+        "guzergah": "HALKALI - EMİNÖNÜ"
+    },
+    {
+        "hat_kodu": "BU-1",
+        "guzergah": "ÇARŞI-KALPAZANKAYA"
+    },
+    {
+        "hat_kodu": "BU-7",
+        "guzergah": "BURGAZADA TAKSİ"
+    },
+    {
+        "hat_kodu": "D2",
+        "guzergah": "BEŞİKTAŞ - BELGRAD ORMANI"
+    },
+    {
+        "hat_kodu": "DS1",
+        "guzergah": "DUDULLU ORGANİZE SANAYİ BÖLGESİ - DUDULLU METRO"
+    },
+    {
+        "hat_kodu": "DS2",
+        "guzergah": "DUDULLU ORGANİZE SANAYİ BÖLGESİ - DUDULLU METRO"
+    },
+    {
+        "hat_kodu": "DT1",
+        "guzergah": "ORTAKÖY - TAKSİM"
+    },
+    {
+        "hat_kodu": "DT2",
+        "guzergah": "ORTAKÖY - TAKSİM"
+    },
+    {
+        "hat_kodu": "E-10",
+        "guzergah": "SABİHA GÖKÇEN HAVALİMANI \/ KURTKÖY - KADIKÖY"
+    },
+    {
+        "hat_kodu": "E-3",
+        "guzergah": "SABİHA GÖKÇEN HAVALİMANI - 4.LEVENT METRO"
+    },
+    {
+        "hat_kodu": "E-56",
+        "guzergah": "ISPARTAKULE - TAKSİM"
+    },
+    {
+        "hat_kodu": "E-57",
+        "guzergah": "ESENKENT BAHÇEŞEHİR - BAKIRKÖY"
+    },
+    {
+        "hat_kodu": "E-58",
+        "guzergah": "ESENKENT BAHÇEŞEHİR - MECİDİYEKÖY"
+    },
+    {
+        "hat_kodu": "E-59",
+        "guzergah": "BOĞAZKÖY \/ BAHÇEŞEHİR - TAKSİM"
+    },
+    {
+        "hat_kodu": "EL2",
+        "guzergah": "EMİRGAN - 4.LEVENT METRO"
+    },
+    {
+        "hat_kodu": "EM1",
+        "guzergah": "EMİNÖNÜ - KULAKSIZ"
+    },
+    {
+        "hat_kodu": "EM2",
+        "guzergah": "EMİNÖNÜ - KULAKSIZ"
+    },
+    {
+        "hat_kodu": "ER1",
+        "guzergah": "KADIKÖY - ERENKÖY"
+    },
+    {
+        "hat_kodu": "ER2",
+        "guzergah": "KADIKÖY - ERENKÖY"
+    },
+    {
+        "hat_kodu": "ES1",
+        "guzergah": "ESENYURT BELEDİYESİ - BEYLİKDÜZÜ DEVLET HASTANESİ\/BEYKENT"
+    },
+    {
+        "hat_kodu": "ES2",
+        "guzergah": "TÜYAP \/ KIRAÇ - AKÇABURGAZ"
+    },
+    {
+        "hat_kodu": "ES3",
+        "guzergah": "ESENYURT DEVLET HASTANESİ - HARAMİDERE"
+    },
+    {
+        "hat_kodu": "ES4",
+        "guzergah": "ESENYURT KİPTAŞ 4. ETAP-HARAMİDERE"
+    },
+    {
+        "hat_kodu": "F2",
+        "guzergah": "BEYOĞLU-KARAKÖY TÜNEL"
+    },
+    {
+        "hat_kodu": "FB1",
+        "guzergah": "KADIKÖY - FENERBAHÇE"
+    },
+    {
+        "hat_kodu": "FB2",
+        "guzergah": "KADIKÖY - FENERBAHÇE"
+    },
+    {
+        "hat_kodu": "GZ1",
+        "guzergah": "KADIKÖY - GÖZTEPE"
+    },
+    {
+        "hat_kodu": "H-1",
+        "guzergah": "MAHMUTBEY METRO - İSTANBUL HAVALİMANI"
+    },
+    {
+        "hat_kodu": "H-2",
+        "guzergah": "MECİDİYEKÖY - İSTANBUL HAVALİMANI"
+    },
+    {
+        "hat_kodu": "H-3",
+        "guzergah": "HALKALI MARMARAY - İSTANBUL HAVALİMANI"
+    },
+    {
+        "hat_kodu": "H-6",
+        "guzergah": "YUNUS EMRE MAHALLESİ-İSTANBUL HAVALİMANI"
+    },
+    {
+        "hat_kodu": "H-8",
+        "guzergah": "HACIOSMAN METRO-İSTANBUL HAVALİMANI"
+    },
+    {
+        "hat_kodu": "HA-1",
+        "guzergah": "ÇARŞI-AKÇAKOCA-İTFAİYE"
+    },
+    {
+        "hat_kodu": "HA-2",
+        "guzergah": "ÇARŞI-ÇAM LİMANI"
+    },
+    {
+        "hat_kodu": "HA-3",
+        "guzergah": "ÇARŞI-DEĞİRMENBURNU-KÜÇÜKTUR"
+    },
+    {
+        "hat_kodu": "HA-7",
+        "guzergah": "HEYBELİADA TAKSİ"
+    },
+    {
+        "hat_kodu": "HM1",
+        "guzergah": "HACIOSMAN METRO - KOCATAŞ"
+    },
+    {
+        "hat_kodu": "HM2",
+        "guzergah": "KONAKLAR MAHALLESİ - 4.LEVENT METRO"
+    },
+    {
+        "hat_kodu": "HM3",
+        "guzergah": "HÜRRİYET MAHALLESİ - ŞİŞLİ"
+    },
+    {
+        "hat_kodu": "HM4",
+        "guzergah": "LEVENT BASIN SİTESİ - ŞİŞLİ"
+    },
+    {
+        "hat_kodu": "HS2",
+        "guzergah": "AVCILAR METROBÜS - ŞEHİR HASTANESİ"
+    },
+    {
+        "hat_kodu": "HS3",
+        "guzergah": "SEFAKÖY METROBÜS-ŞEHİR HASTANESİ"
+    },
+    {
+        "hat_kodu": "HT1",
+        "guzergah": "K.S.S. HASTANESİ - ÜÇYÜZLÜ METRO"
+    },
+    {
+        "hat_kodu": "HT10",
+        "guzergah": "BATIŞEHİR - YENİBOSNA METRO"
+    },
+    {
+        "hat_kodu": "HT11",
+        "guzergah": "GİYİMKENT - KUYUMCUKENT"
+    },
+    {
+        "hat_kodu": "HT12",
+        "guzergah": "GÜNEŞLİ BASIN TESİSLERİ - YENİBOSNA METRO"
+    },
+    {
+        "hat_kodu": "HT13",
+        "guzergah": "YENİ MAHALLE METRO - ZEYTİNBURNU"
+    },
+    {
+        "hat_kodu": "HT18",
+        "guzergah": "HADIMKÖY\/İ.Ü. CERRAHPAŞA KAMPÜSÜ - TÜYAP"
+    },
+    {
+        "hat_kodu": "HT19",
+        "guzergah": "İ.Ü.CERRAHPAŞA KAMPÜSÜ - TÜYAP METROBÜS"
+    },
+    {
+        "hat_kodu": "HT20",
+        "guzergah": "ŞAHİNTEPE İGTOT - YENİBOSNA METRO"
+    },
+    {
+        "hat_kodu": "HT29",
+        "guzergah": "KIRAÇ YOLU - AVCILAR METROBÜS"
+    },
+    {
+        "hat_kodu": "HT48",
+        "guzergah": "AREL ÜNİVERSİTESİ \/ TEPEKENT - AVCILAR METROBÜS"
+    },
+    {
+        "hat_kodu": "HT5",
+        "guzergah": "KOCATEPE METRO-NUR SİTESİ"
+    },
+    {
+        "hat_kodu": "HT6",
+        "guzergah": "BATIŞEHİR-KOCATEPE METRO"
+    },
+    {
+        "hat_kodu": "K1",
+        "guzergah": "KAĞITHANE-SEYRANTEPE HAMİDİYE ETFAL HASTANESİ"
+    },
+    {
+        "hat_kodu": "K2",
+        "guzergah": "KAĞITHANE-SEYRANTEPE HAMİDİYE ETFAL HASTANESİ"
+    },
+    {
+        "hat_kodu": "K3",
+        "guzergah": "KAĞITHANE GARAJI-VADİ İSTANBUL"
+    },
+    {
+        "hat_kodu": "K4",
+        "guzergah": "KAĞITHANE-ŞİŞLİ"
+    },
+    {
+        "hat_kodu": "KA-1",
+        "guzergah": "ÇARŞI-NARÇİÇEĞİ"
+    },
+    {
+        "hat_kodu": "KA-2",
+        "guzergah": "TEKİNAY-PLAJLAR-BÜYÜK TUR"
+    },
+    {
+        "hat_kodu": "KA-7",
+        "guzergah": "KINALIADA TAKSİ"
+    },
+    {
+        "hat_kodu": "KM10",
+        "guzergah": "AYDINLI TOKİ \/ İÇMELER - PENDİK METRO\/YHT - KARTAL"
+    },
+    {
+        "hat_kodu": "KM11",
+        "guzergah": "AYDINLI TOKİ \/ A.YESEVİ - PENDİK KÖPRÜSÜ"
+    },
+    {
+        "hat_kodu": "KM12",
+        "guzergah": "TUZLA DENİZ HARP OKULU - KARTAL METRO"
+    },
+    {
+        "hat_kodu": "KM13",
+        "guzergah": "TUZLA - PENDİK METRO\/ YHT \/ PENDİK"
+    },
+    {
+        "hat_kodu": "KM14",
+        "guzergah": "AHMET YESEVİ - TAVŞANTEPE METRO\/ YENİŞEHİR"
+    },
+    {
+        "hat_kodu": "KM15",
+        "guzergah": "YENİŞEHİR-PENDİK METRO"
+    },
+    {
+        "hat_kodu": "KM17",
+        "guzergah": "TUZLA EMLAK KONUTLARI-TAVŞANTEPE METRO"
+    },
+    {
+        "hat_kodu": "KM18",
+        "guzergah": "SABANCI ÜNİ.\/MEDENİYET ÜNİ. - KURTKÖY METRO"
+    },
+    {
+        "hat_kodu": "KM2",
+        "guzergah": "KAVAKPINAR-TAVŞANTEPE METRO"
+    },
+    {
+        "hat_kodu": "KM21",
+        "guzergah": "HİLAL KONUTLARI - KARTAL METRO \/ CEVİZLİ"
+    },
+    {
+        "hat_kodu": "KM23",
+        "guzergah": "KAVAKPINAR \/ MARMARA HST. - KARTAL METRO \/ CEVİZLİ"
+    },
+    {
+        "hat_kodu": "KM24",
+        "guzergah": "KAVAKPINAR - PENDİK METRO\/YHT\/PENDİK"
+    },
+    {
+        "hat_kodu": "KM25",
+        "guzergah": "YENİŞEHİR - KARTAL METRO \/ CEVİZLİ"
+    },
+    {
+        "hat_kodu": "KM26",
+        "guzergah": "ÇAMLIK MAHALLESİ - PENDİK METRO\/ YHT \/ PENDİK"
+    },
+    {
+        "hat_kodu": "KM27",
+        "guzergah": "YENİŞEHİR - PENDİK METRO\/ YHT \/ PENDİK"
+    },
+    {
+        "hat_kodu": "KM28",
+        "guzergah": "OKAN ÜNİVERSİTESİ - KURTKÖY METRO"
+    },
+    {
+        "hat_kodu": "KM29",
+        "guzergah": "YENİŞEHİR\/MARMARA Ü. HAST. - KARTAL METRO\/CEVİZLİ"
+    },
+    {
+        "hat_kodu": "KM3",
+        "guzergah": "UĞUR MUMCU-YAKACIK METRO\/ PENDİK"
+    },
+    {
+        "hat_kodu": "KM30",
+        "guzergah": "KARTAL \/ ATALAR - ESENKENT METRO"
+    },
+    {
+        "hat_kodu": "KM31",
+        "guzergah": "UĞUR MUMCU - KARTAL"
+    },
+    {
+        "hat_kodu": "KM32",
+        "guzergah": "KURFALI - KARTAL METRO \/ KARTAL"
+    },
+    {
+        "hat_kodu": "KM33",
+        "guzergah": "PENDİK SAHİL\/ YHT - GÜLSUYU METRO"
+    },
+    {
+        "hat_kodu": "KM34",
+        "guzergah": "KARTAL METRO-TOPSELVİ\/GÜLSUYU METRO"
+    },
+    {
+        "hat_kodu": "KM35",
+        "guzergah": "UĞUR MUMCU-CEVİZLİ"
+    },
+    {
+        "hat_kodu": "KM36",
+        "guzergah": "KURFALI MAHALLESİ-CEVİZLİ"
+    },
+    {
+        "hat_kodu": "KM37",
+        "guzergah": "HİLAL KONUTLARI-PENDİK METRO\/YHT\/PENDİK"
+    },
+    {
+        "hat_kodu": "KM41",
+        "guzergah": "MARMARA ÜNİVERSİTESİ-KÜÇÜKYALI METRO-BAŞIBÜYÜK SAĞLIK KAMPÜSÜ"
+    },
+    {
+        "hat_kodu": "KM42",
+        "guzergah": "BAŞIBÜYÜK - SÜREYYAPAŞA HASTANESİ\/ MALTEPE"
+    },
+    {
+        "hat_kodu": "KM43",
+        "guzergah": "ZÜMRÜTEVLER - MALTEPE METRO"
+    },
+    {
+        "hat_kodu": "KM44",
+        "guzergah": "MALTEPE ÜNİVERSİTESİ - SİTELER - MALTEPE"
+    },
+    {
+        "hat_kodu": "KM45",
+        "guzergah": "MARMARA ÜNİVERSİTESİ \/ KÜÇÜKYALI METRO - MİMAR SİNAN ÖĞRENCİ YURDU"
+    },
+    {
+        "hat_kodu": "KM46",
+        "guzergah": "BATI ATAŞEHİR - KOZYATAĞI METRO"
+    },
+    {
+        "hat_kodu": "KM47",
+        "guzergah": "GÜLENSU MAHALLESİ-HUZUREVİ METRO"
+    },
+    {
+        "hat_kodu": "KM48",
+        "guzergah": "ESENKENT-HUZUREVİ METRO"
+    },
+    {
+        "hat_kodu": "KM60",
+        "guzergah": "VEYSEL KARANİ - KARTAL METRO \/ CEVİZLİ"
+    },
+    {
+        "hat_kodu": "KM61",
+        "guzergah": "PAŞAKÖY \/ SAMANDIRA - KARTAL"
+    },
+    {
+        "hat_kodu": "KM70",
+        "guzergah": "SULTANBEYLİ\/PETROL YOLU CADDESI - KARTAL METRO \/ CEVİZLİ"
+    },
+    {
+        "hat_kodu": "KM71",
+        "guzergah": "YENİDOĞAN PERONLAR\/ ADİL MAH. - CEVİZLİ"
+    },
+    {
+        "hat_kodu": "KM72",
+        "guzergah": "PENDİK\/PENDİK METRO\/ YHT - SULTANBEYLİ DEVLET HAST."
+    },
+    {
+        "hat_kodu": "M5",
+        "guzergah": "SAMANDIRA METRO - ÜSKÜDAR"
+    },
+    {
+        "hat_kodu": "M7",
+        "guzergah": "NURTEPE - MECIDIYEKÖY"
+    },
+    {
+        "hat_kodu": "MK11",
+        "guzergah": "OLİMPİYATKÖY METRO - KAYAŞEHİR - GÜVERCİNTEPE"
+    },
+    {
+        "hat_kodu": "MK12",
+        "guzergah": "OLİMPİYATKÖY METRO - GÜVERCİNTEPE - KAYAŞEHİR"
+    },
+    {
+        "hat_kodu": "MK13",
+        "guzergah": "ŞAHİNTEPE İGTOT - OLİMPİYATKÖY METRO"
+    },
+    {
+        "hat_kodu": "MK14",
+        "guzergah": "KİPTAŞ VADİTEPE - OLİMPİYATKÖY METRO"
+    },
+    {
+        "hat_kodu": "MK15",
+        "guzergah": "BOĞAZKÖY \/ BAHÇEŞEHİR - OLİMPİYATKÖY METRO"
+    },
+    {
+        "hat_kodu": "MK16",
+        "guzergah": "OLİMPİYATKÖY METRO - K.ÇEKMECE METROBÜS"
+    },
+    {
+        "hat_kodu": "MK19",
+        "guzergah": "AYAZMA SİTELERİ-ARENAPARK"
+    },
+    {
+        "hat_kodu": "MK22",
+        "guzergah": "TAŞOLUK PERON - ŞEHİR HASTANESİ"
+    },
+    {
+        "hat_kodu": "MK31",
+        "guzergah": "K.S.S HASTANESİ-BAŞAKŞEHİR\/FENERTEPE PERON"
+    },
+    {
+        "hat_kodu": "MK42",
+        "guzergah": "15 TEMMUZ MAHALLESİ - KİRAZLI METRO"
+    },
+    {
+        "hat_kodu": "MK49",
+        "guzergah": "SULTANGAZİ PERON - KAZIM KARABEKİR METRO"
+    },
+    {
+        "hat_kodu": "MK50",
+        "guzergah": "SULTANGAZİ PERON-KAZIM KARABEKİR METRO"
+    },
+    {
+        "hat_kodu": "MK53",
+        "guzergah": "SULTANGAZİ PERON-TEKSTİLKENT METRO"
+    },
+    {
+        "hat_kodu": "MK97",
+        "guzergah": "ÇAVUŞPAŞA-ZEYTİNBURNU"
+    },
+    {
+        "hat_kodu": "MR11",
+        "guzergah": "KAZLIÇEŞME - TOPKAPI"
+    },
+    {
+        "hat_kodu": "MR20",
+        "guzergah": "YENİBOSNA METRO - KAZLIÇEŞME"
+    },
+    {
+        "hat_kodu": "MR40",
+        "guzergah": "K.S.S. HASTANESİ - ATAKENT - HALKALI MARMARAY"
+    },
+    {
+        "hat_kodu": "MR42",
+        "guzergah": "HALKALI MARMARAY \/ İNÖNÜ MAH. - SEFAKÖY METROBÜS"
+    },
+    {
+        "hat_kodu": "MR50",
+        "guzergah": "HALKALI MARMARAY - ŞEHİR HASTANESİ"
+    },
+    {
+        "hat_kodu": "MR51",
+        "guzergah": "İ.Ü. CERRAHPAŞA KAMPÜSÜ\/BAHÇEŞEHİR - HALKALI MARMARAY"
+    },
+    {
+        "hat_kodu": "MR52",
+        "guzergah": "SÖĞÜTLÜÇEŞME - HALKALI MARMARAY - ŞEHİR HASTANESİ"
+    },
+    {
+        "hat_kodu": "MR54",
+        "guzergah": "IGTOT-HALKALI MARMARAY"
+    },
+    {
+        "hat_kodu": "MR60",
+        "guzergah": "PENDİK\/PENDİK YHT-SABİHA GÖKÇEN HAVALİMANI"
+    },
+    {
+        "hat_kodu": "MR61",
+        "guzergah": "GÜZELYALI-TUZLA DEVLET HASTANESİ"
+    },
+    {
+        "hat_kodu": "MR9",
+        "guzergah": "ATATÜRK MAH. \/ ÇAMLIK - AYRILIK ÇEŞMESİ"
+    },
+    {
+        "hat_kodu": "PD1",
+        "guzergah": "YENİKAPI - BEYAZIT"
+    },
+    {
+        "hat_kodu": "SG-1",
+        "guzergah": "KADIKÖY - SABİHA GÖKÇEN HAVALİMANI"
+    },
+    {
+        "hat_kodu": "SG-2",
+        "guzergah": "TAKSİM - SABİHA GÖKÇEN HAVALİMANI"
+    },
+    {
+        "hat_kodu": "SM1",
+        "guzergah": "SULTANBEYLI - SAMANDIRA MERKEZ METRO"
+    },
+    {
+        "hat_kodu": "SM12",
+        "guzergah": "MALTEPE MYO - SAMANDIRA MERKEZ METRO"
+    },
+    {
+        "hat_kodu": "SM13",
+        "guzergah": "YENIDOĞAN\/UFUK CADDESI - SANCAKTEPE METRO"
+    },
+    {
+        "hat_kodu": "SM14",
+        "guzergah": "AYAZMA YAŞAM VADISI-SANCAKTEPE METRO"
+    },
+    {
+        "hat_kodu": "SM2",
+        "guzergah": "AHMET YESEVI MAHALLESI - SANCAKTEPE METRO"
+    },
+    {
+        "hat_kodu": "SM3",
+        "guzergah": "MIMAR SINAN MAHALLESI - PROF.DR.FERIHA ÖZ HAST."
+    },
+    {
+        "hat_kodu": "SM4",
+        "guzergah": "KURTKÖY METRO \/ HILAL KONUTLARI - SAMANDIRA MERKEZ METRO"
+    },
+    {
+        "hat_kodu": "SM5",
+        "guzergah": "SULTANBEYLI ORMAN CADDESI - SAMANDIRA MERKEZ METRO"
+    },
+    {
+        "hat_kodu": "SM6",
+        "guzergah": "SULTANBEYLİ DEVLET HASTANESİ - SAMANDIRA MERKEZ METRO"
+    },
+    {
+        "hat_kodu": "SM7",
+        "guzergah": "YENIDOĞAN - SAMANDIRA MERKEZ METRO"
+    },
+    {
+        "hat_kodu": "SM9",
+        "guzergah": "KARTAL METRO - SAMANDIRA MERKEZ METRO"
+    },
+    {
+        "hat_kodu": "T2",
+        "guzergah": "TAKSİM - TÜNEL"
+    },
+    {
+        "hat_kodu": "TM1",
+        "guzergah": "EMNİYETTEPE - ALİBEYKÖY"
+    },
+    {
+        "hat_kodu": "TM10",
+        "guzergah": "YEŞİLPINAR - ALİBEYKÖY"
+    },
+    {
+        "hat_kodu": "TM11",
+        "guzergah": "YEŞİLPINAR - ALİBEYKÖY"
+    },
+    {
+        "hat_kodu": "TM12",
+        "guzergah": "KARADOLAP - ALİBEYKÖY"
+    },
+    {
+        "hat_kodu": "TM13",
+        "guzergah": "EYÜPSULTAN - GOP - ALİBEYKÖY"
+    },
+    {
+        "hat_kodu": "TM14",
+        "guzergah": "YENİMAHALLE\/SARIGÖL-ALİBEYKÖY"
+    },
+    {
+        "hat_kodu": "TM15",
+        "guzergah": "CEBECİ PERONLAR - ALİBEYKÖY"
+    },
+    {
+        "hat_kodu": "TM16",
+        "guzergah": "YENİMAHALLE GOP - ALİBEYKÖY"
+    },
+    {
+        "hat_kodu": "TM17",
+        "guzergah": "SULTANGAZİ - GAZİ - ALİBEYKÖY"
+    },
+    {
+        "hat_kodu": "TM18",
+        "guzergah": "MESCİD-İ SELAM - ALİBEYKÖY"
+    },
+    {
+        "hat_kodu": "TM19",
+        "guzergah": "ZÜBEYDE HANIM - ALİBEYKÖY"
+    },
+    {
+        "hat_kodu": "TM2",
+        "guzergah": "HAMİDİYE - GÜZELTEPE - ALİBEYKÖY"
+    },
+    {
+        "hat_kodu": "TM3",
+        "guzergah": "HAMİDİYE - KAĞITHANE - ALİBEYKÖY"
+    },
+    {
+        "hat_kodu": "TM4",
+        "guzergah": "GÖKTÜRK- ALİBEYKÖY"
+    },
+    {
+        "hat_kodu": "TM5",
+        "guzergah": "ALİBEYKÖY - 5.LEVENT"
+    },
+    {
+        "hat_kodu": "TM6",
+        "guzergah": "MEVLANA - ALİBEYKÖY"
+    },
+    {
+        "hat_kodu": "TM7",
+        "guzergah": "ÇIRÇIR METRO - ALİBEYKÖY"
+    },
+    {
+        "hat_kodu": "TM8",
+        "guzergah": "AKŞEMSETTİN - ALİBEYKÖY"
+    },
+    {
+        "hat_kodu": "TM9",
+        "guzergah": "GAZİOSMANPAŞA - ALİBEYKÖY"
+    },
+    {
+        "hat_kodu": "U1",
+        "guzergah": "BEŞİKTAŞ-ULUS"
+    },
+    {
+        "hat_kodu": "U2",
+        "guzergah": "BEŞİKTAŞ-ULUS"
+    },
+    {
+        "hat_kodu": "UM11",
+        "guzergah": "KİRAZLITEPE-KISIKLI METRO-ESATPAŞA"
+    },
+    {
+        "hat_kodu": "UM13",
+        "guzergah": "KÜÇÜKSU \/ YAVUZTÜRK MAHALLESİ - ÜMRANİYE EĞT.ARŞ.HST."
+    },
+    {
+        "hat_kodu": "UM36",
+        "guzergah": "ESENEVLER - BULGURLU METRO"
+    },
+    {
+        "hat_kodu": "UM40",
+        "guzergah": "ATATÜRK MAH.\/ TAŞDELEN - NECİP FAZIL METRO"
+    },
+    {
+        "hat_kodu": "UM60",
+        "guzergah": "SANCAKTEPE - NECİP FAZIL METRO"
+    },
+    {
+        "hat_kodu": "UM61",
+        "guzergah": "PAŞAKÖY\/YENİDOĞAN-NECİP FAZIL METRO"
+    },
+    {
+        "hat_kodu": "UM62",
+        "guzergah": "YENİDOĞAN\/TAŞDELEN-NECİP FAZIL METRO"
+    },
+    {
+        "hat_kodu": "UM73",
+        "guzergah": "SABİHA GÖKÇEN H.L.\/ SULTANBEYLİ - SAMANDIRA MERKEZ METRO"
+    },
+    {
+        "hat_kodu": "UM74",
+        "guzergah": "SULTANBEYLİ DEVLET HAST.\/ NECİP FAZIL METRO - DUDULLU OSB"
+    },
+    {
+        "hat_kodu": "YDK",
+        "guzergah": "FILO YEDEK"
+    }
+]

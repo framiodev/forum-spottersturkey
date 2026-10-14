@@ -1,0 +1,55 @@
+framio-share-social: &share_social_tr
+  admin:
+    settings:
+      canonical-urls: "Paylaşım için standart (canonical) URL'ler kullanın"
+      plain-copy: "Bağlantıyı kopyalama alanını göster (Düz URL)"
+      default-option: "Varsayılan paylaşım seçeneği"
+      default-option-help: |
+        Varsayılan bir seçenek belirlendiğinde paylaşım butonu doğrudan açılır bir menüye dönüşür.
+        "Yerel Paylaşım" seçilirse yalnızca tarayıcı Web Share API destekliyorsa doğrudan açılır; aksi halde paylaşım modal penceresine dönülür.
+      networks-heading: "Aktif Edilecek Sosyal Ağlar & Mesajlaşma Servisleri"
+      custom-networks: "Özel Sosyal Ağlar ve Bağlantılar"
+      custom-networks-help: |
+        Buraya istediğiniz yeni sosyal platformları her satıra bir tane gelecek şekilde şu formatta ekleyebilirsiniz:
+        Platform Adı | İkon Sınıfı | Paylaşım URL Şablonu | Buton Rengi (Opsiyonel)
+
+        Kullanabileceğiniz şablon değişkenleri: {url}, {title}, {description}
+
+        Örnekler:
+        Discord | fa-brands fa-discord | https://discord.com/channels/@me?content={title}%20{url} | #5865F2
+        Signal | fas fa-comment-dots | sgnl://share?text={title}%20{url} | #3A76F0
+        Ekşi Sözlük | fas fa-feather | https://eksisozluk.com/?q={title} | #538351
+      custom-networks-placeholder: "Discord | fa-brands fa-discord | https://discord.com/... | #5865F2"
+
+  forum:
+    discussion:
+      share_button: "Paylaş"
+      share_dropdown_accessible_label: "Tartışma paylaşım menüsünü aç/kapat"
+    modal:
+      title: "Sosyal Medyada Paylaş"
+      copy_button: "Kopyala"
+
+  lib:
+    networks:
+      whatsapp: "WhatsApp"
+      telegram: "Telegram"
+      linkedin: "LinkedIn"
+      twitter: "X (Twitter)"
+      facebook: "Facebook"
+      reddit: "Reddit"
+      threads: "Threads"
+      bluesky: "Bluesky"
+      mastodon: "Mastodon"
+      pinterest: "Pinterest"
+      tumblr: "Tumblr"
+      viber: "Viber"
+      skype: "Skype"
+      email: "E-posta"
+      native: "Cihazın Yerel Paylaşımı (Web Share)"
+      vkontakte: "VKontakte"
+      odnoklassniki: "Odnoklassniki"
+      my_mail: "My World (Mail.ru)"
+      qq: "QQ"
+      qzone: "QZone"
+
+fof-share-social: *share_social_tr

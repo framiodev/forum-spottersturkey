@@ -1,0 +1,278 @@
+// Önizleme forumdaki görünümle aynı olsun diye widget stilleri de yüklenir
+@import "forum.less";
+
+// ============================================================
+// Forum İstatistikleri — admin sayfası
+// ============================================================
+.FSA-Layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 340px;
+  gap: 20px;
+  align-items: start;
+}
+
+@media (max-width: 1100px) {
+  .FSA-Layout { grid-template-columns: 1fr; }
+  .FSA-Side { order: -1; }
+}
+
+.FSA-Main { display: flex; flex-direction: column; gap: 16px; min-width: 0; }
+.FSA-Side { position: sticky; top: 70px; }
+
+.FSA-Card {
+  border: 1px solid var(--control-bg);
+  border-radius: 12px;
+  background: var(--body-bg);
+  overflow: hidden;
+}
+
+.FSA-Card-Head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 18px;
+  border-bottom: 1px solid var(--control-bg);
+
+  h3 { margin: 0; font-size: 15px; font-weight: 700; }
+  p { margin: 2px 0 0; font-size: 12px; color: var(--muted-color); }
+}
+
+.FSA-Card-Icon {
+  width: 36px;
+  height: 36px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 9px;
+  color: var(--primary-color);
+  background: var(--control-bg);
+}
+
+.FSA-Card-Titles { flex: 1; min-width: 0; }
+.FSA-Card-Body { padding: 14px 18px; }
+
+.FSA-Rows { display: flex; flex-direction: column; }
+
+.FSA-Row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 10px 0;
+  border-bottom: 1px dashed var(--control-bg);
+
+  &:last-child { border-bottom: 0; }
+}
+
+.FSA-Row-Label {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+
+  strong { font-size: 13px; }
+  small { font-size: 11px; color: var(--muted-color); }
+}
+
+.FSA-Row-Control {
+  flex-shrink: 0;
+  max-width: 360px;
+
+  .Switch, .Checkbox { margin: 0; }
+  > .FormControl, .Select { width: 280px; }
+}
+
+.FSA-Num { width: 120px !important; }
+
+.FSA-Seg {
+  display: inline-flex;
+  gap: 2px;
+  padding: 2px;
+  border-radius: 8px;
+  background: var(--control-bg);
+
+  button {
+    min-width: 32px;
+    height: 30px;
+    padding: 0 10px;
+    border: 0;
+    border-radius: 6px;
+    background: none;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--muted-color);
+    cursor: pointer;
+
+    i { margin-right: 2px; }
+    &.is-active { color: #fff; background: var(--primary-color); }
+  }
+}
+
+.FSA-Color {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+
+  input[type="color"] { width: 38px; height: 34px; padding: 0; border: 0; background: none; cursor: pointer; }
+  .FormControl { width: 150px; }
+}
+
+.FSA-Clear {
+  width: 30px;
+  height: 30px;
+  border: 0;
+  border-radius: 50%;
+  background: var(--control-bg);
+  color: var(--muted-color);
+  cursor: pointer;
+}
+
+// İstatistik listesi
+.FSA-Metrics { display: flex; flex-direction: column; gap: 6px; }
+
+.FSA-Metric {
+  border: 1px solid var(--control-bg);
+  border-radius: 10px;
+  transition: opacity .15s, box-shadow .15s;
+
+  &.is-off { opacity: .5; }
+  &.is-dragging { box-shadow: 0 0 0 2px var(--primary-color); }
+}
+
+.FSA-Metric-Head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 10px;
+
+  .Switch { margin: 0; }
+}
+
+.FSA-Grip { cursor: grab; color: var(--muted-color); }
+
+.FSA-Metric-Icon {
+  width: 32px;
+  height: 32px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  color: var(--primary-color);
+  background: var(--control-bg);
+}
+
+.FSA-Metric-Title {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  line-height: 1.3;
+
+  small { font-size: 11px; color: var(--muted-color); }
+}
+
+.FSA-Order {
+  display: flex;
+  flex-direction: column;
+
+  button {
+    padding: 0 6px;
+    border: 0;
+    background: none;
+    font-size: 11px;
+    line-height: 14px;
+    color: var(--muted-color);
+    cursor: pointer;
+
+    &:disabled { opacity: .3; cursor: default; }
+  }
+}
+
+.FSA-Edit {
+  width: 30px;
+  height: 30px;
+  border: 0;
+  border-radius: 50%;
+  background: var(--control-bg);
+  color: var(--muted-color);
+  cursor: pointer;
+
+  &:hover { color: #fff; background: var(--primary-color); }
+}
+
+.FSA-Metric-Body {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  padding: 10px 12px 12px 52px;
+  border-top: 1px dashed var(--control-bg);
+
+  label { display: flex; flex-direction: column; gap: 4px; margin: 0; font-size: 12px; font-weight: 600; }
+}
+
+.FSA-IconInput {
+  display: flex;
+  gap: 6px;
+
+  > span {
+    width: 38px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 6px;
+    color: var(--primary-color);
+    background: var(--control-bg);
+  }
+}
+
+// Önizleme
+.FSA-Preview { display: flex; flex-direction: column; gap: 8px; }
+
+.FSA-Preview-Head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  strong { font-size: 13px; i { color: var(--primary-color); margin-right: 4px; } }
+}
+
+.FSA-Preview-Frame {
+  margin: 0 auto;
+  width: 100%;
+  padding: 14px;
+  border-radius: 12px;
+  border: 1px solid var(--control-bg);
+  background: var(--body-bg);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, .06);
+
+  &--side { max-width: 260px; }
+}
+
+.FSA-Preview-Title {
+  margin-bottom: 10px;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--heading-color);
+
+  i { margin-right: 4px; color: var(--muted-color); }
+}
+
+.FSA-Note { font-size: 11px; color: var(--muted-color); }
+
+.FSA-Cache {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 8px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  font-size: 13px;
+  background: var(--control-bg);
+}
+
+.FSA-Cache-Note { color: var(--muted-color); }
+
+.FSA-Save { display: flex; justify-content: flex-end; }

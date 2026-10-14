@@ -1,0 +1,116 @@
+.User--directory {
+    .IndexPage-toolbar {
+        display: flex;
+        row-gap: 10px;
+
+        .IndexPage-toolbar-view {
+            display: flex;
+            column-gap: 5px;
+            row-gap: 5px;
+            flex-grow: 1;
+
+            > li {
+                vertical-align: middle;
+                width: fit-content;
+                margin-right: 0;
+            }
+
+            .item-sort,
+            .item-filterGroups {
+                flex: 0 0 auto;
+            }
+
+            .item-search {
+                flex: 1 1 auto;
+                min-width: 0;
+            }
+        }
+
+        .item-sort {
+            .Select {
+                width: 200px;
+
+                .Select-input {
+                    width: 100%;
+                }
+            }
+        }
+
+        @media @phone {
+            flex-direction: column;
+
+            .item-search {
+                flex: 0 1 100%;
+            }
+
+            .IndexPage-toolbar-view,
+            .IndexPage-toolbar-action {
+                display: flex;
+                flex-wrap: wrap;
+            }
+            .IndexPage-toolbar-view {
+                flex-wrap: wrap-reverse;
+                justify-content: space-between;
+
+                & > li {
+                    margin-right: 0;
+                }
+            }
+
+            .IndexPage-toolbar-action {
+                flex-shrink: 1;
+                float: none;
+
+                & > li {
+                    margin-left: 0;
+                }
+                li.item-refresh {
+                    margin-left: auto;
+                }
+            }
+        }
+        @media screen and (max-width: 370px) {
+            .IndexPage-toolbar-view {
+                & > li {
+                    width: 100%;
+                }
+            }
+        }
+    }
+}
+
+.item-filterGroups {
+    .ButtonGroup {
+        button {
+            @media @phone {
+                padding-top: 4px;
+            }
+        }
+    }
+
+    .GroupFilterButton {
+        display: flex;
+
+        .Button-label {
+            width: 100%;
+        }
+        .ButtonCheck {
+            margin-left: 10px;
+        }
+    }
+}
+
+@media @tablet-up {
+    .IndexPage-toolbar-action {
+        .item-clarkwinkelmann-mailing {
+            .Button {
+                & > .Button-icon {
+                    margin-right: 0;
+                }
+                & > .Button-label {
+                    display: none;
+                }
+            }
+        }
+    }
+}

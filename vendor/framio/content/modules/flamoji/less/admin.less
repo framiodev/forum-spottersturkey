@@ -1,0 +1,68 @@
+@import "admin/ExtensionPage";
+@import "admin/EditEmojiModal";
+@import "admin/CustomEmojiList";
+@import "admin/ImportEmojisModal";
+
+.Flamoji--settingsContainer {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 24px;
+  margin-bottom: 24px;
+
+  h3 {
+    color: var(--muted-color);
+  }
+
+  // Override Flarum 2.x .Form-group flex layout to restore the 1.x
+  // block layout our settings UI was designed against.
+  .Form-group {
+    display: block;
+    margin-bottom: 12px;
+
+    label {
+      font-weight: 600;
+    }
+  }
+
+  .helpText {
+    margin-bottom: 24px;
+  }
+}
+
+.Flamoji--emojiSettingsContainer,
+.Flamoji--categorySettingsContainer {
+  .Form-group:not(.specifyCategoriesGroup) {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+
+    label {
+      margin: 0;
+    }
+  }
+
+  .specifyCategoriesGroup {
+    .options {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    }
+
+    .cat-checkbox {
+      & label {
+        font-weight: 400;
+        color: var(--muted-color);
+        padding: 5px;
+      }
+    }
+
+    .helpText {
+      margin-bottom: 12px;
+    }
+  }
+
+  .Form-group.recentsCountGroup input {
+    max-width: 100px;
+  }
+}

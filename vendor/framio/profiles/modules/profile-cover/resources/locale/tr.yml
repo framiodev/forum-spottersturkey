@@ -1,0 +1,21 @@
+sycho-profile-cover:
+  admin:
+    thumbnails: "Küçük Resimler Oluştur"
+    max_size: "Maksimum profil kapağı boyutu (KB cinsinden)"
+    permission:
+      set_cover: "Profil Kapağı Ayarla"
+  forum:
+    cover: "Kapak Fotoğrafı"
+    edit_cover: "Kapak Fotoğrafını Düzenle"
+    notice: "Maksimum boyut: {size}"
+    save_position: "Konumu Kaydet"
+    drag_hint: "Odak noktasını ayarlamak için sürükleyin"
+    zoom_label: "Yakınlaştır:"
+    reset_zoom: "Sıfırla"
+    position_saved: "Kapak konumu kaydedildi!"
+    added:
+      success: "Profil kapağı güncellendi."
+      error: "Görsel yüklenemedi."
+    removed:
+      success: "Profil kapağı kaldırıldı."
+      error: "Kapak kaldırılamadı, lütfen daha sonra tekrar deneyin."

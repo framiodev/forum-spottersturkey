@@ -1,0 +1,102 @@
+{
+    "name": "pianotell/flarum-ext-flamoji",
+    "description": "Simple emoji manager for Flarum. Fork of the-turk/flarum-flamoji, originally created for PianoTell, but now available to all.",
+    "keywords": [
+        "flarum",
+        "emoji",
+        "picker"
+    ],
+    "type": "flarum-extension",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Navindra Umanee",
+            "email": "navindra@cs.mcgill.ca",
+            "homepage": "https://www.cs.mcgill.ca/~navindra/",
+            "role": "Fork maintainer"
+        },
+        {
+            "name": "Hasan Özbey",
+            "email": "hasanoozbey@gmail.com",
+            "homepage": "https://github.com/the-turk",
+            "role": "Original author"
+        }
+    ],
+    "support": {
+        "issues": "https://github.com/PrimateCoder/flarum-flamoji/issues",
+        "source": "https://github.com/PrimateCoder/flarum-flamoji"
+    },
+    "require": {
+        "php": "^8.3",
+        "flarum/core": "^2.0.0-beta"
+    },
+    "require-dev": {
+        "flarum/testing": "^2.0.0-beta"
+    },
+    "scripts": {
+        "test": [
+            "@test:unit",
+            "@test:integration"
+        ],
+        "test:unit": "phpunit -c tests/phpunit.unit.xml --no-coverage",
+        "test:integration": "phpunit -c tests/phpunit.integration.xml --no-coverage",
+        "test:setup": "@php tests/integration/setup.php"
+    },
+    "scripts-descriptions": {
+        "test": "Runs all tests (unit + integration). Integration tests require DB env vars (see tests/README.md).",
+        "test:unit": "Runs unit tests in tests/unit (no DB required).",
+        "test:integration": "Runs Flarum integration tests in tests/integration (requires test DB).",
+        "test:setup": "Initializes the test DB schema + storage. Run once before test:integration."
+    },
+    "conflict": {
+        "clarkwinkelmann/flarum-ext-emojionearea": "*"
+    },
+    "replace": {
+        "the-turk/flarum-flamoji": "*"
+    },
+    "suggest": {
+        "flarum/emoji": "Recommended companion. Parses standard emoji shortcodes (e.g. :smile:) typed in posts and renders unicode emoji as Twemoji for visual consistency. When this extension is enabled, Flamoji's picker matches it by serving Twemoji sprites; when disabled (and `picker_set` is on `auto`), the picker switches to native OS rendering so the picker preview matches the post output."
+    },
+    "autoload": {
+        "psr-4": {
+            "PianoTell\\Flamoji\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "PianoTell\\Flamoji\\Tests\\": "tests/"
+        }
+    },
+    "extra": {
+        "flarum-extension": {
+            "title": "Flamoji",
+            "category": "feature",
+            "icon": {
+                "name": "far fa-smile-wink",
+                "backgroundColor": "#004d4d",
+                "color": "#fff"
+            },
+            "database-support": [
+                "mysql",
+                "mariadb"
+            ]
+        },
+        "flarum-cli": {
+            "modules": {
+                "admin": true,
+                "forum": true,
+                "js": true,
+                "jsCommon": true,
+                "css": true,
+                "gitConf": true,
+                "githubActions": true,
+                "prettier": true,
+                "typescript": false,
+                "bundlewatch": false,
+                "backendTesting": true,
+                "editorConfig": true,
+                "styleci": true
+            }
+        }
+    }
+}

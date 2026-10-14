@@ -1,0 +1,45 @@
+{
+    "name": "framio/profiles",
+    "description": "Profil kapakları, avatar kırpma, özel alanlar, rozetler, puan sistemi, imza, sosyal profiller ve üye haritası paketi.",
+    "type": "flarum-extension",
+    "version": "1.0.0",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Framio-Dev",
+            "homepage": "https://dev.framiomedia.com"
+        }
+    ],
+    "require": {
+        "flarum/core": "^2.0",
+        "symfony/dom-crawler": "^5.0 || ^6.0.2",
+        "symfony/css-selector": "^5.0 || ^6.0.2"
+    },
+    "autoload": {
+        "psr-4": {
+            "Framio\\Profiles\\Masquerade\\": "modules/masquerade/src/",
+            "Framio\\Profiles\\ProfileImageCrop\\": "modules/profile-image-crop/src/",
+            "Framio\\Profiles\\SocialProfile\\": "modules/socialprofile/src/",
+            "Framio\\Profiles\\UserBio\\": "modules/user-bio/src/",
+            "Framio\\Profiles\\UsercardStats\\": "modules/usercard-stats/src/",
+            "Framio\\Profiles\\Signature\\": "modules/signature/src/",
+            "Framio\\Profiles\\ProfileCover\\": "modules/profile-cover/src/",
+            "Framio\\Profiles\\CustomProfilePage\\": "modules/custom-profile-page/src/",
+            "Framio\\Profiles\\ProfileStories\\": "modules/profile-stories/src/",
+            "Framio\\Profiles\\UserMap\\": "modules/user-map/src/",
+            "FoF\\Badges\\": "modules/badges/",
+            "Ramon\\PointSystem\\": "modules/point-system/src/"
+        }
+    },
+    "extra": {
+        "flarum-extension": {
+            "title": "Framio Profiles",
+            "category": "feature",
+            "icon": {
+                "name": "fas fa-id-card",
+                "backgroundColor": "#e74c3c",
+                "color": "#fff"
+            }
+        }
+    }
+}

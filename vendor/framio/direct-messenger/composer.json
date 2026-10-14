@@ -1,0 +1,30 @@
+{
+    "name": "framio/direct-messenger",
+    "description": "Instagram DM style direct messaging system for Flarum.",
+    "type": "flarum-extension",
+    "license": "MIT",
+    "require": {
+        "flarum/core": "^2.0"
+    },
+    "authors": [
+        {
+            "name": "Framio Dev"
+        }
+    ],
+    "autoload": {
+        "psr-4": {
+            "Framio\\DirectMessenger\\": "src/"
+        }
+    },
+    "extra": {
+        "flarum-extension": {
+            "title": "Framio Direct Messenger",
+            "category": "feature",
+            "icon": {
+                "name": "fas fa-comment-dots",
+                "backgroundColor": "#e74c3c",
+                "color": "#fff"
+            }
+        }
+    }
+}

@@ -1,0 +1,39 @@
+{
+    "name": "framio/engagement",
+    "description": "Yer imleri, tepkiler, anketler, tartışma görüntüleme sayıları, okundu bilgisi ve sosyal paylaşım araçları paketi.",
+    "type": "flarum-extension",
+    "version": "1.0.0",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Framio-Dev",
+            "homepage": "https://dev.framiomedia.com"
+        }
+    ],
+    "require": {
+        "flarum/core": "^2.0",
+        "jaybizzle/crawler-detect": "^1.2"
+    },
+    "autoload": {
+        "psr-4": {
+            "FoF\\Bookmarks\\": "modules/bookmarks/src/",
+            "Framio\\Engagement\\Bookmarks\\": "modules/bookmarks/src/",
+            "Framio\\Engagement\\DiscussionViews\\": "modules/discussion-views/src/",
+            "Framio\\Engagement\\Polls\\": "modules/polls/src/",
+            "Framio\\Engagement\\Reactions\\": "modules/reactions/src/",
+            "Framio\\Engagement\\ShareSocial\\": "modules/share-social/src/",
+            "Framio\\Engagement\\WhoRead\\": "modules/who-read/src/"
+        }
+    },
+    "extra": {
+        "flarum-extension": {
+            "title": "Framio Engagement",
+            "category": "feature",
+            "icon": {
+                "name": "fas fa-heart",
+                "backgroundColor": "#e74c3c",
+                "color": "#fff"
+            }
+        }
+    }
+}

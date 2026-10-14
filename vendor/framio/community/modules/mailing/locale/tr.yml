@@ -1,0 +1,61 @@
+fof-mailing:
+    admin:
+        permissions:
+            mail_individual: Tekil kullanıcılara e-posta gönder
+            mail_all: Gruplara veya tüm kullanıcılara e-posta gönder
+    forum:
+        links:
+            mail_individual: Bu Kullanıcıya E-posta Gönder
+            mail_all: Toplu E-posta Gönder
+        modal_mail:
+            title_text: E-posta Oluştur
+            recipients_label: Alıcılar
+            recipients_placeholder: Daha fazla alıcı ekle...
+            subject_label: Konu
+            default_subject: => fof-mailing.ref.default_subject
+            message_label: Mesaj
+            submit_button: Gönder
+        modal_sent:
+            title_text: E-posta Gönderildi!
+            on_its_way: Harika! E-postanız {recipientsCount} alıcıya iletilmek üzere kuyruğa eklendi.
+        recipient_kinds:
+            user: Kullanıcı
+            group: Grup
+            email: E-posta
+    api:
+        no_recipients: Hiçbir alıcı eşleşmedi
+    email:
+        default_subject: => fof-mailing.ref.default_subject
+    ref:
+        default_subject: Forum yönetiminden bilgilendirme mesajı
+
+framio-mailing:
+    admin:
+        permissions:
+            mail_individual: Tekil kullanıcılara e-posta gönder
+            mail_all: Gruplara veya tüm kullanıcılara e-posta gönder
+    forum:
+        links:
+            mail_individual: Bu Kullanıcıya E-posta Gönder
+            mail_all: Toplu E-posta Gönder
+        modal_mail:
+            title_text: E-posta Oluştur
+            recipients_label: Alıcılar
+            recipients_placeholder: Daha fazla alıcı ekle...
+            subject_label: Konu
+            default_subject: => framio-mailing.ref.default_subject
+            message_label: Mesaj
+            submit_button: Gönder
+        modal_sent:
+            title_text: E-posta Gönderildi!
+            on_its_way: Harika! E-postanız {recipientsCount} alıcıya iletilmek üzere kuyruğa eklendi.
+        recipient_kinds:
+            user: Kullanıcı
+            group: Grup
+            email: E-posta
+    api:
+        no_recipients: Hiçbir alıcı eşleşmedi
+    email:
+        default_subject: => framio-mailing.ref.default_subject
+    ref:
+        default_subject: Forum yönetiminden bilgilendirme mesajı

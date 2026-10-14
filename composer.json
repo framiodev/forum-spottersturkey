@@ -1,0 +1,226 @@
+{
+    "name": "flarum/flarum",
+    "description": "Delightfully simple forum software.",
+    "type": "project",
+    "keywords": [
+        "forum",
+        "discussion"
+    ],
+    "homepage": "https://flarum.org/",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Flarum",
+            "email": "info@flarum.org",
+            "homepage": "https://flarum.org/team"
+        }
+    ],
+    "support": {
+        "issues": "https://github.com/flarum/core/issues",
+        "source": "https://github.com/flarum/flarum",
+        "docs": "https://docs.flarum.org/"
+    },
+    "require": {
+        "php": ">=8.2",
+        "flarum-lang/turkish": "^2.0.1",
+        "flarum/approval": "^2.0.0-rc.8",
+        "flarum/bbcode": "^2.0.0-rc.8",
+        "flarum/core": "^2.0.0-rc.8",
+        "flarum/emoji": "^2.0.0-rc.8",
+        "flarum/extension-manager": "^2.0@RC",
+        "flarum/flags": "^2.0.0-rc.8",
+        "flarum/lang-english": "^2.0.0-rc.8",
+        "flarum/likes": "^2.0.0-rc.8",
+        "flarum/lock": "^2.0.0-rc.8",
+        "flarum/markdown": "^2.0.0-rc.8",
+        "flarum/mentions": "^2.0.0-rc.8",
+        "flarum/nicknames": "^2.0.0-rc.8",
+        "flarum/realtime": "^2.0.0-rc.8",
+        "flarum/statistics": "^2.0.0-rc.8",
+        "flarum/sticky": "^2.0.0-rc.8",
+        "flarum/subscriptions": "^2.0.0-rc.8",
+        "flarum/suspend": "^2.0.0-rc.8",
+        "flarum/tags": "^2.0.0-rc.8",
+        "framio-dev/post-comments": "*@dev",
+        "framio-dev/social-newsletter": "*@dev",
+        "framio/blog": "*@dev",
+        "framio/community": "*@dev",
+        "framio/content": "*@dev",
+        "framio/custom-homepage": "*@dev",
+        "framio/direct-messenger": "*@dev",
+        "framio/engagement": "*@dev",
+        "framio/general": "*@dev",
+        "framio/header-menu": "*@dev",
+        "framio/legacy-api-compat": "*@dev",
+        "framio/moderation": "*@dev",
+        "framio/network-crosspost": "*@dev",
+        "framio/package-manager": "*@dev",
+        "framio/profiles": "*@dev",
+        "framio/pwa": "*@dev",
+        "framio/security": "*@dev",
+        "framio/seo-pack": "*@dev",
+        "framio/social-share": "*@dev",
+        "framio/upload-exif": "*@dev",
+        "framio/widgets": "*@dev",
+        "google/cloud-storage": "^1.51",
+        "minishlink/web-push": "^10.1"
+    },
+    "config": {
+        "preferred-install": "dist",
+        "sort-packages": true,
+        "allow-plugins": {
+            "flarum/core": true
+        }
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true,
+    "repositories": [
+        {
+            "type": "path",
+            "url": "packages/framio-dev/post-comments",
+            "options": {
+                "symlink": true
+            }
+        },
+        {
+            "type": "path",
+            "url": "packages/framio-dev/social-newsletter",
+            "options": {
+                "symlink": true
+            }
+        },
+        {
+            "type": "path",
+            "url": "packages/framio-bundles/community",
+            "options": {
+                "symlink": true
+            }
+        },
+        {
+            "type": "path",
+            "url": "packages/framio-bundles/content",
+            "options": {
+                "symlink": true
+            }
+        },
+        {
+            "type": "path",
+            "url": "packages/framio-dev/custom-homepage",
+            "options": {
+                "symlink": true
+            }
+        },
+        {
+            "type": "path",
+            "url": "packages/framio/direct-messenger",
+            "options": {
+                "symlink": true
+            }
+        },
+        {
+            "type": "path",
+            "url": "packages/framio-bundles/engagement",
+            "options": {
+                "symlink": true
+            }
+        },
+        {
+            "type": "path",
+            "url": "packages/framio/header-menu",
+            "options": {
+                "symlink": true
+            }
+        },
+        {
+            "type": "path",
+            "url": "packages/framio/legacy-api-compat",
+            "options": {
+                "symlink": true
+            }
+        },
+        {
+            "type": "path",
+            "url": "packages/framio-bundles/moderation",
+            "options": {
+                "symlink": true
+            }
+        },
+        {
+            "type": "path",
+            "url": "packages/framio/crosspost",
+            "options": {
+                "symlink": true
+            }
+        },
+        {
+            "type": "path",
+            "url": "packages/framio-bundles/profiles",
+            "options": {
+                "symlink": true
+            }
+        },
+        {
+            "type": "path",
+            "url": "packages/framio-bundles/security",
+            "options": {
+                "symlink": true
+            }
+        },
+        {
+            "type": "path",
+            "url": "packages/framio-seo-pack",
+            "options": {
+                "symlink": true
+            }
+        },
+        {
+            "type": "path",
+            "url": "packages/framio-dev/social-share",
+            "options": {
+                "symlink": true
+            }
+        },
+        {
+            "type": "path",
+            "url": "packages/upload-exif",
+            "options": {
+                "symlink": true
+            }
+        },
+        {
+            "type": "path",
+            "url": "packages/framio-bundles/widgets",
+            "options": {
+                "symlink": true
+            }
+        },
+        {
+            "type": "path",
+            "url": "packages/framio-bundles/blog",
+            "options": {
+                "symlink": true
+            }
+        },
+        {
+            "type": "path",
+            "url": "packages/framio-bundles/general",
+            "options": {
+                "symlink": true
+            }
+        },
+        {
+            "type": "path",
+            "url": "packages/framio-bundles/package-manager",
+            "options": {
+                "symlink": true
+            }
+        },
+        {
+            "type": "path",
+            "url": "packages/framio-bundles/pwa",
+            "options": {
+                "symlink": true
+            }
+        }
+    ]
+}

@@ -1,0 +1,13 @@
+fof-online-users-widget:
+  admin:
+    settings:
+      cache_ttl: Kullanıcı listesinin önbellek süresi (saniye)
+      last_seen_interval: Bir kullanıcının çevrimiçi sayılması için son görülme süresi (dakika)
+      max_users: Gösterilecek maksimum kullanıcı sayısı
+    permissions:
+      view_online_users_widget: Çevrimiçi Kullanıcılar Bileşenini Görüntüle
+
+  forum:
+    widget:
+      title: Çevrimiçi Kullanıcılar
+      empty: Şu anda çevrimiçi kullanıcı yok.

@@ -1,0 +1,40 @@
+# Meta Business Suite: Threads ve Facebook Gelişmiş Yönetim Planı
+
+Kullanıcı Meta paneline **Threads hesabını yönetebileceği** bir yapının eklenmesini ve **Facebook sayfası için de** Instagram'da bulunan tüm özelliklerin (yorumları görme/yanıtlama/silme, gelen Messenger mesajlarını görüntüleme, doğrudan hikaye paylaşma ve hikaye zamanlama) dahil edilmesini talep etmiştir.
+
+## Proposed Changes
+
+### 1. Backend Servisleri (`MetaService.php` ve `MetaBusinessController.php`)
+- **Facebook Sayfa Hikaye Paylaşımı & Zamanlama:**
+  - `postStoryToFacebook($pageId, $imageUrl, $token)` metodu eklenecek (Facebook Graph API `/{page-id}/photo_stories`).
+  - `queueStory` metoduna `$platform = 'instagram_story'` yerine hem `'instagram_story'` hem de `'facebook_story'` desteği kazandırılacak.
+- **Facebook Gönderi Yorumları & Yanıt:**
+  - Facebook feed gönderilerine gelen yorumları çekme (`getFacebookPostComments`), yanıtlama (`replyToFacebookComment`) ve silme/gizleme metotları entegre edilecek.
+- **Facebook Messenger Mesaj Detayları:**
+  - Messenger konuşmalarının mesaj geçmişini getirme (`getFacebookConversationMessages`) eklenecek.
+- **Threads Yönetimi:**
+  - Threads hesap profili (`getThreadsProfile`), son paylaşılan Threads gönderileri (`getThreadsMediaList`), Threads gönderi içgörüleri/istatistikleri (`getThreadsInsights`) metotları eklenecek.
+  - MetaBusinessController'a ilgili yeni `case` blokları (`fb_post_story`, `fb_comments`, `fb_reply_comment`, `fb_moderate_comment`, `fb_conversation_messages`, `threads_profile`, `threads_insights`, `threads_media_list`, `threads_post`) tanımlanacak.
+- **Kuyruk Yöneticisi (`ProcessQueueCommand.php`):**
+  - Zamanlanan Facebook hikayeleri (`facebook_story`) için işleme desteği eklenecek.
+
+### 2. Frontend Panel (`SocialShareSettingsPage.js`)
+- **3 Sekmeli Platform Değiştirici:**
+  - `Instagram Hesabı` | `Facebook Sayfası` | `Threads Hesabı`
+- **Facebook Sayfa Sekmesinde Alt Sekmeler (Tıpkı Instagram Gibi):**
+  - `İstatistikler (Insights)`
+  - `Gönderiler & Yorumlar` (Facebook gönderilerine gelen yorumları okuma, yanıtlama ve silme)
+  - `Gelen Mesajlar (Messenger)` (Sayfaya gelen mesajları okuma)
+  - `Hikaye Yayınla & Zamanla` (Facebook sayfasında anında hikaye paylaşma veya ileri tarihe zamanlama)
+- **Threads Yönetim Sekmesi:**
+  - Profil kartı (Kullanıcı adı, biyografi, takipçi sayısı).
+  - İstatistikler & Metrikler.
+  - Son Threads gönderileri ve doğrudan hızlı thread paylaşma formu.
+
+---
+
+## Verification Plan
+1. `php -l` ile PHP dosyalarının sözdizimini doğrulamak.
+2. `npm run build` ile frontend kodunu hatasız derlemek.
+3. `php flarum cache:clear` çalıştırmak.
+4. UI üzerinde Instagram, Facebook ve Threads sekmeleri arası geçişleri ve formları test etmek.
