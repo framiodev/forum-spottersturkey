@@ -102,6 +102,7 @@ class WatermarkProcessor
 
         $platformConfig = $this->detectPlatformConfig();
         if (!$platformConfig) {
+            $this->log('Bu sitede bulut depolama yapılandırması bulunamadı');
             return null; // Firebase veya imza altyapısı bu sitede kurulu değilse geri dön
         }
 
@@ -128,6 +129,7 @@ class WatermarkProcessor
 
         if (!$downloaded || filesize($tempOriginal) === 0) {
             @unlink($tempOriginal);
+            $this->log('Görsel indirilemedi: ' . ($originalUrl ?: $mainUrl));
             return null;
         }
 
@@ -146,6 +148,10 @@ class WatermarkProcessor
                 $wmId = Arr::get($watermarkConfig, 'id');
                 $targetUsername = Arr::get($watermarkConfig, 'username');
                 $wmPath = $this->resolveWatermarkPath($wmId, $targetUsername);
+
+                if (!$wmPath || !file_exists($wmPath)) {
+                    $this->log('İmza dosyası bulunamadı: ' . ($wmId ?: '-') . ' / ' . ($targetUsername ?: '-'));
+                }
 
                 if ($wmPath && file_exists($wmPath)) {
                     $wm = $manager->read($wmPath);
@@ -258,10 +264,7 @@ class WatermarkProcessor
                 'original_path' => Arr::get($attachment, 'original_path', $finalMainUrl),
             ];
         } catch (\Throwable $e) {
-            try {
-                resolve('log')->warning('[crosspost] İmza işlenemedi: ' . $e->getMessage());
-            } catch (\Throwable $ignored) {
-            }
+            $this->log('İmza işlenemedi: ' . $e->getMessage());
             // Hata oluşursa temizle ve null dön (orijinal yollar kullanılır)
             @unlink($tempOriginal);
             @unlink($tempWatermarked);
@@ -327,6 +330,14 @@ class WatermarkProcessor
         return null;
     }
 
+    protected function log(string $message): void
+    {
+        try {
+            resolve('log')->warning('[crosspost] ' . $message);
+        } catch (\Throwable $e) {
+        }
+    }
+
     /**
      * Uzak URL'den dosyayı cURL ile indir
      */
@@ -353,13 +364,16 @@ class WatermarkProcessor
         $ch = curl_init($url);
         curl_setopt($ch, CURLOPT_FILE, $fp);
         curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
-        curl_setopt($ch, CURLOPT_TIMEOUT, 30);
+        curl_setopt($ch, CURLOPT_TIMEOUT, 180);
         curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 10);
         curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
         curl_setopt($ch, CURLOPT_USERAGENT, 'FramioCrosspost/1.0');
 
         $success = curl_exec($ch);
         $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        if (!$success || $httpCode < 200 || $httpCode >= 300) {
+            $this->log('İndirme başarısız (' . $httpCode . ' ' . curl_error($ch) . '): ' . $url);
+        }
         curl_close($ch);
         fclose($fp);
 
