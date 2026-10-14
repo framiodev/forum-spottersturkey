@@ -123,8 +123,12 @@ class WatermarkProcessor
         }
 
         // Eğer orijinal_path bulunamazsa (404 Not Found vb.) veya boşsa ana görseli indir
+        // Ana görsel kaynak sitenin imzasını taşır: üstüne ikinci imza basılmaz
+        $sourceIsSigned = false;
         if ((!$downloaded || filesize($tempOriginal) === 0) && !empty($mainUrl) && $mainUrl !== $originalUrl) {
             $downloaded = $this->downloadFile($mainUrl, $tempOriginal);
+            $sourceIsSigned = true;
+            $this->log('İmzasız orijinal yok, kaynak imzalı görsel yeni imza basılmadan aktarılıyor: ' . $mainUrl);
         }
 
         if (!$downloaded || filesize($tempOriginal) === 0) {
@@ -146,7 +150,9 @@ class WatermarkProcessor
             $img->scaleDown(width: $out['max_width']);
 
             // 3. Mod'a Göre İmza Uygula
-            if ($mode === 'target_site') {
+            if ($sourceIsSigned) {
+                // imza basılmaz
+            } elseif ($mode === 'target_site') {
                 $wmId = Arr::get($watermarkConfig, 'id');
                 $targetUsername = Arr::get($watermarkConfig, 'username');
                 $wmPath = $this->resolveWatermarkPath($wmId, $targetUsername);
