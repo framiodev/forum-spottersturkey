@@ -142,6 +142,8 @@ class WatermarkProcessor
             $driver = extension_loaded('imagick') ? new ImagickDriver() : new GdDriver();
             $manager = new ImageManager($driver);
             $img = $manager->read($tempOriginal);
+            $out = $this->outputOptions();
+            $img->scaleDown(width: $out['max_width']);
 
             // 3. Mod'a Göre İmza Uygula
             if ($mode === 'target_site') {
@@ -202,15 +204,28 @@ class WatermarkProcessor
             }
             // mode === 'no_watermark' durumunda imza basılmaz, doğrudan temiz görsel işlenir
 
-            // 4. Ana Görseli Kaydet ve EXIF Bilgisini Aktar
-            $img->save($tempWatermarked, quality: 90);
-            $this->transferExifData($tempOriginal, $tempWatermarked);
+            // 4. Sitenin Upload & EXIF ayarlarına göre kodla (WebP/JPG, kalite, küçük boyutlar)
+            $ext = $out['format'];
+            $mime = $ext === 'webp' ? 'image/webp' : 'image/jpeg';
+            $width = $img->width();
+            $height = $img->height();
 
-            // 5. Küçük Resim (Thumb) Oluştur
-            $imgThumb = clone $img;
-            $imgThumb->scaleDown(width: 1024);
-            $imgThumb->save($tempThumb, quality: 80);
-            unset($imgThumb);
+            if ($ext === 'webp') {
+                file_put_contents($tempWatermarked, (string) $img->toWebp($out['quality']));
+            } else {
+                file_put_contents($tempWatermarked, (string) $img->toJpeg($out['quality']));
+                $this->transferExifData($tempOriginal, $tempWatermarked);
+            }
+
+            // 5. Küçük Resim: dinamik CDN modunda dosya üretilmez, görsel sunucusu ?w= ile boyutlandırır
+            $thumbWidth = min($out['thumb_width'], $width);
+            $thumbHeight = $width > 0 ? (int) round($height * $thumbWidth / $width) : null;
+            if (!$out['dynamic']) {
+                $imgThumb = clone $img;
+                $imgThumb->scaleDown(width: $out['thumb_width']);
+                file_put_contents($tempThumb, $ext === 'webp' ? (string) $imgThumb->toWebp(82) : (string) $imgThumb->toJpeg(85));
+                unset($imgThumb);
+            }
             unset($img);
 
             // 6. Firebase Cloud Storage'a Yükle
@@ -226,31 +241,28 @@ class WatermarkProcessor
             $cleanBaseName = preg_replace('/[^a-zA-Z0-9_-]/', '_', $pathInfo['filename'] ?? 'photo');
             $ts = time() . '_' . rand(1000, 9999);
 
-            $safeMainName = $ts . '_' . $cleanBaseName . '.jpg';
-            $safeThumbName = 'thumb_' . $ts . '_' . $cleanBaseName . '.webp';
+            $safeMainName = $ts . '_' . $cleanBaseName . '.' . $ext;
+            $safeThumbName = 'thumb_' . $ts . '_' . $cleanBaseName . '.' . $ext;
+            $downloadName = ($pathInfo['filename'] ?? 'photo') . '.' . $ext;
 
-            // Ana görsel yükleme
-            $bucket->upload(fopen($tempWatermarked, 'r'), [
-                'name' => $cloudFolder . $safeMainName,
-                'predefinedAcl' => 'publicRead',
-                'metadata' => [
-                    'contentType' => 'image/jpeg',
-                    'contentDisposition' => 'inline; filename="' . $rawFilename . '"',
-                ],
-            ]);
+            $put = function (string $file, string $name, string $disposition) use ($bucket, $cloudFolder, $mime, $platformConfig) {
+                $bucket->upload(fopen($file, 'r'), [
+                    'name' => $cloudFolder . $name,
+                    'predefinedAcl' => 'publicRead',
+                    'metadata' => [
+                        'contentType' => $mime,
+                        'cacheControl' => 'public, max-age=31536000',
+                        'contentDisposition' => 'inline; filename="' . $disposition . '"',
+                    ],
+                ]);
 
-            // Küçük resim yükleme
-            $bucket->upload(fopen($tempThumb, 'r'), [
-                'name' => $cloudFolder . $safeThumbName,
-                'predefinedAcl' => 'publicRead',
-                'metadata' => [
-                    'contentType' => 'image/webp',
-                    'contentDisposition' => 'inline; filename="thumb_' . $rawFilename . '"',
-                ],
-            ]);
+                return $platformConfig['domain'] . '/' . $cloudFolder . rawurlencode($name);
+            };
 
-            $finalMainUrl = $platformConfig['domain'] . '/' . $cloudFolder . rawurlencode($safeMainName);
-            $finalThumbUrl = $platformConfig['domain'] . '/' . $cloudFolder . rawurlencode($safeThumbName);
+            $finalMainUrl = $put($tempWatermarked, $safeMainName, $downloadName);
+            $finalThumbUrl = $out['dynamic']
+                ? $finalMainUrl . '?w=' . $out['thumb_width']
+                : $put($tempThumb, $safeThumbName, 'thumb_' . $downloadName);
 
             // Temizlik
             @unlink($tempOriginal);
@@ -262,6 +274,12 @@ class WatermarkProcessor
                 'path' => $finalMainUrl,
                 'thumb_path' => $finalThumbUrl,
                 'original_path' => Arr::get($attachment, 'original_path', $finalMainUrl),
+                'filename' => $downloadName,
+                'mime_type' => $mime,
+                'width' => $width,
+                'height' => $height,
+                'thumb_width' => $thumbWidth,
+                'thumb_height' => $thumbHeight,
             ];
         } catch (\Throwable $e) {
             $this->log('İmza işlenemedi: ' . $e->getMessage());
@@ -328,6 +346,30 @@ class WatermarkProcessor
         }
 
         return null;
+    }
+
+    /** Hedef sitenin Upload & EXIF çıktı ayarları (yükleme ekranıyla aynı varsayılanlar) */
+    protected function outputOptions(): array
+    {
+        $get = function (string $key, $default) {
+            try {
+                $value = resolve(\Flarum\Settings\SettingsRepositoryInterface::class)->get('framio-upload-exif.' . $key);
+            } catch (\Throwable $e) {
+                $value = null;
+            }
+
+            return ($value === null || $value === '') ? $default : $value;
+        };
+
+        $format = strtolower((string) $get('image_format', 'webp'));
+
+        return [
+            'format' => in_array($format, ['jpg', 'jpeg'], true) ? 'jpg' : 'webp',
+            'max_width' => (int) $get('resize_width', 3840) ?: 3840,
+            'quality' => (int) $get('compression_quality', 88) ?: 88,
+            'thumb_width' => (int) $get('thumb_width', 1024) ?: 1024,
+            'dynamic' => (bool) $get('cdn_dynamic_resize', false),
+        ];
     }
 
     protected function log(string $message): void

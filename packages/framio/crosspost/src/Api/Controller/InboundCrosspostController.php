@@ -226,7 +226,11 @@ class InboundCrosspostController implements RequestHandlerInterface
 
                 $insertData = [];
                 if (in_array('user_id', $tableColumns)) $insertData['user_id'] = $user->id;
-                if (in_array('filename', $tableColumns)) $insertData['filename'] = Arr::get($att, 'filename', '');
+                if (in_array('filename', $tableColumns)) $insertData['filename'] = $processedUrls['filename'] ?? Arr::get($att, 'filename', '');
+                // Yeniden işlenen görselin biçimi ve boyutları (galeri ve SEO bunları kullanır)
+                foreach (['mime_type', 'width', 'height', 'thumb_width', 'thumb_height'] as $col) {
+                    if (in_array($col, $tableColumns) && isset($processedUrls[$col])) $insertData[$col] = $processedUrls[$col];
+                }
                 if (in_array('path', $tableColumns)) $insertData['path'] = $finalPath;
                 if (in_array('thumb_path', $tableColumns)) $insertData['thumb_path'] = $finalThumbPath;
                 if (in_array('original_path', $tableColumns)) $insertData['original_path'] = $finalOriginalPath;
