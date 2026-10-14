@@ -595,7 +595,7 @@ export default class UserUploadsPage extends UserPage {
             if (dParts.length === 3) {
                 let formattedDate = `${dParts[2]}.${dParts[1]}.${dParts[0]}`;
                 if (timePart) {
-                    const timeHm = timePart.substring(0, 5);
+                    const timeHm = timePart.substring(0, 8);
                     dateTaken = `${formattedDate} ${timeHm}`;
                 } else {
                     dateTaken = formattedDate;
@@ -606,7 +606,7 @@ export default class UserUploadsPage extends UserPage {
         } catch(e) { dateTaken = fullDateStr; }
     } else if (currentAttr.createdAt || currentAttr.created_at) {
         const d = new Date(currentAttr.createdAt || currentAttr.created_at);
-        dateTaken = d.toLocaleDateString('tr-TR') + ' ' + d.toLocaleTimeString('tr-TR', {hour: '2-digit', minute:'2-digit'});
+        dateTaken = d.toLocaleDateString('tr-TR') + ' ' + d.toLocaleTimeString('tr-TR', {hour: '2-digit', minute: '2-digit', second: '2-digit'});
     }
     
     const canDelete = app.session.user && (app.session.user.id() === this.user.id() || app.session.user.isAdmin());

@@ -320,7 +320,7 @@ export default class ExifLightboxModal extends Modal {
       if (isNaN(d.getTime())) {
         const parts = dateStr.split(/[:\s-]/);
         if (parts.length >= 3) {
-          return `${parts[2]}.${parts[1]}.${parts[0]}` + (parts[3] ? ` ${parts[3]}:${parts[4] || '00'}` : '');
+          return `${parts[2]}.${parts[1]}.${parts[0]}` + (parts[3] ? ` ${parts[3]}:${parts[4] || '00'}:${parts[5] || '00'}` : '');
         }
         return dateStr;
       }
@@ -329,7 +329,8 @@ export default class ExifLightboxModal extends Modal {
         month: 'long',
         year: 'numeric',
         hour: '2-digit',
-        minute: '2-digit'
+        minute: '2-digit',
+        second: '2-digit'
       });
     } catch (e) {
       return dateStr;
