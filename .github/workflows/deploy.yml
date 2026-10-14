@@ -23,6 +23,8 @@ jobs:
           password: ${{ secrets.FTP_PASSWORD }}
           server-dir: ${{ secrets.FTP_REMOTE_DIR || '/' }}
           dangerous-clean-slate: false
+          timeout: 600000
+          log-level: standard
           exclude: |
             **/.git*
             **/.git*/**
