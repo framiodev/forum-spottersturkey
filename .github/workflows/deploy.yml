@@ -13,31 +13,39 @@ jobs:
       - name: 🚚 Get latest code
         uses: actions/checkout@v4
         with:
-          fetch-depth: 2
+          fetch-depth: 0
 
-      - name: 📂 Sync files via FTP
-        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
-        with:
-          server: ${{ secrets.FTP_SERVER }}
-          username: ${{ secrets.FTP_USERNAME }}
-          password: ${{ secrets.FTP_PASSWORD }}
-          server-dir: ${{ secrets.FTP_REMOTE_DIR || '/' }}
-          dangerous-clean-slate: false
-          timeout: 600000
-          log-level: standard
-          exclude: |
-            **/.git*
-            **/.git*/**
-            **/node_modules/**
-            config.php
-            firebase-auth.json
-            service_account.json
-            storage/cache/**
-            storage/formatter/**
-            storage/less/**
-            storage/locale/**
-            storage/logs/**
-            storage/sessions/**
-            storage/tmp/**
-            storage/views/**
-            _kurulum/**
+      - name: 📂 Upload changed files via FTP
+        env:
+          FTP_SERVER: ${{ secrets.FTP_SERVER }}
+          FTP_USERNAME: ${{ secrets.FTP_USERNAME }}
+          FTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
+          FTP_REMOTE_DIR: ${{ secrets.FTP_REMOTE_DIR }}
+          BEFORE: ${{ github.event.before }}
+          AFTER: ${{ github.sha }}
+        run: |
+          # Yalnızca bu push'ta eklenen/değişen dosyalar (silinenler sunucuda bırakılır)
+          if git cat-file -e "$BEFORE^{commit}" 2>/dev/null; then
+            git diff --name-only --diff-filter=ACMRT "$BEFORE" "$AFTER" > changed.txt
+          else
+            git diff-tree --no-commit-id --name-only -r --diff-filter=ACMRT "$AFTER" > changed.txt
+          fi
+
+          # Sunucuya gitmeyecek dosyalar
+          grep -vE '^(\.git|\.github/|_kurulum/|config\.php$|storage/)|(^|/)(firebase-auth|service_account)\.json$|(^|/)node_modules/' changed.txt > upload.txt || true
+
+          echo "Yüklenecek dosya sayısı: $(wc -l < upload.txt)"
+          DIR="${FTP_REMOTE_DIR:-/}"
+          DIR="${DIR%/}"
+
+          fail=0
+          while IFS= read -r f; do
+            [ -f "$f" ] || continue
+            path=$(printf '%s' "$f" | sed 's/ /%20/g')
+            echo "→ $f"
+            curl -sS --ftp-create-dirs --retry 3 --retry-delay 5 --connect-timeout 30 \
+              -T "$f" "ftp://$FTP_SERVER$DIR/$path" \
+              --user "$FTP_USERNAME:$FTP_PASSWORD" || { echo "HATA: $f"; fail=1; }
+          done < upload.txt
+
+          exit $fail
