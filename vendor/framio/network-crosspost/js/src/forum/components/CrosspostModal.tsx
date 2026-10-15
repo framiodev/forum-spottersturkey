@@ -142,6 +142,8 @@ export default class CrosspostModal extends Modal<CrosspostModalAttrs> {
   originalMissing: Record<string, boolean> = {};
   /** Büyütülmüş önizleme */
   zoomPreview: { src: string; wm: TargetWatermarkItem | null } | null = null;
+  /** İmza adımında açık olan fotoğraf */
+  activeWmIndex: number = 0;
 
   // Hedef Kullanıcı (Admin kullanıcı eşleme ve seçme)
   targetUsernames: Record<string, string> = {};
@@ -1163,15 +1165,38 @@ export default class CrosspostModal extends Modal<CrosspostModalAttrs> {
     const images = this.extractedImages.filter((img) => !this.isImageExcluded(img));
     return (
       <div className="CrosspostWmPerImage" onclick={(e: Event) => e.stopPropagation()}>
-        {images.map((img) => {
+        {/* Yükleme ekranındaki gibi: tek büyük önizleme, altında fotoğraf şeridi */}
+        {(() => {
+          const idx = Math.min(this.activeWmIndex, images.length - 1);
+          const img = images[idx];
+          if (!img) return null;
           const chosen = this.chosenWatermarkFor(img.url, all);
           const orient = this.imageOrientation(img.url);
           return (
-            <div className="CrosspostWmPerImage-row" key={img.url}>
-              {this.renderWmPreview(this.previewSource(img), chosen)}
+            <div className="CrosspostWmPerImage-row" key="active">
+              <div className="CrosspostWmPerImage-main">
+                {this.renderWmPreview(this.previewSource(img), chosen)}
+                {images.length > 1 && (
+                  <div className="CrosspostWmStrip">
+                    {images.map((other, i) => (
+                      <button
+                        type="button"
+                        className={'CrosspostWmStrip-item' + (i === idx ? ' is-active' : '')}
+                        key={other.url}
+                        onclick={() => { this.activeWmIndex = i; this.openWmMenu = null; }}
+                        title={(i + 1) + '. fotoğraf'}
+                      >
+                        <img src={other.url} alt="" loading="lazy" />
+                        <span className="CrosspostWmStrip-num">{i + 1}</span>
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
               <div className="CrosspostWmPerImage-side">
                 <div className="CrosspostWmPerImage-orient">
                   <Icon name={orient === 'portrait' ? 'fas fa-mobile-alt' : 'fas fa-image'} />{' '}
+                  {images.length > 1 ? (idx + 1) + '/' + images.length + ' · ' : ''}
                   {orient === 'portrait' ? 'Dikey fotoğraf' : orient === 'landscape' ? 'Yatay fotoğraf' : 'Fotoğraf'}
                 </div>
                 {this.originalMissing[img.url] ? (
@@ -1182,7 +1207,7 @@ export default class CrosspostModal extends Modal<CrosspostModalAttrs> {
               </div>
             </div>
           );
-        })}
+        })()}
         {this.zoomPreview && (
           <div className="CrosspostWmZoom" onclick={() => { this.zoomPreview = null; }}>
             {this.renderWmPreview(this.zoomPreview.src, this.zoomPreview.wm, true)}

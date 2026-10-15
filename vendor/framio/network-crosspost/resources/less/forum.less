@@ -1070,3 +1070,20 @@
   width: 40px; height: 40px; border: 0; border-radius: 50%;
   background: rgba(255,255,255,.15); color: #fff; font-size: 18px; cursor: pointer;
 }
+
+.CrosspostWmPerImage-main { flex: 0 0 52%; max-width: 52%; min-width: 0; @media (max-width: 640px) { flex-basis: auto; max-width: 100%; width: 100%; } }
+.CrosspostWmPerImage-main .CrosspostWmPreview { max-width: 100%; }
+.CrosspostWmStrip {
+  display: flex; gap: 6px; margin-top: 8px; overflow-x: auto; padding-bottom: 2px;
+}
+.CrosspostWmStrip-item {
+  position: relative; flex: 0 0 64px; height: 44px; padding: 0;
+  border: 2px solid transparent; border-radius: 6px; overflow: hidden;
+  background: var(--control-bg); cursor: pointer; opacity: .7;
+  img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  &.is-active { border-color: var(--primary-color); opacity: 1; }
+}
+.CrosspostWmStrip-num {
+  position: absolute; left: 3px; bottom: 2px; padding: 0 4px; border-radius: 3px;
+  background: rgba(0,0,0,.6); color: #fff; font-size: 10px; line-height: 14px;
+}

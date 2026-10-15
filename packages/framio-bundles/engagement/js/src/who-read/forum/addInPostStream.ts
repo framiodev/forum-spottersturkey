@@ -16,6 +16,16 @@ import normalizeReadersRelationship from './utils/normalizeReadersRelationship';
 
 const translationPrefix = 'clarkwinkelmann-who-read.forum.footer.';
 
+/**
+ * Okunma sayısı: istatistik eklentisinin mesaj görüntülenmesi (üyeler + giriş yapmamış
+ * ziyaretçiler, günde bir kez). Görüntülenme sayısı yoksa ya da üye sayısından azsa
+ * okuyan üye sayısı gösterilir; böylece iki sayaç aynı değeri kullanır.
+ */
+function readCount(post: PostModel, members: number): number {
+    const views = post.attribute<number | null>('framioViews');
+    return typeof views === 'number' ? Math.max(views, members) : members;
+}
+
 export default function () {
     extend(Post.prototype, 'oninit', function () {
         if (!app.forum.attribute('who-read.showBetweenPosts')) {
@@ -101,7 +111,7 @@ export default function () {
                         },
                         title,
                     }, [
-                        app.forum.attribute('who-read.showCountOfReadersWhoStopped') ? readersUntilHereOnly.length : totalReadersWhoHaveSeenThisPost,
+                        app.forum.attribute('who-read.showCountOfReadersWhoStopped') ? readersUntilHereOnly.length : readCount(post, totalReadersWhoHaveSeenThisPost),
                         ' ',
                         icon('fas fa-check-double'),
                         ' ',
@@ -130,7 +140,7 @@ export default function () {
                         count: readersEnd.length,
                     })),
                 }, [
-                    readersEnd.length,
+                    readCount(post, readersEnd.length),
                     ' ',
                     icon('fas fa-check-double'),
                     ' ',

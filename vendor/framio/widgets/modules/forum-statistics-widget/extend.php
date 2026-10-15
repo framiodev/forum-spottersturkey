@@ -38,7 +38,7 @@ return [
         // Önbellek ve kaynaklar
         ->default('framio-stats.cache_duration', '600')
         ->default('framio-stats.online_minutes', '5')
-        ->default('framio-stats.photo_table', 'spotter_images')
+        ->default('framio-stats.photo_table', 'framio_media_images')
         // Görünüm: istatistik listesi, düzen, renk, yerleşim (JSON)
         ->serializeToForum('framioStatsConfig', 'framio-stats.config', 'strval', '{}'),
 

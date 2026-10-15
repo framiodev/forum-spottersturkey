@@ -40,8 +40,23 @@
 }
 
 .WhoRead-summary {
+    // Satır yüksekliği avatarları kırpmasın; logo avatarları kenarda kesilmesin
+    display: inline-flex;
+    align-items: center;
+    flex-wrap: wrap;
+    vertical-align: middle;
+    overflow: visible;
+
+    .WhoRead-item {
+        line-height: 0;
+    }
+
     .Avatar {
         .Avatar--size(24px);
+        object-fit: cover;
+        box-sizing: border-box;
+        border: 1px solid var(--control-bg);
+        background: var(--body-bg);
     }
 
     .WhoRead-avatar--outdated .Avatar {

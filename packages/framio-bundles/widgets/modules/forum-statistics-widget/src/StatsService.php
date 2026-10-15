@@ -142,9 +142,23 @@ class StatsService
         return $q;
     }
 
+    /**
+     * Fotoğraf tablosu: ayardaki tablo; ayar boşsa, tablo yoksa ya da eski
+     * spotter_images ise Upload & EXIF'in güncel tablosu (framio_media_images).
+     */
+    public function photoTable(): string
+    {
+        $table = (string) $this->setting('photo_table', '');
+        if (($table === '' || $table === 'spotter_images' || !$this->hasTable($table)) && $this->hasTable('framio_media_images')) {
+            return 'framio_media_images';
+        }
+
+        return $table;
+    }
+
     protected function photos(): ?Builder
     {
-        $table = (string) $this->setting('photo_table', 'spotter_images');
+        $table = $this->photoTable();
 
         return $table !== '' && $this->hasTable($table) ? $this->db->table($table) : null;
     }
@@ -155,7 +169,7 @@ class StatsService
         $week = Carbon::now()->subDays(7);
 
         $photos = $this->photos();
-        $photoTable = (string) $this->setting('photo_table', 'spotter_images');
+        $photoTable = $this->photoTable();
 
         $latest = $this->users()->orderByDesc('joined_at')->first(['id', 'username', 'joined_at']);
 

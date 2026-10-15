@@ -84,8 +84,9 @@ class DetailController implements RequestHandlerInterface
             'visitors' => $this->series($since, $days, $this->db->table('framio_view_log')->where('viewed_on', '>=', $since->toDateString())->groupBy('viewed_on')->selectRaw('viewed_on as d, COUNT(DISTINCT visitor) as c')->get()),
         ];
 
-        if ($this->db->getSchemaBuilder()->hasTable('spotter_images')) {
-            $out['photos'] = $this->series($since, $days, $group($this->db->table('spotter_images'), 'created_at'));
+        $photoTable = resolve(\Framio\Widgets\ForumStatisticsWidget\StatsService::class)->photoTable();
+        if ($photoTable !== '' && $this->db->getSchemaBuilder()->hasTable($photoTable)) {
+            $out['photos'] = $this->series($since, $days, $group($this->db->table($photoTable), 'created_at'));
         }
 
         return $out;
