@@ -2,6 +2,7 @@
 
 namespace Framio\Engagement\WhoRead;
 
+use Flarum\Api\Endpoint;
 use Flarum\Api\Resource\DiscussionResource;
 use Flarum\Api\Resource\ForumResource;
 use Flarum\Api\Schema;
@@ -47,6 +48,15 @@ return [
                     ->get(fn ($forum, $context) => resolve(SettingsRepositoryInterface::class)->get('who-read.unreadIcon') ?: 'fas fa-eye-slash'),
             ];
         }),
+
+    // Konu sayfası ve okuma konumu kaydı okuyan listesini de döndürsün; yoksa mesaj altındaki sayaç hep 0 kalır
+    (new Extend\ApiResource(DiscussionResource::class))
+        ->endpoint(
+            [Endpoint\Show::class, Endpoint\Update::class],
+            function (Endpoint\Show|Endpoint\Update $endpoint): Endpoint\Endpoint {
+                return $endpoint->addDefaultInclude(['clarkwinkelmannWhoReaders', 'clarkwinkelmannWhoReaders.user']);
+            }
+        ),
 
     (new Extend\ApiResource(DiscussionResource::class))
         ->fields(function () {
