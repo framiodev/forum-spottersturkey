@@ -47,9 +47,16 @@ class CloudStorage
     public function keyFilePath(): ?string
     {
         $name = basename(trim((string) $this->settings->get('framio-upload-exif.firebase_key_file')) ?: 'firebase-auth.json');
-        $path = $this->paths->storage . DIRECTORY_SEPARATOR . $name;
 
-        return is_file($path) ? $path : null;
+        // Önce storage/, sonra kök dizin (eski kurulumlar anahtarı kökte tutuyordu: firebase-key.json)
+        foreach ([$this->paths->storage, $this->paths->base] as $dir) {
+            $path = $dir . DIRECTORY_SEPARATOR . $name;
+            if (is_file($path)) {
+                return $path;
+            }
+        }
+
+        return null;
     }
 
     /** Kimlik kaynağı: 'settings' | 'file' | null */
