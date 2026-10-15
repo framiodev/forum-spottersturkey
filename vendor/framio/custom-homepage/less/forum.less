@@ -381,6 +381,8 @@ border-top: 1px solid var(--border-color, #e0e0e0); flex-shrink: 0; background: 
             font-size: 14px;
             line-height: 32px;
             display: block;
+            padding: 0;
+            text-align: center;
         }
     }
     .UserName {
@@ -804,13 +806,24 @@ body.Framio-CarouselMode-Active {
     .LayoutA-Card .LayoutA-Overlay .Title { font-size: 12px; }
     .LayoutA-Card .MultiImageIcon, .Jetphotos-SubCard .MultiImageIcon { font-size: 10px; padding: 4px; }
 
-    .TableRow { grid-template-columns: 32px 1fr 1fr 35px !important; padding: 12px 10px !important; gap: 10px !important; }
-    .Col-Posters, .TableRow > *:nth-child(4) { display: none !important; }
-    .Col-User .UserName { display: none !important; }
-    .Col-Snippet, .Col-Subject {
-        font-size: 12px !important; white-space: nowrap !important; overflow: hidden !important; text-overflow: ellipsis !important; padding-right: 0 !important; min-width: 0 !important;
+    /* Son Gönderilen Mesajlar: telefonda tablo yerine kart (konu başlığı üstte, künye altta) */
+    .Framio-LatestTable .TableHeader { display: none !important; }
+    .Framio-LatestTable .TableRow {
+        grid-template-columns: 36px minmax(0, 1fr) auto !important;
+        grid-template-areas: "user subject replies" "user snippet replies";
+        column-gap: 12px !important; row-gap: 2px !important;
+        padding: 12px 14px !important;
     }
-    .TableHeader > * { white-space: nowrap !important; overflow: hidden !important; text-overflow: ellipsis !important; font-size: 9px !important; }
+    .Framio-LatestTable .TableRow:not(.TableHeader):hover { padding-left: 14px !important; }
+    .Framio-LatestTable .Col-User { grid-area: user; }
+    .Framio-LatestTable .Col-User .UserName { display: none !important; }
+    .Framio-LatestTable .Col-Subject { grid-area: subject; font-size: 14px !important; }
+    .Framio-LatestTable .Col-Snippet { grid-area: snippet; font-size: 12px !important; }
+    .Framio-LatestTable .Col-Snippet, .Framio-LatestTable .Col-Subject {
+        white-space: nowrap !important; overflow: hidden !important; text-overflow: ellipsis !important; padding-right: 0 !important; min-width: 0 !important;
+    }
+    .Framio-LatestTable .Col-Posters { display: none !important; }
+    .Framio-LatestTable .Col-Replies { grid-area: replies; align-self: center; }
 
     .SpottersGallery-Lightbox {
         background: #000 !important;
@@ -1594,7 +1607,7 @@ body.Framio-CarouselMode-Active {
   /* Menü listesi kenar menünün ilk öğesi olduğunda çekirdeğin "li:first-child { width: 190px }" kuralı
      onu 190 piksele kilitliyor ve öğeler alt alta diziliyordu: menü ve açılır kutusu tam genişlik */
   > ul > li.item-nav { width: 100% !important; flex: 1 1 100%; justify-content: center; }
-  .item-nav > .Dropdown, .item-nav > .ButtonGroup { width: 100% !important; max-width: none !important; }
+  .item-nav > .Dropdown:not(.App-titleControl), .item-nav > .ButtonGroup:not(.App-titleControl) { width: 100% !important; max-width: none !important; }
 
   .item-nav > ul > li > a,
   .item-nav .Dropdown-menu > li > a,
@@ -2079,4 +2092,30 @@ body.fnav-bg-custom #header { background: var(--fnav-header-bg) !important; }
   .Framio-HNav--header { margin-left: var(--fnav-offset, 0); }
   body.fnav-place-center .Framio-HNav--header { margin-left: 0; left: calc(50% + var(--fnav-offset, 0px)); }
   body.fnav-place-right .Framio-HNav--header { margin-left: 0; margin-right: calc(var(--fnav-offset, 0px) * -1); }
+}
+
+
+/* ---- Telefon başlığı: hamburger · logo · sayfa seçici ---- */
+@media (max-width: 767px) {
+    .App-titleControl { width: auto !important; max-width: calc(100vw - 190px); left: auto !important; right: 8px !important; transform: none !important; margin: 0 !important; }
+    .App-titleControl .Dropdown-toggle { max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .Framio-MobileLogo {
+        position: fixed; top: 0; left: 52px; z-index: 1001;
+        height: var(--header-height-phone, 46px);
+        display: flex; align-items: center;
+        img { max-height: 30px; max-width: 120px; width: auto; display: block; }
+    }
+    /* Çekmece açıkken logo örtünün üstünde kalmasın */
+    .drawerOpen .Framio-MobileLogo { visibility: hidden; }
+    /* Geri düğmesinin olduğu sayfalarda (konu sayfası) yer çakışmasın */
+    body:has(.App-navigation .Navigation-back) .Framio-MobileLogo { display: none; }
+}
+@media (min-width: 768px) {
+    .Framio-MobileLogo { display: none !important; }
+}
+
+/* Telefonda mesaj başlığı: rozet sayısı ne olursa olsun tarih hep kullanıcı adının altında */
+@media (max-width: 767px) {
+    .Post-header > ul { display: flex; flex-wrap: wrap; align-items: center; column-gap: 8px; row-gap: 2px; }
+    .Post-header > ul > li.item-meta { flex-basis: 100%; order: 10; }
 }

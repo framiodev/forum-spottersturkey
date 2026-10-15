@@ -60,6 +60,11 @@ export default function () {
                 return;
             }
 
+            // Görüntülenme sayısını göremeyen ziyaretçiye anlamsız "0" gösterme
+            if (!app.session.user && typeof this.attrs.post.attribute('framioViews') !== 'number') {
+                return;
+            }
+
             const post: PostModel = this.attrs.post;
             const discussion = post.discussion();
 

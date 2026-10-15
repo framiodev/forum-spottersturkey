@@ -32,6 +32,26 @@ app.initializers.add('framio-custom-homepage', () => {
     };
     document.addEventListener('click', releaseLightboxCookie, true);
     document.addEventListener('auxclick', releaseLightboxCookie, true);
+
+    // Telefonda çekirdek başlık logoyu çekmeceye taşıyor; üst çubukta hamburgerin yanında logo göster
+    // Başlatıcılar forum verisi yüklenmeden çalışır: veri gelince ekle
+    const addMobileLogo = () => {
+    if (!app.forum) { setTimeout(addMobileLogo, 100); return; }
+    const logoUrl = app.forum.attribute('logoUrl');
+    if (logoUrl && !document.querySelector('.Framio-MobileLogo')) {
+        const a = document.createElement('a');
+        a.className = 'Framio-MobileLogo';
+        a.href = app.forum.attribute('baseUrl') || '/';
+        a.setAttribute('aria-label', app.forum.attribute('title') || '');
+        const img = document.createElement('img');
+        img.src = logoUrl;
+        img.alt = app.forum.attribute('title') || '';
+        a.appendChild(img);
+        a.addEventListener('click', (e) => { e.preventDefault(); m.route.set('/'); });
+        document.body.appendChild(a);
+    }
+    };
+    addMobileLogo();
     
     // spotters.gallery route removed; using index with sort=gallery
 
