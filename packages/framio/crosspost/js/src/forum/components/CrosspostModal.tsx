@@ -138,6 +138,8 @@ export default class CrosspostModal extends Modal<CrosspostModalAttrs> {
   openWmMenu: string | null = null;
   /** Kaynaktaki imzasız orijinal adresleri (görsel URL'i => orijinal) */
   originalSrc: Record<string, string> = {};
+  /** İmzasız orijinali bulutta olmayan görseller (yeni imza basılmaz) */
+  originalMissing: Record<string, boolean> = {};
   /** Büyütülmüş önizleme */
   zoomPreview: { src: string; wm: TargetWatermarkItem | null } | null = null;
 
@@ -1009,7 +1011,12 @@ export default class CrosspostModal extends Modal<CrosspostModalAttrs> {
         .then((res) => {
           const a = (res && res.data && res.data.attributes) || res || {};
           const orig = a.original_url || a.original_path || '';
-          if (orig) { this.originalSrc[img.url] = orig; m.redraw(); }
+          if (!orig) return;
+          // Kayıtta adres olsa da dosya bulutta olmayabilir (404): yalnızca yüklenebiliyorsa geç
+          const probe = new Image();
+          probe.onload = () => { this.originalSrc[img.url] = orig; m.redraw(); };
+          probe.onerror = () => { this.originalMissing[img.url] = true; m.redraw(); };
+          probe.src = orig;
         })
         .catch(() => {});
     }
@@ -1167,7 +1174,11 @@ export default class CrosspostModal extends Modal<CrosspostModalAttrs> {
                   <Icon name={orient === 'portrait' ? 'fas fa-mobile-alt' : 'fas fa-image'} />{' '}
                   {orient === 'portrait' ? 'Dikey fotoğraf' : orient === 'landscape' ? 'Yatay fotoğraf' : 'Fotoğraf'}
                 </div>
-                {this.renderWmControls(img.url, node.id, all, chosen)}
+                {this.originalMissing[img.url] ? (
+                  <div className="Alert Alert--warning CrosspostWmNoOriginal">
+                    Bu fotoğrafın imzasız orijinali kaynakta bulunamadı. Üst üste imza olmaması için mevcut imzasıyla aktarılacak.
+                  </div>
+                ) : this.renderWmControls(img.url, node.id, all, chosen)}
               </div>
             </div>
           );
