@@ -1006,3 +1006,67 @@
   margin-top: 14px;
   .CrosspostQuickWm-title { font-weight: 700; margin-bottom: 8px; }
 }
+
+// Yükleme ekranındaki (Upload & EXIF WatermarkModal) imza düğmeleri ve menüsü
+.CrosspostWmPerImage {
+  .WmA-options { display: flex; flex-direction: column; gap: 10px; }
+  .WmA-optWrap { position: relative; }
+  .WmA-opt {
+      position: relative;
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+      width: 100%; min-height: 48px; margin: 0; padding: 0 16px;
+      border: 2px solid transparent; border-radius: 8px;
+      font-size: 13px; font-weight: 600; cursor: pointer; user-select: none;
+      box-shadow: 0 2px 5px rgba(0,0,0,.04);
+      transition: transform .15s, box-shadow .15s, border-color .15s;
+  }
+  .WmA-opt:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(0,0,0,.08); }
+  .WmA-opt:focus-visible { outline: 2px solid var(--primary-color); outline-offset: 2px; }
+  .WmA-opt.is-primary { background: var(--primary-color); color: #fff; }
+  .WmA-opt.is-primary.is-selected { box-shadow: 0 0 0 3px rgba(0,0,0,.18); }
+  .WmA-opt.is-site { background: var(--control-bg); color: var(--control-color); }
+  .WmA-opt.is-site.is-selected { border-color: var(--primary-color); color: var(--primary-color); }
+  .WmA-opt.is-upload { border: 2px dashed var(--control-bg); background: transparent; color: var(--primary-color); }
+  .WmA-opt.is-upload.is-busy { opacity: .6; pointer-events: none; }
+  .WmA-opt.is-none { background: var(--body-bg); color: var(--muted-color); border-color: var(--control-bg); }
+  .WmA-opt.is-none.is-selected { border-color: var(--text-color); color: var(--text-color); }
+  .WmA-chevron { position: absolute; right: 16px; font-size: 11px; transition: transform .15s; }
+  .WmA-chevron.is-open { transform: rotate(180deg); }
+
+  .WmA-menu {
+      position: absolute; top: calc(100% + 4px); left: 0; right: 0; z-index: 30;
+      max-height: 220px; overflow-y: auto; padding: 4px;
+      border: 1px solid var(--control-bg); border-radius: 8px;
+      background: var(--body-bg); box-shadow: 0 10px 28px rgba(0,0,0,.18);
+  }
+  .WmA-menuHead { padding: 6px 10px 4px; font-size: 11px; font-weight: 700; color: var(--muted-color); }
+  .WmA-menuItem {
+      display: flex; align-items: center; justify-content: space-between;
+      width: 100%; padding: 9px 10px; border: 0; border-radius: 6px;
+      background: none; color: var(--text-color); font-size: 13px; text-align: left; cursor: pointer;
+  }
+  .WmA-menuItem:hover { background: var(--control-bg); }
+  .CrosspostWmPerImage-side .WmA-options { max-width: 340px; }
+}
+
+.CrosspostWmPreview { cursor: zoom-in; }
+.CrosspostWmPreview-zoom {
+  position: absolute; right: 8px; top: 8px;
+  width: 30px; height: 30px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  background: rgba(0,0,0,.55); color: #fff; font-size: 13px; line-height: 1;
+}
+.CrosspostWmPreview.is-large {
+  cursor: default; flex: none; max-width: ~"min(1400px, 94vw)"; width: auto;
+  .CrosspostWmPreview-photo { max-height: 88vh; width: auto; max-width: 100%; }
+}
+.CrosspostWmZoom {
+  position: fixed; inset: 0; z-index: 2000;
+  display: flex; align-items: center; justify-content: center;
+  background: rgba(0,0,0,.85); cursor: zoom-out;
+}
+.CrosspostWmZoom-close {
+  position: absolute; top: 16px; right: 16px;
+  width: 40px; height: 40px; border: 0; border-radius: 50%;
+  background: rgba(255,255,255,.15); color: #fff; font-size: 18px; cursor: pointer;
+}

@@ -316,6 +316,7 @@ class TargetDataController implements RequestHandlerInterface
 
             return new JsonResponse([
                 'watermarks' => $watermarks,
+                'mode' => $data['mode'] ?? null,
                 'owner_username' => $data['owner_username'] ?? null,
                 'has_personal_watermark' => $data['has_personal_watermark'] ?? false,
                 'requested_username' => $username,

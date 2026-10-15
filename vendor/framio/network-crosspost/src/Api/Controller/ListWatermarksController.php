@@ -46,6 +46,12 @@ class ListWatermarksController implements RequestHandlerInterface
             return new JsonResponse(['watermarks' => [], 'user' => $targetUser]);
         }
 
+        // Upload & EXIF'in imza yapısı (dağıtım modu, site şablonları, kişisel imzalar) varsa
+        // yükleme ekranıyla aynı seçenekler döndürülür
+        if ($structured = $this->uploadExifWatermarks($wmBaseDir, $targetUser)) {
+            return new JsonResponse($structured);
+        }
+
         // Temiz username (güvenlik)
         $cleanTargetUser = preg_replace('/[^a-zA-Z0-9_-]/', '', $targetUser);
 
@@ -93,6 +99,77 @@ class ListWatermarksController implements RequestHandlerInterface
             'has_personal_watermark' => $hasPersonal,
             'requested_username' => $targetUser
         ]);
+    }
+
+    private function uploadExifWatermarks(string $baseDir, string $username): ?array
+    {
+        $raw = $this->settings->get('framio-upload-exif.watermark_templates');
+        $templates = $raw ? json_decode($raw, true) : null;
+        if (!is_array($templates) || !$templates) {
+            return null;
+        }
+
+        $mode = (string) $this->settings->get('framio-upload-exif.watermark_mode', 'hybrid');
+        if (!in_array($mode, ['hybrid', 'templates', 'personal'], true)) {
+            $mode = 'hybrid';
+        }
+
+        $list = [];
+
+        // Kişisel imzalar (assets/watermarks/<kullanıcı>/)
+        $cleanUser = preg_replace('/[^a-zA-Z0-9_.-]/', '', $username);
+        $hasPersonal = false;
+        if ($mode !== 'templates' && $cleanUser !== '' && is_dir($baseDir . '/' . $cleanUser)) {
+            foreach (scandir($baseDir . '/' . $cleanUser) as $f) {
+                if (!preg_match('/\.(png|webp)$/i', $f)) continue;
+                $portrait = stripos($f, 'dikey') !== false;
+                $hasPersonal = true;
+                $list[] = [
+                    'id' => $cleanUser . '/' . $f,
+                    'name' => 'Kişisel İmza' . ($portrait ? ' (Dikey)' : ' (Yatay)'),
+                    'label' => 'Kişisel İmza',
+                    'filename' => $f,
+                    'folder' => $cleanUser,
+                    'type' => $portrait ? 'portrait' : 'landscape',
+                    'is_personal' => true,
+                    'url' => '/assets/watermarks/' . rawurlencode($cleanUser) . '/' . rawurlencode($f),
+                ];
+            }
+        }
+
+        // Site şablonları (admin'deki sıra, etiket ve renklerle)
+        if ($mode !== 'personal') {
+            usort($templates, fn ($a, $b) => (int) ($a['sort_order'] ?? 0) <=> (int) ($b['sort_order'] ?? 0));
+            foreach ($templates as $t) {
+                $file = (string) ($t['filename'] ?? $t['id'] ?? '');
+                if ($file === '') continue;
+                $rel = is_file($baseDir . '/global/' . $file) ? 'global/' . $file : $file;
+                if (!is_file($baseDir . '/' . $rel)) continue;
+                $label = (string) ($t['label'] ?? $this->humanizeName(pathinfo($file, PATHINFO_FILENAME)));
+                $list[] = [
+                    'id' => $rel,
+                    'name' => $label,
+                    'label' => $label,
+                    'filename' => $file,
+                    'folder' => null,
+                    'type' => ($t['orientation'] ?? 'landscape') === 'portrait' ? 'portrait' : 'landscape',
+                    'position' => $t['position'] ?? null,
+                    'bg_color' => $t['bg_color'] ?? null,
+                    'text_color' => $t['text_color'] ?? null,
+                    'border_color' => $t['border_color'] ?? null,
+                    'is_personal' => false,
+                    'url' => '/assets/watermarks/' . implode('/', array_map('rawurlencode', explode('/', $rel))),
+                ];
+            }
+        }
+
+        return [
+            'mode' => $mode,
+            'watermarks' => $list,
+            'owner_username' => $hasPersonal ? $cleanUser : 'global',
+            'has_personal_watermark' => $hasPersonal,
+            'requested_username' => $username,
+        ];
     }
 
     private function scanDirectoryWatermarks(string $dir, string $folderName): array
