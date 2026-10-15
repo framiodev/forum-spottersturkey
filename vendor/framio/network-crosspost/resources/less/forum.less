@@ -966,3 +966,43 @@
   &.is-excluded { opacity: .35; filter: grayscale(.8); }
   &.is-excluded .CrosspostImagePicker-check { color: #94a3b8; }
 }
+// Görsel başına imza önizlemesi (yükleme ekranındaki gibi)
+.CrosspostWmPerImage {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin-top: 6px;
+}
+.CrosspostWmPerImage-row {
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+  @media (max-width: 640px) { flex-direction: column; }
+}
+.CrosspostWmPerImage-side { flex: 1; min-width: 0; }
+.CrosspostWmPerImage-orient {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--muted-color);
+  margin-bottom: 8px;
+}
+.CrosspostWmPreview {
+  position: relative;
+  flex: 0 0 48%;
+  max-width: 48%;
+  border-radius: 8px;
+  overflow: hidden;
+  background: var(--control-bg);
+  line-height: 0;
+  @media (max-width: 640px) { flex-basis: auto; max-width: 100%; width: 100%; }
+
+  .CrosspostWmPreview-photo { width: 100%; height: auto; display: block; }
+  .CrosspostWmPreview-wm { position: absolute; pointer-events: none; }
+  .CrosspostWmPreview-wm.is-full { inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: center bottom; }
+  .CrosspostWmPreview-wm.is-strip { left: 0; bottom: 0; width: 100%; height: auto; }
+  .CrosspostWmPreview-wm.is-center { left: 0; top: 50%; width: 100%; height: auto; transform: translateY(-50%); }
+}
+.CrosspostQuickWm {
+  margin-top: 14px;
+  .CrosspostQuickWm-title { font-weight: 700; margin-bottom: 8px; }
+}

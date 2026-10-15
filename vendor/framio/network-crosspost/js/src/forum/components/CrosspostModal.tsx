@@ -121,6 +121,12 @@ export default class CrosspostModal extends Modal<CrosspostModalAttrs> {
   targetWatermarks: Record<string, TargetWatermarkItem[]> = {};
   loadingWatermarks: Record<string, boolean> = {};
   applyToAll: boolean = true;
+  /** Görsel başına seçilen imza (görsel URL'i => imza id) */
+  wmPerImage: Record<string, string> = {};
+  /** Görsellerin yönü için boyutları (URL => {w,h}) */
+  imageDims: Record<string, { w: number; h: number }> = {};
+  /** İmza dosyalarının en/boy oranı (URL => h/w) */
+  wmRatios: Record<string, number> = {};
 
   // Hedef Kullanıcı (Admin kullanıcı eşleme ve seçme)
   targetUsernames: Record<string, string> = {};
@@ -721,6 +727,12 @@ export default class CrosspostModal extends Modal<CrosspostModalAttrs> {
           ))}
         </div>
         {this.extractedImages.length > 1 && <div style="margin-top: 12px;">{this.renderImagePicker()}</div>}
+        {this.watermarkMode === 'target_site' && (
+          <div className="CrosspostQuickWm">
+            <div className="CrosspostQuickWm-title"><Icon name="fas fa-stamp" /> İmza</div>
+            {this.renderWatermarkPicker(mapped.find((n) => this.selectedNodes[n.id]) || mapped[0])}
+          </div>
+        )}
         {others.length > 0 && (
           <div className="helpText" style="margin-top: 8px;">
             {others.map((n) => n.name).join(', ')} için eşleşme yok; oraya da aktarmak için "Farklı Yer Seç"i kullanın.
@@ -959,6 +971,111 @@ export default class CrosspostModal extends Modal<CrosspostModalAttrs> {
       this.searchingUsers[nodeId] = false;
       m.redraw();
     });
+  }
+
+  /** Görselin yönü: yükleme ekranındaki gibi yatay fotoğrafa yalnızca yatay imzalar önerilir */
+  imageOrientation(url: string): 'landscape' | 'portrait' | null {
+    const d = this.imageDims[url];
+    if (!d) {
+      if (!(url in this.imageDims)) {
+        this.imageDims[url] = undefined as any;
+        const img = new Image();
+        img.onload = () => { this.imageDims[url] = { w: img.naturalWidth, h: img.naturalHeight }; m.redraw(); };
+        img.src = url;
+      }
+      return null;
+    }
+    return d.w >= d.h ? 'landscape' : 'portrait';
+  }
+
+  watermarksForImage(url: string, all: TargetWatermarkItem[]): TargetWatermarkItem[] {
+    const orient = this.imageOrientation(url);
+    if (!orient) return all;
+    const matching = all.filter((wm) => wm.type === orient || wm.type === 'other');
+    return matching.length ? matching : all;
+  }
+
+  /** Seçili imza yoksa ya da görselin yönüne uymuyorsa uygun ilk imzayı seç */
+  chosenWatermarkFor(url: string, all: TargetWatermarkItem[]): TargetWatermarkItem | null {
+    const list = this.watermarksForImage(url, all);
+    let chosen = list.find((wm) => wm.id === this.wmPerImage[url]);
+    if (!chosen && list.length) {
+      chosen = list.find((wm) => wm.id === this.selectedWatermarkId) || list[0];
+      this.wmPerImage[url] = chosen.id;
+    }
+    return chosen || null;
+  }
+
+  renderWmPreview(url: string, wm: TargetWatermarkItem | null): Mithril.Children {
+    const ratio = wm ? this.wmRatios[wm.url] : undefined;
+    // Sunucudaki kural: oranı 0.3'ten büyük imza tam tuvaldir (kapla, alta hizala), değilse alt şerittir
+    const full = ratio !== undefined && ratio > 0.3;
+    const center = wm && /orta/i.test(wm.filename || wm.url);
+    return (
+      <div className="CrosspostWmPreview">
+        <img className="CrosspostWmPreview-photo" src={url} alt="" decoding="async" />
+        {wm && (
+          <img
+            className={`CrosspostWmPreview-wm ${full ? 'is-full' : center ? 'is-center' : 'is-strip'}`}
+            src={wm.url}
+            alt=""
+            onload={(e: Event) => {
+              const el = e.target as HTMLImageElement;
+              if (!(wm.url in this.wmRatios) && el.naturalWidth) { this.wmRatios[wm.url] = el.naturalHeight / el.naturalWidth; m.redraw(); }
+            }}
+          />
+        )}
+      </div>
+    );
+  }
+
+  /** Normal yüklemedeki gibi: her görsel için önizleme ve yönüne uygun imzalar */
+  renderWatermarkPicker(node: NetworkNode | undefined): Mithril.Children {
+    if (!node) return null;
+    if (this.targetWatermarks[node.id] === undefined && !this.loadingWatermarks[node.id]) {
+      this.loadWatermarksForNode(node.id);
+    }
+    if (this.loadingWatermarks[node.id]) return <div style="padding: 12px; text-align: center;"><LoadingIndicator /></div>;
+
+    const all = this.targetWatermarks[node.id] || [];
+    if (!all.length) return <div className="Alert Alert--info">Hedef platformda tanımlı imza dosyası bulunamadı.</div>;
+
+    const images = this.extractedImages.filter((img) => !this.isImageExcluded(img));
+    return (
+      <div className="CrosspostWmPerImage" onclick={(e: Event) => e.stopPropagation()}>
+        {images.map((img) => {
+          const chosen = this.chosenWatermarkFor(img.url, all);
+          const options = this.watermarksForImage(img.url, all);
+          const orient = this.imageOrientation(img.url);
+          return (
+            <div className="CrosspostWmPerImage-row" key={img.url}>
+              {this.renderWmPreview(img.url, chosen)}
+              <div className="CrosspostWmPerImage-side">
+                <div className="CrosspostWmPerImage-orient">
+                  <Icon name={orient === 'portrait' ? 'fas fa-mobile-alt' : 'fas fa-image'} />{' '}
+                  {orient === 'portrait' ? 'Dikey fotoğraf' : orient === 'landscape' ? 'Yatay fotoğraf' : 'Fotoğraf'}
+                </div>
+                <div className="CrosspostWmThumbGrid">
+                  {options.map((wm) => (
+                    <div
+                      className={`CrosspostWmThumbItem ${chosen && chosen.id === wm.id ? 'is-selected' : ''}`}
+                      key={wm.id}
+                      onclick={() => { this.wmPerImage[img.url] = wm.id; this.selectedWatermarkId = wm.id; }}
+                    >
+                      <div className="CrosspostWmThumbItem-img"><img src={wm.url} alt={wm.name} /></div>
+                      <div className="CrosspostWmThumbItem-meta">
+                        <span className="CrosspostWmThumbItem-name">{wm.name}</span>
+                      </div>
+                      {chosen && chosen.id === wm.id && <Icon name="fas fa-check-circle" className="CrosspostWmThumbItem-check" />}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    );
   }
 
   loadWatermarksForNode(nodeId: string, username?: string) {
@@ -1454,53 +1571,16 @@ export default class CrosspostModal extends Modal<CrosspostModalAttrs> {
                 </div>
               </label>
 
-              {/* Hedef Sitenin İmzaları Seçim Alanı */}
+              {/* Hedef Sitenin İmzaları: görsel başına önizleme ve yöne göre filtre */}
               {this.watermarkMode === 'target_site' && (
                 <div className="CrosspostWmTargetSubList" onclick={(e) => e.stopPropagation()}>
                   {firstNode && this.targetUsernames[firstNode.id] && (
-                    <div style="font-size: 12px; color: var(--muted-color, #64748b); margin-bottom: 8px; display: flex; align-items: center; justify-content: space-between;">
-                      <span>
-                        <Icon name="fas fa-user-circle" style="margin-right: 5px; color: var(--primary-color, #0ea5e9);" />
-                        <strong>@{this.targetUsernames[firstNode.id]}</strong> adına hazırlanmış imza seçenekleri:
-                      </span>
+                    <div style="font-size: 12px; color: var(--muted-color, #64748b); margin-bottom: 8px;">
+                      <Icon name="fas fa-user-circle" style="margin-right: 5px; color: var(--primary-color, #0ea5e9);" />
+                      <strong>@{this.targetUsernames[firstNode.id]}</strong> adına hazırlanmış imza seçenekleri:
                     </div>
                   )}
-                  {isLoadingWms ? (
-                    <div style="padding: 12px; text-align: center;">
-                      <LoadingIndicator />
-                    </div>
-                  ) : targetWms.length > 0 ? (
-                    <div className="CrosspostWmThumbGrid">
-                      {targetWms.map((wm) => {
-                        const isChosen = this.selectedWatermarkId === wm.id;
-                        return (
-                          <div
-                            className={`CrosspostWmThumbItem ${isChosen ? 'is-selected' : ''}`}
-                            key={wm.id}
-                            onclick={() => {
-                              this.selectedWatermarkId = wm.id;
-                              m.redraw();
-                            }}
-                          >
-                            <div className="CrosspostWmThumbItem-img">
-                              <img src={wm.url} alt={wm.name} />
-                            </div>
-                            <div className="CrosspostWmThumbItem-meta">
-                              <span className="CrosspostWmThumbItem-name">{wm.name}</span>
-                              <span className={`CrosspostWmThumbItem-type ${wm.type}`}>
-                                {wm.type === 'portrait' ? 'Dikey' : wm.type === 'landscape' ? 'Yatay' : 'Standart'}
-                              </span>
-                            </div>
-                            {isChosen && <Icon name="fas fa-check-circle" className="CrosspostWmThumbItem-check" />}
-                          </div>
-                        );
-                      })}
-                    </div>
-                  ) : (
-                    <div className="Alert Alert--info" style="margin-top: 8px;">
-                      Hedef platformda tanımlı imza dosyası bulunamadı.
-                    </div>
-                  )}
+                  {this.renderWatermarkPicker(firstNode)}
                 </div>
               )}
             </div>
@@ -1687,6 +1767,7 @@ export default class CrosspostModal extends Modal<CrosspostModalAttrs> {
       custom_description: this.customDescription,
       watermark_mode: this.watermarkMode,
       watermark_id: this.selectedWatermarkId,
+      watermark_map: this.watermarkMode === 'target_site' ? this.wmPerImage : {},
       custom_watermark: this.customWatermarkBase64,
       target_usernames: this.targetUsernames,
       target_user_ids: targetUserIds,

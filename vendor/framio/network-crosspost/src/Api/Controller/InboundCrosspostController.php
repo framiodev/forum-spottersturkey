@@ -212,7 +212,12 @@ class InboundCrosspostController implements RequestHandlerInterface
                 if ($origId <= 0) continue;
 
                 // Seçilen imza moduna göre (hedef site imzası, imzasız, özel imza) görseli işle ve Firebase'e yükle
-                $processedUrls = $wmProcessor->processAttachment($att, $watermarkConfig);
+                // Görsel başına seçilen imza varsa onu kullan (yatay/dikey fotoğraflar farklı imza alır)
+                $attWatermark = $watermarkConfig;
+                if (!empty($watermarkConfig['map'][$origId])) {
+                    $attWatermark['id'] = $watermarkConfig['map'][$origId];
+                }
+                $processedUrls = $wmProcessor->processAttachment($att, $attWatermark);
 
                 $finalPath = $processedUrls ? $processedUrls['path'] : Arr::get($att, 'path', '');
                 $finalThumbPath = $processedUrls ? $processedUrls['thumb_path'] : Arr::get($att, 'thumb_path', '');

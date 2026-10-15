@@ -44,6 +44,7 @@ class OutboundCrosspostController implements RequestHandlerInterface
         $watermarkMode = (string) Arr::get($body, 'watermark_mode', 'keep_source');
         $watermarkId = Arr::get($body, 'watermark_id', null);
         $customWatermark = Arr::get($body, 'custom_watermark', null);
+        $watermarkMapByUrl = array_filter((array) Arr::get($body, 'watermark_map', []), 'is_string');
         $targetUsernames = (array) Arr::get($body, 'target_usernames', []);
         $targetUserIds = (array) Arr::get($body, 'target_user_ids', []);
         // Birden çok görselli mesajda sıralama ve aktarılmayacak görseller
@@ -264,6 +265,23 @@ class OutboundCrosspostController implements RequestHandlerInterface
             });
         }
 
+        // Görsel başına seçilen imza: görsel adresini ekin kaynak kimliğine eşle
+        $watermarkMap = [];
+        foreach ($watermarkMapByUrl as $imgUrl => $wmId) {
+            $bare = preg_replace('/\?.*$/', '', (string) $imgUrl);
+            foreach ($attachments as $att) {
+                $attId = (int) ($att['original_id'] ?? 0);
+                if ($attId <= 0) continue;
+                foreach (['path', 'thumb_path', 'original_path'] as $k) {
+                    $u = preg_replace('/\?.*$/', '', (string) ($att[$k] ?? ''));
+                    if ($u !== '' && ($u === $bare || basename($u) === basename($bare))) {
+                        $watermarkMap[$attId] = $wmId;
+                        continue 3;
+                    }
+                }
+            }
+        }
+
         $client = new Client([
             'timeout' => 300.0, // alıcı taraf her görseli indirip imzalayıp buluta yüklüyor
             'connect_timeout' => 15.0,
@@ -327,6 +345,7 @@ class OutboundCrosspostController implements RequestHandlerInterface
                 'watermark' => [
                     'mode' => $watermarkMode,
                     'id' => $watermarkId,
+                    'map' => $watermarkMap,
                     'custom' => $customWatermark,
                     'username' => !empty($nodeTargetUsername) ? $nodeTargetUsername : ($authorUser?->username),
                 ],
