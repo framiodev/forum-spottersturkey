@@ -1120,7 +1120,7 @@ export default class AttributeModal extends Modal {
                                 )}
                                 <datalist id="city-datalist">
                                     {this.cityList.map(c => <option value={c}>{c}</option>)}
-                                    <option value="__custom__">â• Diğer (Elle Yaz)...</option>
+                                    <option value="__custom__">+ Diğer (Elle Yaz)...</option>
                                 </datalist>
                             </div>
 
@@ -1166,10 +1166,12 @@ export default class AttributeModal extends Modal {
                                     />
                                 )}
                                 <datalist id="route-datalist">
-                                    {this.cityRoutes.map(r => (
-                                        <option value={r.display_name || r.route_code}>{r.display_name || `${r.route_code} - ${r.route_name}`}</option>
-                                    ))}
-                                    <option value="__custom__">â• Diğer (Elle Yaz)...</option>
+                                    {this.cityRoutes.map(r => {
+                                        // Seçilince künyeye "589 - Güzergah" yazılır (yalnızca numara değil)
+                                        const label = r.display_name || (r.route_name ? `${r.route_code} - ${r.route_name}` : r.route_code);
+                                        return <option value={label}>{label}</option>;
+                                    })}
+                                    <option value="__custom__">+ Diğer (Elle Yaz)...</option>
                                 </datalist>
                             </div>
                         </div>
