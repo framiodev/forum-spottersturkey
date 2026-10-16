@@ -104,9 +104,12 @@ class VisionHistory
         if (!in_array('plate', $notes, true) && !empty($data['company'])) {
             $slug = Str::slug($data['company']);
             if ($slug !== '') {
-                $match = $this->db->table(self::TABLE)->where('type', 'company')
+                $names = $this->db->table(self::TABLE)->where('type', 'company')
                     ->where(fn ($q) => $q->where('slug', $slug)->orWhere('slug', 'like', '%-' . $slug)->orWhere('slug', 'like', $slug . '-%')->orWhere('slug', 'like', '%-' . $slug . '-%'))
-                    ->groupBy('name')->selectRaw('name, COUNT(DISTINCT post_id) as n')->orderByDesc('n')->value('name');
+                    ->distinct()->pluck('name', 'slug')->all();
+                // Birebir aynı ad varsa o; birden çok farklı firma uyuyorsa ("Uludağ" → "Balıkesir Uludağ" mı
+                // "Lüks Karadeniz Uludağ" mı?) tahmin yapılmaz, yapay zekanın okuduğu kalır
+                $match = $names[$slug] ?? (count($names) === 1 ? reset($names) : null);
                 if ($match && $match !== $data['company']) {
                     $data['company'] = $match;
                     $notes[] = 'company';

@@ -77,8 +77,8 @@ const CUSTOM_CSS = `
     .Attribute-thumbPh { display: flex; width: 100%; height: 100%; align-items: center; justify-content: center; color: #94a3b8; }
     .FormControl:focus { border-color: var(--primary-color, #1565c0); box-shadow: 0 0 0 3px rgba(33, 150, 243, 0.15); outline: none; }
     .AttributeModal .FormControl { transition: border-color .15s ease, box-shadow .15s ease; }
-    .Attribute-Right.is-ai-checking .FormControl:placeholder-shown { background: #faf8ff; border-color: #ddd6fe; }
-    .Attribute-Right.is-ai-checking .FormControl::placeholder { color: #7c3aed; font-style: italic; }
+    .Attribute-Right.is-ai-checking .FormControl:placeholder-shown { border-color: color-mix(in srgb, var(--primary-color) 35%, transparent); }
+    .Attribute-Right.is-ai-checking .FormControl::placeholder { color: var(--primary-color); font-style: italic; }
 `;
 
 
