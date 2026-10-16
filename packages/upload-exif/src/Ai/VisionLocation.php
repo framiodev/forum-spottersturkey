@@ -181,7 +181,20 @@ class VisionLocation
     {
         if (!$this->db->getSchemaBuilder()->hasTable('framio_seo_entities')) return [];
 
-        return $this->db->table('framio_seo_entities')->where('type', 'place')->groupBy('name')
-            ->selectRaw('name, COUNT(*) as n')->orderByDesc('n')->limit($limit)->pluck('name')->all();
+        // Forumda onaylanmış çekim yerleri, yer ile ili birlikte ("Küçükkuyu - Çanakkale").
+        // Her yeni künyeyle liste kendiliğinden büyür; yapay zeka aynı yazımı seçer.
+        return $this->cache->remember('framio_known_places_' . $limit, 1800, function () use ($limit) {
+            $places = $this->db->table('framio_seo_entities')->where('type', 'place')->groupBy('name')
+                ->selectRaw('name, COUNT(*) as n')->orderByDesc('n')->limit($limit)->pluck('name')->all();
+            $out = [];
+            foreach ($places as $place) {
+                $postIds = $this->db->table('framio_seo_entities')->where('type', 'place')->where('name', $place)->limit(50)->pluck('post_id')->all();
+                $city = $this->db->table('framio_seo_entities')->where('type', 'city')->whereIn('post_id', $postIds)
+                    ->groupBy('name')->selectRaw('name, COUNT(*) as n')->orderByDesc('n')->value('name');
+                $out[] = $city && mb_stripos($place, $city) === false ? $place . ' - ' . $city : $place;
+            }
+
+            return $out;
+        });
     }
 }

@@ -68,12 +68,23 @@ class VisionIndexCommand extends AbstractCommand
         $client = new Client(['timeout' => 20, 'connect_timeout' => 5, 'headers' => ['User-Agent' => 'Mozilla/5.0 (Framio vision index)']]);
         $ok = 0;
         $fail = 0;
+        $hasScene = $this->db->getSchemaBuilder()->hasColumn(VisionSimilarity::TABLE, 'scene_vec');
 
-        foreach ($rows->chunk(4) as $chunk) {
+        // Görseli indirip tam ve sahne (üst şerit) gömmelerini birlikte hesaplar
+        $embedBoth = fn (string $url) => $client->getAsync($url)->then(function ($res) use ($client, $hasScene) {
+            $bytes = (string) $res->getBody();
+
+            return Utils::all([
+                'vec' => $this->similarity->embedAsync($client, $bytes, false, 20),
+                'scene' => $hasScene ? $this->similarity->embedAsync($client, $bytes, true, 20) : null,
+            ]);
+        });
+        $quota = fn ($error) => str_contains((string) $error, '429');
+
+        foreach ($rows->chunk(3) as $chunk) {
             $promises = [];
             foreach ($chunk as $row) {
-                $promises[$row->image_url] = $client->getAsync($row->image_url)
-                    ->then(fn ($res) => $this->similarity->embedAsync($client, (string) $res->getBody()));
+                $promises[$row->image_url] = $embedBoth($row->image_url);
             }
             $results = Utils::settle($promises)->wait();
 
@@ -83,8 +94,8 @@ class VisionIndexCommand extends AbstractCommand
                 $error = $fulfilled ? null : mb_substr($r['reason'] instanceof \Throwable ? $r['reason']->getMessage() : 'hata', 0, 190);
 
                 // Kota aşımı: kaydetmeden dur, sonraki çalıştırmada devam edilir
-                if (!$fulfilled && str_contains((string) $error, '429')) {
-                    $this->info("Gemini kota sınırı; $ok fotoğraf işlendi, kalanlar sonraki çalıştırmada.");
+                if (!$fulfilled && $quota($error)) {
+                    $this->info("\nGemini kota sınırı; $ok fotoğraf işlendi, kalanlar sonraki çalıştırmada.");
 
                     return 0;
                 }
@@ -93,14 +104,39 @@ class VisionIndexCommand extends AbstractCommand
                     'post_id' => $row->post_id,
                     'image_hash' => sha1($row->image_url),
                     'image_url' => mb_substr($row->image_url, 0, 500),
-                    'vec' => $fulfilled ? $this->similarity->pack($r['value']) : null,
+                    'vec' => $fulfilled ? $this->similarity->pack($r['value']['vec']) : null,
                     'model' => VisionSimilarity::MODEL,
                     'error' => $error,
                     'created_at' => Carbon::now(),
-                ]);
+                ] + ($hasScene ? ['scene_vec' => $fulfilled && $r['value']['scene'] ? $this->similarity->pack($r['value']['scene']) : null] : []));
                 $fulfilled ? $ok++ : $fail++;
             }
             $this->output->write("\r$ok tamam, $fail hata");
+        }
+
+        // Önceden dizine girmiş ama sahne gömmesi olmayan fotoğraflar
+        if ($hasScene) {
+            $old = $this->db->table(VisionSimilarity::TABLE)->whereNotNull('vec')->whereNull('scene_vec')
+                ->limit((int) $this->input->getOption('limit'))->get(['id', 'image_url']);
+            if (count($old)) $this->info("\n" . count($old) . ' fotoğrafa sahne parmak izi ekleniyor...');
+            foreach ($old->chunk(4) as $chunk) {
+                $promises = [];
+                foreach ($chunk as $row) {
+                    $promises[$row->id] = $client->getAsync($row->image_url)
+                        ->then(fn ($res) => $this->similarity->embedAsync($client, (string) $res->getBody(), true, 20));
+                }
+                foreach (Utils::settle($promises)->wait() as $id => $r) {
+                    if ($r['state'] === 'fulfilled') {
+                        $this->db->table(VisionSimilarity::TABLE)->where('id', $id)->update(['scene_vec' => $this->similarity->pack($r['value'])]);
+                        $ok++;
+                    } elseif ($quota($r['reason'] instanceof \Throwable ? $r['reason']->getMessage() : '')) {
+                        $this->info("\nGemini kota sınırı; kalanlar sonraki çalıştırmada.");
+
+                        return 0;
+                    }
+                }
+                $this->output->write("\r$ok tamam");
+            }
         }
 
         $this->info("\nBitti: $ok fotoğraf dizine eklendi, $fail hata.");

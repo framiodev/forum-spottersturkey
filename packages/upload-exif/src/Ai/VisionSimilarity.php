@@ -54,9 +54,32 @@ class VisionSimilarity
         return max(0.5, min(0.99, (float) ($this->settings->get('framio-upload-exif.ai_similarity_threshold') ?: 0.92)));
     }
 
-    /** Görsel gömmesi isteği (JPEG'e çevrilir; Gemini WebP kabul etmez) */
-    public function embedAsync(Client $client, string $bytes): PromiseInterface
+    /**
+     * Sahne şeridi: fotoğrafın üst %40'ı (gökyüzü, binalar, dağlar, peron çatısı). Araç genellikle
+     * alt ve orta kısımda durduğu için bu şerit çekim yerini araçtan bağımsız temsil eder.
+     */
+    public function sceneCrop(string $bytes): string
     {
+        $img = function_exists('imagecreatefromstring') ? @imagecreatefromstring($bytes) : false;
+        if (!$img) return $bytes;
+        $w = imagesx($img);
+        $h = imagesy($img);
+        $ch = max(1, (int) round($h * 0.4));
+        $out = imagecreatetruecolor($w, $ch);
+        imagecopy($out, $img, 0, 0, 0, 0, $w, $ch);
+        ob_start();
+        imagejpeg($out, null, 85);
+        $jpeg = ob_get_clean();
+        imagedestroy($img);
+        imagedestroy($out);
+
+        return $jpeg ?: $bytes;
+    }
+
+    /** Görsel gömmesi isteği (JPEG'e çevrilir; Gemini WebP kabul etmez). $scene: yalnızca sahne şeridi */
+    public function embedAsync(Client $client, string $bytes, bool $scene = false, float $timeout = 2.5): PromiseInterface
+    {
+        if ($scene) $bytes = $this->sceneCrop($bytes);
         [$jpeg] = $this->analyzer->shrink($bytes, 'image/jpeg', 512, true);
 
         $send = fn ($model) => $client->postAsync('https://generativelanguage.googleapis.com/v1beta/models/' . $model . ':embedContent', [
@@ -66,7 +89,7 @@ class VisionSimilarity
                 'output_dimensionality' => self::DIMS,
             ],
             // Yükleme anında ana yanıtı bekletmesin
-            'timeout' => 2.5,
+            'timeout' => $timeout,
         ]);
 
         // Model bazı hesaplarda yalnızca "-preview" adıyla açık
@@ -108,10 +131,11 @@ class VisionSimilarity
      *
      * @return array<int,array{post_id:int, image_url:string, score:float}>
      */
-    public function nearestMany(array $vec, int $limit = 5): array
+    public function nearestMany(array $vec, int $limit = 5, string $column = 'vec'): array
     {
         $top = [];
-        foreach ($this->db->table(self::TABLE)->whereNotNull('vec')->select('post_id', 'image_url', 'vec')->cursor() as $row) {
+        if ($column === 'scene_vec' && !$this->db->getSchemaBuilder()->hasColumn(self::TABLE, 'scene_vec')) return [];
+        foreach ($this->db->table(self::TABLE)->whereNotNull($column)->select('post_id', 'image_url', $column . ' as vec')->cursor() as $row) {
             $v = $this->unpack($row->vec);
             $dot = 0.0;
             foreach ($vec as $i => $x) {

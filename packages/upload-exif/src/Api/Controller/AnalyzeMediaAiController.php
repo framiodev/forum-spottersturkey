@@ -203,7 +203,8 @@ class AnalyzeMediaAiController implements RequestHandlerInterface
         $parallel = function ($client, $original, $b64, $mime) use ($similarityOn, $geoCandidate, $exif, $locationRule) {
             $jobs = [];
             if ($similarityOn) {
-                $jobs['similar'] = $this->similarity->embedAsync($client, $original)->then(fn ($vec) => $this->similarity->nearestMany($vec, 5));
+                // Sahne (arka plan şeridi) parmak izi: araçtan bağımsız, çekim yeri hafızası
+                $jobs['similar'] = $this->similarity->embedAsync($client, $original, true)->then(fn ($vec) => $this->similarity->nearestMany($vec, 5, 'scene_vec'));
             }
             if ($exif['lat'] !== null) {
                 $jobs['gps'] = $this->location->reverseAsync($client, $exif['lat'], $exif['lon']);
