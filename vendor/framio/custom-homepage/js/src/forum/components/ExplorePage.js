@@ -196,7 +196,8 @@ export default class ExplorePage extends Page {
 
   sectionPopular() {
     if (!this.meta.popular) return null;
-    const list = this.lists.popular;
+    const potdId = this.meta.potd && String(this.meta.potd.post_id);
+    const list = this.lists.popular.filter((g) => String(g.real_post_id) !== potdId);
     return (
       <section className="Explore-Section" key="popular">
         <header className="Explore-Head">

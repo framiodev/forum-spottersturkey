@@ -2139,10 +2139,10 @@ body.fnav-bg-custom #header { background: var(--fnav-header-bg) !important; }
 /* Günün Fotoğrafı */
 .Explore-Potd { margin: 0 0 32px; }
 .Explore-Potd-Media {
+    /* Fotoğraf kesilmeden, kendi oranında; çok uzun/dikey fotoğraflarda yükseklik sınırlı, yanlar koyu zemin */
     position: relative; display: block; border-radius: 14px; overflow: hidden;
-    aspect-ratio: 16 / 7; background: var(--control-bg);
-    img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform .6s ease; }
-    &:hover img { transform: scale(1.02); }
+    background: #0b0b0b; text-align: center; line-height: 0;
+    img { width: 100%; height: auto; max-height: 82vh; object-fit: contain; display: block; margin: 0 auto; }
 }
 .Explore-Potd-Info {
     position: absolute; left: 0; right: 0; bottom: 0; padding: 60px 24px 20px;
@@ -2188,6 +2188,7 @@ body.fnav-bg-custom #header { background: var(--fnav-header-bg) !important; }
 .Explore-Grid {
     display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px;
     .Explore-Card.is-lead { grid-column: span 2; grid-row: span 2; aspect-ratio: auto; }
+    .Explore-Card.is-lead img { object-position: center; }
     &.is-busy { opacity: .5; pointer-events: none; transition: opacity .2s; }
 }
 .Explore-Masonry {
@@ -2261,7 +2262,6 @@ body.fnav-bg-custom #header { background: var(--fnav-header-bg) !important; }
     .Explore-Grid { grid-template-columns: repeat(3, 1fr); }
 }
 @media (max-width: 600px) {
-    .Explore-Potd-Media { aspect-ratio: 4 / 3; }
     .Explore-Potd-Info { padding: 40px 14px 14px; h2 { font-size: 18px; } }
     .Explore-Grid { grid-template-columns: repeat(2, 1fr); gap: 6px; }
     .Explore-Masonry { columns: 2; column-gap: 6px; .Explore-Card { margin-bottom: 6px; } }
