@@ -197,7 +197,7 @@ export default class HubLightbox extends Component {
                   <div className="SpottersGallery-DescHeader">
                     <h4>MESAJ KÜNYESİ</h4>
                   </div>
-                  <div className="SpottersGallery-DescContent">
+                  <div className="SpottersGallery-DescContent" data-post-id={it && it.postId ? String(it.postId) : undefined}>
                     {kunye ? m.trust(kunye) : <p>{it.discussion}{it.author ? ' · ' + it.author : ''}</p>}
                   </div>
                 </div>

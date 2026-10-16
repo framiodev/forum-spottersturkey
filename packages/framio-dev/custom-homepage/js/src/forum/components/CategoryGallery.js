@@ -770,7 +770,7 @@ export default class CategoryGallery extends Component {
                                         <div className="SpottersGallery-DescHeader">
                                             <h4>{cleanHtml ? 'MESAJ KÜNYESİ' : 'FOTOĞRAF AÇIKLAMASI'}</h4>
                                         </div>
-                                        <div className="SpottersGallery-DescContent">
+                                        <div className="SpottersGallery-DescContent" data-post-id={currentPost && currentPost.real_post_id ? String(currentPost.real_post_id) : undefined}>
                                             {cleanHtml ? (
                                                 m.trust(cleanHtml)
                                             ) : (
