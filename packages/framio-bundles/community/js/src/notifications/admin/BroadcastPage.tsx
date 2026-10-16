@@ -20,6 +20,10 @@ export default class BroadcastPage extends ExtensionPage {
   state: any = null;
   busy: string | null = null;
   copied = false;
+  /** Bu paket için gönderildi işaretlenen gruplar (yalnızca ekranda) */
+  doneGroups: Record<string, boolean> = {};
+  backfill: Record<string, any> = { from: '', to: '', tag: '', photos_only: true, telegram: false, limit: 100 };
+  backfillResult: any = null;
 
   oninit(vnode: any) {
     super.oninit(vnode);
@@ -119,6 +123,14 @@ export default class BroadcastPage extends ExtensionPage {
             metin olarak bekler, <b>WhatsApp'ta Aç</b> ile grubu seçip gönderirsiniz. Otomatik gönderim için Whapi.Cloud, Green-API gibi grup destekli
             barındırılan bir servise üye olmanız gerekir.
           </p>
+          {waMode === 'manual' &&
+            this.field(
+              'whatsapp_groups',
+              'textarea',
+              'Duyuru gönderilecek WhatsApp grupları',
+              'Her satıra bir grup: "Grup adı | davet bağlantısı" (ör. Duyurular | https://chat.whatsapp.com/…). Topluluğunuzdaki gruplar ya da Duyuru grubu olabilir. Davet bağlantısını grubun bilgi ekranındaki "Davet bağlantısı" bölümünden alabilirsiniz.',
+              { rows: 4 }
+            )}
           {waMode === 'gateway' && [
             this.field('whatsapp_gateway_url', 'text', 'Servisin mesaj gönderme adresi', 'Servisin belgelerindeki "send text message" uç noktası.'),
             this.field('whatsapp_gateway_token', 'text', 'API anahtarı', 'Authorization: Bearer olarak gönderilir.'),
@@ -134,6 +146,88 @@ export default class BroadcastPage extends ExtensionPage {
 
           <hr />
           {this.queue()}
+        </div>
+      </div>
+    );
+  }
+
+  backfillSection() {
+    const b = this.backfill;
+    const s = this.state;
+    const set = (k: string) => (e: any) => {
+      b[k] = e.target.type === 'checkbox' ? e.target.checked : e.target.value;
+    };
+
+    return (
+      <div className="FramioBroadcast-backfill">
+        <h4>Eski mesajları kuyruğa ekle</h4>
+        <p className="helpText">
+          Geçmişteki paylaşımları gruplara taşımak için. Seçilen mesajlar en eskiden başlayarak kuyruğa girer ve yukarıda paket paket gelir. Daha
+          önce kuyruğa girmiş mesajlar tekrar eklenmez; üyelere bildirim gönderilmez. WhatsApp'ın spam korumasına takılmamak için arşivi günde
+          birkaç paket halinde gönderin.
+        </p>
+        <div className="FramioBroadcast-backfillGrid">
+          <label>
+            Başlangıç
+            <input className="FormControl" type="date" value={b.from} onchange={set('from')} />
+          </label>
+          <label>
+            Bitiş
+            <input className="FormControl" type="date" value={b.to} onchange={set('to')} />
+          </label>
+          <label>
+            Bölüm
+            <select className="FormControl" value={b.tag} onchange={set('tag')}>
+              <option value="">Tümü</option>
+              {(s.tags || []).map((t: any) => (
+                <option value={t.slug}>{t.name}</option>
+              ))}
+            </select>
+          </label>
+          <label>
+            En fazla
+            <input className="FormControl" type="number" min="1" max="500" value={b.limit} onchange={set('limit')} />
+          </label>
+        </div>
+        <label className="checkbox">
+          <input type="checkbox" checked={b.photos_only} onchange={set('photos_only')} /> Yalnızca fotoğraflı mesajlar
+        </label>
+        {s.telegram_ready && (
+          <label className="checkbox">
+            <input type="checkbox" checked={b.telegram} onchange={set('telegram')} /> Telegram'a da gönder
+          </label>
+        )}
+        <div className="Form-group">
+          <Button
+            className="Button"
+            icon="fas fa-history"
+            loading={this.busy === 'backfill'}
+            disabled={s.whatsapp_mode === 'off' && !b.telegram}
+            onclick={() => {
+              this.busy = 'backfill';
+              app
+                .request({ method: 'POST', url: app.forum.attribute('apiUrl') + '/framio-broadcast', body: { action: 'backfill', ...b } })
+                .then((res: any) => {
+                  this.state = res;
+                  this.backfillResult = res.result;
+                  app.alerts.show({ type: 'success' }, res.result.added + ' mesaj kuyruğa eklendi.');
+                })
+                .catch(() => {})
+                .finally(() => {
+                  this.busy = null;
+                  m.redraw();
+                });
+            }}
+          >
+            Kuyruğa ekle
+          </Button>
+          {this.backfillResult && (
+            <span className="helpText">
+              {' '}
+              {this.backfillResult.added} eklendi
+              {this.backfillResult.matched > this.backfillResult.added ? ' · ' + (this.backfillResult.matched - this.backfillResult.added) + ' uygun mesaj daha var (tekrar basınca eklenir)' : ''}
+            </span>
+          )}
         </div>
       </div>
     );
@@ -162,6 +256,28 @@ export default class BroadcastPage extends ExtensionPage {
           <div className="FramioBroadcast-draft">
             <h4>WhatsApp için hazır metin ({draft.ids.length} mesaj)</h4>
             <textarea className="FormControl" rows={8} readonly value={draft.text} />
+            {s.whatsapp_groups && s.whatsapp_groups.length ? (
+              <div className="FramioBroadcast-groups">
+                <p className="helpText">Her grup için: düğmeye basınca metin kopyalanır ve grup açılır; mesaj kutusuna yapıştırıp gönderin.</p>
+                {s.whatsapp_groups.map((g: any) => (
+                  <Button
+                    className={'Button' + (this.doneGroups[g.name] ? ' is-done' : '')}
+                    icon={this.doneGroups[g.name] ? 'fas fa-check' : 'fab fa-whatsapp'}
+                    disabled={!g.link}
+                    title={g.link ? '' : 'Bu grubun davet bağlantısı geçersiz'}
+                    onclick={() => {
+                      navigator.clipboard.writeText(draft.text).finally(() => {
+                        window.open(g.link, '_blank', 'noopener');
+                        this.doneGroups[g.name] = true;
+                        m.redraw();
+                      });
+                    }}
+                  >
+                    {g.name}
+                  </Button>
+                ))}
+              </div>
+            ) : null}
             <div className="FramioBroadcast-draftActions">
               <Button
                 className="Button"
@@ -178,12 +294,17 @@ export default class BroadcastPage extends ExtensionPage {
               <a className="Button" href={'https://wa.me/?text=' + encodeURIComponent(draft.text)} target="_blank" rel="noopener">
                 <i className="fab fa-whatsapp" /> WhatsApp'ta Aç
               </a>{' '}
-              <Button className="Button Button--primary" icon="fas fa-check" onclick={() => { this.copied = false; this.action('whatsapp_done', { ids: draft.ids }, 'WhatsApp duyurusu gönderildi olarak işaretlendi.'); }}>
-                Gruba gönderdim
+              <Button className="Button Button--primary" icon="fas fa-check" onclick={() => { this.copied = false; this.doneGroups = {}; this.action('whatsapp_done', { ids: draft.ids }, 'Paket gönderildi olarak işaretlendi; sıradaki paket hazır.'); }}>
+                Gönderdim — sıradaki paket
+              </Button>{' '}
+              <Button className="Button Button--link" icon="fas fa-times" onclick={() => { if (confirm('Bekleyen tüm WhatsApp paketleri iptal edilsin mi?')) this.action('clear_pending', {}, 'Bekleyen WhatsApp paketleri iptal edildi.'); }}>
+                Bekleyenleri iptal et
               </Button>
             </div>
           </div>
         ) : null}
+
+        {this.backfillSection()}
 
         <table className="FramioBroadcast-table">
           <thead>

@@ -52,6 +52,22 @@ class BroadcastController implements RequestHandlerInterface
                     }
                     $result = ['ok' => true];
                     break;
+                case 'backfill':
+                    $result = $this->broadcaster->backfill([
+                        'from' => (string) Arr::get($body, 'from', ''),
+                        'to' => (string) Arr::get($body, 'to', ''),
+                        'tag' => trim((string) Arr::get($body, 'tag', '')),
+                        'discussion' => (int) Arr::get($body, 'discussion', 0),
+                        'photos_only' => (bool) Arr::get($body, 'photos_only', false),
+                        'telegram' => (bool) Arr::get($body, 'telegram', false),
+                        'limit' => (int) Arr::get($body, 'limit', 100),
+                    ]);
+                    break;
+                case 'clear_pending':
+                    // Bekleyen tüm WhatsApp paketlerini iptal et (yanlış seçim için)
+                    $this->db->table(Broadcaster::TABLE)->where('whatsapp_status', 'pending')->update(['whatsapp_status' => 'skipped']);
+                    $result = ['ok' => true];
+                    break;
                 case 'enqueue':
                     // Bir mesajı (ör. eski bir paylaşımı) elle kuyruğa ekle
                     $post = CommentPost::find((int) Arr::get($body, 'post_id'));
@@ -120,6 +136,8 @@ class BroadcastController implements RequestHandlerInterface
             'pending' => $counts,
             'whatsapp_mode' => $this->broadcaster->whatsappMode(),
             'whatsapp_draft' => $this->broadcaster->whatsappMode() === 'manual' ? $this->broadcaster->whatsappDraft() : null,
+            'whatsapp_groups' => $this->broadcaster->whatsappGroups(),
+            'tags' => $this->db->table('tags')->whereNull('parent_id')->orderBy('position')->get(['slug', 'name'])->map(fn ($t) => ['slug' => $t->slug, 'name' => $t->name])->all(),
             'send_mode' => $this->broadcaster->sendMode(),
             'batch_size' => $this->broadcaster->batchSize(),
             'telegram_ready' => $this->broadcaster->telegramReady(),

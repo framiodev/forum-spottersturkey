@@ -203,3 +203,21 @@
   }
   .FramioBroadcast-error { color: #c62828; font-size: 12px; margin-top: 2px; }
 }
+
+.FramioBroadcastPage {
+  .FramioBroadcast-groups {
+    margin: 10px 0; display: flex; flex-wrap: wrap; gap: 6px; align-items: center;
+    .helpText { flex-basis: 100%; margin: 0 0 4px; }
+    .Button.is-done { opacity: .6; }
+  }
+  .FramioBroadcast-backfill {
+    margin: 18px 0; padding: 14px; border-radius: 8px; background: var(--control-bg);
+    h4 { margin: 0 0 6px; }
+    .checkbox { display: block; margin: 6px 0; }
+  }
+  .FramioBroadcast-backfillGrid {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; margin: 10px 0;
+    label { font-weight: 600; font-size: 13px; }
+    .FormControl { margin-top: 4px; }
+  }
+}

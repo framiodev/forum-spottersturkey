@@ -101,6 +101,78 @@ class Broadcaster
         $this->scheduleAutoFlush();
     }
 
+    /**
+     * Eski mesajları kuyruğa ekler (geçmiş arşivi gruplara taşımak için).
+     * Site bildirimi gönderilmez: üyelere eski içerik için toplu bildirim gitmesin.
+     *
+     * @param array{from?:string, to?:string, tag?:string, discussion?:int, photos_only?:bool, telegram?:bool, limit?:int} $filter
+     * @return array{added:int, matched:int}
+     */
+    public function backfill(array $filter): array
+    {
+        $q = CommentPost::whereVisibleTo(new Guest())
+            ->where('posts.type', 'comment')
+            ->whereNull('posts.hidden_at')
+            ->whereNotIn('posts.id', fn ($sub) => $sub->select('post_id')->from(self::TABLE));
+
+        if (!empty($filter['from'])) {
+            $q->where('posts.created_at', '>=', Carbon::parse($filter['from'])->startOfDay());
+        }
+        if (!empty($filter['to'])) {
+            $q->where('posts.created_at', '<=', Carbon::parse($filter['to'])->endOfDay());
+        }
+        if (!empty($filter['discussion'])) {
+            $q->where('posts.discussion_id', (int) $filter['discussion']);
+        }
+        if (!empty($filter['tag'])) {
+            $tagIds = $this->db->table('tags')->where('slug', $filter['tag'])->orWhere('parent_id', function ($sub) use ($filter) {
+                $sub->select('id')->from('tags')->where('slug', $filter['tag']);
+            })->pluck('id')->all();
+            $q->whereIn('posts.discussion_id', fn ($sub) => $sub->select('discussion_id')->from('discussion_tag')->whereIn('tag_id', $tagIds ?: [0]));
+        }
+        if (!empty($filter['photos_only'])) {
+            // Medya etiketi ya da Markdown resmi içeren mesajlar
+            $q->where(fn ($w) => $w->where('posts.content', 'like', '%url=%')->orWhere('posts.content', 'like', '%<IMG %'));
+        }
+
+        $limit = max(1, min(500, (int) ($filter['limit'] ?? 100)));
+        $matched = (clone $q)->count();
+        $posts = $q->orderBy('posts.created_at')->limit($limit)->get(['posts.id', 'posts.discussion_id', 'posts.number']);
+
+        $telegram = !empty($filter['telegram']) && $this->telegramReady();
+        $rows = [];
+        foreach ($posts as $post) {
+            $rows[] = [
+                'post_id' => $post->id,
+                'discussion_id' => $post->discussion_id,
+                'kind' => $post->number === 1 ? 'discussion' : 'reply',
+                'telegram_status' => $telegram ? 'pending' : 'skipped',
+                'whatsapp_status' => $this->whatsappMode() === 'off' ? 'skipped' : 'pending',
+                'site_status' => 'skipped',
+                'created_at' => Carbon::now(),
+            ];
+        }
+        foreach (array_chunk($rows, 200) as $chunk) {
+            $this->db->table(self::TABLE)->insertOrIgnore($chunk);
+        }
+
+        return ['added' => count($rows), 'matched' => $matched];
+    }
+
+    /** @return array<int, array{name:string, link:string}> Admin'de tanımlı WhatsApp grupları ("Ad | davet bağlantısı") */
+    public function whatsappGroups(): array
+    {
+        $groups = [];
+        foreach (preg_split('/\R/', (string) $this->setting('whatsapp_groups', '')) as $line) {
+            $parts = array_map('trim', explode('|', $line, 2));
+            if ($parts[0] === '') continue;
+            $link = $parts[1] ?? '';
+            $groups[] = ['name' => $parts[0], 'link' => preg_match('#^https://(chat\.whatsapp\.com|whatsapp\.com|wa\.me)/#i', $link) ? $link : ''];
+        }
+
+        return $groups;
+    }
+
     /** Anında / toplu modda gönderimi, yanıt kullanıcıya gittikten sonra yap */
     protected function scheduleAutoFlush(): void
     {
@@ -224,7 +296,8 @@ class Broadcaster
     /** WhatsApp elle modu: bekleyenlerin hazır metni (gruplara kopyalanır) */
     public function whatsappDraft(?array $ids = null): array
     {
-        $rows = $this->pendingRows('whatsapp_status', $ids, 20);
+        // Paket büyüklüğü toplu gönderim sayısı kadar: WhatsApp'a aralıklı, okunur paketler
+        $rows = $this->pendingRows('whatsapp_status', $ids, $this->batchSize());
         $items = $this->items($rows);
 
         return ['ids' => array_column($rows, 'id'), 'text' => $items ? $this->builder->whatsapp($items) : ''];
