@@ -82,6 +82,34 @@ const CUSTOM_CSS = `
 `;
 
 
+
+function escapeRe(v) {
+  return String(v || '').replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+/** Metni seçenekler arasında en iyi eşleşene bağlar (birebir → içerme → ortak kelime) */
+function bestMatch(text, options) {
+  const norm = (v) => String(v || '').toLocaleLowerCase('tr-TR').replace(/[^a-z0-9çğıöşü]+/g, ' ').trim();
+  const t = norm(text);
+  if (!t) return '';
+  let found = options.find((o) => norm(o) === t);
+  if (found) return found;
+  found = options.filter((o) => norm(o).includes(t) || t.includes(norm(o))).sort((a, b) => Math.abs(norm(a).length - t.length) - Math.abs(norm(b).length - t.length))[0];
+  if (found) return found;
+  const words = t.split(' ');
+  let best = '';
+  let score = 0;
+  options.forEach((o) => {
+    const ow = norm(o).split(' ');
+    const sc = ow.filter((w) => words.includes(w)).length / Math.max(ow.length, words.length);
+    if (sc > score) {
+      score = sc;
+      best = o;
+    }
+  });
+  return score >= 0.5 ? best : '';
+}
+
 /** Vision AI için görseli en fazla 768 px JPEG'e küçültür (başarısızsa özgün dosya) */
 function shrinkForAi(file, max = 768) {
   if (!file || !window.createImageBitmap || !/^image\//.test(file.type || 'image/')) return Promise.resolve(file);
@@ -452,7 +480,7 @@ export default class AttributeModal extends Modal {
               let filledCount = 0;
 
               // 1. Standart alanları doldur
-              if (ai.company && !this.company()) {
+              if (ai.company && (!this.company() || (res.history || []).includes('plate'))) {
                   this.company(ai.company);
                   filledCount++;
               }
@@ -460,15 +488,27 @@ export default class AttributeModal extends Modal {
                   this.plate(ai.plate);
                   filledCount++;
               }
-              if (ai.brand && !this.brand()) {
-                  this.brand(ai.brand);
-                  this.updateModels(ai.brand);
-                  filledCount++;
+              // Marka/model listesi varsa yapay zekanın yazımı listedeki seçeneğe eşlenir
+              // (aksi halde açılır liste boş görünür). Geçmişten gelen bilgi varsa önceliklidir.
+              const fromHistory = (res.history || []).includes('plate');
+              if (ai.brand && (!this.brand() || fromHistory || this.isDefaultBrand)) {
+                  const brands = this.getSortedBrands ? this.getSortedBrands() : [];
+                  const brand = brands.length ? bestMatch(ai.brand, brands) : ai.brand;
+                  if (brand) {
+                      this.brand(brand);
+                      this.updateModels(brand);
+                      filledCount++;
+                  }
               }
-              if (ai.model && !this.model()) {
-                  this.model(ai.model);
-                  filledCount++;
+              if (ai.model && (!this.model() || fromHistory)) {
+                  const options = (this.availableModels || []).map((x) => x.model);
+                  const model = options.length ? bestMatch(String(ai.model).replace(new RegExp('^' + escapeRe(this.brand()) + '\\s+', 'i'), ''), options) : ai.model;
+                  if (model) {
+                      this.model(model);
+                      filledCount++;
+                  }
               }
+
               if ((ai.location || ai.location_guess) && !this.location()) {
                   const loc = ai.location || ai.location_guess;
                   this.location(loc);
@@ -911,6 +951,8 @@ export default class AttributeModal extends Modal {
       if (brands.length > 0) {
           if (!this.brand() || !brands.includes(this.brand())) {
               this.brand(brands[0]);
+              // Kendiliğinden seçildi: yapay zeka markayı değiştirebilir
+              this.isDefaultBrand = true;
           }
           this.updateModels(this.brand());
       }
@@ -1206,6 +1248,7 @@ export default class AttributeModal extends Modal {
                                 ) : brands.length > 0 ? (
                                     <select className="FormControl" value={this.brand()} onchange={(e) => {
                                         this.brand(e.target.value);
+                                        this.isDefaultBrand = false;
                                         this.model(''); 
                                         this.updateModels(e.target.value);
                                     }}>
@@ -1298,6 +1341,7 @@ export default class AttributeModal extends Modal {
                                 ) : brands.length > 0 ? (
                                     <select className="FormControl" value={this.brand()} onchange={(e) => {
                                         this.brand(e.target.value);
+                                        this.isDefaultBrand = false;
                                         this.model(''); 
                                         this.updateModels(e.target.value);
                                     }}>

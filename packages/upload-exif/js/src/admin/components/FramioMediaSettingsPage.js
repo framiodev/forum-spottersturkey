@@ -2524,6 +2524,15 @@ export default class FramioMediaSettingsPage extends ExtensionPage {
             <input className="FormControl" type="number" min="3" max="30" bidi={this.setting('framio-upload-exif.ai_timeout', '10')} />
             <div className="helpText" style={{ fontSize: '11px', color: '#888' }}>Hiçbir sağlayıcı bu sürede yanıt vermezse alanlar boş kalır, kullanıcı elle doldurur.</div>
           </div>
+
+          <div className="Form-group" style={{ marginTop: '14px' }}>
+            <label style={{ fontWeight: 'bold', fontSize: '13px' }}>Forum geçmişini kullanan bölümler</label>
+            <input className="FormControl" placeholder="ör. sehirlerarasi-otobus, turizm-otobusleri (boş = tüm bölümler)" bidi={this.setting('framio-upload-exif.ai_history_tags', '')} />
+            <div className="helpText" style={{ fontSize: '11px', color: '#888' }}>
+              Bu bölümlerde (etiket kısa adları, virgülle) okunan plaka daha önce paylaşıldıysa firma, marka ve model o künyelerden alınır;
+              firma adı forumdaki tam haline tamamlanır ve model, forumda kullanılan model adlarından seçilir.
+            </div>
+          </div>
         </div>
 
         {/* 3. Kullanıcı Yetkisi & Kendi API Kotası */}
