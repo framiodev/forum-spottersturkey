@@ -482,17 +482,17 @@ export default class AttributeModal extends Modal {
               let filledCount = 0;
 
               // 1. Standart alanları doldur
-              if (ai.company && (!this.company() || (res.history || []).some((h) => h === 'plate' || h === 'similar'))) {
+              if (ai.company && (!this.company() || (res.history || []).includes('plate'))) {
                   this.company(ai.company);
                   filledCount++;
               }
-              if (ai.plate && (!this.plate() || (res.history || []).some((h) => h === 'plate' || h === 'similar'))) {
+              if (ai.plate && (!this.plate() || (res.history || []).includes('plate'))) {
                   this.plate(ai.plate);
                   filledCount++;
               }
               // Marka/model listesi varsa yapay zekanın yazımı listedeki seçeneğe eşlenir
               // (aksi halde açılır liste boş görünür). Geçmişten gelen bilgi varsa önceliklidir.
-              const fromHistory = (res.history || []).some((h) => h === 'plate' || h === 'similar');
+              const fromHistory = (res.history || []).includes('plate');
               if (ai.brand && (!this.brand() || fromHistory || this.isDefaultBrand)) {
                   const brands = this.getSortedBrands ? this.getSortedBrands() : [];
                   const brand = brands.length ? bestMatch(ai.brand, brands) : ai.brand;
@@ -543,8 +543,8 @@ export default class AttributeModal extends Modal {
 
               this.aiStatus(filledCount ? 'success' : 'idle');
               const hist = res.history || [];
-              const locLabel = { gps: 'çekim yeri fotoğrafın GPS bilgisinden', session: 'çekim yeri aynı çekim oturumundaki fotoğraflarınızdan', similar: 'çekim yeri arka planı benzeyen fotoğraftan', ai_guess: 'çekim yeri tahmin, lütfen kontrol edin' }[res.location_source];
-              const source = (locLabel ? ' · ' + locLabel : '') + (hist.includes('plate') ? ' (plaka forumda kayıtlı, bilgiler o künyeden)' : hist.includes('similar') && res.similar ? ` (forumdaki benzer fotoğraf referans alındı, %${Math.round((res.similar.score || 0) * 100)} benzerlik)` : '');
+              const locLabel = { gps: 'çekim yeri fotoğrafın GPS bilgisinden', session: 'çekim yeri aynı çekim oturumundaki fotoğraflarınızdan', similar: 'çekim yeri forumdaki %' + Math.round(((res.similar && res.similar.score) || 0) * 100) + ' benzeyen fotoğraftan', ai_guess: 'çekim yeri tahmin, lütfen kontrol edin' }[res.location_source];
+              const source = (locLabel ? ' · ' + locLabel : '') + (hist.includes('plate') ? ' (plaka forumda kayıtlı, bilgiler o künyeden)' : '');
               this.aiMessage(filledCount ? `${filledCount} alan dolduruldu${source}, kontrol etmeyi unutmayın.` : '');
           } else {
               this.aiStatus('idle');

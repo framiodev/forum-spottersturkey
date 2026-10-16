@@ -197,7 +197,8 @@ class AnalyzeMediaAiController implements RequestHandlerInterface
         $exif = $this->location->readExif($head && $head->getError() === UPLOAD_ERR_OK ? (string) $head->getStream() : $bytes);
 
         // Yapay zeka isteğiyle eşzamanlı yan işler: görsel benzerlik, konuma özel soru, GPS ters adres
-        $similarityOn = $useHistory && $this->similarity->available();
+        // Görsel benzerlik YALNIZCA çekim yeri için kullanılır (firma/plaka/marka/model asla)
+        $similarityOn = $this->similarity->available();
         $geoCandidate = $this->geoCandidate($candidates);
         $parallel = function ($client, $original, $b64, $mime) use ($similarityOn, $geoCandidate, $exif, $locationRule) {
             $jobs = [];
@@ -228,44 +229,17 @@ class AnalyzeMediaAiController implements RequestHandlerInterface
         $similar = null;
         $nearest = $side['similar'] ?? [];
         if ($useHistory) {
-            // Benzer fotoğraf yalnızca firma ile doğrulanırsa kullanılır (aynı model beyaz otobüsler hep benzer görünür)
-            foreach ($nearest as $n) {
-                if ($n['score'] < $this->similarity->threshold()) break;
-                if ($hit = $this->history->fromSimilar($data, $n)) {
-                    ['data' => $data, 'similar' => $similar] = $hit;
-                    $notes[] = 'similar';
-                    break;
-                }
-            }
-            ['data' => $data, 'notes' => $more] = $this->history->enrich($data);
-            $notes = array_merge($notes, $more);
+            // Plaka forumda birebir kayıtlıysa (ve firma çelişmiyorsa) araç bilgisi o künyelerden
+            ['data' => $data, 'notes' => $notes] = $this->history->enrich($data);
         }
 
-        // ── Çekim yeri: kaynaklar güvenilirlik sırasıyla
+        // ── Çekim yeri: 1) fotoğrafın GPS bilgisi  2) yapay zekanın kendi tespiti (yüksek/orta güven)
+        //               3) bulunamazsa forumda %95+ benzeyen fotoğrafın çekim yeri
         $loc = null;
         $locSource = null;
         if (!empty($side['gps'])) {
             $loc = $side['gps'];
             $locSource = 'gps';
-        }
-        if (!$loc && ($s = $this->location->fromSession((int) $actor->id, $exif['date']))) {
-            $loc = $s;
-            $locSource = 'session';
-        }
-        if (!$loc && $nearest) {
-            // Arka plandan konum: yalnızca çok yüksek benzerlikte ve aynı firmanın fotoğrafıysa
-            // (ya da neredeyse aynı kare ise); aksi halde başka bir otogarın konumu gelebilir
-            $placeThreshold = (float) ($this->settings->get('framio-upload-exif.ai_location_threshold') ?: 0.93);
-            foreach ($nearest as $n) {
-                if ($n['score'] < $placeThreshold) break;
-                $k = $this->history->kunyeOf($n);
-                $verified = $n['score'] >= 0.97 || (!empty($data['company']) && $this->history->sameCompany($data['company'], $k['company'] ?? ''));
-                if ($verified && ($s = $this->location->entitiesLocation([$n['post_id']], $n['image_url']))) {
-                    $loc = $s;
-                    $locSource = 'similar';
-                    break;
-                }
-            }
         }
         if (!$loc) {
             foreach ([$side['geo'] ?? [], $data] as $guess) {
@@ -273,6 +247,18 @@ class AnalyzeMediaAiController implements RequestHandlerInterface
                 if (!empty($guess['city']) && in_array($conf, ['high', 'medium'], true)) {
                     $loc = ['city' => $guess['city'], 'place' => (string) ($guess['place'] ?? '')];
                     $locSource = $conf === 'high' ? 'ai' : 'ai_guess';
+                    break;
+                }
+            }
+        }
+        if (!$loc && $nearest) {
+            $placeThreshold = max(0.9, (float) ($this->settings->get('framio-upload-exif.ai_location_threshold') ?: 0.95));
+            foreach ($nearest as $n) {
+                if ($n['score'] < $placeThreshold) break;
+                if ($s = $this->location->entitiesLocation([$n['post_id']], $n['image_url'])) {
+                    $loc = $s;
+                    $locSource = 'similar';
+                    $similar = $this->history->describe($n);
                     break;
                 }
             }

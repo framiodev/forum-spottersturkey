@@ -2610,27 +2610,11 @@ export default class FramioMediaSettingsPage extends ExtensionPage {
 
           <div className="Form-group" style={{ marginTop: '14px' }}>
             <label style={{ fontWeight: 'bold', fontSize: '13px' }}>Forum geçmişini kullanan bölümler</label>
-            <input className="FormControl" placeholder="ör. sehirlerarasi-otobus, turizm-otobusleri (boş = tüm bölümler)" bidi={this.setting('framio-upload-exif.ai_history_tags', '')} />
+            <input className="FormControl" placeholder="ör. sehirlerarasi-otobus-fotograflari, turizm-ve-servis-otobusleri-fotograflari (boş = tüm bölümler)" bidi={this.setting('framio-upload-exif.ai_history_tags', '')} />
             <div className="helpText" style={{ fontSize: '11px', color: '#888' }}>
-              Bu bölümlerde (etiket kısa adları, virgülle) okunan plaka daha önce paylaşıldıysa firma, marka ve model o künyelerden alınır;
-              firma adı forumdaki tam haline tamamlanır ve model, forumda kullanılan model adlarından seçilir.
+              Bu bölümlerde (etiket kısa adları, virgülle) okunan plaka forumda birebir kayıtlıysa ve firma çelişmiyorsa marka, model ve firma o künyelerden alınır;
+              firma adı yalnızca tek bir aday varsa tam haline tamamlanır ve model, forumda kullanılan model adlarından seçilir.
             </div>
-          </div>
-
-          <div style={{ marginTop: '14px', padding: '12px', background: '#fff', border: '1px dashed #cbd5e1', borderRadius: '6px' }}>
-            <Switch
-              state={this.setting('framio-upload-exif.ai_similarity', '1')() !== '0'}
-              onchange={(val) => this.setting('framio-upload-exif.ai_similarity')(val ? '1' : '0')}
-            >
-              Görsel benzerlik: yeni fotoğrafı forumdaki künyeli fotoğraflarla karşılaştır
-            </Switch>
-            <div className="helpText" style={{ fontSize: '11px', color: '#64748b', margin: '6px 0 10px' }}>
-              Listede etkin bir <b>Google Gemini</b> anahtarı gerekir (gemini-embedding-2). Yapay zeka sorgusuyla aynı anda çalışır, süreyi uzatmaz.
-              Yeterince benzeyen bir fotoğraf bulunursa firma, marka, model ve (okunanla çok yakınsa) plaka o fotoğrafın künyesinden alınır.
-              Dizin, sunucuda <code>php flarum media:vision-index</code> komutuyla doldurulur; yeni fotoğraflar için bu komutu cron'a (ör. 15 dakikada bir) ekleyin.
-            </div>
-            <label style={{ fontWeight: 'bold', fontSize: '13px' }}>Benzerlik eşiği (0.50 – 0.99)</label>
-            <input className="FormControl" type="number" min="0.5" max="0.99" step="0.01" style={{ maxWidth: '160px' }} bidi={this.setting('framio-upload-exif.ai_similarity_threshold', '0.92')} />
           </div>
 
           <div style={{ marginTop: '14px', padding: '12px', background: '#fff', border: '1px dashed #cbd5e1', borderRadius: '6px' }}>
@@ -2638,20 +2622,35 @@ export default class FramioMediaSettingsPage extends ExtensionPage {
               <i className="fas fa-map-marker-alt" style={{ marginRight: '6px', color: 'var(--primary-color)' }}></i>Çekim yeri
             </h4>
             <div className="helpText" style={{ fontSize: '11px', color: '#64748b', marginBottom: '10px' }}>
-              Sıra: fotoğrafın GPS bilgisi → aynı kullanıcının aynı çekim oturumu (±4 saat) → arka planı benzeyen geçmiş fotoğraf → yapay zeka tahmini (yalnızca yüksek/orta güven; orta güven "tahmin" olarak işaretlenir).
-              Varsayılan biçim yalnızca il adıdır (ör. Ankara).
+              Sıra: 1) fotoğrafın GPS bilgisi → 2) yapay zekanın kendi tespiti (yüksek/orta güven; orta güven "tahmin" olarak işaretlenir)
+              → 3) ikisi de bulamazsa forumda belirtilen oranın üstünde benzeyen fotoğrafın çekim yeri. Benzerlik firma, plaka, marka ya da
+              model için <b>asla</b> kullanılmaz. Varsayılan biçim yalnızca il adıdır (ör. Ankara).
+            </div>
+            <Switch
+              state={this.setting('framio-upload-exif.ai_similarity', '1')() !== '0'}
+              onchange={(val) => this.setting('framio-upload-exif.ai_similarity')(val ? '1' : '0')}
+            >
+              Forum geçmişinden konum (görsel benzerlik)
+            </Switch>
+            <div className="helpText" style={{ fontSize: '11px', color: '#64748b', margin: '4px 0 10px' }}>
+              Listede etkin bir Google Gemini anahtarı gerekir. Dizin <code>php flarum media:vision-index</code> komutuyla dolar; yeni fotoğraflar için cron'a ekleyin.
             </div>
             <label style={{ fontWeight: 'bold', fontSize: '13px' }}>Yer + il yazılan bölümler</label>
-            <input className="FormControl" placeholder="ör. sehirici-ulasim-araclari (etiket kısa adları, virgülle)" bidi={this.setting('framio-upload-exif.ai_location_detail_tags', '')} />
+            <input className="FormControl" placeholder="ör. sehirici-ulasim-araclari-fotograflari (etiket kısa adları, virgülle)" bidi={this.setting('framio-upload-exif.ai_location_detail_tags', '')} />
             <div className="helpText" style={{ fontSize: '11px', color: '#888', marginBottom: '10px' }}>Bu bölümlerde çekim yeri şehir içindeki konumla birlikte yazılır (ör. Kızılay - Ankara).</div>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
               <div>
-                <label style={{ fontWeight: 'bold', fontSize: '13px' }}>Arka plan benzerlik eşiği</label>
-                <input className="FormControl" type="number" min="0.5" max="0.99" step="0.01" bidi={this.setting('framio-upload-exif.ai_location_threshold', '0.93')} />
+                <label style={{ fontWeight: 'bold', fontSize: '13px' }}>Forum geçmişi benzerlik eşiği (en az 0.90)</label>
+                <input className="FormControl" type="number" min="0.9" max="0.99" step="0.01" placeholder="0.95" bidi={this.setting('framio-upload-exif.ai_location_threshold', '')} />
               </div>
               <div>
                 <label style={{ fontWeight: 'bold', fontSize: '13px' }}>Konum sorusu modeli (Gemini)</label>
-                <input className="FormControl" placeholder="gemini-2.5-flash" bidi={this.setting('framio-upload-exif.ai_location_model', '')} />
+                <select className="FormControl" value={this.setting('framio-upload-exif.ai_location_model', '')() || 'gemini-3.8-flash'} onchange={(e) => this.setting('framio-upload-exif.ai_location_model')(e.target.value)}>
+                  <option value="gemini-3.8-flash">Gemini 3.8 Flash (önerilen)</option>
+                  <option value="gemini-3.6-flash">Gemini 3.6 Flash</option>
+                  <option value="gemini-3.5-flash-lite">Gemini 3.5 Flash-Lite (en hızlı)</option>
+                  <option value="gemini-4-argon">Gemini 4 Argon (en güçlü, yavaş)</option>
+                </select>
               </div>
             </div>
           </div>

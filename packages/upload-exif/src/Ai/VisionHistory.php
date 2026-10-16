@@ -149,40 +149,14 @@ class VisionHistory
         return $a === $b || str_contains($a, $strip($b)) || str_contains($b, $strip($a));
     }
 
-    /**
-     * Görsel olarak benzeyen geçmiş fotoğraf YALNIZCA doğrulanırsa kullanılır:
-     *  - yapay zekanın okuduğu firma o fotoğrafın firmasıyla uyuşmalı (ya da yapay zeka firma okuyamamış olmalı),
-     *  - yapay zekanın okuduğu değerler EZİLMEZ; yalnızca boş kalan alanlar doldurulur,
-     *  - plaka yalnızca okunan plakayla en fazla 1 karakter farklıysa düzeltilir.
-     *
-     * @return array{data:array, similar:array}|null  doğrulanmazsa null
-     */
-    public function fromSimilar(array $data, array $match): ?array
+    /** Benzer fotoğrafın bağlantısı ve benzerlik oranı (modalda bilgi için) */
+    public function describe(array $match): array
     {
-        $k = $this->kunyeOf($match);
-        if (empty($k['company'])) return null;
-        if (!empty($data['company']) && !$this->sameCompany($data['company'], $k['company'])) {
-            return null;
-        }
-
-        if (empty($data['company'])) $data['company'] = $k['company'];
-        $brand = $k['brand'] ?? null;
-        if ($brand && empty($data['brand'])) $data['brand'] = $brand;
-        if (!empty($k['model']) && empty($data['model'])) {
-            $data['model'] = $brand && stripos($k['model'], $brand . ' ') === 0 ? trim(mb_substr($k['model'], mb_strlen($brand))) : $k['model'];
-        }
-
-        $plate = $k['plate'] ?? null;
-        $read = $this->normPlate($data['plate'] ?? '');
-        if ($plate && $read && levenshtein(str_replace(' ', '', $read), str_replace(' ', '', $plate)) === 1) {
-            $data['plate'] = $plate;
-        }
-
         $post = $this->db->table('posts')->where('id', $match['post_id'])->first(['discussion_id', 'number']);
         $match['url'] = $post ? '/d/' . $post->discussion_id . '/' . $post->number : null;
         $match['score'] = round($match['score'], 3);
 
-        return ['data' => $data, 'similar' => $match];
+        return $match;
     }
 
     protected function normPlate(string $p): string
