@@ -117,6 +117,38 @@ class VisionHistory
         return ['data' => $data, 'notes' => $notes];
     }
 
+    /**
+     * Görsel olarak çok benzeyen geçmiş fotoğrafın künyesini referans alır: firma, marka ve model
+     * oradan gelir; plaka, yapay zekanın okuduğuyla en fazla 2 karakter farklıysa düzeltilir.
+     *
+     * @return array{data:array, similar:array}
+     */
+    public function fromSimilar(array $data, array $match): array
+    {
+        $rows = $this->db->table(self::TABLE)->where('post_id', $match['post_id'])
+            ->where(fn ($q) => $q->where('image_url', $match['image_url'])->orWhereNull('image_url'))
+            ->get(['type', 'name']);
+        $get = fn ($t) => optional($rows->firstWhere('type', $t))->name;
+
+        $brand = $get('brand');
+        $model = $get('model');
+        if ($brand) $data['brand'] = $brand;
+        if ($model) $data['model'] = $brand && stripos($model, $brand . ' ') === 0 ? trim(mb_substr($model, mb_strlen($brand))) : $model;
+        if ($company = $get('company')) $data['company'] = $company;
+
+        $plate = $get('plate');
+        $read = $this->normPlate($data['plate'] ?? '');
+        if ($plate && (!$read || levenshtein(str_replace(' ', '', $read), str_replace(' ', '', $plate)) <= 2)) {
+            $data['plate'] = $plate;
+        }
+
+        $post = $this->db->table('posts')->where('id', $match['post_id'])->first(['discussion_id', 'number']);
+        $match['url'] = $post ? '/d/' . $post->discussion_id . '/' . $post->number : null;
+        $match['score'] = round($match['score'], 3);
+
+        return ['data' => $data, 'similar' => $match];
+    }
+
     protected function normPlate(string $p): string
     {
         $p = mb_strtoupper(trim(preg_replace('/\s+/u', ' ', $p)), 'UTF-8');

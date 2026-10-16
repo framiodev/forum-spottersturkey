@@ -2533,6 +2533,22 @@ export default class FramioMediaSettingsPage extends ExtensionPage {
               firma adı forumdaki tam haline tamamlanır ve model, forumda kullanılan model adlarından seçilir.
             </div>
           </div>
+
+          <div style={{ marginTop: '14px', padding: '12px', background: '#fff', border: '1px dashed #cbd5e1', borderRadius: '6px' }}>
+            <Switch
+              state={this.setting('framio-upload-exif.ai_similarity', '1')() !== '0'}
+              onchange={(val) => this.setting('framio-upload-exif.ai_similarity')(val ? '1' : '0')}
+            >
+              Görsel benzerlik: yeni fotoğrafı forumdaki künyeli fotoğraflarla karşılaştır
+            </Switch>
+            <div className="helpText" style={{ fontSize: '11px', color: '#64748b', margin: '6px 0 10px' }}>
+              Listede etkin bir <b>Google Gemini</b> anahtarı gerekir (gemini-embedding-2). Yapay zeka sorgusuyla aynı anda çalışır, süreyi uzatmaz.
+              Yeterince benzeyen bir fotoğraf bulunursa firma, marka, model ve (okunanla çok yakınsa) plaka o fotoğrafın künyesinden alınır.
+              Dizin, sunucuda <code>php flarum media:vision-index</code> komutuyla doldurulur; yeni fotoğraflar için bu komutu cron'a (ör. 15 dakikada bir) ekleyin.
+            </div>
+            <label style={{ fontWeight: 'bold', fontSize: '13px' }}>Benzerlik eşiği (0.50 – 0.99)</label>
+            <input className="FormControl" type="number" min="0.5" max="0.99" step="0.01" style={{ maxWidth: '160px' }} bidi={this.setting('framio-upload-exif.ai_similarity_threshold', '0.86')} />
+          </div>
         </div>
 
         {/* 3. Kullanıcı Yetkisi & Kendi API Kotası */}

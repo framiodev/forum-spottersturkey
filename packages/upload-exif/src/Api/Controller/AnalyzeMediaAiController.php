@@ -15,7 +15,7 @@ use Framio\UploadExif\Ai\VisionHistory;
 
 class AnalyzeMediaAiController implements RequestHandlerInterface
 {
-    public function __construct(protected SettingsRepositoryInterface $settings, protected VisionAnalyzer $vision, protected VisionHistory $history)
+    public function __construct(protected SettingsRepositoryInterface $settings, protected VisionAnalyzer $vision, protected VisionHistory $history, protected \Framio\UploadExif\Ai\VisionSimilarity $similarity)
     {
     }
 
@@ -189,21 +189,40 @@ class AnalyzeMediaAiController implements RequestHandlerInterface
             $promptText .= "\n\nForumda kullanılan model adları:\n" . mb_substr(implode("\n", $lines), 0, 2500);
         }
 
+        // Görsel benzerlik: yapay zeka isteğiyle eşzamanlı, forumdaki en yakın künyeli fotoğrafı bulur
+        $parallel = null;
+        if ($useHistory && $this->similarity->available()) {
+            $parallel = fn ($client, $original) => $this->similarity->embedAsync($client, $original)
+                ->then(fn ($vec) => $this->similarity->nearest($vec));
+        }
+
         try {
-            $result = $this->vision->analyze($candidates, $bytes, $mimeType, $promptText);
+            $result = $this->vision->analyze($candidates, $bytes, $mimeType, $promptText, $parallel);
         } catch (\Throwable $e) {
             return new JsonResponse(['success' => false, 'error' => 'Yapay zeka yanıt veremedi: ' . $e->getMessage()]);
         }
 
         $data = $this->dropGuessedLocation($result['data']);
         $notes = [];
+        $similar = null;
         if ($useHistory) {
-            ['data' => $data, 'notes' => $notes] = $this->history->enrich($data);
+            if (!empty($result['side']) && $result['side']['score'] >= $this->similarity->threshold()) {
+                $similar = $result['side'];
+                ['data' => $data, 'similar' => $similar] = $this->history->fromSimilar($data, $similar);
+                $notes[] = 'similar';
+            }
+            ['data' => $data, 'notes' => $more] = $this->history->enrich($data);
+            $notes = array_merge($notes, $more);
+        }
+
+        if (!$data && !empty($result['error'])) {
+            return new JsonResponse(['success' => false, 'error' => 'Yapay zeka yanıt veremedi: ' . $result['error']]);
         }
 
         return new JsonResponse([
             'success' => true,
             'history' => $notes,
+            'similar' => $similar,
             'provider' => $result['provider'],
             'model' => $result['model'],
             'source' => $result['source'],

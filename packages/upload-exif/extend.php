@@ -192,5 +192,6 @@ return [
         ->listen(\Flarum\Post\Event\Saving::class, PostAsHandler::class.'@post'),
 
     (new Extend\Console())
-        ->command(\Framio\UploadExif\Console\FillDimensionsCommand::class),
+        ->command(\Framio\UploadExif\Console\FillDimensionsCommand::class)
+        ->command(\Framio\UploadExif\Console\VisionIndexCommand::class),
 ];

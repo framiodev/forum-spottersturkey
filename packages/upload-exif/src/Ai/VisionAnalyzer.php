@@ -102,9 +102,9 @@ class VisionAnalyzer
     }
 
     /** Görseli en fazla $max px'e küçültüp JPEG yapar (GD yoksa olduğu gibi döner) */
-    public function shrink(string $bytes, string $mime, int $max = 768): array
+    public function shrink(string $bytes, string $mime, int $max = 768, bool $forceJpeg = false): array
     {
-        if (!function_exists('imagecreatefromstring') || strlen($bytes) < 150 * 1024) {
+        if (!function_exists('imagecreatefromstring') || (!$forceJpeg && strlen($bytes) < 150 * 1024)) {
             return [$bytes, $mime];
         }
         $img = @imagecreatefromstring($bytes);
@@ -132,22 +132,34 @@ class VisionAnalyzer
      *
      * @throws \RuntimeException tüm sağlayıcılar başarısız olursa (ilk hata mesajıyla)
      */
-    public function analyze(array $candidates, string $bytes, string $mime, string $prompt): ?array
+    public function analyze(array $candidates, string $bytes, string $mime, string $prompt, ?callable $parallel = null): ?array
     {
         if (!$candidates) {
             return null;
         }
         $start = microtime(true);
+        $original = $bytes;
         [$bytes, $mime] = $this->shrink($bytes, $mime);
         $b64 = base64_encode($bytes);
 
-        $cacheKey = 'framio_vision_' . sha1($b64 . '|' . $prompt);
-        if ($hit = $this->cache->get($cacheKey)) {
-            return $hit + ['cached' => true, 'ms' => (int) ((microtime(true) - $start) * 1000)];
-        }
-
         $timeout = max(3, min(30, (float) $this->setting('ai_timeout', 10)));
         $client = new Client(['timeout' => $timeout, 'connect_timeout' => 3]);
+
+        // Yan iş (görsel benzerlik gömmesi) aynı istemcide, yapay zeka isteğiyle eşzamanlı yürür
+        $side = $parallel ? $parallel($client, $original) : null;
+        $sideValue = function () use ($side) {
+            if (!$side) return null;
+            try {
+                return $side->wait();
+            } catch (\Throwable $e) {
+                return null;
+            }
+        };
+
+        $cacheKey = 'framio_vision_' . sha1($b64 . '|' . $prompt);
+        if ($hit = $this->cache->get($cacheKey)) {
+            return $hit + ['cached' => true, 'side' => $sideValue(), 'ms' => (int) ((microtime(true) - $start) * 1000)];
+        }
 
         $errors = [];
         $promises = [];
@@ -172,12 +184,17 @@ class VisionAnalyzer
             // İlk başarılı yanıt kazanır; diğerleri beklenmez
             $result = Utils::any($promises)->wait();
         } catch (\Throwable $e) {
-            throw new \RuntimeException($errors ? implode(' · ', $errors) : $this->errorMessage($e));
+            $message = $errors ? implode(' · ', $errors) : $this->errorMessage($e);
+            // Yapay zeka yanıt veremese de benzer fotoğraf bulunduysa o kullanılır
+            if (($sv = $sideValue()) !== null) {
+                return ['data' => [], 'provider' => '', 'model' => '', 'source' => '', 'cached' => false, 'side' => $sv, 'error' => $message, 'ms' => (int) ((microtime(true) - $start) * 1000)];
+            }
+            throw new \RuntimeException($message);
         }
 
         $this->cache->put($cacheKey, $result, 7 * 86400);
 
-        return $result + ['cached' => false, 'ms' => (int) ((microtime(true) - $start) * 1000)];
+        return $result + ['cached' => false, 'side' => $sideValue(), 'ms' => (int) ((microtime(true) - $start) * 1000)];
     }
 
     protected function request(Client $client, array $c, string $b64, string $mime, string $prompt): PromiseInterface

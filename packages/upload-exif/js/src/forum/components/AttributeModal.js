@@ -480,17 +480,17 @@ export default class AttributeModal extends Modal {
               let filledCount = 0;
 
               // 1. Standart alanları doldur
-              if (ai.company && (!this.company() || (res.history || []).includes('plate'))) {
+              if (ai.company && (!this.company() || (res.history || []).some((h) => h === 'plate' || h === 'similar'))) {
                   this.company(ai.company);
                   filledCount++;
               }
-              if (ai.plate && !this.plate()) {
+              if (ai.plate && (!this.plate() || (res.history || []).some((h) => h === 'plate' || h === 'similar'))) {
                   this.plate(ai.plate);
                   filledCount++;
               }
               // Marka/model listesi varsa yapay zekanın yazımı listedeki seçeneğe eşlenir
               // (aksi halde açılır liste boş görünür). Geçmişten gelen bilgi varsa önceliklidir.
-              const fromHistory = (res.history || []).includes('plate');
+              const fromHistory = (res.history || []).some((h) => h === 'plate' || h === 'similar');
               if (ai.brand && (!this.brand() || fromHistory || this.isDefaultBrand)) {
                   const brands = this.getSortedBrands ? this.getSortedBrands() : [];
                   const brand = brands.length ? bestMatch(ai.brand, brands) : ai.brand;
@@ -540,7 +540,9 @@ export default class AttributeModal extends Modal {
               });
 
               this.aiStatus(filledCount ? 'success' : 'idle');
-              this.aiMessage(filledCount ? `${filledCount} alan yapay zeka ile dolduruldu, kontrol etmeyi unutmayın.` : '');
+              const hist = res.history || [];
+              const source = hist.includes('plate') ? ' (plaka forumda kayıtlı, bilgiler o künyeden)' : hist.includes('similar') && res.similar ? ` (forumdaki benzer fotoğraf referans alındı, %${Math.round((res.similar.score || 0) * 100)} benzerlik)` : '';
+              this.aiMessage(filledCount ? `${filledCount} alan yapay zeka ile dolduruldu${source}, kontrol etmeyi unutmayın.` : '');
           } else {
               this.aiStatus('idle');
           }
