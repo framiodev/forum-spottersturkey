@@ -158,11 +158,7 @@ class VisionLocation
                 $postIds = $this->db->table('framio_seo_entities')->whereIn('image_url', $paths)->distinct()->pluck('post_id')->all();
             }
         }
-        if (!$postIds) {
-            // Çekim zamanı yoksa: kullanıcının son 6 saatteki gönderileri (aynı yükleme oturumu)
-            $postIds = $this->db->table('posts')->where('user_id', $userId)->where('type', 'comment')
-                ->where('created_at', '>=', Carbon::now()->subHours(6))->pluck('id')->all();
-        }
+        // Çekim zamanı bilinmiyorsa oturum eşleştirmesi yapılmaz (aynı gün farklı yerlerde çekim olabilir)
         if (!$postIds) return null;
 
         return $this->entitiesLocation($postIds);

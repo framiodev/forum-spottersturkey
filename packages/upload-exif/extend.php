@@ -84,7 +84,8 @@ return [
         ->post('/framio-media/update-alt-tags', 'framio.media.update_alt_tags', UpdateRetroactiveAltTagsController::class)
 
         // AI Analiz & Künye Otomatik Doldurma
-        ->post('/framio-media/analyze-ai', 'framio.media.analyze_ai', AnalyzeMediaAiController::class),
+        ->post('/framio-media/analyze-ai', 'framio.media.analyze_ai', AnalyzeMediaAiController::class)
+        ->get('/framio-media/ai-test', 'framio.media.ai_test', \Framio\UploadExif\Api\Controller\AiTestController::class),
 
     // Admin Ayarlarının Frontend Forum Context'ine Aktarımı
     (new Extend\Settings())

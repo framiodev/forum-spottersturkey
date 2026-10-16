@@ -218,7 +218,7 @@ class VisionAnalyzer
         return $result + ['cached' => false, 'side' => $sideValue(), 'ms' => (int) ((microtime(true) - $start) * 1000)];
     }
 
-    protected function request(Client $client, array $c, string $b64, string $mime, string $prompt): PromiseInterface
+    protected function request(Client $client, array $c, string $b64, string $mime, string $prompt, array $options = []): PromiseInterface
     {
         switch ($c['provider']) {
             case 'claude':
@@ -233,7 +233,7 @@ class VisionAnalyzer
                     ]]],
                 ];
 
-                return $this->send($client, 'https://api.anthropic.com/v1/messages', ['x-api-key' => $c['key'], 'anthropic-version' => '2023-06-01'], $body, ['thinking' => ['thinking']]);
+                return $this->send($client, 'https://api.anthropic.com/v1/messages', ['x-api-key' => $c['key'], 'anthropic-version' => '2023-06-01'], $body, ['thinking' => ['thinking']], $options);
 
             case 'gemini':
                 $config = ['temperature' => 0, 'maxOutputTokens' => 500, 'responseMimeType' => 'application/json'];
@@ -244,7 +244,7 @@ class VisionAnalyzer
                     'generationConfig' => $config,
                 ];
 
-                return $this->send($client, 'https://generativelanguage.googleapis.com/v1beta/models/' . rawurlencode($c['model']) . ':generateContent', ['x-goog-api-key' => $c['key']], $body, ['generationConfig.thinkingConfig' => ['thinking']]);
+                return $this->send($client, 'https://generativelanguage.googleapis.com/v1beta/models/' . rawurlencode($c['model']) . ':generateContent', ['x-goog-api-key' => $c['key']], $body, ['generationConfig.thinkingConfig' => ['thinking']], $options);
 
             default:
                 $p = $c['provider'];
@@ -272,7 +272,7 @@ class VisionAnalyzer
                     $headers['X-Title'] = 'Framio AI';
                 }
 
-                return $this->send($client, self::CHAT_URLS[$p], $headers, $body, ['reasoning_effort' => ['reasoning'], 'response_format' => ['response_format', 'json_object', 'response format'], 'temperature' => ['temperature']]);
+                return $this->send($client, self::CHAT_URLS[$p], $headers, $body, ['reasoning_effort' => ['reasoning'], 'response_format' => ['response_format', 'json_object', 'response format'], 'temperature' => ['temperature']], $options);
         }
     }
 
@@ -280,10 +280,10 @@ class VisionAnalyzer
      * İsteği gönderir; sağlayıcı isteğe bağlı bir ayarı reddederse (400, hata metninde ayarın adı geçer)
      * o ayarı çıkarıp bir kez daha dener. Modeller değiştikçe kod kırılmasın diye.
      */
-    protected function send(Client $client, string $url, array $headers, array $body, array $optional): PromiseInterface
+    protected function send(Client $client, string $url, array $headers, array $body, array $optional, array $options = []): PromiseInterface
     {
-        return $client->postAsync($url, ['headers' => $headers, 'json' => $body])
-            ->otherwise(function ($e) use ($client, $url, $headers, $body, $optional) {
+        return $client->postAsync($url, ['headers' => $headers, 'json' => $body] + $options)
+            ->otherwise(function ($e) use ($client, $url, $headers, $body, $optional, $options) {
                 if (!$e instanceof \GuzzleHttp\Exception\ClientException || $e->getResponse()->getStatusCode() !== 400) {
                     throw $e;
                 }
@@ -302,7 +302,7 @@ class VisionAnalyzer
                     throw $e;
                 }
 
-                return $client->postAsync($url, ['headers' => $headers, 'json' => $body]);
+                return $client->postAsync($url, ['headers' => $headers, 'json' => $body] + $options);
             });
     }
 
@@ -320,10 +320,46 @@ class VisionAnalyzer
         return $body;
     }
 
-    /** Tek sağlayıcıya ayrı bir soru (ör. yalnızca konum); ayrıştırılmış JSON döner */
-    public function askAsync(Client $client, array $c, string $b64, string $mime, string $prompt): PromiseInterface
+    /**
+     * Admin: her sağlayıcıyı küçük bir görselle ayrı ayrı dener (anahtar ve model doğru mu, ne kadar sürüyor).
+     *
+     * @return array<int,array{provider:string, model:string, ok:bool, ms:int, message:string}>
+     */
+    public function test(array $candidates, string $bytes): array
     {
-        return $this->request($client, $c, $b64, $mime, $prompt)
+        [$bytes, $mime] = $this->shrink($bytes, 'image/jpeg', 512, true);
+        $b64 = base64_encode($bytes);
+        $client = new Client(['timeout' => 15, 'connect_timeout' => 5]);
+        $prompt = 'Görseldeki aracın markasını JSON olarak döndür: {"brand": ""}';
+        $promises = [];
+        $started = [];
+        foreach ($candidates as $i => $c) {
+            $started[$i] = microtime(true);
+            $promises[$i] = $this->request($client, $c, $b64, $mime, $prompt)->then(function ($res) use ($i, &$started) {
+                return (int) ((microtime(true) - $started[$i]) * 1000);
+            });
+        }
+        $out = [];
+        foreach (Utils::settle($promises)->wait() as $i => $r) {
+            $c = $candidates[$i];
+            $ok = $r['state'] === 'fulfilled';
+            $out[] = [
+                'provider' => $c['provider'],
+                'model' => $c['model'],
+                'ok' => $ok,
+                'ms' => $ok ? $r['value'] : (int) ((microtime(true) - $started[$i]) * 1000),
+                'message' => $ok ? 'Çalışıyor' : $this->errorMessage($r['reason']),
+            ];
+        }
+
+        return $out;
+    }
+
+    /** Tek sağlayıcıya ayrı bir soru (ör. yalnızca konum); ayrıştırılmış JSON döner */
+    public function askAsync(Client $client, array $c, string $b64, string $mime, string $prompt, float $timeout = 2.5): PromiseInterface
+    {
+        // Yan soru ana yanıtı bekletmesin: kısa süre sınırı
+        return $this->request($client, $c, $b64, $mime, $prompt, ['timeout' => $timeout])
             ->then(fn ($res) => $this->parse($c['provider'], (string) $res->getBody()));
     }
 

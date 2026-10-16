@@ -2517,8 +2517,7 @@ export default class FramioMediaSettingsPage extends ExtensionPage {
 
           {rows.map((row, i) => {
             const info = aiConfig[row.provider] || aiConfig.gemini;
-            const listId = 'framio-ai-models-' + i;
-            return (
+                        return (
               <div key={i} style={{ display: 'grid', gridTemplateColumns: 'auto 160px 1fr 1fr auto', gap: '8px', alignItems: 'center', background: '#fff', border: '1px solid #e2e8f0', borderRadius: '6px', padding: '8px', marginBottom: '8px', opacity: row.enabled === false ? 0.55 : 1 }}>
                 <input type="checkbox" title="Etkin" checked={row.enabled !== false} onchange={(e) => update(i, { enabled: e.target.checked })} />
                 <select className="FormControl" value={row.provider} onchange={(e) => update(i, { provider: e.target.value, model: '' })}>
@@ -2527,12 +2526,25 @@ export default class FramioMediaSettingsPage extends ExtensionPage {
                   ))}
                 </select>
                 <div>
-                  <input className="FormControl" list={listId} placeholder={'Varsayılan: ' + info.defaultModel} value={row.model || ''} onchange={(e) => update(i, { model: e.target.value.trim() })} />
-                  <datalist id={listId}>
-                    {info.models.map((mm) => (
-                      <option value={mm.id}>{mm.label}</option>
-                    ))}
-                  </datalist>
+                  {(() => {
+                    const known = info.models.some((mm) => mm.id === (row.model || info.defaultModel));
+                    const custom = row.customModel || (row.model && !known);
+                    return [
+                      <select
+                        className="FormControl"
+                        value={custom ? '__custom' : row.model || info.defaultModel}
+                        onchange={(e) => (e.target.value === '__custom' ? update(i, { customModel: true }) : update(i, { model: e.target.value, customModel: false }))}
+                      >
+                        {info.models.map((mm) => (
+                          <option value={mm.id}>{mm.label}</option>
+                        ))}
+                        <option value="__custom">Başka model (adını yaz)…</option>
+                      </select>,
+                      custom ? (
+                        <input className="FormControl" style={{ marginTop: '6px' }} placeholder="Model kimliği" value={row.model || ''} onchange={(e) => update(i, { model: e.target.value.trim() })} />
+                      ) : null,
+                    ];
+                  })()}
                 </div>
                 <input className="FormControl" type="password" autocomplete="off" placeholder={info.keyPlaceholder} value={row.key || ''} onchange={(e) => update(i, { key: e.target.value.trim() })} />
                 <div style={{ display: 'flex', gap: '4px' }}>
@@ -2540,7 +2552,16 @@ export default class FramioMediaSettingsPage extends ExtensionPage {
                   <Button className="Button Button--icon" icon="fas fa-arrow-down" disabled={i === rows.length - 1} onclick={() => move(i, 1)} />
                   <Button className="Button Button--icon" icon="fas fa-trash" onclick={() => save(rows.filter((r, k) => k !== i))} />
                 </div>
-                <div style={{ gridColumn: '2 / -1', fontSize: '11px' }}>
+                <div style={{ gridColumn: '2 / -1', fontSize: '11px', display: 'flex', gap: '12px', flexWrap: 'wrap', alignItems: 'center' }}>
+                  {(() => {
+                    const r = (this.aiTest && this.aiTest.providers || []).find((x) => x.provider === row.provider && x.model === (row.model || info.defaultModel));
+                    if (!r) return null;
+                    return (
+                      <span style={{ fontWeight: 700, color: r.ok ? '#15803d' : '#b91c1c' }}>
+                        <i className={'fas ' + (r.ok ? 'fa-check-circle' : 'fa-times-circle')}></i> {r.ok ? 'Çalışıyor · ' + (r.ms / 1000).toFixed(1) + ' sn' : r.message}
+                      </span>
+                    );
+                  })()}
                   <a href={info.keyLink} target="_blank" rel="noopener noreferrer">
                     {info.name} anahtarı al <i className="fas fa-external-link-alt"></i>
                   </a>
@@ -2549,9 +2570,37 @@ export default class FramioMediaSettingsPage extends ExtensionPage {
             );
           })}
 
-          <Button className="Button" icon="fas fa-plus" onclick={() => save(rows.concat([{ provider: 'groq', model: '', key: '', enabled: true }]))}>
-            Sağlayıcı ekle
-          </Button>
+          <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', alignItems: 'center' }}>
+            <Button className="Button" icon="fas fa-plus" onclick={() => save(rows.concat([{ provider: 'gemini', model: '', key: '', enabled: true }]))}>
+              Sağlayıcı ekle
+            </Button>
+            <Button
+              className="Button"
+              icon="fas fa-vial"
+              loading={this.aiTesting}
+              onclick={() => {
+                this.aiTesting = true;
+                app
+                  .request({ method: 'GET', url: app.forum.attribute('apiUrl') + '/framio-media/ai-test' })
+                  .then((res) => (this.aiTest = res))
+                  .catch(() => app.alerts.show({ type: 'error' }, 'Test yapılamadı. Önce değişiklikleri kaydedin.'))
+                  .finally(() => {
+                    this.aiTesting = false;
+                    m.redraw();
+                  });
+              }}
+            >
+              Kaydedilen anahtarları test et
+            </Button>
+            {this.aiTest && this.aiTest.similarity ? (
+              <span className="helpText" style={{ fontSize: '12px' }}>
+                Benzerlik dizini: <b>{this.aiTest.similarity.indexed}</b> fotoğraf
+                {this.aiTest.similarity.failed ? ', ' + this.aiTest.similarity.failed + ' hata' : ''}
+                {this.aiTest.similarity.available ? '' : ' (kapalı ya da Gemini anahtarı yok)'}
+                {this.aiTest.similarity.last_error ? ' · son hata: ' + this.aiTest.similarity.last_error : ''}
+              </span>
+            ) : null}
+          </div>
 
           <div className="Form-group" style={{ marginTop: '14px', maxWidth: '260px' }}>
             <label style={{ fontWeight: 'bold', fontSize: '13px' }}>Zaman aşımı (saniye)</label>

@@ -65,6 +65,8 @@ class VisionSimilarity
                 'content' => ['parts' => [['inline_data' => ['mime_type' => 'image/jpeg', 'data' => base64_encode($jpeg)]]]],
                 'output_dimensionality' => self::DIMS,
             ],
+            // Yükleme anında ana yanıtı bekletmesin
+            'timeout' => 2.5,
         ]);
 
         // Model bazı hesaplarda yalnızca "-preview" adıyla açık
