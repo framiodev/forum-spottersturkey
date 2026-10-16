@@ -81,6 +81,23 @@ const CUSTOM_CSS = `
     .Attribute-Right.is-ai-checking .FormControl::placeholder { color: #7c3aed; font-style: italic; }
 `;
 
+
+/** Vision AI için görseli en fazla 768 px JPEG'e küçültür (başarısızsa özgün dosya) */
+function shrinkForAi(file, max = 768) {
+  if (!file || !window.createImageBitmap || !/^image\//.test(file.type || 'image/')) return Promise.resolve(file);
+  return createImageBitmap(file)
+    .then((bmp) => {
+      const scale = Math.min(1, max / Math.max(bmp.width, bmp.height));
+      const canvas = document.createElement('canvas');
+      canvas.width = Math.round(bmp.width * scale);
+      canvas.height = Math.round(bmp.height * scale);
+      canvas.getContext('2d').drawImage(bmp, 0, 0, canvas.width, canvas.height);
+      if (bmp.close) bmp.close();
+      return new Promise((resolve) => canvas.toBlob((b) => resolve(b || file), 'image/jpeg', 0.82));
+    })
+    .catch(() => file);
+}
+
 export default class AttributeModal extends Modal {
   oninit(vnode) {
     super.oninit(vnode);
@@ -399,16 +416,9 @@ export default class AttributeModal extends Modal {
       this.aiMessage('Yapay zeka görseli analiz ediyor ve künye bilgilerini dolduruyor...');
       m.redraw();
 
-      const userPersonalKey = app.session.user ? (app.session.user.preferences().framio_personal_ai_key || '') : '';
-      const userPersonalProvider = app.session.user ? (app.session.user.preferences().framio_personal_ai_provider || 'default') : 'default';
-      const userPersonalModel = app.session.user ? (app.session.user.preferences().framio_personal_ai_model || '') : '';
-
+      // Kişisel anahtar/sağlayıcı sunucuda kullanıcı tercihlerinden okunur; tarayıcıdan gönderilmez.
+      // Görsel 768 px'e küçültülüp gönderilir: yükleme ve yapay zeka süresi belirgin kısalır.
       const formData = new FormData();
-      formData.append('image', this.files[0]);
-      if (userPersonalKey) formData.append('custom_api_key', userPersonalKey);
-      if (userPersonalProvider && userPersonalProvider !== 'default') formData.append('custom_provider', userPersonalProvider);
-      if (userPersonalModel) formData.append('custom_model', userPersonalModel);
-
       // Konu ve etiket bağlamını AI analizine ilet
       if (this._currentTagSlugs && this._currentTagSlugs.length > 0) {
           formData.append('tag_slug', this._currentTagSlugs[0]);
@@ -420,13 +430,24 @@ export default class AttributeModal extends Modal {
           }
       }
 
-      app.request({
+      shrinkForAi(this.files[0]).then((small) => {
+      formData.append('image', small, 'ai.jpg');
+      return app.request({
           method: 'POST',
           url: app.forum.attribute('apiUrl') + '/framio-media/analyze-ai',
           body: formData
+      });
       }).then(res => {
           this.isAnalyzingAi = false;
-          if (res.data) {
+          if (res && res.success === false) {
+              // Yapılandırılmamış / kapalı: kullanıcıya hiçbir şey gösterme
+              this.aiStatus(res.error ? 'error' : 'idle');
+              this.aiMessage(res.error ? 'Yapay zeka şu an yanıt veremedi; alanları elle doldurabilirsiniz.' : '');
+              if (res.error && app.session.user && app.session.user.isAdmin()) this.aiMessage(res.error);
+              m.redraw();
+              return;
+          }
+          if (res && res.data) {
               const ai = res.data;
               let filledCount = 0;
 
@@ -478,18 +499,16 @@ export default class AttributeModal extends Modal {
                   }
               });
 
-              this.aiStatus('success');
-              const providerLabel = res.provider ? `(${res.provider.toUpperCase()})` : '';
-              this.aiMessage(`Künye bilgileri yapay zeka ${providerLabel} tarafından otomatik dolduruldu.`);
+              this.aiStatus(filledCount ? 'success' : 'idle');
+              this.aiMessage(filledCount ? `${filledCount} alan yapay zeka ile dolduruldu, kontrol etmeyi unutmayın.` : '');
           } else {
               this.aiStatus('idle');
           }
           m.redraw();
       }).catch(err => {
           this.isAnalyzingAi = false;
-          this.aiStatus('error');
-          const msg = (err && err.response && err.response.error) ? err.response.error : 'AI analizi yapılamadı.';
-          this.aiMessage(msg);
+          this.aiStatus('idle');
+          this.aiMessage('');
           m.redraw();
       });
   }

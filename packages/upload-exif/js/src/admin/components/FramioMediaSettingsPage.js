@@ -6,6 +6,60 @@ import Switch from 'flarum/common/components/Switch';
 import app from 'flarum/admin/app';
 import Stream from 'flarum/common/utils/Stream';
 
+export const AI_PROVIDERS = {
+  groq: {
+    name: 'Groq (Llama 4)',
+    keyLink: 'https://console.groq.com/keys',
+    keyPlaceholder: 'gsk_...',
+    defaultModel: 'meta-llama/llama-4-scout-17b-16e-instruct',
+    models: [
+      { id: 'meta-llama/llama-4-scout-17b-16e-instruct', label: 'Llama 4 Scout (en hızlı)' },
+      { id: 'meta-llama/llama-4-maverick-17b-128e-instruct', label: 'Llama 4 Maverick (daha isabetli)' },
+    ],
+  },
+  gemini: {
+    name: 'Google Gemini',
+    keyLink: 'https://aistudio.google.com/app/apikey',
+    keyPlaceholder: 'AIzaSy...',
+    defaultModel: 'gemini-2.5-flash-lite',
+    models: [
+      { id: 'gemini-2.5-flash-lite', label: 'Gemini 2.5 Flash-Lite (en hızlı)' },
+      { id: 'gemini-2.5-flash', label: 'Gemini 2.5 Flash' },
+      { id: 'gemini-2.0-flash', label: 'Gemini 2.0 Flash' },
+    ],
+  },
+  openai: {
+    name: 'OpenAI ChatGPT',
+    keyLink: 'https://platform.openai.com/api-keys',
+    keyPlaceholder: 'sk-...',
+    defaultModel: 'gpt-4o-mini',
+    models: [
+      { id: 'gpt-4o-mini', label: 'GPT-4o mini (hızlı)' },
+      { id: 'gpt-4.1-nano', label: 'GPT-4.1 nano (en hızlı)' },
+      { id: 'gpt-4.1-mini', label: 'GPT-4.1 mini' },
+      { id: 'gpt-4o', label: 'GPT-4o' },
+    ],
+  },
+  claude: {
+    name: 'Anthropic Claude',
+    keyLink: 'https://console.anthropic.com/settings/keys',
+    keyPlaceholder: 'sk-ant-...',
+    defaultModel: 'claude-haiku-4-5',
+    models: [
+      { id: 'claude-haiku-4-5', label: 'Claude Haiku 4.5 (hızlı)' },
+      { id: 'claude-haiku-5-5', label: 'Claude Haiku 5.5' },
+      { id: 'claude-sonnet-5-5', label: 'Claude Sonnet 5.5 (daha isabetli, yavaş)' },
+    ],
+  },
+  grok: {
+    name: 'xAI Grok',
+    keyLink: 'https://console.x.ai',
+    keyPlaceholder: 'xai-...',
+    defaultModel: 'grok-2-vision-1212',
+    models: [{ id: 'grok-2-vision-1212', label: 'Grok 2 Vision' }],
+  },
+};
+
 export default class FramioMediaSettingsPage extends ExtensionPage {
   oninit(vnode) {
     super.oninit(vnode);
@@ -2371,73 +2425,24 @@ export default class FramioMediaSettingsPage extends ExtensionPage {
   }
 
   renderAiTab() {
-    const currentProvider = this.setting('framio-upload-exif.ai_provider', 'gemini')() || 'gemini';
-    const currentModelSetting = this.setting('framio-upload-exif.ai_model', '')() || '';
-
-    const aiConfig = {
-      gemini: {
-        name: 'Google Gemini',
-        keyLink: 'https://aistudio.google.com/app/apikey',
-        keyPlaceholder: 'AIzaSy...',
-        defaultModel: 'gemini-3.7-flash',
-        models: [
-          { id: 'gemini-3.8-flash', label: 'Gemini 3.8 Flash (En Yeni Nesil / Ultra Hızlı & Zeki - Önerilen)' },
-          { id: 'gemini-3.7-flash', label: 'Gemini 3.7 Flash (Kararlı En Yeni Flash Sürümü)' },
-          { id: 'gemini-3.6-flash', label: 'Gemini 3.6 Flash (Hızlı & Çok Modlu)' },
-          { id: 'gemini-3.1-pro', label: 'Gemini 3.1 Pro (Derin Akıl Yürütme & Vision)' },
-          { id: 'gemini-2.5-flash', label: 'Gemini 2.5 Flash' },
-          { id: 'gemini-2.5-pro', label: 'Gemini 2.5 Pro' },
-          { id: 'gemini-2.0-flash', label: 'Gemini 2.0 Flash' },
-          { id: 'custom', label: 'Özel Model Adı Belirt...' }
-        ]
-      },
-      openai: {
-        name: 'OpenAI (ChatGPT / GPT-OSS)',
-        keyLink: 'https://platform.openai.com/api-keys',
-        keyPlaceholder: 'sk-proj-... / sk-...',
-        defaultModel: 'gpt-4o-mini',
-        models: [
-          { id: 'gpt-4o-mini', label: 'GPT-4o-mini (Hızlı, Ekonomik & Yüksek Doğruluk - Önerilen)' },
-          { id: 'gpt-4o', label: 'GPT-4o (Amiral Gemisi Omni Vision Modeli)' },
-          { id: 'gpt-4.5-preview', label: 'GPT-4.5 Preview (En Gelişmiş Bilgi Tabanı)' },
-          { id: 'chatgpt-4o-latest', label: 'ChatGPT-4o Dynamic Latest (Sürekli Güncellenen)' },
-          { id: 'gpt-oss-120b', label: 'GPT-OSS 120B (Açık Ağırlıklı / Hızlı)' },
-          { id: 'gpt-4-turbo', label: 'GPT-4 Turbo Vision' },
-          { id: 'custom', label: 'Özel Model Adı Belirt...' }
-        ]
-      },
-      grok: {
-        name: 'xAI (Grok)',
-        keyLink: 'https://console.x.ai',
-        keyPlaceholder: 'xai-...',
-        defaultModel: 'grok-2-vision-1212',
-        models: [
-          { id: 'grok-2-vision-1212', label: 'Grok 2 Vision (1212 - En Güncel Vision Sürümü - Önerilen)' },
-          { id: 'grok-2-vision', label: 'Grok 2 Vision (Standart Sürüm)' },
-          { id: 'grok-vision-beta', label: 'Grok Vision Beta' },
-          { id: 'grok-beta', label: 'Grok Beta' },
-          { id: 'custom', label: 'Özel Model Adı Belirt...' }
-        ]
-      },
-      claude: {
-        name: 'Anthropic (Claude)',
-        keyLink: 'https://console.anthropic.com/settings/keys',
-        keyPlaceholder: 'sk-ant-...',
-        defaultModel: 'claude-sonnet-4.6',
-        models: [
-          { id: 'claude-sonnet-4.6', label: 'Claude Sonnet 4.6 Thinking (En Yeni Amiral Gemisi - Önerilen)' },
-          { id: 'claude-opus-4.6', label: 'Claude Opus 4.6 Thinking (Maksimum Derin Analiz)' },
-          { id: 'claude-3-7-sonnet-20250219', label: 'Claude 3.7 Sonnet (Hibrit Akıl Yürütme & Vision)' },
-          { id: 'claude-3-5-sonnet-20241022', label: 'Claude 3.5 Sonnet' },
-          { id: 'claude-3-5-haiku-20241022', label: 'Claude 3.5 Haiku' },
-          { id: 'custom', label: 'Özel Model Adı Belirt...' }
-        ]
-      }
+    const aiConfig = AI_PROVIDERS;
+    const providersSetting = this.setting('framio-upload-exif.ai_providers', '');
+    let rows = [];
+    try { rows = JSON.parse(providersSetting() || '[]'); } catch (e) { rows = []; }
+    if (!Array.isArray(rows)) rows = [];
+    // Eski tek sağlayıcılı ayar varsa listeye ilk satır olarak taşınır
+    if (!providersSetting() && (this.setting('framio-upload-exif.ai_api_key', '')() || '')) {
+      rows = [{ provider: this.setting('framio-upload-exif.ai_provider', 'gemini')() || 'gemini', model: '', key: this.setting('framio-upload-exif.ai_api_key', '')(), enabled: true }];
+    }
+    const save = (next) => providersSetting(JSON.stringify(next));
+    const update = (i, patch) => save(rows.map((r, k) => (k === i ? Object.assign({}, r, patch) : r)));
+    const move = (i, d) => {
+      const j = i + d;
+      if (j < 0 || j >= rows.length) return;
+      const next = rows.slice();
+      [next[i], next[j]] = [next[j], next[i]];
+      save(next);
     };
-
-    const activeProviderInfo = aiConfig[currentProvider] || aiConfig.gemini;
-    const isCustomModel = currentModelSetting === 'custom' || (currentModelSetting && !activeProviderInfo.models.some(m => m.id === currentModelSetting));
-    const selectedDropdownValue = isCustomModel ? 'custom' : (currentModelSetting || activeProviderInfo.defaultModel);
 
     return (
       <div className="Form-section" style={{ background: '#fff', padding: '25px', borderRadius: '10px', border: '1px solid #e5e5e5' }}>
@@ -2464,86 +2469,63 @@ export default class FramioMediaSettingsPage extends ExtensionPage {
           </div>
         </div>
 
-        {/* 2. Sağlayıcı & Model Seçimi */}
+        {/* 2. Sağlayıcılar (paralel yarış) */}
         <div style={{ background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '8px', padding: '16px', marginBottom: '20px' }}>
-          <h4 style={{ margin: '0 0 12px 0', fontSize: '14px', fontWeight: 'bold', color: '#334155' }}>
-            <i className="fas fa-microchip" style={{ marginRight: '6px', color: '#6366f1' }}></i>
-            Yapay Zeka Servis Sağlayıcısı & Model Seçimi
+          <h4 style={{ margin: '0 0 6px 0', fontSize: '14px', fontWeight: 'bold', color: '#334155' }}>
+            <i className="fas fa-bolt" style={{ marginRight: '6px', color: '#6366f1' }}></i>
+            Yapay Zeka Sağlayıcıları
           </h4>
+          <p className="helpText" style={{ fontSize: '12px', color: '#64748b', margin: '0 0 12px' }}>
+            Etkin sağlayıcıların hepsine <b>aynı anda</b> sorulur, ilk gelen geçerli yanıt kullanılır; biri yavaşlar ya da hata verirse diğeri devreye girer.
+            Görsel 768 px boyutuna küçültülüp gönderilir ve aynı fotoğrafın sonucu önbellekten gelir. En hızlıları: Groq (Llama 4 Scout) ve Gemini Flash-Lite.
+          </p>
 
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px', marginBottom: '15px' }}>
-            <div className="Form-group">
-              <label style={{ fontWeight: 'bold' }}>AI Sağlayıcı</label>
-              <select
-                className="FormControl"
-                value={currentProvider}
-                onchange={(e) => {
-                  const prov = e.target.value;
-                  this.setting('framio-upload-exif.ai_provider')(prov);
-                  const newDef = aiConfig[prov] ? aiConfig[prov].defaultModel : '';
-                  this.setting('framio-upload-exif.ai_model')(newDef);
-                  m.redraw();
-                }}
-              >
-                <option value="gemini">Google Gemini (Gemini 2.5 Flash / Pro, 2.0, 1.5)</option>
-                <option value="openai">OpenAI ChatGPT (GPT-4o, GPT-4o-mini, GPT-4.5)</option>
-                <option value="grok">xAI Grok (Grok-2-Vision, Grok-Beta)</option>
-                <option value="claude">Anthropic Claude (Claude 3.7 Sonnet, 3.5 Sonnet, 3.5 Haiku)</option>
-              </select>
-            </div>
+          {rows.length === 0 ? (
+            <p style={{ fontSize: '13px', color: '#b45309' }}>Henüz sağlayıcı yok. Vision AI, en az bir anahtar eklenene kadar sessizce devre dışı kalır.</p>
+          ) : null}
 
-            <div className="Form-group">
-              <label style={{ fontWeight: 'bold' }}>Model Sürümü</label>
-              <select
-                className="FormControl"
-                value={selectedDropdownValue}
-                onchange={(e) => {
-                  const val = e.target.value;
-                  if (val === 'custom') {
-                    this.setting('framio-upload-exif.ai_model')('');
-                  } else {
-                    this.setting('framio-upload-exif.ai_model')(val);
-                  }
-                  m.redraw();
-                }}
-              >
-                {activeProviderInfo.models.map(mod => (
-                  <option value={mod.id}>{mod.label}</option>
-                ))}
-              </select>
-            </div>
-          </div>
-
-          {/* Özel Model Adı Girişi */}
-          {selectedDropdownValue === 'custom' && (
-            <div className="Form-group" style={{ marginBottom: '15px', padding: '12px', background: '#fff', border: '1px dashed #cbd5e1', borderRadius: '6px' }}>
-              <label style={{ fontWeight: 'bold', fontSize: '13px' }}>Özel / Gelecek Model Kimliği (Model Identifier)</label>
-              <input
-                className="FormControl"
-                type="text"
-                placeholder="Örn: gemini-2.5-pro, gpt-4o, claude-3-7-sonnet-20250219"
-                bidi={this.setting('framio-upload-exif.ai_model', '')}
-              />
-              <div className="helpText" style={{ fontSize: '11px', color: '#888', marginTop: '3px' }}>
-                Yapay zeka sağlayıcısının API dokümantasyonundaki resmi model adını doğrudan yazabilirsiniz.
+          {rows.map((row, i) => {
+            const info = aiConfig[row.provider] || aiConfig.gemini;
+            const listId = 'framio-ai-models-' + i;
+            return (
+              <div key={i} style={{ display: 'grid', gridTemplateColumns: 'auto 160px 1fr 1fr auto', gap: '8px', alignItems: 'center', background: '#fff', border: '1px solid #e2e8f0', borderRadius: '6px', padding: '8px', marginBottom: '8px', opacity: row.enabled === false ? 0.55 : 1 }}>
+                <input type="checkbox" title="Etkin" checked={row.enabled !== false} onchange={(e) => update(i, { enabled: e.target.checked })} />
+                <select className="FormControl" value={row.provider} onchange={(e) => update(i, { provider: e.target.value, model: '' })}>
+                  {Object.keys(aiConfig).map((k) => (
+                    <option value={k}>{aiConfig[k].name}</option>
+                  ))}
+                </select>
+                <div>
+                  <input className="FormControl" list={listId} placeholder={'Varsayılan: ' + info.defaultModel} value={row.model || ''} onchange={(e) => update(i, { model: e.target.value.trim() })} />
+                  <datalist id={listId}>
+                    {info.models.map((mm) => (
+                      <option value={mm.id}>{mm.label}</option>
+                    ))}
+                  </datalist>
+                </div>
+                <input className="FormControl" type="password" autocomplete="off" placeholder={info.keyPlaceholder} value={row.key || ''} onchange={(e) => update(i, { key: e.target.value.trim() })} />
+                <div style={{ display: 'flex', gap: '4px' }}>
+                  <Button className="Button Button--icon" icon="fas fa-arrow-up" disabled={i === 0} onclick={() => move(i, -1)} />
+                  <Button className="Button Button--icon" icon="fas fa-arrow-down" disabled={i === rows.length - 1} onclick={() => move(i, 1)} />
+                  <Button className="Button Button--icon" icon="fas fa-trash" onclick={() => save(rows.filter((r, k) => k !== i))} />
+                </div>
+                <div style={{ gridColumn: '2 / -1', fontSize: '11px' }}>
+                  <a href={info.keyLink} target="_blank" rel="noopener noreferrer">
+                    {info.name} anahtarı al <i className="fas fa-external-link-alt"></i>
+                  </a>
+                </div>
               </div>
-            </div>
-          )}
+            );
+          })}
 
-          <div className="Form-group" style={{ marginBottom: '15px' }}>
-            <label style={{ fontWeight: 'bold' }}>Sistem API Anahtarı (API Key)</label>
-            <input
-              className="FormControl"
-              type="password"
-              placeholder={activeProviderInfo.keyPlaceholder}
-              bidi={this.setting('framio-upload-exif.ai_api_key', '')}
-            />
-            <div className="helpText" style={{ fontSize: '11px', color: '#64748b', marginTop: '4px' }}>
-              API anahtarınızı almak için:{' '}
-              <a href={activeProviderInfo.keyLink} target="_blank" rel="noopener noreferrer" style={{ color: '#6366f1', fontWeight: 600 }}>
-                {activeProviderInfo.name} API Konsolu Sayfasına Gidin <i className="fas fa-external-link-alt" style={{ fontSize: '10px' }}></i>
-              </a>
-            </div>
+          <Button className="Button" icon="fas fa-plus" onclick={() => save(rows.concat([{ provider: 'groq', model: '', key: '', enabled: true }]))}>
+            Sağlayıcı ekle
+          </Button>
+
+          <div className="Form-group" style={{ marginTop: '14px', maxWidth: '260px' }}>
+            <label style={{ fontWeight: 'bold', fontSize: '13px' }}>Zaman aşımı (saniye)</label>
+            <input className="FormControl" type="number" min="3" max="30" bidi={this.setting('framio-upload-exif.ai_timeout', '10')} />
+            <div className="helpText" style={{ fontSize: '11px', color: '#888' }}>Hiçbir sağlayıcı bu sürede yanıt vermezse alanlar boş kalır, kullanıcı elle doldurur.</div>
           </div>
         </div>
 

@@ -10,14 +10,12 @@ use Laminas\Diactoros\Response\JsonResponse;
 use Flarum\Settings\SettingsRepositoryInterface;
 use GuzzleHttp\Client;
 use Illuminate\Support\Arr;
+use Framio\UploadExif\Ai\VisionAnalyzer;
 
 class AnalyzeMediaAiController implements RequestHandlerInterface
 {
-    protected $settings;
-
-    public function __construct(SettingsRepositoryInterface $settings)
+    public function __construct(protected SettingsRepositoryInterface $settings, protected VisionAnalyzer $vision)
     {
-        $this->settings = $settings;
     }
 
     public function handle(ServerRequestInterface $request): ResponseInterface
@@ -25,89 +23,33 @@ class AnalyzeMediaAiController implements RequestHandlerInterface
         $actor = RequestUtil::getActor($request);
         $actor->assertRegistered();
 
-        $body = $request->getParsedBody();
-        $uploadedFiles = $request->getUploadedFiles();
-        $file = $uploadedFiles['image'] ?? null;
+        $body = $request->getParsedBody() ?: [];
+        $file = $request->getUploadedFiles()['image'] ?? null;
         $imageUrl = Arr::get($body, 'image_url');
 
-        // Check if AI is enabled globally
-        $aiEnabled = $this->settings->get('framio-upload-exif.ai_enabled', '1');
-        if ($aiEnabled === '0') {
-            return new JsonResponse(['error' => 'Vision AI servisi forum yöneticisi tarafından devre dışı bırakılmış.'], 400);
+        // Yapılandırılmamış ya da kapalıysa sessizce geç: yükleme akışı etkilenmez
+        if (!$this->vision->enabled()) {
+            return new JsonResponse(['success' => false, 'reason' => 'disabled']);
+        }
+        $candidates = $this->vision->candidates($actor);
+        if (!$candidates) {
+            return new JsonResponse(['success' => false, 'reason' => 'not_configured']);
         }
 
-        // 1. Kullanıcı Tercihleri ve Öncelik Sıralaması
-        $allowUserKeys = $this->settings->get('framio-upload-exif.allow_user_ai_keys', '1') !== '0';
-        
-        $userApiKey = Arr::get($body, 'custom_api_key');
-        $userProvider = Arr::get($body, 'custom_provider');
-        $userModel = Arr::get($body, 'custom_model');
-
-        if ($allowUserKeys && $actor) {
-            if (empty($userApiKey)) {
-                $userApiKey = $actor->getPreference('framio_personal_ai_key');
-            }
-            if (empty($userProvider) || $userProvider === 'default') {
-                $userProvider = $actor->getPreference('framio_personal_ai_provider');
-            }
-            if (empty($userModel)) {
-                $userModel = $actor->getPreference('framio_personal_ai_model');
-            }
-        }
-
-        // Fallback to System Settings
-        $provider = (!empty($userProvider) && $userProvider !== 'default') 
-            ? $userProvider 
-            : ($this->settings->get('framio-upload-exif.ai_provider', 'gemini') ?: 'gemini');
-
-        $apiKey = !empty($userApiKey) 
-            ? trim($userApiKey) 
-            : trim($this->settings->get('framio-upload-exif.ai_api_key', '') ?: '');
-
-        $model = !empty($userModel) 
-            ? trim($userModel) 
-            : trim($this->settings->get('framio-upload-exif.ai_model', '') ?: '');
-
-        // Default model fallback per provider
-        if (empty($model)) {
-            switch ($provider) {
-                case 'openai': $model = 'gpt-4o-mini'; break;
-                case 'grok': $model = 'grok-2-vision-1212'; break;
-                case 'claude': $model = 'claude-sonnet-4.6'; break;
-                case 'gemini':
-                default: $model = 'gemini-3.7-flash'; break;
-            }
-        }
-
-        if (empty($apiKey)) {
-            return new JsonResponse([
-                'error' => 'Vision AI yapılandırılmamış. Lütfen Admin panelinden veya Profil ayarlarınızdan bir API Anahtarı giriniz.'
-            ], 400);
-        }
-
-        // Image data retrieval
-        $base64Image = null;
+        $bytes = null;
         $mimeType = 'image/jpeg';
-
         if ($file && $file->getError() === UPLOAD_ERR_OK) {
-            $stream = $file->getStream();
-            $base64Image = base64_encode($stream->getContents());
-            $clientFilename = $file->getClientFilename();
-            $ext = strtolower(pathinfo($clientFilename, PATHINFO_EXTENSION));
-            if ($ext === 'webp') $mimeType = 'image/webp';
-            elseif ($ext === 'png') $mimeType = 'image/png';
-        } elseif ($imageUrl) {
+            $bytes = (string) $file->getStream();
+            $mimeType = $file->getClientMediaType() ?: $mimeType;
+        } elseif ($imageUrl && preg_match('#^https?://#i', $imageUrl)) {
             try {
-                $client = new Client(['timeout' => 8.0]);
-                $resp = $client->get($imageUrl);
-                $base64Image = base64_encode($resp->getBody()->getContents());
+                $bytes = (string) (new Client(['timeout' => 5.0]))->get($imageUrl)->getBody();
             } catch (\Throwable $e) {
-                return new JsonResponse(['error' => 'Görsel URL adresinden çekilemedi.'], 400);
+                return new JsonResponse(['success' => false, 'error' => 'Görsel adresinden alınamadı.']);
             }
         }
-
-        if (!$base64Image) {
-            return new JsonResponse(['error' => 'Analiz edilecek görsel verisi bulunamadı.'], 400);
+        if (!$bytes) {
+            return new JsonResponse(['success' => false, 'error' => 'Analiz edilecek görsel bulunamadı.']);
         }
 
         // Kategori Şeması Tespiti (tag_slug veya discussion_id üzerinden)
@@ -232,155 +174,19 @@ class AnalyzeMediaAiController implements RequestHandlerInterface
         }
 
         try {
-            $client = new Client(['timeout' => 25.0]);
-            $candidateText = '';
-
-            if ($provider === 'openai') {
-                $response = $client->post('https://api.openai.com/v1/chat/completions', [
-                    'headers' => [
-                        'Authorization' => 'Bearer ' . $apiKey,
-                        'Content-Type' => 'application/json'
-                    ],
-                    'json' => [
-                        'model' => $model,
-                        'messages' => [
-                            [
-                                'role' => 'user',
-                                'content' => [
-                                    ['type' => 'text', 'text' => $promptText],
-                                    [
-                                        'type' => 'image_url',
-                                        'image_url' => [
-                                            'url' => "data:{$mimeType};base64,{$base64Image}"
-                                        ]
-                                    ]
-                                ]
-                            ]
-                        ],
-                        'response_format' => ['type' => 'json_object'],
-                        'temperature' => 0.1,
-                        'max_tokens' => 600
-                    ]
-                ]);
-                $resData = json_decode($response->getBody()->getContents(), true);
-                $candidateText = $resData['choices'][0]['message']['content'] ?? '{}';
-
-            } elseif ($provider === 'grok') {
-                $response = $client->post('https://api.x.ai/v1/chat/completions', [
-                    'headers' => [
-                        'Authorization' => 'Bearer ' . $apiKey,
-                        'Content-Type' => 'application/json'
-                    ],
-                    'json' => [
-                        'model' => $model,
-                        'messages' => [
-                            [
-                                'role' => 'user',
-                                'content' => [
-                                    ['type' => 'text', 'text' => $promptText],
-                                    [
-                                        'type' => 'image_url',
-                                        'image_url' => [
-                                            'url' => "data:{$mimeType};base64,{$base64Image}"
-                                        ]
-                                    ]
-                                ]
-                            ]
-                        ],
-                        'temperature' => 0.1,
-                        'max_tokens' => 600
-                    ]
-                ]);
-                $resData = json_decode($response->getBody()->getContents(), true);
-                $candidateText = $resData['choices'][0]['message']['content'] ?? '{}';
-
-            } elseif ($provider === 'claude') {
-                $response = $client->post('https://api.anthropic.com/v1/messages', [
-                    'headers' => [
-                        'x-api-key' => $apiKey,
-                        'anthropic-version' => '2023-06-01',
-                        'Content-Type' => 'application/json'
-                    ],
-                    'json' => [
-                        'model' => $model,
-                        'max_tokens' => 600,
-                        'messages' => [
-                            [
-                                'role' => 'user',
-                                'content' => [
-                                    [
-                                        'type' => 'image',
-                                        'source' => [
-                                            'type' => 'base64',
-                                            'media_type' => $mimeType,
-                                            'data' => $base64Image
-                                        ]
-                                    ],
-                                    [
-                                        'type' => 'text',
-                                        'text' => $promptText
-                                    ]
-                                ]
-                            ]
-                        ]
-                    ]
-                ]);
-                $resData = json_decode($response->getBody()->getContents(), true);
-                $candidateText = $resData['content'][0]['text'] ?? '{}';
-
-            } else {
-                // Google Gemini (Default)
-                $apiUrl = "https://generativelanguage.googleapis.com/v1beta/models/{$model}:generateContent?key={$apiKey}";
-                $response = $client->post($apiUrl, [
-                    'headers' => ['Content-Type' => 'application/json'],
-                    'json' => [
-                        'contents' => [
-                            [
-                                'parts' => [
-                                    ['text' => $promptText],
-                                    [
-                                        'inline_data' => [
-                                            'mime_type' => $mimeType,
-                                            'data' => $base64Image
-                                        ]
-                                    ]
-                                ]
-                            ]
-                        ],
-                        'generationConfig' => [
-                            'temperature' => 0.1,
-                            'response_mime_type' => 'application/json'
-                        ]
-                    ]
-                ]);
-                $resData = json_decode($response->getBody()->getContents(), true);
-                $candidateText = $resData['candidates'][0]['content']['parts'][0]['text'] ?? '{}';
-            }
-
-            // Clean Markdown code blocks if any
-            $candidateText = preg_replace('/^```(?:json)?\s*/i', '', trim($candidateText));
-            $candidateText = preg_replace('/```$/', '', trim($candidateText));
-
-            $parsed = json_decode($candidateText, true);
-
-            return new JsonResponse([
-                'success' => true,
-                'provider' => $provider,
-                'model' => $model,
-                'data' => is_array($parsed) ? $parsed : []
-            ]);
-
-        } catch (\GuzzleHttp\Exception\ClientException $e) {
-            $respBody = $e->hasResponse() ? $e->getResponse()->getBody()->getContents() : '';
-            $decoded = json_decode($respBody, true);
-            $msg = $decoded['error']['message'] ?? $decoded['message'] ?? $e->getMessage();
-            return new JsonResponse([
-                'error' => "{$provider} API Hatası: " . $msg
-            ], 400);
+            $result = $this->vision->analyze($candidates, $bytes, $mimeType, $promptText);
         } catch (\Throwable $e) {
-            return new JsonResponse([
-                'error' => 'AI analizi sırasında hata oluştu: ' . $e->getMessage()
-            ], 500);
+            return new JsonResponse(['success' => false, 'error' => 'Yapay zeka yanıt veremedi: ' . $e->getMessage()]);
         }
+
+        return new JsonResponse([
+            'success' => true,
+            'provider' => $result['provider'],
+            'model' => $result['model'],
+            'source' => $result['source'],
+            'cached' => $result['cached'],
+            'ms' => $result['ms'],
+            'data' => $result['data'],
+        ]);
     }
 }

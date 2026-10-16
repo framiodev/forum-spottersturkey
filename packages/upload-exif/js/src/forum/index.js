@@ -123,164 +123,77 @@ app.initializers.add('framio/upload-exif', () => {
       );
     }
 
-    // Kişisel Vision AI Yapılandırması (Kullanıcı Tercihi)
+    // Kişisel Vision AI: kullanıcı kendi anahtarını tanımlarsa ilk önce o denenir, site sağlayıcıları yedekte kalır
     const allowUserKeys = app.forum.attribute('framio-upload-exif.allow_user_ai_keys') !== '0';
     if (allowUserKeys) {
-      const userPrefs = this.user.preferences();
-      const currentProvider = userPrefs.framio_personal_ai_provider || 'default';
-      const defaultProvider = app.forum.attribute('framio-upload-exif.ai_provider') || 'gemini';
-      const effectiveProvider = currentProvider === 'default' ? defaultProvider : currentProvider;
-      const currentModel = userPrefs.framio_personal_ai_model || '';
-
-      const aiConfig = {
-        gemini: {
-          name: 'Google Gemini',
-          keyPlaceholder: 'AIzaSy...',
-          defaultModel: 'gemini-3.7-flash',
-          models: [
-            { id: 'default', label: 'Varsayılan Önerilen (Gemini 3.7 Flash)' },
-            { id: 'gemini-3.8-flash', label: 'Gemini 3.8 Flash (En Yeni Nesil / Ultra Hızlı & Zeki)' },
-            { id: 'gemini-3.7-flash', label: 'Gemini 3.7 Flash (Kararlı En Yeni Flash Sürümü)' },
-            { id: 'gemini-3.6-flash', label: 'Gemini 3.6 Flash' },
-            { id: 'gemini-3.1-pro', label: 'Gemini 3.1 Pro (Derin Akıl Yürütme & Vision)' },
-            { id: 'gemini-2.5-flash', label: 'Gemini 2.5 Flash' },
-            { id: 'gemini-2.5-pro', label: 'Gemini 2.5 Pro' },
-            { id: 'gemini-2.0-flash', label: 'Gemini 2.0 Flash' },
-            { id: 'custom', label: 'Özel Model Adı Belirt...' }
-          ]
-        },
-        openai: {
-          name: 'OpenAI (ChatGPT / GPT-OSS)',
-          keyPlaceholder: 'sk-proj-... / sk-...',
-          defaultModel: 'gpt-4o-mini',
-          models: [
-            { id: 'default', label: 'Varsayılan Önerilen (GPT-4o-mini)' },
-            { id: 'gpt-4o-mini', label: 'GPT-4o-mini (Hızlı & Ekonomik)' },
-            { id: 'gpt-4o', label: 'GPT-4o (Amiral Gemisi Omni Vision)' },
-            { id: 'gpt-4.5-preview', label: 'GPT-4.5 Preview (En Gelişmiş)' },
-            { id: 'chatgpt-4o-latest', label: 'ChatGPT-4o Dynamic Latest' },
-            { id: 'gpt-oss-120b', label: 'GPT-OSS 120B (Açık Ağırlıklı / Hızlı)' },
-            { id: 'gpt-4-turbo', label: 'GPT-4 Turbo Vision' },
-            { id: 'custom', label: 'Özel Model Adı Belirt...' }
-          ]
-        },
-        grok: {
-          name: 'xAI (Grok)',
-          keyPlaceholder: 'xai-...',
-          defaultModel: 'grok-2-vision-1212',
-          models: [
-            { id: 'default', label: 'Varsayılan Önerilen (Grok 2 Vision 1212)' },
-            { id: 'grok-2-vision-1212', label: 'Grok 2 Vision (1212 - En Güncel Sürüm)' },
-            { id: 'grok-2-vision', label: 'Grok 2 Vision (Standart)' },
-            { id: 'grok-vision-beta', label: 'Grok Vision Beta' },
-            { id: 'custom', label: 'Özel Model Adı Belirt...' }
-          ]
-        },
-        claude: {
-          name: 'Anthropic (Claude)',
-          keyPlaceholder: 'sk-ant-...',
-          defaultModel: 'claude-sonnet-4.6',
-          models: [
-            { id: 'default', label: 'Varsayılan Önerilen (Claude Sonnet 4.6 Thinking)' },
-            { id: 'claude-sonnet-4.6', label: 'Claude Sonnet 4.6 Thinking (En Yeni Amiral Gemisi)' },
-            { id: 'claude-opus-4.6', label: 'Claude Opus 4.6 Thinking (Maksimum Derin Analiz)' },
-            { id: 'claude-3-7-sonnet-20250219', label: 'Claude 3.7 Sonnet (Hibrit Akıl Yürütme & Vision)' },
-            { id: 'claude-3-5-sonnet-20241022', label: 'Claude 3.5 Sonnet' },
-            { id: 'claude-3-5-haiku-20241022', label: 'Claude 3.5 Haiku' },
-            { id: 'custom', label: 'Özel Model Adı Belirt...' }
-          ]
-        }
+      const prefs = this.user.preferences();
+      const provider = prefs.framio_personal_ai_provider || 'default';
+      const PROV = {
+        groq: ['Groq (Llama 4) — en hızlı', 'gsk_...', 'https://console.groq.com/keys', ['meta-llama/llama-4-scout-17b-16e-instruct', 'meta-llama/llama-4-maverick-17b-128e-instruct']],
+        gemini: ['Google Gemini', 'AIzaSy...', 'https://aistudio.google.com/app/apikey', ['gemini-2.5-flash-lite', 'gemini-2.5-flash', 'gemini-2.0-flash']],
+        openai: ['OpenAI ChatGPT', 'sk-...', 'https://platform.openai.com/api-keys', ['gpt-4o-mini', 'gpt-4.1-nano', 'gpt-4.1-mini', 'gpt-4o']],
+        claude: ['Anthropic Claude', 'sk-ant-...', 'https://console.anthropic.com/settings/keys', ['claude-haiku-4-5', 'claude-haiku-5-5', 'claude-sonnet-5-5']],
+        grok: ['xAI Grok', 'xai-...', 'https://console.x.ai', ['grok-2-vision-1212']],
       };
-
-      const provInfo = aiConfig[effectiveProvider] || aiConfig.gemini;
-      const isCustomModel = currentModel === 'custom' || (currentModel && currentModel !== 'default' && !provInfo.models.some(m => m.id === currentModel));
-      const selectedModelVal = isCustomModel ? 'custom' : (currentModel || 'default');
+      const info = PROV[provider];
+      const model = prefs.framio_personal_ai_model && prefs.framio_personal_ai_model !== 'default' ? prefs.framio_personal_ai_model : '';
+      const label = { fontSize: '12px', fontWeight: 600, color: '#475569', marginBottom: '4px', display: 'block' };
 
       items.add(
         'framio-personal-ai-settings',
-        <div className="Form-group framio-personal-ai-group" style={{ marginTop: '20px', padding: '16px', background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '10px' }}>
-          <h4 style={{ margin: '0 0 8px 0', fontSize: '14px', fontWeight: 'bold', color: '#1e293b', display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <i className="fas fa-robot" style={{ color: '#6366f1' }}></i>
-            Kişisel Vision AI (Otomatik Künye) Ayarları
+        <div className="Form-group framio-personal-ai-group" style={{ marginTop: '20px', padding: '16px', background: 'var(--control-bg)', borderRadius: '10px' }}>
+          <h4 style={{ margin: '0 0 8px 0', fontSize: '14px', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <i className="fas fa-robot"></i> Kişisel Vision AI (otomatik künye)
           </h4>
-          <p className="helpText" style={{ fontSize: '12px', color: '#64748b', marginBottom: '12px' }}>
-            Fotoğraf yüklerken künye alanlarının (Marka, Model, Plaka, Firma, Şehir) anlık otomatik doldurulması için kendi yapay zeka sağlayıcınızı ve API anahtarınızı tanımlayabilirsiniz.
+          <p className="helpText" style={{ fontSize: '12px', marginBottom: '12px' }}>
+            İsterseniz kendi yapay zeka anahtarınızı tanımlayın: künye önce sizin hesabınızla doldurulur, olmazsa forumun sağlayıcıları devreye girer.
           </p>
 
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '10px' }}>
-            <div>
-              <label style={{ fontSize: '12px', fontWeight: 600, color: '#475569', marginBottom: '4px', display: 'block' }}>Yapay Zeka Sağlayıcısı</label>
-              <select
-                className="FormControl"
-                style={{ fontSize: '13px' }}
-                value={currentProvider}
-                onchange={(e) => {
-                  this.user.savePreferences({
-                    framio_personal_ai_provider: e.target.value,
-                    framio_personal_ai_model: 'default'
-                  });
-                }}
-              >
-                <option value="default">Forum Varsayılanı ({aiConfig[defaultProvider] ? aiConfig[defaultProvider].name : defaultProvider})</option>
-                <option value="gemini">Google Gemini (Gemini 2.5 Flash / Pro, 2.0, 1.5)</option>
-                <option value="openai">OpenAI ChatGPT (GPT-4o, GPT-4o-mini, GPT-4.5)</option>
-                <option value="grok">xAI Grok (Grok-2-Vision, Grok-Beta)</option>
-                <option value="claude">Anthropic Claude (Claude 3.7 Sonnet, 3.5 Sonnet, 3.5 Haiku)</option>
-              </select>
-            </div>
+          <label style={label}>Sağlayıcı</label>
+          <select
+            className="FormControl"
+            value={provider}
+            onchange={(e) => this.user.savePreferences({ framio_personal_ai_provider: e.target.value, framio_personal_ai_model: '' })}
+          >
+            <option value="default">Kullanma — forumun ayarı yeterli</option>
+            {Object.keys(PROV).map((k) => (
+              <option value={k}>{PROV[k][0]}</option>
+            ))}
+          </select>
 
-            <div>
-              <label style={{ fontSize: '12px', fontWeight: 600, color: '#475569', marginBottom: '4px', display: 'block' }}>Model Sürümü</label>
-              <select
-                className="FormControl"
-                style={{ fontSize: '13px' }}
-                value={selectedModelVal}
-                onchange={(e) => {
-                  const val = e.target.value;
-                  this.user.savePreferences({
-                    framio_personal_ai_model: val === 'custom' ? '' : val
-                  });
-                }}
-              >
-                {provInfo.models.map(m => (
-                  <option value={m.id}>{m.label}</option>
-                ))}
-              </select>
+          {info ? (
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginTop: '10px' }}>
+              <div>
+                <label style={label}>Model (boş = önerilen)</label>
+                <input
+                  className="FormControl"
+                  list="framio-personal-ai-models"
+                  placeholder={info[3][0]}
+                  value={model}
+                  onchange={(e) => this.user.savePreferences({ framio_personal_ai_model: e.target.value.trim() })}
+                />
+                <datalist id="framio-personal-ai-models">
+                  {info[3].map((id) => (
+                    <option value={id}></option>
+                  ))}
+                </datalist>
+              </div>
+              <div>
+                <label style={label}>API anahtarı</label>
+                <input
+                  type="password"
+                  autocomplete="off"
+                  className="FormControl"
+                  placeholder={info[1]}
+                  value={prefs.framio_personal_ai_key || ''}
+                  onchange={(e) => this.user.savePreferences({ framio_personal_ai_key: e.target.value.trim() })}
+                />
+                <a href={info[2]} target="_blank" rel="noopener noreferrer" style={{ fontSize: '11px' }}>
+                  Anahtar al <i className="fas fa-external-link-alt"></i>
+                </a>
+              </div>
             </div>
-          </div>
-
-          {selectedModelVal === 'custom' && (
-            <div style={{ marginBottom: '10px', padding: '10px', background: '#fff', border: '1px dashed #cbd5e1', borderRadius: '6px' }}>
-              <label style={{ fontSize: '12px', fontWeight: 600, color: '#475569', marginBottom: '4px', display: 'block' }}>Özel Model Kimliği</label>
-              <input
-                type="text"
-                className="FormControl"
-                placeholder="Örn: gemini-2.5-pro, gpt-4o, claude-3-7-sonnet-20250219"
-                value={currentModel === 'custom' ? '' : currentModel}
-                onchange={(e) => {
-                  this.user.savePreferences({ framio_personal_ai_model: e.target.value });
-                }}
-                style={{ fontSize: '13px' }}
-              />
-            </div>
-          )}
-
-          <div>
-            <label style={{ fontSize: '12px', fontWeight: 600, color: '#475569', marginBottom: '4px', display: 'block' }}>Kişisel API Anahtarı</label>
-            <input
-              type="password"
-              className="FormControl"
-              placeholder={provInfo.keyPlaceholder}
-              value={userPrefs.framio_personal_ai_key || ''}
-              onchange={(e) => {
-                this.user.savePreferences({ framio_personal_ai_key: e.target.value });
-              }}
-              style={{ fontSize: '13px' }}
-            />
-            <div className="helpText" style={{ fontSize: '11px', color: '#888', marginTop: '4px' }}>
-              Kendi API anahtarınızı tanımladığınızda analizler forum kotasından değil doğrudan sizin API hesabınızdan harcanır.
-            </div>
-          </div>
+          ) : null}
         </div>,
         9
       );
