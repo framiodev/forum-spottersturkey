@@ -28,7 +28,7 @@ class VisionIndexCommand extends AbstractCommand
     protected function configure()
     {
         $this->setName('media:vision-index')
-            ->setDescription('Vision AI görsel benzerlik dizinini günceller (yeni künyeli fotoğraflar).')
+            ->setDescription('Framio AI görsel benzerlik dizinini günceller (yeni künyeli fotoğraflar).')
             ->addOption('limit', null, InputOption::VALUE_REQUIRED, 'En fazla kaç fotoğraf işlensin', 500)
             ->addOption('retry', null, InputOption::VALUE_NONE, 'Daha önce hata alanları yeniden dene');
     }
@@ -36,7 +36,7 @@ class VisionIndexCommand extends AbstractCommand
     protected function fire(): int
     {
         if (!$this->similarity->available()) {
-            $this->info('Görsel benzerlik kapalı ya da Vision AI sağlayıcılarında Gemini anahtarı yok.');
+            $this->info('Görsel benzerlik kapalı ya da Framio AI sağlayıcılarında Gemini anahtarı yok.');
 
             return 0;
         }
@@ -49,7 +49,9 @@ class VisionIndexCommand extends AbstractCommand
             ->whereNotNull('e.image_url')->where('e.image_url', '!=', '')
             ->whereNotExists(fn ($s) => $s->from(VisionSimilarity::TABLE . ' as v')->whereColumn('v.image_url', 'e.image_url'))
             ->groupBy('e.image_url')
-            ->selectRaw('e.image_url, MAX(e.post_id) as post_id')
+            // Ham SQL'de tablo öneki (ör. "arsv") kendiliğinden eklenmez: takma ad grammar ile sarılır
+            ->select('e.image_url')
+            ->selectRaw('MAX(' . $this->db->getQueryGrammar()->wrap('e.post_id') . ') as post_id')
             ->orderByDesc('post_id');
 
         // Admin'in seçtiği bölümlerle sınırla

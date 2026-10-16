@@ -21,17 +21,33 @@ use Illuminate\Contracts\Cache\Repository as Cache;
  */
 class VisionAnalyzer
 {
+    // Ekim 2026 itibarıyla her sağlayıcının hızlı ve güncel görsel modeli
     public const PROVIDERS = [
-        'gemini' => ['name' => 'Google Gemini', 'model' => 'gemini-2.5-flash-lite'],
+        'gemini' => ['name' => 'Google Gemini', 'model' => 'gemini-3.5-flash-lite'],
         'groq' => ['name' => 'Groq', 'model' => 'qwen/qwen3.8-27b'],
-        'openai' => ['name' => 'OpenAI ChatGPT', 'model' => 'gpt-4o-mini'],
-        'claude' => ['name' => 'Anthropic Claude', 'model' => 'claude-haiku-4-5'],
-        'grok' => ['name' => 'xAI Grok', 'model' => 'grok-2-vision-1212'],
+        'nvidia' => ['name' => 'NVIDIA NIM', 'model' => 'google/gemma-4-31b-it'],
+        'openrouter' => ['name' => 'OpenRouter', 'model' => 'google/gemma-4-31b-it:free'],
+        'openai' => ['name' => 'OpenAI ChatGPT', 'model' => 'gpt-6-luna'],
+        'claude' => ['name' => 'Anthropic Claude', 'model' => 'claude-haiku-5-5'],
+        'grok' => ['name' => 'xAI Grok', 'model' => 'grok-4.7'],
     ];
 
-    // Eski sürümlerde varsayılan olarak kaydedilmiş, API'de bulunmayan model adları
-    protected const INVALID_MODELS = ['default', 'custom', 'gemini-3.8-flash', 'gemini-3.7-flash', 'gemini-3.6-flash', 'gemini-3.1-pro', 'claude-sonnet-4.6', 'claude-opus-4.6', 'gpt-oss-120b',
-        // Groq'ta kaldırılan görsel modeller
+    // OpenAI uyumlu uç noktalar
+    protected const CHAT_URLS = [
+        'openai' => 'https://api.openai.com/v1/chat/completions',
+        'groq' => 'https://api.groq.com/openai/v1/chat/completions',
+        'grok' => 'https://api.x.ai/v1/chat/completions',
+        'nvidia' => 'https://integrate.api.nvidia.com/v1/chat/completions',
+        'openrouter' => 'https://openrouter.ai/api/v1/chat/completions',
+    ];
+
+    // Kaldırılmış, yeni hesaplara kapalı ya da yanlış yazılmış (eski sürümlerin kaydettiği) model adları:
+    // bunlar kayıtlıysa sağlayıcının güncel varsayılanı kullanılır
+    protected const INVALID_MODELS = ['default', 'custom',
+        'gemini-3.7-flash', 'gemini-2.0-flash', 'gemini-2.0-flash-lite', 'gemini-2.5-flash', 'gemini-2.5-flash-lite', 'gemini-2.5-pro',
+        'claude-sonnet-4.6', 'claude-opus-4.6', 'claude-3-7-sonnet-20250219', 'claude-3-5-sonnet-20241022', 'claude-3-5-haiku-20241022',
+        'gpt-oss-120b', 'gpt-4.5-preview', 'gpt-4-turbo',
+        'grok-2-vision-1212', 'grok-2-vision', 'grok-vision-beta', 'grok-beta',
         'meta-llama/llama-4-scout-17b-16e-instruct', 'meta-llama/llama-4-maverick-17b-128e-instruct'];
 
     public function __construct(protected SettingsRepositoryInterface $settings, protected Cache $cache)
@@ -204,73 +220,104 @@ class VisionAnalyzer
 
     protected function request(Client $client, array $c, string $b64, string $mime, string $prompt): PromiseInterface
     {
-        $dataUrl = "data:{$mime};base64,{$b64}";
-
         switch ($c['provider']) {
             case 'claude':
-                return $client->postAsync('https://api.anthropic.com/v1/messages', [
-                    'headers' => ['x-api-key' => $c['key'], 'anthropic-version' => '2023-06-01'],
-                    'json' => [
-                        'model' => $c['model'],
-                        'max_tokens' => 400,
-                        'temperature' => 0,
-                        'messages' => [['role' => 'user', 'content' => [
-                            ['type' => 'image', 'source' => ['type' => 'base64', 'media_type' => $mime, 'data' => $b64]],
-                            ['type' => 'text', 'text' => $prompt],
-                        ]]],
-                    ],
-                ]);
-
-            case 'gemini':
-                $config = ['temperature' => 0, 'maxOutputTokens' => 400, 'responseMimeType' => 'application/json'];
-                // 2.5 ailesinde "düşünme" kapatılır: yanıt süresini belirgin kısaltır
-                if (str_starts_with($c['model'], 'gemini-2.5-flash')) {
-                    $config['thinkingConfig'] = ['thinkingBudget' => 0];
-                }
-
-                return $client->postAsync('https://generativelanguage.googleapis.com/v1beta/models/' . rawurlencode($c['model']) . ':generateContent', [
-                    'headers' => ['x-goog-api-key' => $c['key']],
-                    'json' => [
-                        'contents' => [['parts' => [['text' => $prompt], ['inline_data' => ['mime_type' => $mime, 'data' => $b64]]]]],
-                        'generationConfig' => $config,
-                    ],
-                ]);
-
-            default:
-                // OpenAI uyumlu uç noktalar: OpenAI, Groq, xAI
-                $url = [
-                    'openai' => 'https://api.openai.com/v1/chat/completions',
-                    'groq' => 'https://api.groq.com/openai/v1/chat/completions',
-                    'grok' => 'https://api.x.ai/v1/chat/completions',
-                ][$c['provider']];
                 $body = [
                     'model' => $c['model'],
-                    'temperature' => 0,
-                    'max_tokens' => 400,
+                    'max_tokens' => 500,
+                    // Hız için düşünme kapalı; model kabul etmezse ayarsız tekrar denenir
+                    'thinking' => ['type' => 'disabled'],
                     'messages' => [['role' => 'user', 'content' => [
+                        ['type' => 'image', 'source' => ['type' => 'base64', 'media_type' => $mime, 'data' => $b64]],
                         ['type' => 'text', 'text' => $prompt],
-                        ['type' => 'image_url', 'image_url' => ['url' => $dataUrl] + ($c['provider'] === 'openai' ? ['detail' => 'low'] : [])],
                     ]]],
                 ];
-                if ($c['provider'] !== 'grok') {
-                    $body['response_format'] = ['type' => 'json_object'];
-                }
-                // Qwen gibi düşünen modellerde düşünme kapatılır (hız); desteklenmezse parametresiz tekrar denenir
-                if ($c['provider'] === 'groq' && str_contains($c['model'], 'qwen')) {
-                    $plain = $body;
-                    $body['reasoning_effort'] = 'none';
 
-                    return $client->postAsync($url, ['headers' => ['Authorization' => 'Bearer ' . $c['key']], 'json' => $body])
-                        ->otherwise(function ($e) use ($client, $url, $c, $plain) {
-                            if ($e instanceof \GuzzleHttp\Exception\ClientException && stripos((string) $e->getResponse()->getBody(), 'reasoning') !== false) {
-                                return $client->postAsync($url, ['headers' => ['Authorization' => 'Bearer ' . $c['key']], 'json' => $plain]);
-                            }
-                            throw $e;
-                        });
+                return $this->send($client, 'https://api.anthropic.com/v1/messages', ['x-api-key' => $c['key'], 'anthropic-version' => '2023-06-01'], $body, ['thinking' => ['thinking']]);
+
+            case 'gemini':
+                $config = ['temperature' => 0, 'maxOutputTokens' => 500, 'responseMimeType' => 'application/json'];
+                // Düşünme en aza indirilir (3.x: thinkingLevel, 2.5: thinkingBudget); desteklenmezse ayarsız tekrar denenir
+                $config['thinkingConfig'] = str_starts_with($c['model'], 'gemini-2.5') ? ['thinkingBudget' => 0] : ['thinkingLevel' => 'minimal'];
+                $body = [
+                    'contents' => [['parts' => [['text' => $prompt], ['inline_data' => ['mime_type' => $mime, 'data' => $b64]]]]],
+                    'generationConfig' => $config,
+                ];
+
+                return $this->send($client, 'https://generativelanguage.googleapis.com/v1beta/models/' . rawurlencode($c['model']) . ':generateContent', ['x-goog-api-key' => $c['key']], $body, ['generationConfig.thinkingConfig' => ['thinking']]);
+
+            default:
+                $p = $c['provider'];
+                $body = [
+                    'model' => $c['model'],
+                    'messages' => [['role' => 'user', 'content' => [
+                        ['type' => 'text', 'text' => $prompt],
+                        ['type' => 'image_url', 'image_url' => ['url' => "data:{$mime};base64,{$b64}"] + ($p === 'openai' ? ['detail' => 'low'] : [])],
+                    ]]],
+                    'response_format' => ['type' => 'json_object'],
+                ];
+                if ($p === 'openai') {
+                    // Yeni OpenAI modelleri max_tokens ve temperature kabul etmez
+                    $body['max_completion_tokens'] = 500;
+                    $body['reasoning_effort'] = 'minimal';
+                } else {
+                    $body['max_tokens'] = 500;
+                    $body['temperature'] = 0;
+                }
+                if ($p === 'groq' || $p === 'nvidia' || $p === 'grok') {
+                    $body['reasoning_effort'] = $p === 'grok' ? 'low' : 'none';
+                }
+                $headers = ['Authorization' => 'Bearer ' . $c['key']];
+                if ($p === 'openrouter') {
+                    $headers['X-Title'] = 'Framio AI';
                 }
 
-                return $client->postAsync($url, ['headers' => ['Authorization' => 'Bearer ' . $c['key']], 'json' => $body]);
+                return $this->send($client, self::CHAT_URLS[$p], $headers, $body, ['reasoning_effort' => ['reasoning'], 'response_format' => ['response_format', 'json_object', 'response format'], 'temperature' => ['temperature']]);
         }
+    }
+
+    /**
+     * İsteği gönderir; sağlayıcı isteğe bağlı bir ayarı reddederse (400, hata metninde ayarın adı geçer)
+     * o ayarı çıkarıp bir kez daha dener. Modeller değiştikçe kod kırılmasın diye.
+     */
+    protected function send(Client $client, string $url, array $headers, array $body, array $optional): PromiseInterface
+    {
+        return $client->postAsync($url, ['headers' => $headers, 'json' => $body])
+            ->otherwise(function ($e) use ($client, $url, $headers, $body, $optional) {
+                if (!$e instanceof \GuzzleHttp\Exception\ClientException || $e->getResponse()->getStatusCode() !== 400) {
+                    throw $e;
+                }
+                $msg = strtolower((string) $e->getResponse()->getBody());
+                $stripped = false;
+                foreach ($optional as $path => $words) {
+                    foreach ($words as $w) {
+                        if (str_contains($msg, $w)) {
+                            $body = $this->forget($body, $path);
+                            $stripped = true;
+                            break;
+                        }
+                    }
+                }
+                if (!$stripped) {
+                    throw $e;
+                }
+
+                return $client->postAsync($url, ['headers' => $headers, 'json' => $body]);
+            });
+    }
+
+    protected function forget(array $body, string $path): array
+    {
+        $keys = explode('.', $path);
+        $last = array_pop($keys);
+        $ref = &$body;
+        foreach ($keys as $k) {
+            if (!isset($ref[$k]) || !is_array($ref[$k])) return $body;
+            $ref = &$ref[$k];
+        }
+        unset($ref[$last]);
+
+        return $body;
     }
 
     /** Tek sağlayıcıya ayrı bir soru (ör. yalnızca konum); ayrıştırılmış JSON döner */
@@ -284,7 +331,8 @@ class VisionAnalyzer
     {
         $res = json_decode($raw, true) ?: [];
         $text = match ($provider) {
-            'claude' => $res['content'][0]['text'] ?? '',
+            // Claude yanıtında düşünme bloğu varsa metin bloğu sonradır
+            'claude' => collect($res['content'] ?? [])->firstWhere('type', 'text')['text'] ?? '',
             'gemini' => $res['candidates'][0]['content']['parts'][0]['text'] ?? '',
             default => $res['choices'][0]['message']['content'] ?? '',
         };

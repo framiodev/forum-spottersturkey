@@ -7,53 +7,87 @@ import app from 'flarum/admin/app';
 import Stream from 'flarum/common/utils/Stream';
 
 export const AI_PROVIDERS = {
+  gemini: {
+    name: 'Google Gemini',
+    free: true,
+    keyLink: 'https://aistudio.google.com/app/apikey',
+    keyPlaceholder: 'AIza...',
+    defaultModel: 'gemini-3.5-flash-lite',
+    models: [
+      { id: 'gemini-3.5-flash-lite', label: 'Gemini 3.5 Flash-Lite (en hızlı, ücretsiz katman)' },
+      { id: 'gemini-3.8-flash', label: 'Gemini 3.8 Flash (en yeni, daha isabetli)' },
+      { id: 'gemini-3.6-flash', label: 'Gemini 3.6 Flash' },
+      { id: 'gemini-4-argon', label: 'Gemini 4 Argon (amiral gemisi, yavaş)' },
+    ],
+  },
   groq: {
     name: 'Groq',
+    free: true,
     keyLink: 'https://console.groq.com/keys',
     keyPlaceholder: 'gsk_...',
     defaultModel: 'qwen/qwen3.8-27b',
-    models: [{ id: 'qwen/qwen3.8-27b', label: 'Qwen 3.8 27B (görsel)' }],
-  },
-  gemini: {
-    name: 'Google Gemini',
-    keyLink: 'https://aistudio.google.com/app/apikey',
-    keyPlaceholder: 'AIzaSy...',
-    defaultModel: 'gemini-2.5-flash-lite',
     models: [
-      { id: 'gemini-2.5-flash-lite', label: 'Gemini 2.5 Flash-Lite (en hızlı)' },
-      { id: 'gemini-2.5-flash', label: 'Gemini 2.5 Flash' },
-      { id: 'gemini-2.0-flash', label: 'Gemini 2.0 Flash' },
+      { id: 'qwen/qwen3.8-27b', label: 'Qwen 3.8 27B (çok hızlı, ücretsiz katman)' },
+      { id: 'meta-models/muse-spark-open', label: 'Muse Spark (sınırlı önizleme)' },
+    ],
+  },
+  nvidia: {
+    name: 'NVIDIA NIM',
+    free: true,
+    keyLink: 'https://build.nvidia.com/settings/api-keys',
+    keyPlaceholder: 'nvapi-...',
+    defaultModel: 'google/gemma-4-31b-it',
+    models: [
+      { id: 'google/gemma-4-31b-it', label: 'Gemma 4 31B (hızlı, ücretsiz)' },
+      { id: 'nvidia/nemotron-3.5-super-vl-120b-a12b', label: 'Nemotron 3.5 Super VL 120B (en isabetli, ücretsiz)' },
+      { id: 'meta/llama-3.2-90b-vision-instruct', label: 'Llama 3.2 90B Vision' },
+      { id: 'moonshotai/kimi-k2.6', label: 'Kimi K2.6' },
+    ],
+  },
+  openrouter: {
+    name: 'OpenRouter',
+    free: true,
+    keyLink: 'https://openrouter.ai/settings/keys',
+    keyPlaceholder: 'sk-or-...',
+    defaultModel: 'google/gemma-4-31b-it:free',
+    models: [
+      { id: 'google/gemma-4-31b-it:free', label: 'Gemma 4 31B (ücretsiz)' },
+      { id: 'nvidia/nemotron-3.5-super-vl:free', label: 'Nemotron 3.5 Super VL (ücretsiz)' },
+      { id: 'google/gemma-4-26b-a4b-it:free', label: 'Gemma 4 26B A4B (ücretsiz, hızlı)' },
+      { id: 'openrouter/free', label: 'Otomatik ücretsiz model' },
     ],
   },
   openai: {
     name: 'OpenAI ChatGPT',
     keyLink: 'https://platform.openai.com/api-keys',
     keyPlaceholder: 'sk-...',
-    defaultModel: 'gpt-4o-mini',
+    defaultModel: 'gpt-6-luna',
     models: [
-      { id: 'gpt-4o-mini', label: 'GPT-4o mini (hızlı)' },
-      { id: 'gpt-4.1-nano', label: 'GPT-4.1 nano (en hızlı)' },
-      { id: 'gpt-4.1-mini', label: 'GPT-4.1 mini' },
-      { id: 'gpt-4o', label: 'GPT-4o' },
+      { id: 'gpt-6-luna', label: 'GPT-6 Luna (hızlı, ekonomik)' },
+      { id: 'gpt-6.1-sol', label: 'GPT-6.1 Sol (dengeli)' },
+      { id: 'gpt-6-astra', label: 'GPT-6 Astra (amiral gemisi, yavaş)' },
     ],
   },
   claude: {
     name: 'Anthropic Claude',
-    keyLink: 'https://console.anthropic.com/settings/keys',
+    keyLink: 'https://platform.claude.com/settings/keys',
     keyPlaceholder: 'sk-ant-...',
-    defaultModel: 'claude-haiku-4-5',
+    defaultModel: 'claude-haiku-5-5',
     models: [
-      { id: 'claude-haiku-4-5', label: 'Claude Haiku 4.5 (hızlı)' },
-      { id: 'claude-haiku-5-5', label: 'Claude Haiku 5.5' },
-      { id: 'claude-sonnet-5-5', label: 'Claude Sonnet 5.5 (daha isabetli, yavaş)' },
+      { id: 'claude-haiku-5-5', label: 'Claude Haiku 5.5 (en hızlı)' },
+      { id: 'claude-sonnet-5-5', label: 'Claude Sonnet 5.5 (hız + zekâ)' },
+      { id: 'claude-opus-5-5', label: 'Claude Opus 5.5 (en isabetli, yavaş)' },
     ],
   },
   grok: {
     name: 'xAI Grok',
     keyLink: 'https://console.x.ai',
     keyPlaceholder: 'xai-...',
-    defaultModel: 'grok-2-vision-1212',
-    models: [{ id: 'grok-2-vision-1212', label: 'Grok 2 Vision' }],
+    defaultModel: 'grok-4.7',
+    models: [
+      { id: 'grok-4.7', label: 'Grok 4.7 (en yeni)' },
+      { id: 'grok-4.6', label: 'Grok 4.6' },
+    ],
   },
 };
 
@@ -455,7 +489,7 @@ export default class FramioMediaSettingsPage extends ExtensionPage {
             <span>Framio Upload, Medya & EXIF Yönetimi</span>
           </h2>
           <p style={{ color: '#666', margin: '5px 0 0 0' }}>
-            Çoklu bulut depolama, akıllı 2-kopya optimizasyonu, Vision AI destekli künye ve gelişmiş filigran motoru.
+            Çoklu bulut depolama, akıllı 2-kopya optimizasyonu, Framio AI destekli künye ve gelişmiş filigran motoru.
           </p>
         </div>
 
@@ -476,7 +510,7 @@ export default class FramioMediaSettingsPage extends ExtensionPage {
             <option value="download_meta">İndirme & Meta Veri (EXIF/IPTC)</option>
             <option value="firebase">Firebase & Depolama</option>
             <option value="watermarks">İmza & Filigran</option>
-            <option value="ai">Vision AI (Yapay Zeka)</option>
+            <option value="ai">Framio AI</option>
             <option value="converter">Format Dönüştürücü & SEO</option>
             <option value="categories">Kategori Yapısı</option>
             <option value="taxonomy">Marka & Model</option>
@@ -1415,7 +1449,7 @@ export default class FramioMediaSettingsPage extends ExtensionPage {
           Marka & Model Yönetimi
         </h3>
         <p className="helpText" style={{ marginBottom: '20px', color: '#666', fontSize: '13px' }}>
-          Buradan eklediğiniz marka ve modeller, kullanıcıların fotoğraf yükleme modalında ve Vision AI künye otomatik doldurucusunda listelenir. Konu URL tanımlayarak marka ve modelleri konuya özel filtreleyebilirsiniz.
+          Buradan eklediğiniz marka ve modeller, kullanıcıların fotoğraf yükleme modalında ve Framio AI künye otomatik doldurucusunda listelenir. Konu URL tanımlayarak marka ve modelleri konuya özel filtreleyebilirsiniz.
         </p>
 
         {/* EKLEME FORMU */}
@@ -2443,9 +2477,9 @@ export default class FramioMediaSettingsPage extends ExtensionPage {
 
     return (
       <div className="Form-section" style={{ background: '#fff', padding: '25px', borderRadius: '10px', border: '1px solid #e5e5e5' }}>
-        <h3 style={{ borderBottom: '1px solid #eee', paddingBottom: '10px', marginTop: 0, color: '#6366f1', display: 'flex', alignItems: 'center', gap: '8px' }}>
+        <h3 style={{ borderBottom: '1px solid #eee', paddingBottom: '10px', marginTop: 0, color: 'var(--primary-color)', display: 'flex', alignItems: 'center', gap: '8px' }}>
           <i className="fas fa-robot"></i>
-          Vision AI (Yapay Zeka) Otomatik Künye Doldurma
+          Framio AI — Otomatik Künye Doldurma
         </h3>
         <p style={{ color: '#64748b', fontSize: '13px', marginBottom: '20px' }}>
           Kullanıcılar fotoğraf yüklediklerinde, görsel yapay zeka tarafından taranır ve araç markası, modeli, plakası, firma/belediye adı, şehir ve yılı <b>anlık olarak otomatik doldurulur</b>.
@@ -2454,7 +2488,7 @@ export default class FramioMediaSettingsPage extends ExtensionPage {
         {/* 1. Genel Aktiflik */}
         <div style={{ background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '8px', padding: '16px', marginBottom: '20px' }}>
           <div className="Form-group" style={{ margin: 0 }}>
-            <label style={{ fontWeight: 'bold', fontSize: '14px' }}>Vision AI Otomatik Künye Doldurma</label>
+            <label style={{ fontWeight: 'bold', fontSize: '14px' }}>Framio AI otomatik künye doldurma</label>
             <Switch
               state={this.setting('framio-upload-exif.ai_enabled', '1')() !== '0'}
               onchange={(val) => {
@@ -2469,16 +2503,16 @@ export default class FramioMediaSettingsPage extends ExtensionPage {
         {/* 2. Sağlayıcılar (paralel yarış) */}
         <div style={{ background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '8px', padding: '16px', marginBottom: '20px' }}>
           <h4 style={{ margin: '0 0 6px 0', fontSize: '14px', fontWeight: 'bold', color: '#334155' }}>
-            <i className="fas fa-bolt" style={{ marginRight: '6px', color: '#6366f1' }}></i>
+            <i className="fas fa-bolt" style={{ marginRight: '6px', color: 'var(--primary-color)' }}></i>
             Yapay Zeka Sağlayıcıları
           </h4>
           <p className="helpText" style={{ fontSize: '12px', color: '#64748b', margin: '0 0 12px' }}>
             Etkin sağlayıcıların hepsine <b>aynı anda</b> sorulur, ilk gelen geçerli yanıt kullanılır; biri yavaşlar ya da hata verirse diğeri devreye girer.
-            Görsel 768 px boyutuna küçültülüp gönderilir ve aynı fotoğrafın sonucu önbellekten gelir. En hızlıları: Groq ve Gemini Flash-Lite.
+            Görsel 768 px boyutuna küçültülüp gönderilir ve aynı fotoğrafın sonucu önbellekten gelir. Ücretsiz seçenekler: Gemini, Groq, NVIDIA NIM ve OpenRouter. Hepsini ekleyin: biri sınıra takılırsa diğeri yanıt verir.
           </p>
 
           {rows.length === 0 ? (
-            <p style={{ fontSize: '13px', color: '#b45309' }}>Henüz sağlayıcı yok. Vision AI, en az bir anahtar eklenene kadar sessizce devre dışı kalır.</p>
+            <p style={{ fontSize: '13px', color: '#b45309' }}>Henüz sağlayıcı yok. Framio AI, en az bir anahtar eklenene kadar sessizce devre dışı kalır.</p>
           ) : null}
 
           {rows.map((row, i) => {
@@ -2489,7 +2523,7 @@ export default class FramioMediaSettingsPage extends ExtensionPage {
                 <input type="checkbox" title="Etkin" checked={row.enabled !== false} onchange={(e) => update(i, { enabled: e.target.checked })} />
                 <select className="FormControl" value={row.provider} onchange={(e) => update(i, { provider: e.target.value, model: '' })}>
                   {Object.keys(aiConfig).map((k) => (
-                    <option value={k}>{aiConfig[k].name}</option>
+                    <option value={k}>{aiConfig[k].name + (aiConfig[k].free ? ' — ücretsiz' : '')}</option>
                   ))}
                 </select>
                 <div>
@@ -2552,7 +2586,7 @@ export default class FramioMediaSettingsPage extends ExtensionPage {
 
           <div style={{ marginTop: '14px', padding: '12px', background: '#fff', border: '1px dashed #cbd5e1', borderRadius: '6px' }}>
             <h4 style={{ margin: '0 0 6px', fontSize: '13px', fontWeight: 'bold' }}>
-              <i className="fas fa-map-marker-alt" style={{ marginRight: '6px', color: '#6366f1' }}></i>Çekim yeri
+              <i className="fas fa-map-marker-alt" style={{ marginRight: '6px', color: 'var(--primary-color)' }}></i>Çekim yeri
             </h4>
             <div className="helpText" style={{ fontSize: '11px', color: '#64748b', marginBottom: '10px' }}>
               Sıra: fotoğrafın GPS bilgisi → aynı kullanıcının aynı çekim oturumu (±4 saat) → arka planı benzeyen geçmiş fotoğraf → yapay zeka tahmini (yalnızca yüksek/orta güven; orta güven "tahmin" olarak işaretlenir).
@@ -2577,7 +2611,7 @@ export default class FramioMediaSettingsPage extends ExtensionPage {
         {/* 3. Kullanıcı Yetkisi & Kendi API Kotası */}
         <div style={{ background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '8px', padding: '16px', marginBottom: '20px' }}>
           <h4 style={{ margin: '0 0 10px 0', fontSize: '14px', fontWeight: 'bold', color: '#334155' }}>
-            <i className="fas fa-user-shield" style={{ marginRight: '6px', color: '#6366f1' }}></i>
+            <i className="fas fa-user-shield" style={{ marginRight: '6px', color: 'var(--primary-color)' }}></i>
             Kullanıcı Özel API Anahtarları
           </h4>
           <div className="Form-group" style={{ margin: 0 }}>
@@ -2598,7 +2632,7 @@ export default class FramioMediaSettingsPage extends ExtensionPage {
         {/* 4. Sistem Promptu */}
         <div style={{ background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '8px', padding: '16px', marginBottom: '20px' }}>
           <h4 style={{ margin: '0 0 10px 0', fontSize: '14px', fontWeight: 'bold', color: '#334155' }}>
-            <i className="fas fa-terminal" style={{ marginRight: '6px', color: '#6366f1' }}></i>
+            <i className="fas fa-terminal" style={{ marginRight: '6px', color: 'var(--primary-color)' }}></i>
             Özel Yapay Zeka Sistem Komutu (Prompt)
           </h4>
           <div className="Form-group">

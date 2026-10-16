@@ -59,13 +59,21 @@ class VisionSimilarity
     {
         [$jpeg] = $this->analyzer->shrink($bytes, 'image/jpeg', 512, true);
 
-        return $client->postAsync('https://generativelanguage.googleapis.com/v1beta/models/' . self::MODEL . ':embedContent', [
+        $send = fn ($model) => $client->postAsync('https://generativelanguage.googleapis.com/v1beta/models/' . $model . ':embedContent', [
             'headers' => ['x-goog-api-key' => $this->key()],
             'json' => [
                 'content' => ['parts' => [['inline_data' => ['mime_type' => 'image/jpeg', 'data' => base64_encode($jpeg)]]]],
                 'output_dimensionality' => self::DIMS,
             ],
-        ])->then(function ($res) {
+        ]);
+
+        // Model bazı hesaplarda yalnızca "-preview" adıyla açık
+        return $send(self::MODEL)->otherwise(function ($e) use ($send) {
+            if ($e instanceof \GuzzleHttp\Exception\ClientException && $e->getResponse()->getStatusCode() === 404) {
+                return $send(self::MODEL . '-preview');
+            }
+            throw $e;
+        })->then(function ($res) {
             $json = json_decode((string) $res->getBody(), true);
             $v = $json['embedding']['values'] ?? $json['embeddings'][0]['values'] ?? null;
             if (!is_array($v) || !$v) {

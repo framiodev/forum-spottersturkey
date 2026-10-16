@@ -123,17 +123,19 @@ app.initializers.add('framio/upload-exif', () => {
       );
     }
 
-    // Kişisel Vision AI: kullanıcı kendi anahtarını tanımlarsa ilk önce o denenir, site sağlayıcıları yedekte kalır
+    // Kişisel Framio AI: kullanıcı kendi anahtarını tanımlarsa ilk önce o denenir, site sağlayıcıları yedekte kalır
     const allowUserKeys = app.forum.attribute('framio-upload-exif.allow_user_ai_keys') !== '0';
     if (allowUserKeys) {
       const prefs = this.user.preferences();
       const provider = prefs.framio_personal_ai_provider || 'default';
       const PROV = {
-        groq: ['Groq — en hızlı', 'gsk_...', 'https://console.groq.com/keys', ['qwen/qwen3.8-27b']],
-        gemini: ['Google Gemini', 'AIzaSy...', 'https://aistudio.google.com/app/apikey', ['gemini-2.5-flash-lite', 'gemini-2.5-flash', 'gemini-2.0-flash']],
-        openai: ['OpenAI ChatGPT', 'sk-...', 'https://platform.openai.com/api-keys', ['gpt-4o-mini', 'gpt-4.1-nano', 'gpt-4.1-mini', 'gpt-4o']],
-        claude: ['Anthropic Claude', 'sk-ant-...', 'https://console.anthropic.com/settings/keys', ['claude-haiku-4-5', 'claude-haiku-5-5', 'claude-sonnet-5-5']],
-        grok: ['xAI Grok', 'xai-...', 'https://console.x.ai', ['grok-2-vision-1212']],
+        gemini: ['Google Gemini — ücretsiz katman', 'AIza...', 'https://aistudio.google.com/app/apikey', ['gemini-3.5-flash-lite', 'gemini-3.8-flash', 'gemini-3.6-flash']],
+        groq: ['Groq — ücretsiz, çok hızlı', 'gsk_...', 'https://console.groq.com/keys', ['qwen/qwen3.8-27b']],
+        nvidia: ['NVIDIA NIM — ücretsiz', 'nvapi-...', 'https://build.nvidia.com/settings/api-keys', ['google/gemma-4-31b-it', 'nvidia/nemotron-3.5-super-vl-120b-a12b']],
+        openrouter: ['OpenRouter — ücretsiz modeller', 'sk-or-...', 'https://openrouter.ai/settings/keys', ['google/gemma-4-31b-it:free', 'nvidia/nemotron-3.5-super-vl:free']],
+        openai: ['OpenAI ChatGPT', 'sk-...', 'https://platform.openai.com/api-keys', ['gpt-6-luna', 'gpt-6.1-sol']],
+        claude: ['Anthropic Claude', 'sk-ant-...', 'https://platform.claude.com/settings/keys', ['claude-haiku-5-5', 'claude-sonnet-5-5']],
+        grok: ['xAI Grok', 'xai-...', 'https://console.x.ai', ['grok-4.7']],
       };
       const info = PROV[provider];
       const model = prefs.framio_personal_ai_model && prefs.framio_personal_ai_model !== 'default' ? prefs.framio_personal_ai_model : '';
@@ -143,7 +145,7 @@ app.initializers.add('framio/upload-exif', () => {
         'framio-personal-ai-settings',
         <div className="Form-group framio-personal-ai-group" style={{ marginTop: '20px', padding: '16px', background: 'var(--control-bg)', borderRadius: '10px' }}>
           <h4 style={{ margin: '0 0 8px 0', fontSize: '14px', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <i className="fas fa-robot"></i> Kişisel Vision AI (otomatik künye)
+            <i className="fas fa-robot" style={{ color: 'var(--primary-color)' }}></i> Kişisel Framio AI (otomatik künye)
           </h4>
           <p className="helpText" style={{ fontSize: '12px', marginBottom: '12px' }}>
             İsterseniz kendi yapay zeka anahtarınızı tanımlayın: künye önce sizin hesabınızla doldurulur, olmazsa forumun sağlayıcıları devreye girer.

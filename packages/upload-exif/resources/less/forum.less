@@ -1803,3 +1803,26 @@ img.spotter-lazy:not([width]):not(.is-loaded) {
     aspect-ratio: 3 / 2;
     width: 100%;
 }
+
+
+/* Framio AI: künye modalı durumu, sitenin ana rengiyle */
+.FramioAI-Status {
+    display: flex; align-items: center; gap: 10px; margin-bottom: 15px; padding: 8px 12px;
+    border-radius: 10px; font-size: 12px; font-weight: 500; line-height: 1.4;
+    color: var(--text-color);
+    background: ~"color-mix(in srgb, var(--primary-color) 8%, transparent)";
+    border: 1px solid ~"color-mix(in srgb, var(--primary-color) 30%, transparent)";
+}
+.FramioAI-Badge {
+    flex: 0 0 auto; display: inline-flex; align-items: center; gap: 5px; padding: 3px 8px; border-radius: 20px;
+    background: var(--primary-color); color: #fff; font-size: 11px; font-weight: 800; letter-spacing: .2px; white-space: nowrap;
+}
+.FramioAI-Text { flex: 1 1 auto; }
+.FramioAI-Close { cursor: pointer; opacity: .6; &:hover { opacity: 1; } }
+.is-ai-checking .FormControl:placeholder-shown {
+    background-image: linear-gradient(100deg, transparent 20%, ~"color-mix(in srgb, var(--primary-color) 12%, transparent)" 50%, transparent 80%);
+    background-size: 200% 100%; animation: FramioAIShimmer 1.4s ease-in-out infinite;
+}
+.is-ai-checking .FormControl:placeholder-shown::placeholder { color: var(--primary-color); opacity: .85; }
+@keyframes FramioAIShimmer { from { background-position: 150% 0; } to { background-position: -50% 0; } }
+@media (prefers-reduced-motion: reduce) { .is-ai-checking .FormControl:placeholder-shown { animation: none; } }

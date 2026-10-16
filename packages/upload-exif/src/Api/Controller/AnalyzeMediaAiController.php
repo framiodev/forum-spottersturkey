@@ -311,7 +311,7 @@ class AnalyzeMediaAiController implements RequestHandlerInterface
             if ($c['provider'] === 'gemini') {
                 $model = trim((string) $this->settings->get('framio-upload-exif.ai_location_model'));
 
-                return ['model' => $model !== '' ? $model : 'gemini-2.5-flash'] + $c;
+                return ['model' => $model !== '' ? $model : 'gemini-3.8-flash'] + $c;
             }
         }
 

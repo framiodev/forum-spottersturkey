@@ -110,7 +110,7 @@ function bestMatch(text, options) {
   return score >= 0.5 ? best : '';
 }
 
-/** Vision AI için görseli en fazla 768 px JPEG'e küçültür (başarısızsa özgün dosya) */
+/** Framio AI için görseli en fazla 768 px JPEG'e küçültür (başarısızsa özgün dosya) */
 function shrinkForAi(file, max = 768) {
   if (!file || !window.createImageBitmap || !/^image\//.test(file.type || 'image/')) return Promise.resolve(file);
   return createImageBitmap(file)
@@ -237,7 +237,7 @@ export default class AttributeModal extends Modal {
     this.isLoadingTaxonomy = true;
     this.loadTaxonomy();
 
-    // Otomatik Vision AI Analizi (Anlık Doldurma)
+    // Otomatik Framio AI Analizi (Anlık Doldurma)
     this.aiStatus = Stream('idle'); // 'idle' | 'analyzing' | 'success' | 'error'
     this.aiMessage = Stream('');
     if (app.forum.attribute('framio-upload-exif.ai_enabled') !== '0' && this.files.length > 0) {
@@ -545,7 +545,7 @@ export default class AttributeModal extends Modal {
               const hist = res.history || [];
               const locLabel = { gps: 'çekim yeri fotoğrafın GPS bilgisinden', session: 'çekim yeri aynı çekim oturumundaki fotoğraflarınızdan', similar: 'çekim yeri arka planı benzeyen fotoğraftan', ai_guess: 'çekim yeri tahmin, lütfen kontrol edin' }[res.location_source];
               const source = (locLabel ? ' · ' + locLabel : '') + (hist.includes('plate') ? ' (plaka forumda kayıtlı, bilgiler o künyeden)' : hist.includes('similar') && res.similar ? ` (forumdaki benzer fotoğraf referans alındı, %${Math.round((res.similar.score || 0) * 100)} benzerlik)` : '');
-              this.aiMessage(filledCount ? `${filledCount} alan yapay zeka ile dolduruldu${source}, kontrol etmeyi unutmayın.` : '');
+              this.aiMessage(filledCount ? `${filledCount} alan dolduruldu${source}, kontrol etmeyi unutmayın.` : '');
           } else {
               this.aiStatus('idle');
           }
@@ -994,7 +994,7 @@ export default class AttributeModal extends Modal {
       this.syncAiPlaceholders(vnode.dom);
   }
 
-  /** Vision AI çalışırken boş metin alanlarının içinde durum yazısı gösterilir; bitince özgün yer tutucu geri gelir */
+  /** Framio AI çalışırken boş metin alanlarının içinde durum yazısı gösterilir; bitince özgün yer tutucu geri gelir */
   syncAiPlaceholders(root) {
       const box = root && root.querySelector('.Attribute-Right');
       if (!box) return;
@@ -1002,7 +1002,7 @@ export default class AttributeModal extends Modal {
       box.querySelectorAll('input.FormControl:not([type=number]):not([type=hidden]), textarea.FormControl').forEach((el) => {
           if (checking) {
               if (!el.hasAttribute('data-ph')) el.setAttribute('data-ph', el.getAttribute('placeholder') || '');
-              el.setAttribute('placeholder', 'Vision AI ile kontrol ediliyor…');
+              el.setAttribute('placeholder', 'Framio AI kontrol ediliyor…');
           } else if (el.hasAttribute('data-ph')) {
               el.setAttribute('placeholder', el.getAttribute('data-ph'));
               el.removeAttribute('data-ph');
@@ -1111,24 +1111,10 @@ export default class AttributeModal extends Modal {
 
                 {/* ANLIK AI ANALİZ DURUMU */}
                 {this.aiStatus() === 'success' && (
-                    <div style={{
-                        marginBottom: '15px',
-                        padding: '8px 12px',
-                        background: '#f0fdf4',
-                        border: '1px solid #bbf7d0',
-                        borderRadius: '8px',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'space-between',
-                        color: '#15803d',
-                        fontSize: '12px',
-                        fontWeight: 500
-                    }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                            <i className="fas fa-check-circle" style={{ color: '#22c55e' }}></i>
-                            <span>{this.aiMessage()}</span>
-                        </div>
-                        <i className="fas fa-times" style={{ cursor: 'pointer', opacity: 0.6 }} onclick={() => this.aiStatus('idle')}></i>
+                    <div className="FramioAI-Status">
+                        <span className="FramioAI-Badge"><i className="fas fa-magic"></i> Framio AI</span>
+                        <span className="FramioAI-Text">{this.aiMessage()}</span>
+                        <i className="fas fa-times FramioAI-Close" onclick={() => this.aiStatus('idle')}></i>
                     </div>
                 )}
 
