@@ -145,15 +145,20 @@ class VisionAnalyzer
         $timeout = max(3, min(30, (float) $this->setting('ai_timeout', 10)));
         $client = new Client(['timeout' => $timeout, 'connect_timeout' => 3]);
 
-        // Yan iş (görsel benzerlik gömmesi) aynı istemcide, yapay zeka isteğiyle eşzamanlı yürür
-        $side = $parallel ? $parallel($client, $original) : null;
+        // Yan işler (görsel benzerlik, konum sorusu, ters adres) aynı istemcide, yapay zeka isteğiyle
+        // eşzamanlı yürür. Tek söz (promise) ya da adlandırılmış söz dizisi olabilir.
+        $side = $parallel ? $parallel($client, $original, $b64, $mime) : null;
         $sideValue = function () use ($side) {
             if (!$side) return null;
-            try {
-                return $side->wait();
-            } catch (\Throwable $e) {
-                return null;
-            }
+            $one = function ($p) {
+                try {
+                    return $p ? $p->wait() : null;
+                } catch (\Throwable $e) {
+                    return null;
+                }
+            };
+
+            return is_array($side) ? array_map($one, $side) : $one($side);
         };
 
         $cacheKey = 'framio_vision_' . sha1($b64 . '|' . $prompt);
@@ -266,6 +271,13 @@ class VisionAnalyzer
 
                 return $client->postAsync($url, ['headers' => ['Authorization' => 'Bearer ' . $c['key']], 'json' => $body]);
         }
+    }
+
+    /** Tek sağlayıcıya ayrı bir soru (ör. yalnızca konum); ayrıştırılmış JSON döner */
+    public function askAsync(Client $client, array $c, string $b64, string $mime, string $prompt): PromiseInterface
+    {
+        return $this->request($client, $c, $b64, $mime, $prompt)
+            ->then(fn ($res) => $this->parse($c['provider'], (string) $res->getBody()));
     }
 
     protected function parse(string $provider, string $raw): array

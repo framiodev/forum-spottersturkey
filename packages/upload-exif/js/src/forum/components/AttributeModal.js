@@ -460,6 +460,8 @@ export default class AttributeModal extends Modal {
 
       shrinkForAi(this.files[0]).then((small) => {
       formData.append('image', small, 'ai.jpg');
+      // Küçültülen görselde EXIF kalmaz: GPS ve çekim zamanı için dosyanın başı ayrıca gider
+      if (this.files[0] && this.files[0].slice) formData.append('exif_head', this.files[0].slice(0, 256 * 1024), 'head.jpg');
       return app.request({
           method: 'POST',
           url: app.forum.attribute('apiUrl') + '/framio-media/analyze-ai',
@@ -512,7 +514,7 @@ export default class AttributeModal extends Modal {
               if ((ai.location || ai.location_guess) && !this.location()) {
                   const loc = ai.location || ai.location_guess;
                   this.location(loc);
-                  if (!this.city()) this.city(loc);
+                  if (!this.city()) this.city(ai.city || loc);
                   filledCount++;
               }
               if ((ai.year || ai.year_guess) && !this.year()) {
@@ -541,7 +543,8 @@ export default class AttributeModal extends Modal {
 
               this.aiStatus(filledCount ? 'success' : 'idle');
               const hist = res.history || [];
-              const source = hist.includes('plate') ? ' (plaka forumda kayıtlı, bilgiler o künyeden)' : hist.includes('similar') && res.similar ? ` (forumdaki benzer fotoğraf referans alındı, %${Math.round((res.similar.score || 0) * 100)} benzerlik)` : '';
+              const locLabel = { gps: 'çekim yeri fotoğrafın GPS bilgisinden', session: 'çekim yeri aynı çekim oturumundaki fotoğraflarınızdan', similar: 'çekim yeri arka planı benzeyen fotoğraftan', ai_guess: 'çekim yeri tahmin, lütfen kontrol edin' }[res.location_source];
+              const source = (locLabel ? ' · ' + locLabel : '') + (hist.includes('plate') ? ' (plaka forumda kayıtlı, bilgiler o künyeden)' : hist.includes('similar') && res.similar ? ` (forumdaki benzer fotoğraf referans alındı, %${Math.round((res.similar.score || 0) * 100)} benzerlik)` : '');
               this.aiMessage(filledCount ? `${filledCount} alan yapay zeka ile dolduruldu${source}, kontrol etmeyi unutmayın.` : '');
           } else {
               this.aiStatus('idle');

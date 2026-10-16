@@ -94,6 +94,30 @@ class VisionSimilarity
     }
 
     /**
+     * En benzer N künyeli fotoğraf (büyükten küçüğe).
+     *
+     * @return array<int,array{post_id:int, image_url:string, score:float}>
+     */
+    public function nearestMany(array $vec, int $limit = 5): array
+    {
+        $top = [];
+        foreach ($this->db->table(self::TABLE)->whereNotNull('vec')->select('post_id', 'image_url', 'vec')->cursor() as $row) {
+            $v = $this->unpack($row->vec);
+            $dot = 0.0;
+            foreach ($vec as $i => $x) {
+                $dot += $x * ($v[$i] ?? 0);
+            }
+            if (count($top) < $limit || $dot > $top[count($top) - 1]['score']) {
+                $top[] = ['post_id' => (int) $row->post_id, 'image_url' => $row->image_url, 'score' => $dot];
+                usort($top, fn ($a, $b) => $b['score'] <=> $a['score']);
+                $top = array_slice($top, 0, $limit);
+            }
+        }
+
+        return $top;
+    }
+
+    /**
      * En benzer künyeli fotoğraf.
      *
      * @return array{post_id:int, image_url:string, score:float}|null

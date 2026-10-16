@@ -15,7 +15,7 @@ use Framio\UploadExif\Ai\VisionHistory;
 
 class AnalyzeMediaAiController implements RequestHandlerInterface
 {
-    public function __construct(protected SettingsRepositoryInterface $settings, protected VisionAnalyzer $vision, protected VisionHistory $history, protected \Framio\UploadExif\Ai\VisionSimilarity $similarity)
+    public function __construct(protected SettingsRepositoryInterface $settings, protected VisionAnalyzer $vision, protected VisionHistory $history, protected \Framio\UploadExif\Ai\VisionSimilarity $similarity, protected \Framio\UploadExif\Ai\VisionLocation $location)
     {
     }
 
@@ -167,15 +167,18 @@ class AnalyzeMediaAiController implements RequestHandlerInterface
                 . "  \"plate\": \"Plaka, ör. 34 ABC 123\",\n"
                 . "  \"brand\": \"Marka\",\n"
                 . "  \"model\": \"Model (marka adı olmadan)\",\n"
-                . "  \"location_guess\": \"Çekim yeri\",\n"
                 . "  \"year_guess\": \"Model yılı\"\n"
                 . "}\n"
             );
         }
+        $detailed = $this->location->detailed($discussionId ? (int) $discussionId : null, $tagSlug ?: null);
+        $knownPlaces = $this->location->knownPlaces();
+        $locationRule = $this->locationRule($detailed, $knownPlaces);
+
         $promptText .= "\nKURALLAR:\n"
             . "- Firma: en büyük logo/kelimeyi değil, gövdede yazan resmî adın tamamını yaz (ör. logoda 'Anka' yazsa da yan yüzde 'Adıyaman Anka Turizm' yazıyorsa onu yaz). Şehir ön eki, 'Turizm', 'Seyahat', 'Taşımacılık' gibi kelimeleri atma.\n"
             . "- Model: ön/arka maske, far, cam ve yan pencere dizilimine bakarak tam modeli belirle (ör. Mercedes-Benz Travego 15 SHD, Tourismo 16 RHD, Setra S 516 HD, MAN Lion's Coach, Temsa Maraton). Aşağıdaki forum listesinde uygun bir ad varsa birebir o yazımı kullan.\n"
-            . "- Çekim yeri: yalnızca fotoğrafta GÖRÜNEN bir tabela, otogar, tesis, yol işareti veya bilinen yapıdan kesin anlaşılıyorsa yaz. Plakanın il kodundan ya da firma adındaki şehirden ÇIKARIM YAPMA. Emin değilsen boş bırak.\n"
+            . $locationRule
             . "- Yıl: yalnızca kasa nesli kesin biliniyorsa tahmin et, yoksa boş bırak.\n"
             . "- Okuyamadığın ya da emin olmadığın her alanı boş string bırak; uydurma.\n"
             . "SADECE geçerli JSON döndür, açıklama ekleme.";
@@ -189,30 +192,86 @@ class AnalyzeMediaAiController implements RequestHandlerInterface
             $promptText .= "\n\nForumda kullanılan model adları:\n" . mb_substr(implode("\n", $lines), 0, 2500);
         }
 
-        // Görsel benzerlik: yapay zeka isteğiyle eşzamanlı, forumdaki en yakın künyeli fotoğrafı bulur
-        $parallel = null;
-        if ($useHistory && $this->similarity->available()) {
-            $parallel = fn ($client, $original) => $this->similarity->embedAsync($client, $original)
-                ->then(fn ($vec) => $this->similarity->nearest($vec));
-        }
+        // EXIF (tarayıcı küçültmeden önce dosyanın başını ayrıca gönderir): GPS ve çekim zamanı
+        $head = $request->getUploadedFiles()['exif_head'] ?? null;
+        $exif = $this->location->readExif($head && $head->getError() === UPLOAD_ERR_OK ? (string) $head->getStream() : $bytes);
+
+        // Yapay zeka isteğiyle eşzamanlı yan işler: görsel benzerlik, konuma özel soru, GPS ters adres
+        $similarityOn = $useHistory && $this->similarity->available();
+        $geoCandidate = $this->geoCandidate($candidates);
+        $parallel = function ($client, $original, $b64, $mime) use ($similarityOn, $geoCandidate, $exif, $locationRule) {
+            $jobs = [];
+            if ($similarityOn) {
+                $jobs['similar'] = $this->similarity->embedAsync($client, $original)->then(fn ($vec) => $this->similarity->nearestMany($vec, 5));
+            }
+            if ($exif['lat'] !== null) {
+                $jobs['gps'] = $this->location->reverseAsync($client, $exif['lat'], $exif['lon']);
+            } elseif ($geoCandidate) {
+                $jobs['geo'] = $this->vision->askAsync($client, $geoCandidate, $b64, $mime,
+                    "Bu ulaşım fotoğrafının Türkiye'de NEREDE çekildiğini bul. Arka plandaki binalara, otogar/peron mimarisine, tabelalara, dağ/deniz/şehir siluetine, yol ve tesis yapısına bak.\n"
+                    . "Yalnızca şu JSON'u döndür: {\"city\": \"il\", \"place\": \"yer\", \"location_confidence\": \"high|medium|low\"}\n" . $locationRule
+                    . "SADECE JSON.");
+            }
+
+            return $jobs;
+        };
 
         try {
             $result = $this->vision->analyze($candidates, $bytes, $mimeType, $promptText, $parallel);
         } catch (\Throwable $e) {
             return new JsonResponse(['success' => false, 'error' => 'Yapay zeka yanıt veremedi: ' . $e->getMessage()]);
         }
+        $side = is_array($result['side'] ?? null) ? $result['side'] : [];
 
         $data = $this->dropGuessedLocation($result['data']);
         $notes = [];
         $similar = null;
+        $nearest = $side['similar'] ?? [];
         if ($useHistory) {
-            if (!empty($result['side']) && $result['side']['score'] >= $this->similarity->threshold()) {
-                $similar = $result['side'];
-                ['data' => $data, 'similar' => $similar] = $this->history->fromSimilar($data, $similar);
+            if (!empty($nearest[0]) && $nearest[0]['score'] >= $this->similarity->threshold()) {
+                ['data' => $data, 'similar' => $similar] = $this->history->fromSimilar($data, $nearest[0]);
                 $notes[] = 'similar';
             }
             ['data' => $data, 'notes' => $more] = $this->history->enrich($data);
             $notes = array_merge($notes, $more);
+        }
+
+        // ── Çekim yeri: kaynaklar güvenilirlik sırasıyla
+        $loc = null;
+        $locSource = null;
+        if (!empty($side['gps'])) {
+            $loc = $side['gps'];
+            $locSource = 'gps';
+        }
+        if (!$loc && ($s = $this->location->fromSession((int) $actor->id, $exif['date']))) {
+            $loc = $s;
+            $locSource = 'session';
+        }
+        if (!$loc && $nearest) {
+            $placeThreshold = (float) ($this->settings->get('framio-upload-exif.ai_location_threshold') ?: 0.8);
+            foreach ($nearest as $n) {
+                if ($n['score'] < $placeThreshold) break;
+                if ($s = $this->location->entitiesLocation([$n['post_id']], $n['image_url'])) {
+                    $loc = $s;
+                    $locSource = 'similar';
+                    break;
+                }
+            }
+        }
+        if (!$loc) {
+            foreach ([$side['geo'] ?? [], $data] as $guess) {
+                $conf = strtolower((string) ($guess['location_confidence'] ?? ''));
+                if (!empty($guess['city']) && in_array($conf, ['high', 'medium'], true)) {
+                    $loc = ['city' => $guess['city'], 'place' => (string) ($guess['place'] ?? '')];
+                    $locSource = $conf === 'high' ? 'ai' : 'ai_guess';
+                    break;
+                }
+            }
+        }
+        unset($data['city'], $data['place'], $data['location_confidence'], $data['location'], $data['location_guess']);
+        if ($loc) {
+            $data['location'] = $this->location->format($loc['city'], $loc['place'] ?? '', $detailed);
+            $data['city'] = $loc['city'];
         }
 
         if (!$data && !empty($result['error'])) {
@@ -223,6 +282,7 @@ class AnalyzeMediaAiController implements RequestHandlerInterface
             'success' => true,
             'history' => $notes,
             'similar' => $similar,
+            'location_source' => $locSource,
             'provider' => $result['provider'],
             'model' => $result['model'],
             'source' => $result['source'],
@@ -232,12 +292,39 @@ class AnalyzeMediaAiController implements RequestHandlerInterface
         ]);
     }
 
+    protected function locationRule(bool $detailed, array $knownPlaces): string
+    {
+        $rule = "- Çekim yeri: JSON'a \"city\" (il adı, ör. Ankara), \"place\" (" . ($detailed ? 'şehir içindeki semt, durak, garaj, meydan ya da cadde' : 'otogar, tesis ya da ilçe; yoksa boş') . ") ve \"location_confidence\" (high | medium | low) ekle.\n"
+            . "  Tabelalara, otogar/peron mimarisine, bilinen binalara, siluete ve çevreye bakarak tahmin et. Plakanın il kodundan ya da firma adındaki şehirden ÇIKARIM YAPMA.\n"
+            . "  high: tabela/isim okunuyor ya da yer çok tanınmış; medium: mimari ve çevre güçlü biçimde işaret ediyor; low: tahmin.\n";
+        if ($knownPlaces) {
+            $rule .= "  Forumda daha önce geçen çekim yerleri (uyuyorsa bu yazımı kullan): " . implode(', ', $knownPlaces) . "\n";
+        }
+
+        return $rule;
+    }
+
+    /** Konum sorusu için yer tanımada güçlü bir Gemini sağlayıcısı (varsa) */
+    protected function geoCandidate(array $candidates): ?array
+    {
+        foreach ($candidates as $c) {
+            if ($c['provider'] === 'gemini') {
+                $model = trim((string) $this->settings->get('framio-upload-exif.ai_location_model'));
+
+                return ['model' => $model !== '' ? $model : 'gemini-2.5-flash'] + $c;
+            }
+        }
+
+        return null;
+    }
+
     protected const PLATE_CITIES = [1 => 'Adana', 'Adıyaman', 'Afyonkarahisar', 'Ağrı', 'Amasya', 'Ankara', 'Antalya', 'Artvin', 'Aydın', 'Balıkesir', 'Bilecik', 'Bingöl', 'Bitlis', 'Bolu', 'Burdur', 'Bursa', 'Çanakkale', 'Çankırı', 'Çorum', 'Denizli', 'Diyarbakır', 'Edirne', 'Elazığ', 'Erzincan', 'Erzurum', 'Eskişehir', 'Gaziantep', 'Giresun', 'Gümüşhane', 'Hakkari', 'Hatay', 'Isparta', 'Mersin', 'İstanbul', 'İzmir', 'Kars', 'Kastamonu', 'Kayseri', 'Kırklareli', 'Kırşehir', 'Kocaeli', 'Konya', 'Kütahya', 'Malatya', 'Manisa', 'Kahramanmaraş', 'Mardin', 'Muğla', 'Muş', 'Nevşehir', 'Niğde', 'Ordu', 'Rize', 'Sakarya', 'Samsun', 'Siirt', 'Sinop', 'Sivas', 'Tekirdağ', 'Tokat', 'Trabzon', 'Tunceli', 'Şanlıurfa', 'Uşak', 'Van', 'Yozgat', 'Zonguldak', 'Aksaray', 'Bayburt', 'Karaman', 'Kırıkkale', 'Batman', 'Şırnak', 'Bartın', 'Ardahan', 'Iğdır', 'Yalova', 'Karabük', 'Kilis', 'Osmaniye', 'Düzce'];
 
     /** Çekim yeri yalnızca plakanın ili ya da firma adındaki şehirse tahmindir: at */
     protected function dropGuessedLocation(array $data): array
     {
         $low = fn ($s) => mb_strtolower(str_replace(['I', 'İ'], ['ı', 'i'], trim((string) $s)), 'UTF-8');
+        if (strtolower((string) ($data['location_confidence'] ?? '')) === 'high') return $data;
         foreach (['location', 'location_guess', 'city'] as $k) {
             if (empty($data[$k])) continue;
             $loc = $low($data[$k]);

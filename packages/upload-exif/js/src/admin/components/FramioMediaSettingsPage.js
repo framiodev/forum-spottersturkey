@@ -2549,6 +2549,29 @@ export default class FramioMediaSettingsPage extends ExtensionPage {
             <label style={{ fontWeight: 'bold', fontSize: '13px' }}>Benzerlik eşiği (0.50 – 0.99)</label>
             <input className="FormControl" type="number" min="0.5" max="0.99" step="0.01" style={{ maxWidth: '160px' }} bidi={this.setting('framio-upload-exif.ai_similarity_threshold', '0.86')} />
           </div>
+
+          <div style={{ marginTop: '14px', padding: '12px', background: '#fff', border: '1px dashed #cbd5e1', borderRadius: '6px' }}>
+            <h4 style={{ margin: '0 0 6px', fontSize: '13px', fontWeight: 'bold' }}>
+              <i className="fas fa-map-marker-alt" style={{ marginRight: '6px', color: '#6366f1' }}></i>Çekim yeri
+            </h4>
+            <div className="helpText" style={{ fontSize: '11px', color: '#64748b', marginBottom: '10px' }}>
+              Sıra: fotoğrafın GPS bilgisi → aynı kullanıcının aynı çekim oturumu (±4 saat) → arka planı benzeyen geçmiş fotoğraf → yapay zeka tahmini (yalnızca yüksek/orta güven; orta güven "tahmin" olarak işaretlenir).
+              Varsayılan biçim yalnızca il adıdır (ör. Ankara).
+            </div>
+            <label style={{ fontWeight: 'bold', fontSize: '13px' }}>Yer + il yazılan bölümler</label>
+            <input className="FormControl" placeholder="ör. sehirici-ulasim-araclari (etiket kısa adları, virgülle)" bidi={this.setting('framio-upload-exif.ai_location_detail_tags', '')} />
+            <div className="helpText" style={{ fontSize: '11px', color: '#888', marginBottom: '10px' }}>Bu bölümlerde çekim yeri şehir içindeki konumla birlikte yazılır (ör. Kızılay - Ankara).</div>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+              <div>
+                <label style={{ fontWeight: 'bold', fontSize: '13px' }}>Arka plan benzerlik eşiği</label>
+                <input className="FormControl" type="number" min="0.5" max="0.99" step="0.01" bidi={this.setting('framio-upload-exif.ai_location_threshold', '0.80')} />
+              </div>
+              <div>
+                <label style={{ fontWeight: 'bold', fontSize: '13px' }}>Konum sorusu modeli (Gemini)</label>
+                <input className="FormControl" placeholder="gemini-2.5-flash" bidi={this.setting('framio-upload-exif.ai_location_model', '')} />
+              </div>
+            </div>
+          </div>
         </div>
 
         {/* 3. Kullanıcı Yetkisi & Kendi API Kotası */}
