@@ -4,7 +4,9 @@ namespace Framio\Community\Notifications\Broadcast;
 
 use Carbon\Carbon;
 use Flarum\Post\CommentPost;
+use Flarum\Notification\NotificationSyncer;
 use Flarum\Settings\SettingsRepositoryInterface;
+use Flarum\User\User;
 use Flarum\User\Guest;
 use GuzzleHttp\Client;
 use Illuminate\Database\ConnectionInterface;
@@ -46,6 +48,12 @@ class Broadcaster
         return (bool) $this->setting('telegram_enabled') && $this->setting('telegram_bot_token') && $this->setting('telegram_chat_id');
     }
 
+    /** Site bildirimi (site içi + tarayıcı/PWA + e-posta, üyenin tercihlerine göre) */
+    public function siteReady(): bool
+    {
+        return (bool) $this->setting('site_notify', '1');
+    }
+
     public function whatsappMode(): string
     {
         $mode = (string) $this->setting('whatsapp_mode', $this->setting('whatsapp_enabled') ? 'manual' : 'off');
@@ -68,7 +76,7 @@ class Broadcaster
     /** Yeni mesajı kuyruğa ekler; yalnızca ziyaretçinin görebildiği yorum mesajları */
     public function enqueue(CommentPost $post): void
     {
-        if (!$this->telegramReady() && $this->whatsappMode() === 'off') {
+        if (!$this->telegramReady() && $this->whatsappMode() === 'off' && !$this->siteReady()) {
             return;
         }
         if ($post->type !== 'comment' || $post->hidden_at || !$post->discussion) {
@@ -86,6 +94,7 @@ class Broadcaster
             'kind' => $post->number === 1 ? 'discussion' : 'reply',
             'telegram_status' => $this->telegramReady() ? 'pending' : 'skipped',
             'whatsapp_status' => $this->whatsappMode() === 'off' ? 'skipped' : 'pending',
+            'site_status' => $this->siteReady() ? 'pending' : 'skipped',
             'created_at' => Carbon::now(),
         ]);
 
@@ -101,7 +110,8 @@ class Broadcaster
         $threshold = $this->sendMode() === 'instant' ? 1 : $this->batchSize();
         $pending = $this->db->table(self::TABLE)->where('telegram_status', 'pending')->count();
         $pendingWa = $this->whatsappMode() === 'gateway' ? $this->db->table(self::TABLE)->where('whatsapp_status', 'pending')->count() : 0;
-        if ($pending < $threshold && $pendingWa < $threshold) {
+        $pendingSite = $this->siteReady() ? $this->db->table(self::TABLE)->where('site_status', 'pending')->count() : 0;
+        if ($pending < $threshold && $pendingWa < $threshold && $pendingSite < $threshold) {
             return;
         }
 
@@ -128,7 +138,7 @@ class Broadcaster
      */
     public function flush(?array $ids = null): array
     {
-        $result = ['telegram' => 0, 'whatsapp' => 0, 'errors' => []];
+        $result = ['telegram' => 0, 'whatsapp' => 0, 'site' => 0, 'errors' => []];
 
         if ($this->telegramReady()) {
             $rows = $this->pendingRows('telegram_status', $ids);
@@ -162,7 +172,53 @@ class Broadcaster
             }
         }
 
+        if ($this->siteReady()) {
+            $rows = $this->pendingRows('site_status', $ids);
+            foreach (array_chunk($rows, $this->sendMode() === 'instant' && $ids === null ? 1 : $this->batchSize()) as $chunk) {
+                try {
+                    $this->notifySite($chunk);
+                    $this->mark(array_column($chunk, 'id'), 'site', 'sent');
+                    $result['site'] += count($chunk);
+                } catch (\Throwable $e) {
+                    $this->mark(array_column($chunk, 'id'), 'site', 'failed', $e->getMessage());
+                    $result['errors'][] = 'Site bildirimi: ' . $e->getMessage();
+                }
+            }
+        }
+
         return $result;
+    }
+
+    /**
+     * Gruplara giden duyurunun aynısını üyelere site bildirimi olarak gönderir.
+     * Mesajların yazarları ve tartışmayı zaten takip edenler (onlara abonelik
+     * bildirimi gidiyor) hariç tutulur; aynı içerik için iki bildirim gitmez.
+     */
+    protected function notifySite(array $chunk): void
+    {
+        $posts = CommentPost::with('discussion')->whereIn('id', array_column($chunk, 'post_id'))->orderBy('id')->get();
+        $first = $posts->first();
+        if (!$first) {
+            return;
+        }
+
+        $authorIds = $posts->pluck('user_id')->filter()->all();
+        $followers = $this->db->table('discussion_user')
+            ->whereIn('discussion_id', $posts->pluck('discussion_id')->unique()->all())
+            ->where('subscription', 'follow')
+            ->pluck('user_id')->all();
+
+        $users = User::query()
+            ->where('is_email_confirmed', true)
+            ->whereNotIn('id', array_values(array_unique(array_merge($authorIds, $followers))) ?: [0])
+            ->where(fn ($q) => $q->whereNull('suspended_until')->orWhere('suspended_until', '<', Carbon::now()))
+            ->get()
+            ->all();
+
+        $item = $this->builder->item($first, 'reply');
+        $label = $item['lines'][0] ?? (string) $first->discussion->title;
+
+        resolve(NotificationSyncer::class)->sync(new HighlightBlueprint($first, count($posts), $label), $users);
     }
 
     /** WhatsApp elle modu: bekleyenlerin hazır metni (gruplara kopyalanır) */

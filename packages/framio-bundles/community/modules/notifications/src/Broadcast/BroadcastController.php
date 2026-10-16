@@ -47,7 +47,7 @@ class BroadcastController implements RequestHandlerInterface
                     $result = ['ok' => true];
                     break;
                 case 'skip':
-                    foreach (['telegram', 'whatsapp'] as $ch) {
+                    foreach (['telegram', 'whatsapp', 'site'] as $ch) {
                         $this->db->table(Broadcaster::TABLE)->whereIn('id', $ids ?: [])->where($ch . '_status', '!=', 'sent')->update([$ch . '_status' => 'skipped']);
                     }
                     $result = ['ok' => true];
@@ -98,7 +98,7 @@ class BroadcastController implements RequestHandlerInterface
             ->get(['q.*', 'p.number', 'd.title', 'd.slug']);
 
         $counts = [];
-        foreach (['telegram', 'whatsapp'] as $ch) {
+        foreach (['telegram', 'whatsapp', 'site'] as $ch) {
             $counts[$ch] = $this->db->table(Broadcaster::TABLE)->where($ch . '_status', 'pending')->count();
         }
 
@@ -113,6 +113,7 @@ class BroadcastController implements RequestHandlerInterface
                 'kind' => $r->kind,
                 'telegram' => $r->telegram_status,
                 'whatsapp' => $r->whatsapp_status,
+                'site' => $r->site_status ?? 'skipped',
                 'error' => $r->error,
                 'created_at' => $r->created_at,
             ])->all(),
@@ -122,6 +123,7 @@ class BroadcastController implements RequestHandlerInterface
             'send_mode' => $this->broadcaster->sendMode(),
             'batch_size' => $this->broadcaster->batchSize(),
             'telegram_ready' => $this->broadcaster->telegramReady(),
+            'site_ready' => $this->broadcaster->siteReady(),
         ];
     }
 }

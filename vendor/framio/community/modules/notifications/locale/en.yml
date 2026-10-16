@@ -27,3 +27,7 @@ framio-notifications:
       reply_template_label: "New reply message template"
       template_help: "Available variables: '{title}', '{author}', '{url}', '{excerpt}'"
       gateway_info: "WhatsApp Gateway must be running separately. Run whatsapp-gateway/start.bat in the forum directory."
+  forum:
+    highlight_one: "New post: {label}"
+    highlight_many: "{count} new posts — first: {label}"
+    settings_label: "Digests of new posts in the forum"

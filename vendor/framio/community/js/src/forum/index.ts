@@ -12,4 +12,5 @@ gate('friendship', () => require('../friendship/forum/index'));
 const e4 = gateExtenders('friendship', require('../friendship/forum/extend').default);
 gate('follow-tags', () => require('../follow-tags/forum/index'));
 const e5 = gateExtenders('follow-tags', require('../follow-tags/forum/extend').default);
+gate('notifications', () => require('../notifications/forum/index'));
 export const extend = [...(e0 ?? []), ...(e1 ?? []), ...(e2 ?? []), ...(e3 ?? []), ...(e4 ?? []), ...(e5 ?? [])];

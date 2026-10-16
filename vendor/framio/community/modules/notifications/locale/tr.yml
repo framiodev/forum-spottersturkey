@@ -27,3 +27,7 @@ framio-notifications:
       reply_template_label: "Yeni yanıt mesaj şablonu"
       template_help: "Kullanılabilir değişkenler: '{title}', '{author}', '{url}', '{excerpt}'"
       gateway_info: "WhatsApp Gateway'in ayrıca çalışıyor olması gerekir. Forum dizinindeki whatsapp-gateway/start.bat dosyasını çalıştırın."
+  forum:
+    highlight_one: "Yeni paylaşım: {label}"
+    highlight_many: "{count} yeni paylaşım — ilki: {label}"
+    settings_label: "Forumdaki yeni paylaşım özetleri"

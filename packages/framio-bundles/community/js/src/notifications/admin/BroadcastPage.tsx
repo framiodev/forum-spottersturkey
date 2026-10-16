@@ -81,6 +81,9 @@ export default class BroadcastPage extends ExtensionPage {
           {this.field('batch_size', 'number', 'Toplu gönderimde mesaj sayısı', '1–10 arası. Telegram albümleri en fazla 10 fotoğraf alır.', { min: 1, max: 10, placeholder: '5' })}
           {this.field('include_photos', 'boolean', 'Fotoğraflarıyla gönder (Telegram)', 'Tek mesajda fotoğraf + künye, toplu gönderimde albüm.', { default: true })}
 
+          <h3>Site bildirimi</h3>
+          {this.field('site_notify', 'boolean', 'Duyuruları üyelere site bildirimi olarak da gönder', 'Gruplara giden her duyuru, üyelere tek bir bildirim olarak da gider ("5 yeni paylaşım — ilki: …"). Varsayılan olarak site içi bildirim açıktır; üyeler kendi bildirim ayarlarından tarayıcı (push) ve e-posta bildirimini açıp kapatabilir. Mesajların yazarlarına ve tartışmayı zaten takip edenlere ikinci kez gönderilmez.', { default: true })}
+
           <h3>Telegram</h3>
           {this.field('telegram_enabled', 'boolean', 'Telegram duyurularını aç')}
           {this.field('telegram_bot_token', 'text', 'Bot Token', "BotFather'ın verdiği anahtar (123456789:ABC…). Kimseyle paylaşmayın.")}
@@ -146,10 +149,10 @@ export default class BroadcastPage extends ExtensionPage {
       <div className="FramioBroadcast-queue">
         <h3>Duyuru kuyruğu</h3>
         <p className="helpText">
-          Bekleyen — Telegram: <b>{s.pending.telegram}</b> · WhatsApp: <b>{s.pending.whatsapp}</b>
+          Bekleyen — Telegram: <b>{s.pending.telegram}</b> · WhatsApp: <b>{s.pending.whatsapp}</b> · Site bildirimi: <b>{s.pending.site || 0}</b>
         </p>
         <div className="Form-group">
-          <Button className="Button Button--primary" icon="fas fa-paper-plane" loading={this.busy === 'send'} disabled={!s.pending.telegram && !(s.whatsapp_mode === 'gateway' && s.pending.whatsapp)} onclick={() => this.action('send', {}, 'Bekleyen duyurular gönderildi.')}>
+          <Button className="Button Button--primary" icon="fas fa-paper-plane" loading={this.busy === 'send'} disabled={!s.pending.telegram && !s.pending.site && !(s.whatsapp_mode === 'gateway' && s.pending.whatsapp)} onclick={() => this.action('send', {}, 'Bekleyen duyurular gönderildi.')}>
             Bekleyenleri şimdi gönder
           </Button>{' '}
           <Button className="Button" icon="fas fa-sync" onclick={() => this.load()}>Yenile</Button>
@@ -188,13 +191,14 @@ export default class BroadcastPage extends ExtensionPage {
               <th>Mesaj</th>
               <th>Telegram</th>
               <th>WhatsApp</th>
+              <th>Site</th>
               <th></th>
             </tr>
           </thead>
           <tbody>
             {s.items.length === 0 ? (
               <tr>
-                <td colspan="4" className="helpText">Henüz duyuru yok. Kanal açıkken yeni mesajlar burada görünür.</td>
+                <td colspan="5" className="helpText">Henüz duyuru yok. Kanal açıkken yeni mesajlar burada görünür.</td>
               </tr>
             ) : (
               s.items.map((i: any) => (
@@ -208,8 +212,9 @@ export default class BroadcastPage extends ExtensionPage {
                   </td>
                   <td className={'is-' + i.telegram}>{STATUS[i.telegram] || i.telegram}</td>
                   <td className={'is-' + i.whatsapp}>{STATUS[i.whatsapp] || i.whatsapp}</td>
+                  <td className={'is-' + i.site}>{STATUS[i.site] || i.site}</td>
                   <td>
-                    {(i.telegram === 'failed' || i.telegram === 'pending') && (
+                    {(i.telegram === 'failed' || i.telegram === 'pending' || i.site === 'pending' || i.site === 'failed') && (
                       <Button className="Button Button--link" icon="fas fa-redo" title="Şimdi gönder" onclick={() => this.action('send', { ids: [i.id] })} />
                     )}
                     {(i.telegram === 'pending' || i.whatsapp === 'pending') && (
