@@ -42,6 +42,8 @@ class ExploreController implements RequestHandlerInterface
             $filter = array_filter(Arr::only($q, ['tag', 'brand', 'model', 'company', 'city', 'year', 'plate']), 'is_string');
             $offset = max(0, (int) Arr::get($q, 'offset', 0));
             $sections['recent'] = ['offset' => $offset, 'ids' => $this->explore->recentIds($filter, $offset)];
+            // Bölüm değişince marka/şehir/yıl sayıları o bölüme göre yenilenir
+            if ($offset === 0) $sections['facets'] = $this->explore->facets((string) ($filter['tag'] ?? ''));
         } else {
             if ($enabled('potd')) {
                 $potd = $this->explore->potd();

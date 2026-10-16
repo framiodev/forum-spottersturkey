@@ -131,8 +131,13 @@ class Explore
             $q = $this->db->table('framio_view_log')->where('post_id', '>', 0)->where('viewed_on', '>=', $from->toDateString());
             if ($to) $q->where('viewed_on', '<', $to->toDateString());
             $add($q->groupBy('post_id')->selectRaw('post_id, COUNT(*) as n')->get(), $w['views']);
-        } elseif (!$from && $this->hasTable('framio_post_views')) {
-            $add($this->db->table('framio_post_views')->selectRaw('post_id, views as n')->get(), $w['views']);
+        } elseif (!$from) {
+            if ($this->hasTable('framio_post_views')) {
+                $add($this->db->table('framio_post_views')->selectRaw('post_id, views as n')->get(), $w['views']);
+            }
+            // Mesaj başına sayım yeni; eski görüntülenmeler konu sayacında. Konunun
+            // görüntülenmesini içindeki fotoğraflı mesajlara eşit paylaştır.
+            $add($this->discussionViewShares(), $w['views']);
         }
 
         foreach (['post_likes' => 'likes', 'post_reactions' => 'reactions'] as $table => $key) {
@@ -155,6 +160,20 @@ class Explore
         return array_slice($scores, 0, $limit, true);
     }
 
+    /** Konu görüntülenmesinin, konudaki fotoğraflı mesaj başına payı */
+    protected function discussionViewShares(): array
+    {
+        if (!$this->db->getSchemaBuilder()->hasColumn('discussions', 'view_count')) {
+            return [];
+        }
+        $rows = $this->imagePosts()->join('discussions as dv', 'dv.id', '=', 'posts.discussion_id')
+            ->where('dv.view_count', '>', 0)
+            ->select('posts.id', 'posts.discussion_id', 'dv.view_count')->get();
+        $per = $rows->countBy('discussion_id');
+
+        return $rows->map(fn ($r) => (object) ['post_id' => $r->id, 'n' => (int) floor($r->view_count / max(1, $per[$r->discussion_id]))])->all();
+    }
+
     /** @return int[] Dönemin en popüler görselli mesajları */
     public function popularIds(string $period, int $limit = 24): array
     {
@@ -162,10 +181,14 @@ class Explore
             $ids = array_keys($this->scores($this->since($period), null, $limit));
             // Puanlı mesaj azsa listeyi son eklenenlerle tamamla (sayfa boş kalmasın)
             if (count($ids) < $limit) {
-                $fill = $this->imagePosts()->whereNotIn('posts.id', $ids ?: [0])
-                    ->when($this->since($period), fn ($q, $since) => $q->where('posts.created_at', '>=', $since))
-                    ->orderByDesc('posts.created_at')->limit($limit - count($ids))->pluck('posts.id')->all();
-                $ids = array_merge($ids, $fill);
+                // Dönem içinde paylaşılmış fotoğraflar, tüm zamanların puanına göre
+                $since = $this->since($period);
+                $pool = $this->imagePosts()->whereNotIn('posts.id', $ids ?: [0])
+                    ->when($since, fn ($q) => $q->where('posts.created_at', '>=', $since))
+                    ->pluck('posts.id')->all();
+                $all = $period === 'all' ? [] : $this->scores(null, null, 100000);
+                usort($pool, fn ($a, $b) => (($all[$b] ?? 0) <=> ($all[$a] ?? 0)) ?: $b <=> $a);
+                $ids = array_merge($ids, array_slice($pool, 0, $limit - count($ids)));
             }
 
             return $ids;
@@ -354,8 +377,7 @@ class Explore
     {
         $q = $this->imagePosts();
         if (!empty($filter['tag'])) {
-            $tag = (string) $filter['tag'];
-            $q->whereHas('discussion.tags', fn ($t) => $t->where('slug', $tag)->orWhereIn('parent_id', fn ($s) => $s->select('id')->from('tags')->where('slug', $tag)));
+            $this->whereTag($q, (string) $filter['tag']);
         }
         foreach (['brand', 'model', 'company', 'city', 'year', 'plate'] as $type) {
             if (!empty($filter[$type]) && $this->hasTable('framio_seo_entities')) {
@@ -367,9 +389,29 @@ class Explore
         return $q->orderByDesc('posts.created_at')->offset($offset)->limit($limit)->pluck('posts.id')->all();
     }
 
-    /** Filtre seçenekleri: en çok fotoğrafı olan markalar ve şehirler */
-    public function facets(): array
+    protected function whereTag($q, string $tag)
     {
+        return $q->whereHas('discussion.tags', fn ($t) => $t->where('slug', $tag)->orWhereIn('parent_id', fn ($s) => $s->select('id')->from('tags')->where('slug', $tag)));
+    }
+
+    /** Filtre seçenekleri: en çok fotoğrafı olan markalar ve şehirler (bölüm seçiliyse o bölümde) */
+    public function facets(string $tag = ''): array
+    {
+        if ($tag !== '') {
+            return $this->remember('facets_' . md5($tag), function () use ($tag) {
+                $ids = $this->whereTag($this->imagePosts(), $tag)->pluck('posts.id')->all();
+                $out = [];
+                foreach (['brand' => [30, 'count'], 'city' => [30, 'count'], 'year' => [15, 'new']] as $type => [$limit, $order]) {
+                    $q = $this->db->table('framio_seo_entities')->where('type', $type)->whereIn('post_id', $ids ?: [0])
+                        ->groupBy('slug')->selectRaw('slug, MAX(name) as name, COUNT(DISTINCT post_id) as n, MAX(posted_at) as last');
+                    $order === 'new' ? $q->orderByDesc('last') : $q->orderByDesc('n');
+                    $out[$type] = $q->limit($limit)->get()->map(fn ($r) => ['type' => $type, 'name' => (string) $r->name, 'slug' => (string) $r->slug, 'count' => (int) $r->n])->all();
+                }
+
+                return $out;
+            });
+        }
+
         return [
             'brand' => $this->collections('brand', 0, 30),
             'city' => $this->collections('city', 0, 30),

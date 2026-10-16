@@ -127,6 +127,7 @@ export default class ExplorePage extends Page {
         const sec = this.absorb(doc);
         const ids = (sec.recent && sec.recent.ids) || [];
         const items = this.pick(ids);
+        if (sec.facets) this.meta.facets = sec.facets;
         this.lists.recent = reset ? items : this.lists.recent.concat(items);
         this.recentDone = ids.length < 24;
       })
@@ -183,6 +184,7 @@ export default class ExplorePage extends Page {
           href={app.route('discussion', { id: group.discussion_id }) + '/' + group.post_number}
           onclick={(e) => this.open(e, [group], 0)}
         >
+          <span className="Explore-Potd-Backdrop" style={{ backgroundImage: 'url("' + this.gallery.getSizedUrl(img, 480) + '")' }} aria-hidden="true"></span>
           <img src={this.gallery.getSizedUrl(img, 1600)} alt={title} decoding="async" fetchpriority="high" />
           <div className="Explore-Potd-Info">
             <span className="Explore-Potd-Badge">{icon('fas fa-crown')} Günün Fotoğrafı</span>
@@ -230,6 +232,7 @@ export default class ExplorePage extends Page {
         }}
       >
         <option value="">{label}</option>
+        {this.filter[key] && !options.some((o) => o.slug === this.filter[key]) ? <option value={this.filter[key]}>{this.filter[key]}</option> : null}
         {options.map((o) => (
           <option value={o.slug}>{o.name + (o.count ? ' (' + o.count + ')' : '')}</option>
         ))}
