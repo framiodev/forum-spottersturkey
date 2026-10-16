@@ -92,6 +92,10 @@ class VisionHistory
                 $brand = $top('brand');
                 $model = $top('model');
                 $company = $top('company');
+                // Plaka yanlış okunup başka bir araca denk gelmiş olabilir: firma çelişiyorsa geçmiş kullanılmaz
+                if ($company && !empty($data['company']) && !$this->sameCompany($data['company'], $company)) {
+                    return ['data' => $data, 'notes' => $notes];
+                }
                 if ($brand) $data['brand'] = $brand;
                 if ($model) $data['model'] = $brand && stripos($model, $brand . ' ') === 0 ? trim(mb_substr($model, mb_strlen($brand))) : $model;
                 if ($company) $data['company'] = $company;
@@ -120,28 +124,57 @@ class VisionHistory
         return ['data' => $data, 'notes' => $notes];
     }
 
-    /**
-     * Görsel olarak çok benzeyen geçmiş fotoğrafın künyesini referans alır: firma, marka ve model
-     * oradan gelir; plaka, yapay zekanın okuduğuyla en fazla 2 karakter farklıysa düzeltilir.
-     *
-     * @return array{data:array, similar:array}
-     */
-    public function fromSimilar(array $data, array $match): array
+    /** Benzer fotoğrafın künyesi (tür => ad) */
+    public function kunyeOf(array $match): array
     {
         $rows = $this->db->table(self::TABLE)->where('post_id', $match['post_id'])
             ->where(fn ($q) => $q->where('image_url', $match['image_url'])->orWhereNull('image_url'))
             ->get(['type', 'name']);
-        $get = fn ($t) => optional($rows->firstWhere('type', $t))->name;
+        $out = [];
+        foreach ($rows as $r) {
+            $out[$r->type] ??= $r->name;
+        }
 
-        $brand = $get('brand');
-        $model = $get('model');
-        if ($brand) $data['brand'] = $brand;
-        if ($model) $data['model'] = $brand && stripos($model, $brand . ' ') === 0 ? trim(mb_substr($model, mb_strlen($brand))) : $model;
-        if ($company = $get('company')) $data['company'] = $company;
+        return $out;
+    }
 
-        $plate = $get('plate');
+    /** İki firma adı aynı firmayı mı gösteriyor? ("Pamukkale" ≈ "Pamukkale Turizm") */
+    public function sameCompany(?string $a, ?string $b): bool
+    {
+        $a = Str::slug((string) $a);
+        $b = Str::slug((string) $b);
+        if ($a === '' || $b === '') return false;
+        $strip = fn ($s) => trim(preg_replace('/-(turizm|seyahat|tasimacilik|otobus|isletmeleri|ltd|sti|as|a-s)\b/', '', $s), '-');
+
+        return $a === $b || str_contains($a, $strip($b)) || str_contains($b, $strip($a));
+    }
+
+    /**
+     * Görsel olarak benzeyen geçmiş fotoğraf YALNIZCA doğrulanırsa kullanılır:
+     *  - yapay zekanın okuduğu firma o fotoğrafın firmasıyla uyuşmalı (ya da yapay zeka firma okuyamamış olmalı),
+     *  - yapay zekanın okuduğu değerler EZİLMEZ; yalnızca boş kalan alanlar doldurulur,
+     *  - plaka yalnızca okunan plakayla en fazla 1 karakter farklıysa düzeltilir.
+     *
+     * @return array{data:array, similar:array}|null  doğrulanmazsa null
+     */
+    public function fromSimilar(array $data, array $match): ?array
+    {
+        $k = $this->kunyeOf($match);
+        if (empty($k['company'])) return null;
+        if (!empty($data['company']) && !$this->sameCompany($data['company'], $k['company'])) {
+            return null;
+        }
+
+        if (empty($data['company'])) $data['company'] = $k['company'];
+        $brand = $k['brand'] ?? null;
+        if ($brand && empty($data['brand'])) $data['brand'] = $brand;
+        if (!empty($k['model']) && empty($data['model'])) {
+            $data['model'] = $brand && stripos($k['model'], $brand . ' ') === 0 ? trim(mb_substr($k['model'], mb_strlen($brand))) : $k['model'];
+        }
+
+        $plate = $k['plate'] ?? null;
         $read = $this->normPlate($data['plate'] ?? '');
-        if ($plate && (!$read || levenshtein(str_replace(' ', '', $read), str_replace(' ', '', $plate)) <= 2)) {
+        if ($plate && $read && levenshtein(str_replace(' ', '', $read), str_replace(' ', '', $plate)) === 1) {
             $data['plate'] = $plate;
         }
 

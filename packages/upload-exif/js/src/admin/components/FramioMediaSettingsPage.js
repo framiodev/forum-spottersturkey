@@ -2630,7 +2630,7 @@ export default class FramioMediaSettingsPage extends ExtensionPage {
               Dizin, sunucuda <code>php flarum media:vision-index</code> komutuyla doldurulur; yeni fotoğraflar için bu komutu cron'a (ör. 15 dakikada bir) ekleyin.
             </div>
             <label style={{ fontWeight: 'bold', fontSize: '13px' }}>Benzerlik eşiği (0.50 – 0.99)</label>
-            <input className="FormControl" type="number" min="0.5" max="0.99" step="0.01" style={{ maxWidth: '160px' }} bidi={this.setting('framio-upload-exif.ai_similarity_threshold', '0.86')} />
+            <input className="FormControl" type="number" min="0.5" max="0.99" step="0.01" style={{ maxWidth: '160px' }} bidi={this.setting('framio-upload-exif.ai_similarity_threshold', '0.92')} />
           </div>
 
           <div style={{ marginTop: '14px', padding: '12px', background: '#fff', border: '1px dashed #cbd5e1', borderRadius: '6px' }}>
@@ -2647,7 +2647,7 @@ export default class FramioMediaSettingsPage extends ExtensionPage {
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
               <div>
                 <label style={{ fontWeight: 'bold', fontSize: '13px' }}>Arka plan benzerlik eşiği</label>
-                <input className="FormControl" type="number" min="0.5" max="0.99" step="0.01" bidi={this.setting('framio-upload-exif.ai_location_threshold', '0.80')} />
+                <input className="FormControl" type="number" min="0.5" max="0.99" step="0.01" bidi={this.setting('framio-upload-exif.ai_location_threshold', '0.93')} />
               </div>
               <div>
                 <label style={{ fontWeight: 'bold', fontSize: '13px' }}>Konum sorusu modeli (Gemini)</label>

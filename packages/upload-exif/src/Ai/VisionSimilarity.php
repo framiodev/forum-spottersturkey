@@ -51,7 +51,7 @@ class VisionSimilarity
 
     public function threshold(): float
     {
-        return max(0.5, min(0.99, (float) ($this->settings->get('framio-upload-exif.ai_similarity_threshold') ?: 0.86)));
+        return max(0.5, min(0.99, (float) ($this->settings->get('framio-upload-exif.ai_similarity_threshold') ?: 0.92)));
     }
 
     /** Görsel gömmesi isteği (JPEG'e çevrilir; Gemini WebP kabul etmez) */

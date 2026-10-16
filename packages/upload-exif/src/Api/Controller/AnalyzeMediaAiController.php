@@ -228,9 +228,14 @@ class AnalyzeMediaAiController implements RequestHandlerInterface
         $similar = null;
         $nearest = $side['similar'] ?? [];
         if ($useHistory) {
-            if (!empty($nearest[0]) && $nearest[0]['score'] >= $this->similarity->threshold()) {
-                ['data' => $data, 'similar' => $similar] = $this->history->fromSimilar($data, $nearest[0]);
-                $notes[] = 'similar';
+            // Benzer fotoğraf yalnızca firma ile doğrulanırsa kullanılır (aynı model beyaz otobüsler hep benzer görünür)
+            foreach ($nearest as $n) {
+                if ($n['score'] < $this->similarity->threshold()) break;
+                if ($hit = $this->history->fromSimilar($data, $n)) {
+                    ['data' => $data, 'similar' => $similar] = $hit;
+                    $notes[] = 'similar';
+                    break;
+                }
             }
             ['data' => $data, 'notes' => $more] = $this->history->enrich($data);
             $notes = array_merge($notes, $more);
@@ -248,10 +253,14 @@ class AnalyzeMediaAiController implements RequestHandlerInterface
             $locSource = 'session';
         }
         if (!$loc && $nearest) {
-            $placeThreshold = (float) ($this->settings->get('framio-upload-exif.ai_location_threshold') ?: 0.8);
+            // Arka plandan konum: yalnızca çok yüksek benzerlikte ve aynı firmanın fotoğrafıysa
+            // (ya da neredeyse aynı kare ise); aksi halde başka bir otogarın konumu gelebilir
+            $placeThreshold = (float) ($this->settings->get('framio-upload-exif.ai_location_threshold') ?: 0.93);
             foreach ($nearest as $n) {
                 if ($n['score'] < $placeThreshold) break;
-                if ($s = $this->location->entitiesLocation([$n['post_id']], $n['image_url'])) {
+                $k = $this->history->kunyeOf($n);
+                $verified = $n['score'] >= 0.97 || (!empty($data['company']) && $this->history->sameCompany($data['company'], $k['company'] ?? ''));
+                if ($verified && ($s = $this->location->entitiesLocation([$n['post_id']], $n['image_url']))) {
                     $loc = $s;
                     $locSource = 'similar';
                     break;
