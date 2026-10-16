@@ -94,6 +94,16 @@ class GalleryPosts
             ->limit($this->limit())
             ->get();
 
+        return $this->toDocument($posts, $request);
+    }
+
+    /**
+     * Mesajları galerinin (ve Keşfet'in) kullandığı JSON:API benzeri belgeye çevirir.
+     *
+     * @param iterable<Post> $posts
+     */
+    public function toDocument(iterable $posts, ServerRequestInterface $request, array $extraMeta = []): array
+    {
         $data = [];
         $included = [];
         foreach ($posts as $post) {
@@ -150,7 +160,7 @@ class GalleryPosts
         return [
             'data' => $data,
             'included' => array_values($included),
-            'meta' => ['spotterExifMap' => $this->exifMap()],
+            'meta' => ['spotterExifMap' => $this->exifMap()] + $extraMeta,
         ];
     }
 
@@ -162,7 +172,7 @@ class GalleryPosts
      *
      * @return string[]
      */
-    private function imagePatterns(): array
+    public function imagePatterns(): array
     {
         $tags = ['framio-image', 'spotter-image', 'upl-image-preview'];
         // Upload & EXIF'in etkin ve tanınan etiketleri (asıl kaynak) + SEO Pack'teki ek liste

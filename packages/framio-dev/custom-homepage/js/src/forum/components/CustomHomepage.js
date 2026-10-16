@@ -117,249 +117,7 @@ export default class CustomHomepage extends Component {
                 if (res && res.data) rawImages = rawImages.concat(res.data);
             }
 
-            const uniquePosts = [];
-            const seenPostIds = new Set();
-            for (const p of rawPosts) {
-                if (!seenPostIds.has(p.id)) {
-                    seenPostIds.add(p.id);
-                    uniquePosts.push(p);
-                }
-            }
-            rawPosts = uniquePosts;
-
-            const imageMap = new Map();
-            for (const img of rawImages) {
-                imageMap.set(String(img.id), img);
-            }
-
-            const groupedPosts = [];
-            const processedImageIds = new Set();
-
-            const extractBaseName = (url) => {
-                if (!url) return '';
-                let fileName = url.split('/').pop().split('?')[0];
-                try { fileName = decodeURIComponent(fileName); } catch(e) {}
-                return fileName.replace(/^thumb_/i, '').trim(); 
-            };
-
-            const cleanUrlFn = (rawUrl) => {
-                let cleanUrl = this.decodeHtml(rawUrl); 
-                try { 
-                    cleanUrl = decodeURI(cleanUrl); 
-                    cleanUrl = encodeURI(cleanUrl).replace(/\(/g, '%28').replace(/\)/g, '%29'); 
-                } catch(e){}
-                return cleanUrl;
-            };
-
-            for (const post of rawPosts) {
-                // SADECE HTML FORMATINA ODAKLANIYORUZ (Sırrı çözen kısım burası!)
-                const contentHtml = post.attributes?.contentHtml || '';
-                const postNumber = post.attributes?.number;
-                
-                const postImages = [];
-                const addedBaseNames = new Set();
-
-                const addImage = (id, rawUrl) => {
-                    if (rawUrl && rawUrl.includes('firebasestorage') && !rawUrl.includes('thumb')) return;
-
-                    const cleanUrl = rawUrl ? cleanUrlFn(rawUrl) : null;
-                    let imgObj = null;
-                    
-                    if (id && imageMap.has(String(id))) {
-                        imgObj = imageMap.get(String(id));
-                        processedImageIds.add(String(id));
-                    } else if (cleanUrl) {
-                        let mappedImg = null;
-                        imageMap.forEach((img, imgId) => {
-                            let mapUrl = cleanUrlFn((img.attributes ? img.attributes.url : img.url) || '');
-                            if (mapUrl === cleanUrl && !processedImageIds.has(imgId)) mappedImg = img;
-                        });
-
-                        if (mappedImg) {
-                            imgObj = mappedImg;
-                            processedImageIds.add(String(mappedImg.id));
-                        }
-                    }
-
-                    // EXIF KUSURSUZ EŞLEŞTİRİCİSİ
-                    let filename = cleanUrl ? cleanUrl.split('/').pop().split('?')[0] : '';
-                    try { filename = decodeURIComponent(filename); } catch(e){}
-                    let cleanFileName = filename.replace(/^thumb_/i, '').trim();
-                    
-                    let matchedExif = null;
-                    if (id && metaExif['id_' + id]) {
-                        matchedExif = metaExif['id_' + id];
-                    } else if (metaExif['file_' + filename]) {
-                        matchedExif = metaExif['file_' + filename];
-                    } else if (metaExif['file_' + cleanFileName]) {
-                        matchedExif = metaExif['file_' + cleanFileName];
-                    } else if (metaExif['file_thumb_' + cleanFileName]) {
-                        matchedExif = metaExif['file_thumb_' + cleanFileName];
-                    } else if (cleanUrl) {
-                        let decodedTargetUrl = cleanUrl;
-                        try { decodedTargetUrl = decodeURIComponent(cleanUrl); } catch(e){}
-                        
-                        for (let dbKey in metaExif) {
-                            if (dbKey.startsWith('path_')) {
-                                let cleanDbKey = dbKey.replace('path_', '');
-                                try { cleanDbKey = decodeURIComponent(cleanDbKey); } catch(e){}
-                                
-                                if (decodedTargetUrl.includes(cleanDbKey) || decodedTargetUrl.endsWith(cleanDbKey)) {
-                                    matchedExif = metaExif[dbKey];
-                                    break;
-                                }
-                            }
-                        }
-                    }
-
-                    if (!imgObj) {
-                        imgObj = {
-                            id: id || `virtual_${post.id}_${postImages.length}`,
-                            attributes: {
-                                url: cleanUrl,
-                                original_url: cleanUrl ? cleanUrl.replace('thumb_', '') : '',
-                                filename: this.decodeHtml(filename),
-                                exif: matchedExif 
-                            }
-                        };
-                    } else if (matchedExif) {
-                        if (imgObj.attributes) imgObj.attributes.exif = matchedExif;
-                        else imgObj.exif = matchedExif;
-                    }
-
-                    if (imgObj) {
-                        const finalUrl = cleanUrl || cleanUrlFn((imgObj.attributes ? imgObj.attributes.url : imgObj.url) || '');
-                        const baseName = extractBaseName(finalUrl);
-                        
-                        if (baseName && !addedBaseNames.has(baseName)) {
-                            postImages.push(imgObj);
-                            addedBaseNames.add(baseName);
-                        }
-                    }
-                };
-
-                // BBCODE TARAYICI BURADAN SİLİNDİ, RİSK SIFIRLANDI!
-                // Yalnızca render edilmiş kusursuz HTML hedefleniyor.
-                const imgRegex = /<img[^>]+src=["']?([^"'>]+)["']?/gi;
-                let match;
-                while ((match = imgRegex.exec(contentHtml)) !== null) {
-                    addImage(null, match[1]);
-                }
-
-                const spotterRegex = /\[spotter-image[^\]]*url=["']?([^\]"'\s]+)["']?[^\]]*\]/gi;
-                while ((match = spotterRegex.exec(contentHtml)) !== null) {
-                    addImage(null, match[1]);
-                }
-
-                const mdRegex = /!\[[^\]]*\]\(([^)]+)\)/gi;
-                while ((match = mdRegex.exec(contentHtml)) !== null) {
-                    addImage(null, match[1]);
-                }
-
-                if (postImages.length > 0) {
-                    let existingGroup = groupedPosts.find(g => g.real_post_id === post.id);
-
-                    if (existingGroup) {
-                        postImages.forEach(newImg => {
-                            const newUrl = cleanUrlFn((newImg.attributes ? newImg.attributes.url : newImg.url) || '');
-                            const newBase = extractBaseName(newUrl);
-                            const isDuplicate = existingGroup.images.some(exImg => {
-                                const exUrl = cleanUrlFn((exImg.attributes ? exImg.attributes.url : exImg.url) || '');
-                                return extractBaseName(exUrl) === newBase;
-                            });
-                            if (!isDuplicate) existingGroup.images.push(newImg);
-                        });
-                    } else {
-                        groupedPosts.push({
-                            group_id: `post_${post.id}`,
-                            real_post_id: post.id,
-                            discussion_id: post.relationships?.discussion?.data?.id,
-                            post_number: postNumber,
-                            images: postImages,
-                            postContentHtml: post.attributes?.contentHtml || '',
-                            postContentLoaded: true,
-                            postContentLoading: false
-                        });
-                    }
-                }
-            }
-
-            const fallbackGroups = new Map();
-            for (const img of rawImages) {
-                if (!processedImageIds.has(String(img.id))) {
-                    const attr = img.attributes || img;
-                    let real_pid = attr.postId || attr.post_id || (img.relationships?.post?.data?.id);
-                    let disc_id = attr.discussionId || attr.discussion_id || (img.relationships?.discussion?.data?.id);
-                    let post_num = attr.number || attr.postNumber || attr.post_number || null;
-                    
-                    let timeStr = attr.createdAt || attr.created_at || '';
-                    let minuteGroup = timeStr ? timeStr.substring(0, 16) : 'none'; 
-                    
-                    let timestampMatch = (attr.url || '').match(/(?:thumb_)?(\d{10})_/);
-                    let uploadBatch = timestampMatch ? Math.floor(parseInt(timestampMatch[1]) / 60) : null;
-
-                    let groupId;
-                    if (real_pid) {
-                        groupId = `post_${real_pid}`;
-                    } else {
-                        let batchKey = uploadBatch || minuteGroup;
-                        if (disc_id) {
-                            groupId = `disc_${disc_id}_${batchKey}`;
-                        } else if (uploadBatch) {
-                            groupId = `batch_${uploadBatch}`; 
-                        } else {
-                            groupId = `img_${img.id}`;
-                        }
-                    }
-                    
-                    if (!fallbackGroups.has(groupId)) {
-                        fallbackGroups.set(groupId, {
-                            group_id: groupId,
-                            real_post_id: real_pid,
-                            discussion_id: disc_id,
-                            post_number: post_num,
-                            images: [],
-                            postContentHtml: null,
-                            postContentLoading: false,
-                            postContentLoaded: false
-                        });
-                    }
-                    
-                    const group = fallbackGroups.get(groupId);
-                    const imgUrl = cleanUrlFn(attr.url || '');
-                    const imgBase = extractBaseName(imgUrl);
-                    const isDuplicate = group.images.some(exImg => {
-                        const exUrl = cleanUrlFn((exImg.attributes ? exImg.attributes.url : exImg.url) || '');
-                        return extractBaseName(exUrl) === imgBase;
-                    });
-                    
-                    if (!isDuplicate) {
-                        group.images.push(img);
-                    }
-                }
-            }
-
-            let allGroups = groupedPosts.concat(Array.from(fallbackGroups.values()));
-
-            for (let group of allGroups) {
-                if (group.images.length > 1 && group.real_post_id) {
-                    let coverIdx = -1;
-                    
-                    if (!Array.isArray(this.coverOverrides) && this.coverOverrides[group.real_post_id]) {
-                        const savedCoverUrl = this.coverOverrides[group.real_post_id];
-                        coverIdx = group.images.findIndex(img => cleanUrlFn((img.attributes ? img.attributes.url : img.url) || '') === savedCoverUrl);
-                    }
-                    
-                    if (coverIdx === -1 && Array.isArray(this.coverOverrides)) {
-                        coverIdx = group.images.findIndex(img => this.coverOverrides.includes(String(img.id)) || this.coverOverrides.includes(parseInt(img.id)));
-                    }
-
-                    if (coverIdx > 0) {
-                        let coverImg = group.images.splice(coverIdx, 1)[0];
-                        group.images.unshift(coverImg);
-                    }
-                }
-            }
+            let allGroups = this.buildGroups(rawPosts, metaExif, rawImages);
 
             if (this.galleryMode === 'curated' && this.curatedIds.length > 0) {
                 allGroups = allGroups.filter(post => 
@@ -375,6 +133,258 @@ export default class CustomHomepage extends Component {
             this.loadingGallery = false;
             m.redraw();
         }
+    }
+
+    /**
+     * Galeri belgesindeki mesajları kart/lightbox gruplarına çevirir (mesaj başına bir grup,
+     * görseller ve EXIF eşleşmesiyle). Keşfet sayfası da aynı yapıyı kullanır.
+     */
+    buildGroups(rawPosts, metaExif = {}, rawImages = []) {
+        const uniquePosts = [];
+        const seenPostIds = new Set();
+        for (const p of rawPosts) {
+            if (!seenPostIds.has(p.id)) {
+                seenPostIds.add(p.id);
+                uniquePosts.push(p);
+            }
+        }
+        rawPosts = uniquePosts;
+
+        const imageMap = new Map();
+        for (const img of rawImages) {
+            imageMap.set(String(img.id), img);
+        }
+
+        const groupedPosts = [];
+        const processedImageIds = new Set();
+
+        const extractBaseName = (url) => {
+            if (!url) return '';
+            let fileName = url.split('/').pop().split('?')[0];
+            try { fileName = decodeURIComponent(fileName); } catch(e) {}
+            return fileName.replace(/^thumb_/i, '').trim(); 
+        };
+
+        const cleanUrlFn = (rawUrl) => {
+            let cleanUrl = this.decodeHtml(rawUrl); 
+            try { 
+                cleanUrl = decodeURI(cleanUrl); 
+                cleanUrl = encodeURI(cleanUrl).replace(/\(/g, '%28').replace(/\)/g, '%29'); 
+            } catch(e){}
+            return cleanUrl;
+        };
+
+        for (const post of rawPosts) {
+            // SADECE HTML FORMATINA ODAKLANIYORUZ (Sırrı çözen kısım burası!)
+            const contentHtml = post.attributes?.contentHtml || '';
+            const postNumber = post.attributes?.number;
+            
+            const postImages = [];
+            const addedBaseNames = new Set();
+
+            const addImage = (id, rawUrl) => {
+                if (rawUrl && rawUrl.includes('firebasestorage') && !rawUrl.includes('thumb')) return;
+
+                const cleanUrl = rawUrl ? cleanUrlFn(rawUrl) : null;
+                let imgObj = null;
+                
+                if (id && imageMap.has(String(id))) {
+                    imgObj = imageMap.get(String(id));
+                    processedImageIds.add(String(id));
+                } else if (cleanUrl) {
+                    let mappedImg = null;
+                    imageMap.forEach((img, imgId) => {
+                        let mapUrl = cleanUrlFn((img.attributes ? img.attributes.url : img.url) || '');
+                        if (mapUrl === cleanUrl && !processedImageIds.has(imgId)) mappedImg = img;
+                    });
+
+                    if (mappedImg) {
+                        imgObj = mappedImg;
+                        processedImageIds.add(String(mappedImg.id));
+                    }
+                }
+
+                // EXIF KUSURSUZ EŞLEŞTİRİCİSİ
+                let filename = cleanUrl ? cleanUrl.split('/').pop().split('?')[0] : '';
+                try { filename = decodeURIComponent(filename); } catch(e){}
+                let cleanFileName = filename.replace(/^thumb_/i, '').trim();
+                
+                let matchedExif = null;
+                if (id && metaExif['id_' + id]) {
+                    matchedExif = metaExif['id_' + id];
+                } else if (metaExif['file_' + filename]) {
+                    matchedExif = metaExif['file_' + filename];
+                } else if (metaExif['file_' + cleanFileName]) {
+                    matchedExif = metaExif['file_' + cleanFileName];
+                } else if (metaExif['file_thumb_' + cleanFileName]) {
+                    matchedExif = metaExif['file_thumb_' + cleanFileName];
+                } else if (cleanUrl) {
+                    let decodedTargetUrl = cleanUrl;
+                    try { decodedTargetUrl = decodeURIComponent(cleanUrl); } catch(e){}
+                    
+                    for (let dbKey in metaExif) {
+                        if (dbKey.startsWith('path_')) {
+                            let cleanDbKey = dbKey.replace('path_', '');
+                            try { cleanDbKey = decodeURIComponent(cleanDbKey); } catch(e){}
+                            
+                            if (decodedTargetUrl.includes(cleanDbKey) || decodedTargetUrl.endsWith(cleanDbKey)) {
+                                matchedExif = metaExif[dbKey];
+                                break;
+                            }
+                        }
+                    }
+                }
+
+                if (!imgObj) {
+                    imgObj = {
+                        id: id || `virtual_${post.id}_${postImages.length}`,
+                        attributes: {
+                            url: cleanUrl,
+                            original_url: cleanUrl ? cleanUrl.replace('thumb_', '') : '',
+                            filename: this.decodeHtml(filename),
+                            exif: matchedExif 
+                        }
+                    };
+                } else if (matchedExif) {
+                    if (imgObj.attributes) imgObj.attributes.exif = matchedExif;
+                    else imgObj.exif = matchedExif;
+                }
+
+                if (imgObj) {
+                    const finalUrl = cleanUrl || cleanUrlFn((imgObj.attributes ? imgObj.attributes.url : imgObj.url) || '');
+                    const baseName = extractBaseName(finalUrl);
+                    
+                    if (baseName && !addedBaseNames.has(baseName)) {
+                        postImages.push(imgObj);
+                        addedBaseNames.add(baseName);
+                    }
+                }
+            };
+
+            // BBCODE TARAYICI BURADAN SİLİNDİ, RİSK SIFIRLANDI!
+            // Yalnızca render edilmiş kusursuz HTML hedefleniyor.
+            const imgRegex = /<img[^>]+src=["']?([^"'>]+)["']?/gi;
+            let match;
+            while ((match = imgRegex.exec(contentHtml)) !== null) {
+                addImage(null, match[1]);
+            }
+
+            const spotterRegex = /\[spotter-image[^\]]*url=["']?([^\]"'\s]+)["']?[^\]]*\]/gi;
+            while ((match = spotterRegex.exec(contentHtml)) !== null) {
+                addImage(null, match[1]);
+            }
+
+            const mdRegex = /!\[[^\]]*\]\(([^)]+)\)/gi;
+            while ((match = mdRegex.exec(contentHtml)) !== null) {
+                addImage(null, match[1]);
+            }
+
+            if (postImages.length > 0) {
+                let existingGroup = groupedPosts.find(g => g.real_post_id === post.id);
+
+                if (existingGroup) {
+                    postImages.forEach(newImg => {
+                        const newUrl = cleanUrlFn((newImg.attributes ? newImg.attributes.url : newImg.url) || '');
+                        const newBase = extractBaseName(newUrl);
+                        const isDuplicate = existingGroup.images.some(exImg => {
+                            const exUrl = cleanUrlFn((exImg.attributes ? exImg.attributes.url : exImg.url) || '');
+                            return extractBaseName(exUrl) === newBase;
+                        });
+                        if (!isDuplicate) existingGroup.images.push(newImg);
+                    });
+                } else {
+                    groupedPosts.push({
+                        group_id: `post_${post.id}`,
+                        real_post_id: post.id,
+                        discussion_id: post.relationships?.discussion?.data?.id,
+                        post_number: postNumber,
+                        images: postImages,
+                        postContentHtml: post.attributes?.contentHtml || '',
+                        postContentLoaded: true,
+                        postContentLoading: false
+                    });
+                }
+            }
+        }
+
+        const fallbackGroups = new Map();
+        for (const img of rawImages) {
+            if (!processedImageIds.has(String(img.id))) {
+                const attr = img.attributes || img;
+                let real_pid = attr.postId || attr.post_id || (img.relationships?.post?.data?.id);
+                let disc_id = attr.discussionId || attr.discussion_id || (img.relationships?.discussion?.data?.id);
+                let post_num = attr.number || attr.postNumber || attr.post_number || null;
+                
+                let timeStr = attr.createdAt || attr.created_at || '';
+                let minuteGroup = timeStr ? timeStr.substring(0, 16) : 'none'; 
+                
+                let timestampMatch = (attr.url || '').match(/(?:thumb_)?(\d{10})_/);
+                let uploadBatch = timestampMatch ? Math.floor(parseInt(timestampMatch[1]) / 60) : null;
+
+                let groupId;
+                if (real_pid) {
+                    groupId = `post_${real_pid}`;
+                } else {
+                    let batchKey = uploadBatch || minuteGroup;
+                    if (disc_id) {
+                        groupId = `disc_${disc_id}_${batchKey}`;
+                    } else if (uploadBatch) {
+                        groupId = `batch_${uploadBatch}`; 
+                    } else {
+                        groupId = `img_${img.id}`;
+                    }
+                }
+                
+                if (!fallbackGroups.has(groupId)) {
+                    fallbackGroups.set(groupId, {
+                        group_id: groupId,
+                        real_post_id: real_pid,
+                        discussion_id: disc_id,
+                        post_number: post_num,
+                        images: [],
+                        postContentHtml: null,
+                        postContentLoading: false,
+                        postContentLoaded: false
+                    });
+                }
+                
+                const group = fallbackGroups.get(groupId);
+                const imgUrl = cleanUrlFn(attr.url || '');
+                const imgBase = extractBaseName(imgUrl);
+                const isDuplicate = group.images.some(exImg => {
+                    const exUrl = cleanUrlFn((exImg.attributes ? exImg.attributes.url : exImg.url) || '');
+                    return extractBaseName(exUrl) === imgBase;
+                });
+                
+                if (!isDuplicate) {
+                    group.images.push(img);
+                }
+            }
+        }
+
+        let allGroups = groupedPosts.concat(Array.from(fallbackGroups.values()));
+
+        for (let group of allGroups) {
+            if (group.images.length > 1 && group.real_post_id) {
+                let coverIdx = -1;
+                
+                if (!Array.isArray(this.coverOverrides) && this.coverOverrides[group.real_post_id]) {
+                    const savedCoverUrl = this.coverOverrides[group.real_post_id];
+                    coverIdx = group.images.findIndex(img => cleanUrlFn((img.attributes ? img.attributes.url : img.url) || '') === savedCoverUrl);
+                }
+                
+                if (coverIdx === -1 && Array.isArray(this.coverOverrides)) {
+                    coverIdx = group.images.findIndex(img => this.coverOverrides.includes(String(img.id)) || this.coverOverrides.includes(parseInt(img.id)));
+                }
+
+                if (coverIdx > 0) {
+                    let coverImg = group.images.splice(coverIdx, 1)[0];
+                    group.images.unshift(coverImg);
+                }
+            }
+        }
+
+        return allGroups;
     }
 
     fetchPostContent(post) {
@@ -608,7 +618,7 @@ export default class CustomHomepage extends Component {
      */
     getSizedUrl(item, width) {
         const url = this.getDisplayUrl(item);
-        return /[?&]w=d+/.test(url) ? url.replace(/([?&]w=)d+/, '$1' + width) : url;
+        return /[?&]w=\d+/.test(url) ? url.replace(/([?&]w=)\d+/, '$1' + width) : url;
     }
 
     getDisplayUrl(item) {

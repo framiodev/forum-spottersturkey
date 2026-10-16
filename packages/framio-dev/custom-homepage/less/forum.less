@@ -2119,3 +2119,157 @@ body.fnav-bg-custom #header { background: var(--fnav-header-bg) !important; }
     .Post-header > ul { display: flex; flex-wrap: wrap; align-items: center; column-gap: 8px; row-gap: 2px; }
     .Post-header > ul > li.item-meta { flex-basis: 100%; order: 10; }
 }
+
+/* ===================== KEŞFET (Jetphotos / Buslife tarzı) ===================== */
+.Explore-Hero {
+    text-align: center;
+    .Hero-title { margin: 0; }
+    .Hero-subtitle { margin-top: 6px; opacity: .85; }
+}
+.ExplorePage .IndexPage-results { min-width: 0; }
+
+.Explore-Section { margin: 0 0 36px; }
+.Explore-Head {
+    display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px;
+    margin-bottom: 14px;
+    h3 { margin: 0; font-size: 18px; font-weight: 800; color: var(--heading-color); display: flex; align-items: center; gap: 8px; }
+    h3 .icon { color: var(--primary-color); }
+}
+
+/* Günün Fotoğrafı */
+.Explore-Potd { margin: 0 0 32px; }
+.Explore-Potd-Media {
+    position: relative; display: block; border-radius: 14px; overflow: hidden;
+    aspect-ratio: 16 / 7; background: var(--control-bg);
+    img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform .6s ease; }
+    &:hover img { transform: scale(1.02); }
+}
+.Explore-Potd-Info {
+    position: absolute; left: 0; right: 0; bottom: 0; padding: 60px 24px 20px;
+    background: linear-gradient(transparent, rgba(0,0,0,.78));
+    color: #fff;
+    h2 { margin: 8px 0 4px; font-size: 24px; font-weight: 800; color: #fff; text-shadow: 0 2px 8px rgba(0,0,0,.5); }
+}
+.Explore-Potd-Badge {
+    display: inline-flex; align-items: center; gap: 6px; padding: 4px 12px; border-radius: 20px;
+    background: var(--primary-color); color: #fff; font-size: 12px; font-weight: 800; letter-spacing: .4px; text-transform: uppercase;
+}
+.Explore-Potd-Date { font-size: 13px; opacity: .85; }
+
+/* Sekmeler */
+.Explore-Tabs { display: flex; gap: 4px; flex-wrap: wrap; }
+.Explore-Tab {
+    border: 0; padding: 6px 14px; border-radius: 20px; cursor: pointer;
+    background: var(--control-bg); color: var(--control-color); font-size: 13px; font-weight: 600;
+    &.is-active { background: var(--primary-color); color: #fff; }
+}
+
+/* Kartlar */
+.Explore-Card {
+    position: relative; display: block; overflow: hidden; border-radius: 10px;
+    background: var(--control-bg); aspect-ratio: 3 / 2;
+    img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform .4s ease; }
+    &:hover img { transform: scale(1.04); }
+}
+.Explore-Card-Title {
+    position: absolute; left: 0; right: 0; bottom: 0; padding: 26px 12px 9px;
+    background: linear-gradient(transparent, rgba(0,0,0,.75)); color: #fff;
+    font-size: 13px; font-weight: 700; line-height: 1.3;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    opacity: 0; transform: translateY(6px); transition: opacity .25s, transform .25s;
+}
+.Explore-Card:hover .Explore-Card-Title, .Explore-Card:focus-visible .Explore-Card-Title { opacity: 1; transform: none; }
+@media (hover: none) { .Explore-Card-Title { opacity: 1; transform: none; } }
+.Explore-Card-Multi {
+    position: absolute; top: 8px; right: 8px; padding: 4px 6px; border-radius: 5px;
+    background: rgba(0,0,0,.55); color: #fff; font-size: 11px; line-height: 1;
+}
+
+.Explore-Grid {
+    display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px;
+    .Explore-Card.is-lead { grid-column: span 2; grid-row: span 2; aspect-ratio: auto; }
+    &.is-busy { opacity: .5; pointer-events: none; transition: opacity .2s; }
+}
+.Explore-Masonry {
+    columns: 3 260px; column-gap: 10px;
+    .Explore-Card { aspect-ratio: auto; margin-bottom: 10px; break-inside: avoid; img { height: auto; } }
+    &.is-busy { opacity: .5; }
+}
+.Explore-Filters { display: flex; gap: 6px; flex-wrap: wrap; }
+.Explore-Filter { width: auto; min-width: 140px; max-width: 200px; height: 34px; padding: 4px 10px; font-size: 13px; }
+.Explore-More { text-align: center; margin-top: 14px; }
+.Explore-Empty { color: var(--muted-color); padding: 20px 0; }
+
+/* Koleksiyon şeritleri */
+.Explore-Strip {
+    margin-bottom: 18px;
+    h4 { margin: 0 0 8px; font-size: 14px; font-weight: 700; color: var(--muted-color); }
+}
+.Explore-Strip-Track {
+    display: flex; gap: 10px; overflow-x: auto; scroll-snap-type: x proximity; padding-bottom: 6px;
+    scrollbar-width: thin;
+}
+.Explore-Coll {
+    position: relative; flex: 0 0 200px; height: 132px; border-radius: 10px; overflow: hidden;
+    scroll-snap-align: start; background: var(--control-bg); color: #fff !important; text-decoration: none !important;
+    img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    &::after { content: ""; position: absolute; inset: 0; background: linear-gradient(transparent 35%, rgba(0,0,0,.75)); }
+}
+.Explore-Coll-Blank { display: flex; align-items: center; justify-content: center; height: 100%; font-size: 32px; color: var(--muted-color); }
+.Explore-Coll-Name, .Explore-Coll-Count { position: absolute; left: 10px; right: 10px; z-index: 1; }
+.Explore-Coll-Name { bottom: 24px; font-weight: 800; font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.Explore-Coll-Count { bottom: 8px; font-size: 11px; opacity: .85; }
+
+/* Fotoğrafçılar */
+.Explore-People { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 14px; }
+.Explore-Person { background: var(--control-bg); border-radius: 12px; padding: 12px; }
+.Explore-Person-Head {
+    display: grid; grid-template-columns: 40px 1fr; grid-template-rows: auto auto; column-gap: 10px; align-items: center;
+    color: var(--text-color) !important; text-decoration: none !important; margin-bottom: 10px;
+    .Avatar { grid-row: span 2; width: 40px; height: 40px; border-radius: 50%; object-fit: cover; display: flex; align-items: center; justify-content: center; font-weight: 800; }
+}
+.Explore-Person-Name { font-weight: 800; }
+.Explore-Person-Stats { font-size: 12px; color: var(--muted-color); }
+.Explore-Person-Thumbs {
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px;
+    .Explore-Card { border-radius: 6px; }
+    .Explore-Card-Title { display: none; }
+}
+
+/* Ekipman */
+.Explore-EqGrid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; }
+.Explore-Eq {
+    h4 { margin: 0 0 10px; font-size: 14px; font-weight: 700; color: var(--muted-color); }
+    ol { list-style: none; margin: 0; padding: 0; }
+    li { display: grid; grid-template-columns: minmax(0, 1fr) 90px 40px; align-items: center; gap: 10px; padding: 6px 0; border-bottom: 1px solid var(--control-bg); font-size: 13px; }
+}
+.Explore-Eq-Name { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-weight: 600; }
+.Explore-Eq-Bar { height: 6px; border-radius: 3px; background: var(--control-bg); position: relative; overflow: hidden; }
+.Explore-Eq-Bar::before { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: var(--w, 0); background: var(--primary-color); border-radius: 3px; }
+.Explore-Eq-Count { text-align: right; color: var(--muted-color); font-variant-numeric: tabular-nums; }
+
+/* Yükleniyor iskeleti */
+.Explore-Skel {
+    aspect-ratio: 3 / 2; border-radius: 10px;
+    background: var(--control-bg) linear-gradient(100deg, transparent 20%, rgba(255,255,255,.15) 50%, transparent 80%);
+    background-size: 200% 100%; animation: ExploreShimmer 1.4s ease-in-out infinite;
+    &.is-hero { aspect-ratio: 16 / 7; margin-bottom: 30px; border-radius: 14px; }
+}
+@keyframes ExploreShimmer { from { background-position: 150% 0; } to { background-position: -50% 0; } }
+
+@media (max-width: 900px) {
+    .Explore-Grid { grid-template-columns: repeat(3, 1fr); }
+}
+@media (max-width: 600px) {
+    .Explore-Potd-Media { aspect-ratio: 4 / 3; }
+    .Explore-Potd-Info { padding: 40px 14px 14px; h2 { font-size: 18px; } }
+    .Explore-Grid { grid-template-columns: repeat(2, 1fr); gap: 6px; }
+    .Explore-Masonry { columns: 2; column-gap: 6px; .Explore-Card { margin-bottom: 6px; } }
+    .Explore-Filters { width: 100%; }
+    .Explore-Filter { flex: 1 1 45%; max-width: none; min-width: 0; }
+    .Explore-Coll { flex-basis: 160px; height: 110px; }
+}
+@media (prefers-reduced-motion: reduce) {
+    .Explore-Card img, .Explore-Potd-Media img { transition: none; }
+    .Explore-Skel { animation: none; }
+}

@@ -3,15 +3,24 @@
 use Flarum\Extend;
 use Framio\CustomHomepage\Api\Controller\GalleryPostsController;
 use Framio\CustomHomepage\Api\Controller\FlushCacheController;
+use Framio\CustomHomepage\Api\Controller\ExploreController;
+use Framio\CustomHomepage\Api\Controller\ExplorePotdController;
+use Framio\CustomHomepage\Support\Explore;
 use Framio\CustomHomepage\Support\GalleryPosts;
 
-$flushGallery = fn () => resolve(GalleryPosts::class)->flush();
+$flushGallery = function () {
+    resolve(GalleryPosts::class)->flush();
+    resolve(Explore::class)->flush();
+};
 
 return [
     (new Extend\Frontend('forum'))
         ->js(__DIR__.'/js/dist/forum.js')
         ->css(__DIR__.'/less/forum.less')
-        ->route('/gallery', 'spotters.gallery'),
+        ->route('/gallery', 'spotters.gallery')
+        // Keşfet (Jetphotos tarzı fotoğraf vitrini). Ana sayfa yapmak için:
+        // Yönetim → Temel → Varsayılan Rota = /kesfet
+        ->route('/kesfet', 'framio.explore'),
 
     (new Extend\Middleware('forum'))
         ->add(Framio\CustomHomepage\Middleware\LightboxRedirectMiddleware::class),
@@ -23,7 +32,10 @@ return [
     (new Extend\Routes('api'))
         ->get('/framio/homepage-posts', 'framio.homepage-posts', GalleryPostsController::class)
         ->get('/framio/category-posts', 'framio.category-posts', GalleryPostsController::class)
-        ->post('/framio/homepage-cache/flush', 'framio.homepage-cache.flush', FlushCacheController::class),
+        ->post('/framio/homepage-cache/flush', 'framio.homepage-cache.flush', FlushCacheController::class)
+        ->get('/framio/explore', 'framio.explore.data', ExploreController::class)
+        ->get('/framio/explore/potd', 'framio.explore.potd', ExplorePotdController::class)
+        ->post('/framio/explore/potd', 'framio.explore.potd.set', ExplorePotdController::class),
 
     (new Extend\Settings())
         // Genel & Metinler (boşsa forum başlığı / varsayılan metin kullanılır)
@@ -76,7 +88,13 @@ return [
         ->serializeToForum('framioTagCarouselHeight', 'framio-custom-homepage.tag_carousel_height', 'strval', '250px')
         ->serializeToForum('framioTagCovers', 'framio-custom-homepage.tag_covers', 'strval', '{}')
         
-        ->serializeToForum('framioFeedRefreshBehavior', 'framio-custom-homepage.feed_refresh_behavior', 'strval', 'B'),
+        ->serializeToForum('framioFeedRefreshBehavior', 'framio-custom-homepage.feed_refresh_behavior', 'strval', 'B')
+
+        // Keşfet sayfası
+        ->serializeToForum('framioExploreActive', 'framio-custom-homepage.explore_active', 'strval', '1')
+        ->serializeToForum('framioExploreTitle', 'framio-custom-homepage.explore_title', 'strval', 'Keşfet')
+        ->serializeToForum('framioExploreSubtitle', 'framio-custom-homepage.explore_subtitle', 'strval', '')
+        ->serializeToForum('framioExploreOrder', 'framio-custom-homepage.explore_order', 'strval', 'potd,popular,recent,collections,photographers,equipment'),
 
     // Galeri önbelleği içerik değişince temizlenir
     (new Extend\Event())

@@ -1622,3 +1622,27 @@
 }
 
 .CHS-HS-Note i { margin-right: 4px; color: var(--primary-color); }
+
+/* Keşfet sekmesi: Günün Fotoğrafı */
+.CHS-Potd {
+    h4 { margin: 18px 0 6px; }
+    img { object-fit: cover; border-radius: 8px; display: block; }
+}
+.CHS-Potd-Today {
+    display: grid; grid-template-columns: 220px 1fr; gap: 14px; align-items: start;
+    img, .CHS-Potd-Blank { width: 220px; height: 147px; }
+    a { display: inline-block; margin: 4px 0; }
+    @media (max-width: 600px) { grid-template-columns: 1fr; }
+}
+.CHS-Potd-Tag { display: inline-block; padding: 2px 10px; border-radius: 12px; background: var(--primary-color); color: #fff; font-size: 11px; font-weight: 700; margin-bottom: 6px; }
+.CHS-Potd-Blank { display: flex; align-items: center; justify-content: center; background: var(--control-bg); border-radius: 8px; color: var(--muted-color); font-size: 28px; }
+.CHS-Potd-Grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 10px; }
+.CHS-Potd-Cand {
+    border: 2px solid var(--control-bg); border-radius: 10px; padding: 6px; display: flex; flex-direction: column; gap: 6px;
+    img, .CHS-Potd-Blank { width: 100%; height: 110px; }
+    &.is-current { border-color: var(--primary-color); }
+    .Button { width: 100%; }
+}
+.CHS-Potd-CandInfo { display: grid; grid-template-columns: 22px 1fr; column-gap: 6px; font-size: 12px; .helpText { grid-column: 2; margin: 0; } }
+.CHS-Potd-Rank { grid-row: span 2; font-weight: 800; color: var(--primary-color); }
+.CHS-Potd-CandTitle { font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }

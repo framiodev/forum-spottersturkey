@@ -9,6 +9,7 @@ const icon = (iconName, attrs = {}) => { attrs.className = (attrs.className || "
 import HeroSlider from '../../forum/components/HeroSlider'; 
 import MenuManager from './MenuManager';
 import PageHeroes from './PageHeroes';
+import ExploreSettings from './ExploreSettings';
 
 import { initializeApp, getApps, getApp } from 'firebase/app';
 import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
@@ -17,6 +18,7 @@ import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 const TABS = {
     general: ['fas fa-sliders-h', 'Genel & Metinler', 'Site adı ve ziyaretçiye gösterilen metinler'],
     pages: ['fas fa-heading', 'Akış & Galeri Sayfaları', 'Akış ve Galeri sayfalarının üstündeki başlık alanı'],
+    explore: ['fas fa-compass', 'Keşfet Sayfası', 'Jetphotos tarzı vitrin: Günün Fotoğrafı, popülerler, koleksiyonlar'],
     menu: ['fas fa-bars', 'Menü Yöneticisi', 'Ana menü öğeleri: sıra, ad, ikon ve görünürlük (yatay / dikey)'],
     slider: ['fas fa-th-large', 'Hero Grid / Slider', 'Ana sayfanın üstündeki büyük fotoğraf ızgarası'],
     categories: ['fas fa-tags', 'Kategori Kartları', 'Ana sayfadaki kategori kartlarının düzeni ve kapakları'],
@@ -413,6 +415,7 @@ export default class CustomHomepageSettingsPage extends ExtensionPage {
                         <div className="Framio-Tab-Content">
                             {this.activeTab === 'general' && this.renderGeneralSettings()}
                             {this.activeTab === 'pages' && (this.pageHeroes || (this.pageHeroes = new PageHeroes(this))).view()}
+                            {this.activeTab === 'explore' && (this.exploreSettings || (this.exploreSettings = new ExploreSettings(this))).view()}
                             {this.activeTab === 'menu' && (this.menuManager || (this.menuManager = new MenuManager(this))).view()}
                             {this.activeTab === 'performance' && this.renderPerformanceSettings()}
                             {this.activeTab === 'slider' && this.renderSliderSettings()}

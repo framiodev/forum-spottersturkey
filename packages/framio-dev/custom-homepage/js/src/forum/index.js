@@ -14,11 +14,15 @@ import TagCarousel from './components/TagCarousel';
 import CategoryGallery from './components/CategoryGallery';
 import CategoryFeed from './components/CategoryFeed';
 import registerNavMenu from './navMenu';
+import ExplorePage from './components/ExplorePage';
 
 // Menü yöneticisi (en son çalışan başlatıcı olarak kaydolur)
 registerNavMenu();
 
 app.initializers.add('framio-custom-homepage', () => {
+    // Keşfet sayfası (/kesfet). Ana sayfa yapmak için Yönetim → Temel → Varsayılan Rota = /kesfet
+    app.routes['framio.explore'] = { path: '/kesfet', component: ExplorePage };
+
     // Lightbox açıkken konan yenileme çerezi, yeni sekmede açılan bağlantılarla
     // (Konuya Git vb.) sunucuya gidip o sekmeyi ana sayfaya yönlendiriyordu.
     // Bağlantıya tıklanırken çerez kısa süre kaldırılır, sonra geri konur.
@@ -115,6 +119,16 @@ app.initializers.add('framio-custom-homepage', () => {
             </LinkButton>,
             90
         );
+
+        if (app.forum.attribute('framioExploreActive') !== '0') {
+            items.add(
+                'explore',
+                <LinkButton href={app.route('framio.explore')} icon="fas fa-compass" active={app.current.get('routeName') === 'framio.explore'}>
+                    {app.forum.attribute('framioExploreTitle') || 'Keşfet'}
+                </LinkButton>,
+                75
+            );
+        }
 
         if (app.forum.attribute('framioGalleryActive') !== '0') {
             items.add(
