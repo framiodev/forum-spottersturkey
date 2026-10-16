@@ -355,13 +355,22 @@ export default class UploadButton extends Component {
     const targetWatermarkType = result.targetWatermarkType || '';
     const customFileNames = result.customFileNames || [];
 
-    const uploads = fileList.map((file, index) => {
+    // Paylaşımlı sunucu aynı anda çok sayıda ağır yüklemeyi (filigran + bulut) reddedebiliyor:
+    // en fazla 2 fotoğraf aynı anda gider, başarısız olan 2 kez daha denenir.
+    const CONCURRENCY = 2;
+    const results = new Array(fileList.length).fill(null);
+    const uploadOne = (index, attempt = 0) => {
+        const file = fileList[index];
         let watermarkType = selections[index] || 'none';
         if (watermarkType === 'admin_override') watermarkType = 'none';
         const customName = customFileNames[index] || '';
 
         return this.uploadFile(file, watermarkType, targetUsername, targetWatermarkType, customName, session, index)
             .then(bbcode => {
+                if (!bbcode && !session.isCancelled && attempt < 2) {
+                    this.fileProgresses[index] = 0;
+                    return new Promise(r => setTimeout(r, 1500 * (attempt + 1))).then(() => uploadOne(index, attempt + 1));
+                }
                 if (bbcode && !session.isCancelled) {
                     session.completedUploads.push(bbcode);
                 }
@@ -371,11 +380,26 @@ export default class UploadButton extends Component {
                 if (err.message === 'AbortError') console.log('Yükleme iptal edildi:', file.name);
                 return null;
             });
-    });
-    
-    return Promise.all(uploads).then(results => {
+    };
+
+    let next = 0;
+    const worker = () => {
+        if (session.isCancelled || next >= fileList.length) return Promise.resolve();
+        const index = next++;
+        return uploadOne(index).then(code => {
+            results[index] = code;
+            return worker();
+        });
+    };
+    const workers = Array.from({ length: Math.min(CONCURRENCY, fileList.length) }, worker);
+
+    return Promise.all(workers).then(() => {
         // Fotoğraf sırasıyla (başarısızlar null): çoklu açıklamada künye ↔ görsel eşlemesi kaymasın
         session.codesByIndex = results;
+        const failed = results.filter(code => code === null).length;
+        if (failed && !session.isCancelled) {
+            app.alerts.show({ type: 'error' }, `${failed} fotoğraf yüklenemedi (sunucu yanıt vermedi). Lütfen bu fotoğrafları tekrar yükleyin.`);
+        }
         return results.filter(code => code !== null);
     });
   }
