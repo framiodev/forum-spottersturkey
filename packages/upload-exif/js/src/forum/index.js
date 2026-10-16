@@ -129,7 +129,7 @@ app.initializers.add('framio/upload-exif', () => {
       const prefs = this.user.preferences();
       const provider = prefs.framio_personal_ai_provider || 'default';
       const PROV = {
-        groq: ['Groq (Llama 4) — en hızlı', 'gsk_...', 'https://console.groq.com/keys', ['meta-llama/llama-4-scout-17b-16e-instruct', 'meta-llama/llama-4-maverick-17b-128e-instruct']],
+        groq: ['Groq — en hızlı', 'gsk_...', 'https://console.groq.com/keys', ['qwen/qwen3.8-27b']],
         gemini: ['Google Gemini', 'AIzaSy...', 'https://aistudio.google.com/app/apikey', ['gemini-2.5-flash-lite', 'gemini-2.5-flash', 'gemini-2.0-flash']],
         openai: ['OpenAI ChatGPT', 'sk-...', 'https://platform.openai.com/api-keys', ['gpt-4o-mini', 'gpt-4.1-nano', 'gpt-4.1-mini', 'gpt-4o']],
         claude: ['Anthropic Claude', 'sk-ant-...', 'https://console.anthropic.com/settings/keys', ['claude-haiku-4-5', 'claude-haiku-5-5', 'claude-sonnet-5-5']],

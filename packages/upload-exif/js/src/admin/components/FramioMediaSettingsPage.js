@@ -8,14 +8,11 @@ import Stream from 'flarum/common/utils/Stream';
 
 export const AI_PROVIDERS = {
   groq: {
-    name: 'Groq (Llama 4)',
+    name: 'Groq',
     keyLink: 'https://console.groq.com/keys',
     keyPlaceholder: 'gsk_...',
-    defaultModel: 'meta-llama/llama-4-scout-17b-16e-instruct',
-    models: [
-      { id: 'meta-llama/llama-4-scout-17b-16e-instruct', label: 'Llama 4 Scout (en hızlı)' },
-      { id: 'meta-llama/llama-4-maverick-17b-128e-instruct', label: 'Llama 4 Maverick (daha isabetli)' },
-    ],
+    defaultModel: 'qwen/qwen3.8-27b',
+    models: [{ id: 'qwen/qwen3.8-27b', label: 'Qwen 3.8 27B (görsel)' }],
   },
   gemini: {
     name: 'Google Gemini',
@@ -2477,7 +2474,7 @@ export default class FramioMediaSettingsPage extends ExtensionPage {
           </h4>
           <p className="helpText" style={{ fontSize: '12px', color: '#64748b', margin: '0 0 12px' }}>
             Etkin sağlayıcıların hepsine <b>aynı anda</b> sorulur, ilk gelen geçerli yanıt kullanılır; biri yavaşlar ya da hata verirse diğeri devreye girer.
-            Görsel 768 px boyutuna küçültülüp gönderilir ve aynı fotoğrafın sonucu önbellekten gelir. En hızlıları: Groq (Llama 4 Scout) ve Gemini Flash-Lite.
+            Görsel 768 px boyutuna küçültülüp gönderilir ve aynı fotoğrafın sonucu önbellekten gelir. En hızlıları: Groq ve Gemini Flash-Lite.
           </p>
 
           {rows.length === 0 ? (

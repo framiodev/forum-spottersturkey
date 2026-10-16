@@ -23,14 +23,16 @@ class VisionAnalyzer
 {
     public const PROVIDERS = [
         'gemini' => ['name' => 'Google Gemini', 'model' => 'gemini-2.5-flash-lite'],
-        'groq' => ['name' => 'Groq', 'model' => 'meta-llama/llama-4-scout-17b-16e-instruct'],
+        'groq' => ['name' => 'Groq', 'model' => 'qwen/qwen3.8-27b'],
         'openai' => ['name' => 'OpenAI ChatGPT', 'model' => 'gpt-4o-mini'],
         'claude' => ['name' => 'Anthropic Claude', 'model' => 'claude-haiku-4-5'],
         'grok' => ['name' => 'xAI Grok', 'model' => 'grok-2-vision-1212'],
     ];
 
     // Eski sürümlerde varsayılan olarak kaydedilmiş, API'de bulunmayan model adları
-    protected const INVALID_MODELS = ['default', 'custom', 'gemini-3.8-flash', 'gemini-3.7-flash', 'gemini-3.6-flash', 'gemini-3.1-pro', 'claude-sonnet-4.6', 'claude-opus-4.6', 'gpt-oss-120b'];
+    protected const INVALID_MODELS = ['default', 'custom', 'gemini-3.8-flash', 'gemini-3.7-flash', 'gemini-3.6-flash', 'gemini-3.1-pro', 'claude-sonnet-4.6', 'claude-opus-4.6', 'gpt-oss-120b',
+        // Groq'ta kaldırılan görsel modeller
+        'meta-llama/llama-4-scout-17b-16e-instruct', 'meta-llama/llama-4-maverick-17b-128e-instruct'];
 
     public function __construct(protected SettingsRepositoryInterface $settings, protected Cache $cache)
     {
@@ -231,6 +233,19 @@ class VisionAnalyzer
                 if ($c['provider'] !== 'grok') {
                     $body['response_format'] = ['type' => 'json_object'];
                 }
+                // Qwen gibi düşünen modellerde düşünme kapatılır (hız); desteklenmezse parametresiz tekrar denenir
+                if ($c['provider'] === 'groq' && str_contains($c['model'], 'qwen')) {
+                    $plain = $body;
+                    $body['reasoning_effort'] = 'none';
+
+                    return $client->postAsync($url, ['headers' => ['Authorization' => 'Bearer ' . $c['key']], 'json' => $body])
+                        ->otherwise(function ($e) use ($client, $url, $c, $plain) {
+                            if ($e instanceof \GuzzleHttp\Exception\ClientException && stripos((string) $e->getResponse()->getBody(), 'reasoning') !== false) {
+                                return $client->postAsync($url, ['headers' => ['Authorization' => 'Bearer ' . $c['key']], 'json' => $plain]);
+                            }
+                            throw $e;
+                        });
+                }
 
                 return $client->postAsync($url, ['headers' => ['Authorization' => 'Bearer ' . $c['key']], 'json' => $body]);
         }
@@ -244,7 +259,8 @@ class VisionAnalyzer
             'gemini' => $res['candidates'][0]['content']['parts'][0]['text'] ?? '',
             default => $res['choices'][0]['message']['content'] ?? '',
         };
-        $text = trim((string) $text);
+        // Düşünme bloğu döndüyse at
+        $text = trim(preg_replace('#<think>.*?</think>#s', '', (string) $text));
         // Yanıt kod bloğu ya da açıklamayla gelirse içindeki JSON nesnesini al
         if (preg_match('/\{.*\}/s', $text, $m)) {
             $text = $m[0];
