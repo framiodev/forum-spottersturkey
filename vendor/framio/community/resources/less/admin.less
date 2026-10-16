@@ -177,3 +177,29 @@
     }
   }
 }
+
+// Grup duyuruları (Telegram / WhatsApp)
+.FramioBroadcastPage {
+  h3 { margin-top: 28px; }
+  .FramioBroadcast-guide {
+    margin: 0 0 14px; padding: 10px 14px; border-radius: 6px; background: var(--control-bg);
+    summary { cursor: pointer; font-weight: 600; }
+    ol { margin: 10px 0 0; padding-left: 20px; line-height: 1.7; }
+    code { word-break: break-all; }
+  }
+  .FramioBroadcast-draft {
+    margin: 14px 0; padding: 14px; border-radius: 8px; border: 1px solid var(--control-bg);
+    h4 { margin: 0 0 8px; }
+    textarea { font-family: inherit; resize: vertical; }
+  }
+  .FramioBroadcast-draftActions { margin-top: 10px; display: flex; gap: 6px; flex-wrap: wrap; }
+  .FramioBroadcast-table {
+    width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 13px;
+    th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid var(--control-bg); vertical-align: top; }
+    th { color: var(--muted-color); font-weight: 600; }
+    td.is-sent { color: #2e7d32; }
+    td.is-failed { color: #c62828; font-weight: 600; }
+    td.is-pending { color: #ef6c00; }
+  }
+  .FramioBroadcast-error { color: #c62828; font-size: 12px; margin-top: 2px; }
+}

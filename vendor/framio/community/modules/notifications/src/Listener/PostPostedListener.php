@@ -3,59 +3,31 @@
 /*
  * framio/community — notifications/PostPostedListener
  *
- * Yanıt gönderildiğinde Telegram ve WhatsApp bildirimini tetikler.
- * Tartışmanın ilk postu (firstPost) atlanır — yeni konu bildirimiyle çakışmasın.
+ * Yeni konu ve yanıtları grup yayını kuyruğuna ekler. Gönderim mesaj kaydını
+ * beklemez: Broadcaster yanıt kullanıcıya döndükten sonra gönderir.
  */
 
 namespace Framio\Community\Notifications\Listener;
 
+use Flarum\Post\CommentPost;
 use Flarum\Post\Event\Posted;
-use Flarum\Http\UrlGenerator;
-use Framio\Community\Notifications\NotificationService;
+use Framio\Community\Notifications\Broadcast\Broadcaster;
 
 class PostPostedListener
 {
-    protected NotificationService $notifier;
-    protected UrlGenerator $url;
-
-    public function __construct(NotificationService $notifier, UrlGenerator $url)
+    public function __construct(protected Broadcaster $broadcaster)
     {
-        $this->notifier = $notifier;
-        $this->url      = $url;
     }
 
     public function handle(Posted $event): void
     {
-        $post       = $event->post;
-        $actor      = $event->actor;
-        $discussion = $post->discussion;
-
-        // İlk post'u atla (tartışma oluşturulurken zaten DiscussionStartedListener çalışır)
-        if ($post->number === 1) {
-            return;
+        if ($event->post instanceof CommentPost) {
+            try {
+                $this->broadcaster->enqueue($event->post);
+            } catch (\Throwable $e) {
+                // Yayın hatası mesaj göndermeyi asla engellemesin
+                resolve('log')->warning('[broadcast] kuyruk: ' . $e->getMessage());
+            }
         }
-
-        // Sadece "comment" tipindeki postları işle
-        if ($post->type !== 'comment') {
-            return;
-        }
-
-        // Post excerpt
-        $content = $post->content ?? '';
-        $excerpt = mb_substr(strip_tags($content), 0, 200);
-        if (mb_strlen($excerpt) === 200) {
-            $excerpt .= '...';
-        }
-
-        $postUrl = $this->url->to('forum')->route('discussion', [
-            'id' => $discussion->id . '-' . $discussion->slug,
-        ]) . '/' . $post->number;
-
-        $this->notifier->send('reply', [
-            'title'   => $discussion->title ?? '',
-            'author'  => $actor->display_name ?? $actor->username ?? '',
-            'url'     => $postUrl,
-            'excerpt' => $excerpt,
-        ]);
     }
 }

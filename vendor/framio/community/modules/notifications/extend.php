@@ -2,19 +2,22 @@
 
 /*
  * framio/community — notifications modülü
- * Telegram ve WhatsApp grup bildirimleri.
+ * Forum mesajlarını Telegram ve WhatsApp gruplarına duyurur (kuyruk + toplu gönderim).
  */
 
-use Flarum\Discussion\Event\Started;
 use Flarum\Post\Event\Posted;
 use Flarum\Extend;
-use Framio\Community\Notifications\Listener\DiscussionStartedListener;
+use Framio\Community\Notifications\Broadcast\BroadcastController;
 use Framio\Community\Notifications\Listener\PostPostedListener;
 
 return [
+    // Yeni konunun ilk mesajı da Posted olayıyla gelir; ayrı "Started" dinleyicisi gerekmez
     (new Extend\Event())
-        ->listen(Started::class, DiscussionStartedListener::class)
         ->listen(Posted::class, PostPostedListener::class),
+
+    (new Extend\Routes('api'))
+        ->get('/framio-broadcast', 'framio.broadcast.state', BroadcastController::class)
+        ->post('/framio-broadcast', 'framio.broadcast.action', BroadcastController::class),
 
     new Extend\Locales(__DIR__ . '/locale'),
 ];
