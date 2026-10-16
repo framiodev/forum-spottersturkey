@@ -715,7 +715,7 @@ export default class ExifLightboxModal extends Modal {
                     <div className="SpottersGallery-DescHeader">
                       <h4>{cleanHtml ? 'MESAJ KÜNYESİ' : 'FOTOĞRAF AÇIKLAMASI'}</h4>
                     </div>
-                    <div className="SpottersGallery-DescContent">
+                    <div className="SpottersGallery-DescContent" data-post-id={post ? String(typeof post.id === 'function' ? post.id() : post.id) : undefined}>
                       {cleanHtml ? (
                         m.trust(cleanHtml)
                       ) : (

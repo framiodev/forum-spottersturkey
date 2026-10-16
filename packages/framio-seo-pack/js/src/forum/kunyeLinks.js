@@ -7,7 +7,8 @@ import CommentPost from 'flarum/forum/components/CommentPost';
  * sayfalarına (/arac/…) bağlar. Veri sunucudan post.seoEntities() ile gelir;
  * yalnızca künye öğelerindeki metne dokunulur, mesajın geri kalanına değil.
  */
-const KUNYE_SELECTOR = '.framio-kunye-card, li > strong';
+// Künye satırlarının tamamı (etiket ve değer); yalnızca bilinen varlık adları bağlanır
+const KUNYE_SELECTOR = '.framio-kunye-card, li';
 
 function linkify(root, entities) {
   // Uzun adlar önce (model adı markayı içerir)
@@ -82,7 +83,43 @@ function apply(vnode) {
   linkify(body, entities);
 }
 
+// Lightbox (galeri, Keşfet, ana sayfa) künyesi: mesaj sayfası dışında da bağlantılı olsun
+const cache = {};
+function entitiesFor(id) {
+  if (cache[id]) return cache[id];
+  const stored = app.store.getById('posts', id);
+  const known = stored && stored.attribute('seoEntities');
+  cache[id] = known
+    ? Promise.resolve(known)
+    : app
+        .request({ method: 'GET', url: app.forum.attribute('apiUrl') + '/posts/' + id })
+        .then((res) => (res && res.data && res.data.attributes && res.data.attributes.seoEntities) || [])
+        .catch(() => []);
+  return cache[id];
+}
+
+function scanLightbox() {
+  document.querySelectorAll('.SpottersGallery-DescContent[data-post-id]').forEach((el) => {
+    const id = el.getAttribute('data-post-id');
+    if (el.querySelector('.FramioKunyeLink') || el.dataset.kunyeFor === id + ':' + el.textContent.length) return;
+    el.dataset.kunyeFor = id + ':' + el.textContent.length;
+    entitiesFor(id).then((entities) => {
+      if (entities && entities.length && el.isConnected && !el.querySelector('.FramioKunyeLink')) linkify(el, entities);
+    });
+  });
+}
+
 export default function kunyeLinks() {
   extend(CommentPost.prototype, 'oncreate', apply);
   extend(CommentPost.prototype, 'onupdate', apply);
+
+  let queued = false;
+  new MutationObserver(() => {
+    if (queued) return;
+    queued = true;
+    setTimeout(() => {
+      queued = false;
+      scanLightbox();
+    }, 60);
+  }).observe(document.body, { childList: true, subtree: true });
 }
