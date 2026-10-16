@@ -118,7 +118,7 @@ return [
                 '[framio-image id={NUMBER} url={URL} alt={TEXT}]',
                 '<div class="framio-image-container SpotterCard" data-id="{NUMBER}">
                     <div class="SpotterCard-image-wrapper">
-                        <img src="{URL}" alt="{TEXT}" class="spotter-lazy" loading="lazy" />
+                        <img src="{URL}" alt="{TEXT}" class="spotter-lazy" loading="lazy" decoding="async"><xsl:if test="@w and @h"><xsl:attribute name="width"><xsl:value-of select="@w"/></xsl:attribute><xsl:attribute name="height"><xsl:value-of select="@h"/></xsl:attribute></xsl:if></img>
                     </div>
                     <div class="spotter-exif-placeholder"></div>
                  </div>'
@@ -129,7 +129,7 @@ return [
                 '[spotter-image id={NUMBER} url={URL} alt={TEXT}]',
                 '<div class="framio-image-container spotter-image-container SpotterCard" data-id="{NUMBER}">
                     <div class="SpotterCard-image-wrapper">
-                        <img src="{URL}" alt="{TEXT}" class="spotter-lazy" loading="lazy" />
+                        <img src="{URL}" alt="{TEXT}" class="spotter-lazy" loading="lazy" decoding="async"><xsl:if test="@w and @h"><xsl:attribute name="width"><xsl:value-of select="@w"/></xsl:attribute><xsl:attribute name="height"><xsl:value-of select="@h"/></xsl:attribute></xsl:if></img>
                     </div>
                     <div class="spotter-exif-placeholder"></div>
                  </div>'
@@ -140,7 +140,7 @@ return [
                 '[ulasimarsiv-image id={NUMBER} url={URL} alt={TEXT}]',
                 '<div class="framio-image-container ulasimarsiv-image-container SpotterCard" data-id="{NUMBER}">
                     <div class="SpotterCard-image-wrapper">
-                        <img src="{URL}" alt="{TEXT}" class="spotter-lazy" loading="lazy" />
+                        <img src="{URL}" alt="{TEXT}" class="spotter-lazy" loading="lazy" decoding="async"><xsl:if test="@w and @h"><xsl:attribute name="width"><xsl:value-of select="@w"/></xsl:attribute><xsl:attribute name="height"><xsl:value-of select="@h"/></xsl:attribute></xsl:if></img>
                     </div>
                     <div class="spotter-exif-placeholder"></div>
                  </div>'
@@ -151,7 +151,7 @@ return [
                 '[upl-image-preview id={NUMBER} url={URL} alt={TEXT}]',
                 '<div class="framio-image-container upl-image-container SpotterCard" data-id="{NUMBER}">
                     <div class="SpotterCard-image-wrapper">
-                        <img src="{URL}" alt="{TEXT}" class="spotter-lazy" loading="lazy" />
+                        <img src="{URL}" alt="{TEXT}" class="spotter-lazy" loading="lazy" decoding="async"><xsl:if test="@w and @h"><xsl:attribute name="width"><xsl:value-of select="@w"/></xsl:attribute><xsl:attribute name="height"><xsl:value-of select="@h"/></xsl:attribute></xsl:if></img>
                     </div>
                     <div class="spotter-exif-placeholder"></div>
                  </div>'
@@ -167,6 +167,10 @@ return [
                 '<div class="framio-kunye-card"><xsl:apply-templates/></div>'
             );
         }),
+
+    // Görsellere gerçek en/boy: sayfa kaydırılırken mesajlar zıplamasın
+    (new Extend\Formatter)
+        ->render(\Framio\UploadExif\Formatter\AddImageDimensions::class),
 
     // Yönetici: konuyu/mesajı seçilen üye adına paylaş (bkz. PostAsHandler)
     (new Extend\ApiResource(DiscussionResource::class))

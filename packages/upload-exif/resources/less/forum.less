@@ -1728,3 +1728,78 @@
 }
 .FramioDownload-menu { display: none; }
 .FramioDownload.is-open .FramioDownload-menu { display: block; }
+
+
+/* Lightbox: küçük görsel hemen, büyük görsel inince yumuşak geçişle */
+.SpottersGallery-ImageStack {
+    position: relative !important;
+    display: grid !important;
+    line-height: 0;
+
+    > img { grid-area: 1 / 1 !important; }
+
+    .SpottersGallery-ImagePlaceholder {
+        filter: blur(6px);
+        transform: scale(1.01);
+    }
+    .SpottersGallery-ImageFull {
+        opacity: 0;
+        transition: opacity .35s ease;
+    }
+    &.is-ready .SpottersGallery-ImageFull { opacity: 1; }
+    &.is-ready .SpottersGallery-ImagePlaceholder { visibility: hidden; transition: visibility 0s .35s; }
+
+    /* Küçük görsel yoksa büyük görsel kendi yerini açsın, yarım görüntü yerine boş kutu + yükleniyor */
+    &:not(.is-ready) .SpottersGallery-ImageFull:only-of-type { min-width: ~"min(1024px, 90vw)"; min-height: 40vh; }
+}
+.SpottersGallery-ImageSpinner {
+    position: absolute; top: 50%; left: 50%;
+    width: 34px; height: 34px; margin: -17px 0 0 -17px;
+    border: 3px solid rgba(255,255,255,.35); border-top-color: #fff; border-radius: 50%;
+    animation: SpottersGallerySpin .8s linear infinite;
+    pointer-events: none;
+}
+@keyframes SpottersGallerySpin { to { transform: rotate(360deg); } }
+
+
+/* Mesaj görselleri: gerçek oranında yer ayrılır, inerken zarif bir zemin, inince yumuşak beliriş */
+img.spotter-lazy {
+    background-color: var(--control-bg, #e9e9e9);
+    background-image: linear-gradient(100deg, transparent 20%, rgba(255,255,255,.18) 50%, transparent 80%);
+    background-size: 200% 100%;
+    animation: SpotterShimmer 1.4s ease-in-out infinite;
+    opacity: .001;
+    transition: opacity .45s ease;
+}
+img.spotter-lazy.is-loaded {
+    opacity: 1;
+    animation: none;
+    background: none;
+}
+/* Yer tutucu zemini görünsün diye resim kutusu saydam değil, zemin rengini taşır */
+.SpotterCard-image-wrapper:has(> img.spotter-lazy:not(.is-loaded)) {
+    background: var(--control-bg, #e9e9e9) !important;
+    background-image: linear-gradient(100deg, transparent 20%, rgba(255,255,255,.18) 50%, transparent 80%) !important;
+    background-size: 200% 100% !important;
+    animation: SpotterShimmer 1.4s ease-in-out infinite;
+}
+@keyframes SpotterShimmer { from { background-position: 150% 0; } to { background-position: -50% 0; } }
+@media (prefers-reduced-motion: reduce) {
+    img.spotter-lazy, .SpotterCard-image-wrapper { animation: none !important; }
+}
+
+.SpottersGallery-HqBtn {
+    width: auto !important;
+    padding: 0 12px !important;
+    border-radius: 20px !important;
+    font-weight: 800 !important;
+    font-size: 12px !important;
+    letter-spacing: .5px;
+    &.is-active { background: var(--primary-color, #c00) !important; border-color: transparent !important; }
+}
+
+/* Boyutu bilinmeyen eski görseller (kimliksiz upl-image-preview): inene kadar en yaygın oran 3:2 */
+img.spotter-lazy:not([width]):not(.is-loaded) {
+    aspect-ratio: 3 / 2;
+    width: 100%;
+}

@@ -26,6 +26,8 @@ export default class ExifLightboxModal extends Modal {
 
     this.loading = false;
     this.showShareMenu = false;
+    /** Tamamen inmiş büyük görseller (geçiş tekrar oynamasın) */
+    this.loadedUrls = new Set();
 
     // Keyboard listener for Left/Right arrow keys
     this.keyHandler = (e) => {
@@ -265,6 +267,65 @@ export default class ExifLightboxModal extends Modal {
         document.body.removeChild(a);
       }
     }
+  }
+
+  /**
+   * Hemen gösterilecek küçük görsel: mesajdaki (tarayıcıda zaten yüklü) görsel,
+   * yoksa kaydın küçük resmi. Lightbox boş açılmasın diye.
+   */
+  placeholderUrl(cur) {
+    if (!cur) return '';
+    if (!cur.placeholder) {
+      const img = cur.containerEl && cur.containerEl.querySelector ? cur.containerEl.querySelector('img') : null;
+      const data = cur.data || {};
+      cur.placeholder = (img && (img.currentSrc || img.src)) || data.thumb_url || data.thumb_path || '';
+    }
+    return cur.placeholder;
+  }
+
+  /**
+   * Lightbox'ta gösterilecek büyük görsel. Görsel en fazla 1024 px genişliğinde
+   * gösterildiği için ~3840 px'lik ana dosya yerine, CDN dinamik boyutlandırma
+   * açıksa ekrana uygun genişlik istenir.
+   */
+  displayUrl(cur) {
+    const data = (cur && cur.data) || {};
+    const main = String((cur && cur.imageUrl) || data.url || data.path || '').replace(/\?w=\d+$/, '');
+    if (!main) return '';
+    // "Yüksek Kalite" açıksa tam boyut (3840) dosya
+    if (cur.hq) return main;
+
+    const thumb = String(data.thumb_url || data.thumb_path || '');
+    if (thumb.indexOf('?w=') !== -1) {
+      // CDN dinamik boyutlandırma: ekrana uygun genişlik (en fazla 2048, retina için)
+      const dpr = Math.min(window.devicePixelRatio || 1, 2);
+      const w = Math.min(2048, Math.ceil((Math.min(window.innerWidth, 1024) * dpr) / 256) * 256);
+      return main + '?w=' + w;
+    }
+    // Statik modda 1024 px küçük resim dosyası (lightbox'ta gösterilen boyut)
+    return thumb || main;
+  }
+
+  /** Bu fotoğrafın ayrıca yüksek kalite (tam boyut) dosyası var mı */
+  hasHq(cur) {
+    const data = (cur && cur.data) || {};
+    const main = String((cur && cur.imageUrl) || data.url || data.path || '').replace(/\?w=\d+$/, '');
+    return !!main && main !== this.displayUrl(Object.assign({}, cur, { hq: false }));
+  }
+
+  /** Sonraki ve önceki fotoğrafı arka planda indir: oklarla geçişte bekleme olmasın */
+  preloadNeighbours() {
+    if (this.items.length < 2) return;
+    [1, -1].forEach((step) => {
+      const it = this.items[(this.currentIndex + step + this.items.length) % this.items.length];
+      const url = this.displayUrl(it);
+      if (url && !this.loadedUrls.has(url)) {
+        const img = new Image();
+        img.decoding = 'async';
+        img.onload = () => this.loadedUrls.add(url);
+        img.src = url;
+      }
+    });
   }
 
   processCurrentItem() {
@@ -583,6 +644,22 @@ export default class ExifLightboxModal extends Modal {
                     </button>
                   )}
 
+                  {this.hasHq(cur) && (
+                    <button
+                      type="button"
+                      className={'SpottersGallery-FloatBtn SpottersGallery-HqBtn' + (cur.hq ? ' is-active' : '')}
+                      data-tooltip={cur.hq ? 'Standart kaliteye dön' : 'Yüksek Kalite (tam boyut)'}
+                      onclick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        cur.hq = !cur.hq;
+                        m.redraw();
+                      }}
+                    >
+                      <span>HQ</span>
+                    </button>
+                  )}
+
                   <a
                     href={data.original_url || data.original_path || imageUrl}
                     target="_blank"
@@ -593,7 +670,32 @@ export default class ExifLightboxModal extends Modal {
                   </a>
                 </div>
 
-                <img src={imageUrl} alt={finalTitle} />
+                {(() => {
+                  // Önce küçük görsel anında görünür; büyük görsel tamamen inince
+                  // üstünde yumuşakça belirir (yarım yarım yüklenme görüntüsü olmaz)
+                  const full = this.displayUrl(cur) || imageUrl;
+                  const standard = this.displayUrl(Object.assign({}, cur, { hq: false }));
+                  const ph = cur.hq && this.loadedUrls.has(standard) ? standard : this.placeholderUrl(cur);
+                  const ready = this.loadedUrls.has(full);
+                  return (
+                    <div className={'SpottersGallery-ImageStack' + (ready ? ' is-ready' : '')} key={'img-' + (cur.photoId || this.currentIndex) + (cur.hq ? '-hq' : '')}>
+                      {ph && ph !== full ? <img className="SpottersGallery-ImagePlaceholder" src={ph} alt="" aria-hidden="true" /> : null}
+                      <img
+                        className="SpottersGallery-ImageFull"
+                        src={full}
+                        alt={finalTitle}
+                        decoding="async"
+                        fetchpriority="high"
+                        onload={() => {
+                          this.loadedUrls.add(full);
+                          this.preloadNeighbours();
+                          m.redraw();
+                        }}
+                      />
+                      {!ready ? <span className="SpottersGallery-ImageSpinner" aria-hidden="true"></span> : null}
+                    </div>
+                  );
+                })()}
               </div>
             </div>
 

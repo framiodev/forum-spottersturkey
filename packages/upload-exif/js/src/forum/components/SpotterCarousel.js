@@ -193,7 +193,15 @@ export default class SpotterCarousel extends Component {
               }
               return (
                 <div key={idx} className="SpotterCarousel-Slide" style={{ flex: '0 0 100%', display: 'flex', justifyContent: 'center', alignItems: 'flex-start', width: '100%' }}>
-                  <img src={slideSrc} alt={slideAlt} style={{ width: '100%', height: 'auto', display: 'block', margin: '0 auto', maxHeight: '850px', objectFit: 'cover' }} />
+                  <img
+                    src={slideSrc}
+                    alt={slideAlt}
+                    width={slideImgEl ? slideImgEl.getAttribute('width') || undefined : undefined}
+                    height={slideImgEl ? slideImgEl.getAttribute('height') || undefined : undefined}
+                    decoding="async"
+                    className={'spotter-lazy' + (slideImgEl && slideImgEl.complete && slideImgEl.naturalWidth ? ' is-loaded' : '')}
+                    style={{ width: '100%', height: 'auto', display: 'block', margin: '0 auto', maxHeight: '850px', objectFit: 'cover' }}
+                  />
                 </div>
               );
             })}

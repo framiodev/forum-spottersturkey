@@ -16,6 +16,29 @@ import SettingsPage from 'flarum/forum/components/SettingsPage';
 import Page from 'flarum/common/components/Page';
 import crosspostOnPublish from './crosspostOnPublish';
 
+// Mesaj görselleri inince yumuşakça belirsin (yer önceden ayrılır: bkz. AddImageDimensions)
+if (typeof document !== 'undefined') {
+  const markLoaded = (e) => {
+    const t = e.target;
+    if (t && t.tagName === 'IMG' && t.classList && t.classList.contains('spotter-lazy')) t.classList.add('is-loaded');
+  };
+  document.addEventListener('load', markLoaded, true);
+  document.addEventListener('error', markLoaded, true);
+
+  // Önbellekten gelen (load olayı betikten önce biten) görseller görünmez kalmasın
+  const markComplete = (root) => {
+    if (!root || !root.querySelectorAll) return;
+    const list = root.matches && root.matches('img.spotter-lazy') ? [root] : root.querySelectorAll('img.spotter-lazy:not(.is-loaded)');
+    list.forEach((img) => { if (img.complete) img.classList.add('is-loaded'); });
+  };
+  const start = () => {
+    markComplete(document);
+    new MutationObserver((records) => records.forEach((r) => r.addedNodes.forEach(markComplete))).observe(document.body, { childList: true, subtree: true });
+  };
+  if (document.body) start();
+  else document.addEventListener('DOMContentLoaded', start);
+}
+
 app.initializers.add('framio/upload-exif', () => {
   crosspostOnPublish();
 
