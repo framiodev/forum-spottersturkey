@@ -677,7 +677,8 @@ export default class ExifLightboxModal extends Modal {
                   const standard = this.displayUrl(Object.assign({}, cur, { hq: false }));
                   const ph = cur.hq && this.loadedUrls.has(standard) ? standard : this.placeholderUrl(cur);
                   const ready = this.loadedUrls.has(full);
-                  return (
+                  // Anahtarlı öğe kendi dizisinde: anahtarsız kardeşlerle karışırsa Mithril hata verir
+                  return [
                     <div className={'SpottersGallery-ImageStack' + (ready ? ' is-ready' : '')} key={'img-' + (cur.photoId || this.currentIndex) + (cur.hq ? '-hq' : '')}>
                       {ph && ph !== full ? <img className="SpottersGallery-ImagePlaceholder" src={ph} alt="" aria-hidden="true" /> : null}
                       <img
@@ -693,8 +694,8 @@ export default class ExifLightboxModal extends Modal {
                         }}
                       />
                       {!ready ? <span className="SpottersGallery-ImageSpinner" aria-hidden="true"></span> : null}
-                    </div>
-                  );
+                    </div>,
+                  ];
                 })()}
               </div>
             </div>
