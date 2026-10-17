@@ -110,52 +110,103 @@ const drive = {
     return parts;
   },
 
+  /** Aynı anda en çok n istek: Drive'a yüzlerce ardışık istek yerine paralel ama sınırlı */
+  async pool(items, n, fn) {
+    const out = new Array(items.length);
+    let i = 0;
+    await Promise.all(
+      Array.from({ length: Math.min(n, items.length) }, async () => {
+        while (i < items.length) {
+          const k = i++;
+          try {
+            out[k] = await fn(items[k]);
+          } catch (e) {
+            out[k] = null;
+          }
+        }
+      })
+    );
+    return out;
+  },
+
+  async searchFolders(term) {
+    const q = String(term).replace(/'/g, "\\'");
+    const res = await (
+      await this.request('https://www.googleapis.com/drive/v3/files?' + new URLSearchParams({ q: `mimeType='application/vnd.google-apps.folder' and trashed=false and name contains '${q}'`, fields: 'files(id,name,parents)', pageSize: '300' }))
+    ).json();
+    this.meta = this.meta || {};
+    (res.files || []).forEach((f) => (this.meta[f.id] = { name: f.name, parent: (f.parents || [])[0] || null }));
+    return res.files || [];
+  },
+
+  async children(id) {
+    const res = await (
+      await this.request('https://www.googleapis.com/drive/v3/files?' + new URLSearchParams({ q: `'${id}' in parents and mimeType='application/vnd.google-apps.folder' and trashed=false`, fields: 'files(id,name)', pageSize: '300' }))
+    ).json();
+    return res.files || [];
+  },
+
   /**
-   * Klasör yapısından hedefi bulur: Karayolu/Otobüs/2026/Şehirler/Antalya/…/Antalya Otogar/…/Mercedes-Benz/Travego
+   * Klasör yapısından hedefi bulur: …/2026/…/Antalya/…/Antalya Otogar/…/Mercedes-Benz/Travego
    * want: { year, place: ["Antalya Otogar", "Antalya"], brand, model }
-   * 1) En özel ada (model → marka → yer) sahip klasörler Drive aramasıyla bulunur,
-   * 2) her birinin tam yolu çıkarılır ve yolda yıl + yer (+ marka) geçmesi şartı aranır,
-   * 3) en çok koşulu sağlayan klasörler döner (içleri alt klasörleriyle taranır).
+   * 1) Yer klasörü: önce tam ifade ("Antalya Otogar"), yoksa tek kelime; yolunda yıl geçenler, en özel olanlar
+   * 2) O klasörlerin içinde (alt seviyeler) model, yoksa marka klasörü aranır
+   * Yer verilmediyse doğrudan model/marka klasörleri aranır ve yolunda yıl geçenler alınır.
    */
   async locate(want, onStep = () => {}) {
     const fold = (v) => String(v || '').toLocaleLowerCase('tr-TR').replace(/[çğıöşü]/g, (c) => ({ ç: 'c', ğ: 'g', ı: 'i', ö: 'o', ş: 's', ü: 'u' })[c]).replace(/[^a-z0-9]+/g, ' ').trim();
-    const places = (want.place || []).map(fold).filter((w) => w.length > 2);
-    const model = fold(want.model).split(' ')[0] || '';
-    const brand = fold(want.brand).split(' ')[0] || '';
     const year = want.year ? String(want.year) : '';
-    const terms = [model && want.model.split(/\s+/)[0], brand && want.brand.split(/[\s-]+/)[0], ...(want.place || [])].filter(Boolean);
+    const places = [...new Set((want.place || []).filter(Boolean))];
+    const modelKey = fold(want.model).split(' ')[0] || '';
+    const brandKey = fold(want.brand).split(' ')[0] || '';
+    const withPaths = async (folders) =>
+      (await this.pool(folders, 8, async (f) => ({ id: f.id, name: f.name, parts: await this.pathOf(f.id) }))).filter(Boolean);
+    const yearOk = (parts) => !year || parts.some((x) => fold(x).split(' ').includes(year));
 
-    for (const term of terms) {
-      onStep(`Drive'da "${term}" klasörlerini arıyorum…`);
-      const q = String(term).replace(/'/g, "\\'");
-      const res = await (
-        await this.request('https://www.googleapis.com/drive/v3/files?' + new URLSearchParams({ q: `mimeType='application/vnd.google-apps.folder' and trashed=false and name contains '${q}'`, fields: 'files(id,name,parents)', pageSize: '200' }))
-      ).json();
-      const found = res.files || [];
-      if (!found.length) continue;
-      found.forEach((f) => (this.meta = Object.assign(this.meta || {}, { [f.id]: { name: f.name, parent: (f.parents || [])[0] || null } })));
-      const scored = [];
-      for (const f of found) {
-        const parts = await this.pathOf(f.id);
-        const segs = parts.map(fold);
-        const has = (w) => segs.some((s) => s === w || s.includes(w));
-        // Zorunlu koşullar: yıl ve (varsa) yer yolda geçmeli; model aranıyorsa klasör modelin kendisi ya da altı
-        if (year && !segs.some((s) => s.split(' ').includes(year))) continue;
-        if (places.length && !places.some(has)) continue;
-        let score = 0;
-        places.forEach((p) => has(p) && (score += 3));
-        if (brand && has(brand)) score += 2;
-        if (model && has(model)) score += 4;
-        // En özel klasör: yer adının birebir geçtiği klasör ("Antalya Otogar") genel olandan ("Antalya") üstündür
-        if (places.some((p) => segs.includes(p))) score += 1;
-        scored.push({ id: f.id, path: parts.join('/'), score, depth: parts.length });
+    // 1) Yer klasörü
+    let base = [];
+    for (const place of places) {
+      onStep(`Drive'da "${place}" klasörünü arıyorum…`);
+      const found = await this.searchFolders(place);
+      const fp = fold(place);
+      // Adı ifadeyle birebir aynı olanlar önce ("Antalya Otogar"), sonra içerenler
+      const exact = found.filter((f) => fold(f.name) === fp);
+      const list = exact.length ? exact : found.filter((f) => fold(f.name).includes(fp));
+      if (!list.length) continue;
+      const paths = (await withPaths(list.slice(0, 40))).filter((x) => yearOk(x.parts));
+      if (paths.length) {
+        base = paths.map((x) => ({ id: x.id, path: x.parts.join('/') }));
+        break;
       }
-      if (!scored.length) continue;
-      const best = Math.max(...scored.map((x) => x.score));
-      // Aynı yolun hem üstü hem altı seçilmişse yalnızca en derindeki (en özel) kalır
-      let top = scored.filter((x) => x.score === best).sort((a, b) => b.depth - a.depth);
-      top = top.filter((x) => !top.some((y) => y !== x && y.path.startsWith(x.path + '/')));
-      return top.slice(0, 12);
+    }
+
+    // 2) İçinde model / marka klasörü (en çok 6 seviye aşağı)
+    const want2 = [modelKey, brandKey].filter(Boolean);
+    if (base.length && want2.length) {
+      for (const key of want2) {
+        onStep(`"${base[0].path.split('/').pop()}" içinde ${key === modelKey ? 'model' : 'marka'} klasörünü arıyorum…`);
+        let level = base.map((b) => ({ id: b.id, path: b.path }));
+        const hits = [];
+        for (let d = 0; d < 6 && level.length && !hits.length; d++) {
+          const kids = await this.pool(level, 8, async (x) => (await this.children(x.id)).map((k) => ({ id: k.id, path: x.path + '/' + k.name, name: k.name })));
+          level = [].concat(...kids.filter(Boolean));
+          level.filter((k) => fold(k.name).split(' ').includes(key) || fold(k.name).startsWith(key)).forEach((k) => hits.push(k));
+          if (level.length > 400) level = level.slice(0, 400);
+        }
+        if (hits.length) return hits.map((h) => ({ id: h.id, path: h.path }));
+      }
+      // Model klasörü yoksa yer klasörünün tamamı (yapay zeka modeli fotoğraftan ayıklar)
+      return base;
+    }
+    if (base.length) return base;
+
+    // 3) Yer verilmediyse: model/marka klasörleri, yolunda yıl geçenler
+    for (const key of [want.model, want.brand].filter(Boolean)) {
+      const term = String(key).split(/[\s-]+/)[0];
+      onStep(`Drive'da "${term}" klasörlerini arıyorum…`);
+      const found = (await this.searchFolders(term)).filter((f) => fold(f.name).includes(fold(term)));
+      const paths = (await withPaths(found.slice(0, 60))).filter((x) => yearOk(x.parts));
+      if (paths.length) return paths.map((x) => ({ id: x.id, path: x.parts.join('/') }));
     }
     return [];
   },
