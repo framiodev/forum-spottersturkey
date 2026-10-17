@@ -772,7 +772,11 @@ class Panel extends Component {
       .split('/')
       .map((x) => fold(x).replace(BR, '').trim())
       .filter(Boolean)
-      .map((x) => x.split(' ')[0])
+      // Kısa seri adları: "S 500 Serileri" → "s 5" (S 515 HD, S 516 HD … klasörleriyle eşleşir)
+      .map((x) => {
+        const w = x.split(' ');
+        return w[0].length <= 2 && /^\d/.test(w[1] || '') ? w[0] + ' ' + w[1][0] : w[0];
+      })
       .filter((w, i, a) => w.length > 2 && a.indexOf(w) === i);
   }
 
