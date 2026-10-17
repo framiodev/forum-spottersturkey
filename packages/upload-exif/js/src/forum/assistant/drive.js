@@ -58,7 +58,61 @@ const drive = {
   },
 
   connected() {
-    return this.folders().length > 0;
+    return this.folders().length > 0 || !!this.token;
+  },
+
+  /** Aranacak kökler: seçilen klasörler; oturum açık ama klasör seçilmediyse tüm Drive */
+  roots() {
+    const chosen = this.folders().filter((f) => f.enabled);
+    if (chosen.length) return chosen;
+    return this.token ? [{ id: 'root', name: "Drive'ım", enabled: true }] : [];
+  },
+
+  /**
+   * Adında yer kelimesi geçen klasörler (Drive araması — tüm ağacı gezmeden): en özel kelime önce.
+   * Seçili kökler varsa yalnızca onların altındakiler kabul edilir.
+   */
+  async findDirs(words) {
+    for (const w of words) {
+      const q = String(w).replace(/'/g, "\\'");
+      const res = await (
+        await this.request('https://www.googleapis.com/drive/v3/files?' + new URLSearchParams({ q: `mimeType='application/vnd.google-apps.folder' and trashed=false and name contains '${q}'`, fields: 'files(id,name,parents)', pageSize: '50' }))
+      ).json();
+      const hits = (res.files || []).map((f) => ({ id: f.id, path: f.name, depth: 0 }));
+      if (hits.length) return hits;
+    }
+    return [];
+  },
+
+  /** Verilen klasörlerin (alt klasörleri dahil) içindeki fotoğraflar */
+  async filesUnder(dirs, limit = 600) {
+    const out = [];
+    const queue = dirs.map((d) => ({ id: d.id, path: d.path, depth: 0 }));
+    while (queue.length && out.length < limit) {
+      const f = queue.shift();
+      let pageToken = '';
+      do {
+        const res = await (
+          await this.request('https://www.googleapis.com/drive/v3/files?' + new URLSearchParams({ q: `'${f.id}' in parents and trashed=false`, fields: 'nextPageToken,files(id,name,mimeType,modifiedTime,imageMediaMetadata(time))', pageSize: '500', ...(pageToken ? { pageToken } : {}) }))
+        ).json();
+        (res.files || []).forEach((x) => {
+          if (x.mimeType === 'application/vnd.google-apps.folder') {
+            if (f.depth < 40) queue.push({ id: x.id, path: f.path + '/' + x.name, depth: f.depth + 1 });
+          } else if (String(x.mimeType).startsWith('image/')) {
+            const exif = x.imageMediaMetadata && x.imageMediaMetadata.time;
+            const pathYear = (f.path.match(/(?:^|\/)[^/]*?((?:19|20)\d{2})[^/]*/) || [])[1];
+            out.push({
+              driveId: x.id, name: x.name, mime: x.mimeType, path: f.path, source: 'Drive: ' + f.path,
+              year: exif ? Number(String(exif).slice(0, 4)) : pathYear ? Number(pathYear) : null,
+              modified: Date.parse(x.modifiedTime) || 0,
+              load: () => this.download(x.id, x.name, x.mimeType, Date.parse(x.modifiedTime) || 0),
+            });
+          }
+        });
+        pageToken = res.nextPageToken || '';
+      } while (pageToken && out.length < limit);
+    }
+    return out;
   },
 
   /** Yalnızca okuma izniyle erişim belirteci (ilk seferde Google onay penceresi açılır) */
@@ -173,7 +227,7 @@ const drive = {
    * Seçili klasörler ve alt klasörleri (3 seviyeye kadar), yollarıyla: "Fotoğraflar/2026/Şehirlerarası Otobüsler"
    */
   async tree(maxDepth = 3) {
-    const roots = this.folders().filter((f) => f.enabled).map((f) => ({ id: f.id, path: f.name, depth: 0 }));
+    const roots = this.roots().map((f) => ({ id: f.id, path: f.name, depth: 0 }));
     const out = [...roots];
     const queue = [...roots];
     while (queue.length) {
@@ -198,7 +252,7 @@ const drive = {
    * opts.year: çekim yılı · opts.hint: kategori ipucu (ör. "şehirlerarası")
    */
   async find(query, limit = 20, opts = {}) {
-    if (!this.folders().some((f) => f.enabled)) return [];
+    if (!this.roots().length) return [];
     const q = String(query || '').replace(/'/g, "\\'");
     let folders = await this.tree(opts.hint || opts.year || query ? 40 : 3);
 

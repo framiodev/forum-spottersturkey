@@ -211,6 +211,8 @@ class AssistantController implements RequestHandlerInterface
             . ($context ? "Asistanın az önce sorduğu soru: \"$context\". Mesaj bu soruya bir CEVAP ise action=\"answer\" yap ve answer alanını doldur; yeni ve tam bir istekse cevap sayma.\n" : '')
             . "JSON alanları (bilinmeyeni null bırak):\n"
             . "{\"action\": \"share (tek araç/plaka) | batch (birden çok fotoğraf hemen) | plan (ileri tarihe zamanla) | search | schedule_list | schedule_cancel | folder | help | cancel | confirm | answer | correct (bekleyen karttaki bilgiyi düzeltme) | chat (soru, sohbet, açıklama isteği — iş değil)\",\n"
+            . " \"items\": kullanıcı TEK mesajda birbirinden farklı birden çok belirli iş istiyorsa (ör. \"Antalya'dan bir Travego paylaş, ayrıca Esenler'den bir Tourismo 15 paylaş\") her biri için [{\"count\": 1, \"brand\": null, \"model\": null, \"company\": null, \"location\": null, \"shot_year\": null, \"note\": \"ör. eski kasa, rastgele\"}] — o zaman action=\"multi\"; tek iş ise null,\n"
+            . " ÖNEMLİ: per_topic ve topics_scope YALNIZCA kullanıcı açıkça 'her başlığa / her markaya birer' gibi bir dağıtım istediğinde dolar; belirli bir model ya da araç istendiğinde (\"bir Travego paylaş\") per_topic=null, topics_scope=null, filters.model doldurulur, section=null.\n"
             . " \"corrections\": {\"company\": null, \"plate\": null, \"brand\": null, \"model\": null, \"location\": null, \"topic_hint\": \"istenen başlık/bölüm ipucu ya da null\"},\n"
             . " \"reply\": \"action chat ise kullanıcıya verilecek doğal, bilgili, kısa Türkçe yanıt; correct ise yaptığını anlatan kısa cümle; değilse null\",\n"
             . " \"count\": sayı ya da null, \"per_topic\": her hedef başlığa kaç adet (\"her başlıkta 1'er\" → 1) ya da null,\n"
@@ -231,6 +233,22 @@ class AssistantController implements RequestHandlerInterface
         $action = (string) ($j['action'] ?? '');
         $intent['corrections'] = array_filter((array) ($j['corrections'] ?? []), fn ($v) => is_string($v) && trim($v) !== '');
         $intent['reply'] = is_string($j['reply'] ?? null) ? trim($j['reply']) : '';
+        if ($action === 'multi' && !empty($j['items']) && is_array($j['items'])) {
+            $items = [];
+            foreach (array_slice($j['items'], 0, 10) as $it) {
+                if (!is_array($it)) continue;
+                $items[] = [
+                    'count' => max(1, min(20, (int) ($it['count'] ?? 1))),
+                    'brand' => is_string($it['brand'] ?? null) ? $it['brand'] : null,
+                    'model' => is_string($it['model'] ?? null) ? $it['model'] : null,
+                    'company' => is_string($it['company'] ?? null) ? $it['company'] : null,
+                    'location' => is_string($it['location'] ?? null) ? $it['location'] : null,
+                    'shot_year' => !empty($it['shot_year']) ? (int) $it['shot_year'] : null,
+                    'note' => is_string($it['note'] ?? null) ? $it['note'] : null,
+                ];
+            }
+            if ($items) return ['action' => 'multi', 'items' => $items, 'reply' => $intent['reply'], 'source' => $j['source'] ?? null, 'ai' => true] + $base;
+        }
         if (in_array($action, ['correct', 'chat'], true)) {
             return ['action' => $action, 'corrections' => $intent['corrections'], 'reply' => $intent['reply'], 'ai' => true] + $base;
         }

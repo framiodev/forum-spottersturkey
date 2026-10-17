@@ -154,6 +154,7 @@ class Panel extends Component {
     this.task = null;
     this.confirming = null;
     this.awaiting = null;
+    this.pendingItems = [];
     if (window.innerWidth < 900) this.sideOpen = false;
     this.welcome();
   }
@@ -783,6 +784,7 @@ class Panel extends Component {
     }
 
     const pending = this.queue.find((c) => c.state === 'ready');
+    if (intent.action === 'multi') return this.startMulti(intent);
     if (intent.action === 'chat') return this.say(intent.reply || 'Anlayamadım, biraz daha açar mısınız?');
     if (intent.action === 'correct' && pending) return this.correctCard(pending, intent.corrections || {}, intent.reply);
     if (intent.action === 'confirm' && pending) return this.share(pending);
@@ -1172,7 +1174,42 @@ class Panel extends Component {
     }
   }
 
+  /** Görev biter bitmez sıradaki parça (çok parçalı istek) başlar */
   async runTask() {
+    await this.runTaskInner();
+    if (!this.task && this.pendingItems && this.pendingItems.length) return this.nextItem();
+  }
+
+  /** "Antalya'dan bir Travego, Esenler'den bir Tourismo 15" → her parça ayrı, kısa bir görev olarak sırayla yapılır */
+  async startMulti(intent) {
+    this.pendingItems = (intent.items || []).slice();
+    this.multiSource = intent.source || null;
+    const list = this.pendingItems
+      .map((it) => [it.count > 1 ? it.count + ' adet' : 'bir', [it.brand, it.model].filter(Boolean).join(' ') || 'fotoğraf', it.location ? `(${it.location}${it.shot_year ? ', ' + it.shot_year : ''})` : it.shot_year ? `(${it.shot_year})` : '', it.note ? '— ' + it.note : ''].filter(Boolean).join(' '))
+      .join('; ');
+    await this.say(intent.reply || `Anladım, ${this.pendingItems.length} ayrı iş: ${list}. Sırayla bulup her birini paylaşmadan önce size göstereceğim.`);
+    return this.nextItem();
+  }
+
+  nextItem() {
+    const it = this.pendingItems.shift();
+    if (!it) return;
+    const intent = {
+      action: 'batch',
+      count: it.count || 1,
+      filters: { brand: it.brand, model: it.model, company: it.company },
+      location: it.location,
+      shot_year: it.shot_year,
+      source: this.multiSource,
+      auto: true,
+      diverse: true,
+      quiet: true,
+    };
+    this.step(`Sıradaki: ${[it.brand, it.model].filter(Boolean).join(' ') || 'fotoğraf'}${it.location ? ' · ' + it.location : ''}${it.shot_year ? ' · ' + it.shot_year : ''}`);
+    return this.startTask(intent);
+  }
+
+  async runTaskInner() {
     const t = this.task;
     const intent = t.intent;
     await folder.load();
@@ -1209,9 +1246,19 @@ class Panel extends Component {
           this.step(`Çekim yeri klasörü bulundu: ${dirs.map((d) => d.path).join(' · ')}`);
           candidates = await folder.filesIn(dirs, (x) => this.step(x));
           t.placeFromPath = true;
-        } else if (!drive.folders().some((f) => f.enabled)) {
+        } else if (!drive.roots().length) {
           this.task = null;
           return this.say(`Kaynaklarınızda adında "${ordered.join('" ya da "')}" geçen bir klasör bulamadım. Fotoğrafların yerini tahmin ederek yanlış paylaşım yapmak istemedim; klasörü kaynaklara ekleyip tekrar deneyebilirsiniz.`);
+        }
+      }
+      // Drive: yer adıyla klasör araması (tüm ağacı gezmeden), ardından o klasörlerin fotoğrafları
+      if (!t.placeFromPath && ordered.length && intent.source !== 'local' && drive.roots().length) {
+        this.step('Google Drive\'da çekim yeri klasörünü arıyorum…');
+        const ddirs = await drive.findDirs(ordered);
+        if (ddirs.length) {
+          this.step(`Drive'da çekim yeri klasörü bulundu: ${ddirs.map((d) => d.path).join(' · ')}`);
+          candidates = (await drive.filesUnder(ddirs)).filter((c) => !intent.shot_year || !c.year || c.year === intent.shot_year);
+          t.placeFromPath = true;
         }
       }
       if (!t.placeFromPath) {

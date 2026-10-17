@@ -241,7 +241,7 @@ const folder = {
   },
 
   hasAny() {
-    return (this.list || []).some((f) => f.enabled) || drive.folders().some((f) => f.enabled);
+    return (this.list || []).some((f) => f.enabled) || drive.roots().length > 0;
   },
 
   /**
