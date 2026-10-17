@@ -358,7 +358,7 @@ class Panel extends Component {
               Klasör bağla
             </Button>
             {drive.available() ? (
-              <Button className="Button FramioAssistant-link" icon="fab fa-google-drive" onclick={() => this.linkDrive()}>
+              <Button className="Button FramioAssistant-link" icon="fab fa-google-drive" onclick={() => { this.showSources = true; this.linkDrive(); }}>
                 Google Drive
               </Button>
             ) : null}
@@ -516,6 +516,7 @@ class Panel extends Component {
                   </button>
                 </div>
               )),
+              this.driveBrowse ? this.driveBrowseView(refresh) : null,
               <div className="FramioAssistant-sourceActions">
                 <Button className="Button FramioAssistant-google" icon="fab fa-google" onclick={() => this.linkDrive().then(refresh)}>
                   {drive.connected() ? 'Drive klasörü ekle' : 'Google ile oturum aç'}
@@ -616,15 +617,85 @@ class Panel extends Component {
     );
   }
 
+  /**
+   * Google ile oturum açar ve panelin içinde Drive klasör gezginini açar (Google'ın ayrı seçici penceresine
+   * gerek kalmaz). Yalnızca okuma izni istenir.
+   */
   async linkDrive() {
     try {
-      this.step('Google Drive klasör seçicisini açıyorum (yalnızca okuma izni)…');
-      const list = await drive.pickFolders();
-      this.folderName = folder.name();
-      this.say(list.length ? `Drive'dan ${list.length} klasör bağlı. Yalnızca okuyabilirim; silme ya da değiştirme yetkim yok.` : 'Drive klasörü seçilmedi.');
+      await drive.authorize(true);
     } catch (e) {
-      this.say(e.message || 'Google Drive bağlanamadı.');
+      return this.say(e.message || 'Google Drive bağlanamadı.');
     }
+    this.showSources = true;
+    this.driveBrowse = { stack: [{ id: 'root', name: "Drive'ım" }], items: [], loading: false, error: null };
+    return this.browseDrive();
+  }
+
+  async browseDrive(to) {
+    const b = this.driveBrowse;
+    if (!b) return;
+    if (to) {
+      const i = b.stack.findIndex((s) => s.id === to.id);
+      b.stack = i >= 0 ? b.stack.slice(0, i + 1) : b.stack.concat([to]);
+    }
+    b.loading = true;
+    b.error = null;
+    m.redraw();
+    try {
+      b.items = await drive.listFolders(b.stack[b.stack.length - 1].id);
+    } catch (e) {
+      b.items = [];
+      b.error = e.message || 'Klasörler okunamadı.';
+    }
+    b.loading = false;
+    m.redraw();
+  }
+
+  driveBrowseView(refresh) {
+    const b = this.driveBrowse;
+    const here = b.stack[b.stack.length - 1];
+    const added = (id) => drive.folders().some((f) => f.id === id);
+    const add = (f) => {
+      drive.addFolder(f.id, f.name);
+      refresh();
+      this.say(`"${f.name}" Drive klasörünü ekledim. Yalnızca okuyabilirim; silme ya da değiştirme yetkim yok.`, false);
+    };
+    return (
+      <div className="FramioAssistant-driveBrowse">
+        <div className="FramioAssistant-crumbs">
+          {b.stack.map((s, i) => [i ? <i className="fas fa-chevron-right"></i> : null, <button type="button" onclick={() => this.browseDrive(s)}>{s.name}</button>])}
+          {b.stack.length === 1 ? (
+            <button type="button" className="is-alt" onclick={() => this.browseDrive({ id: 'shared', name: 'Benimle paylaşılanlar' })}>
+              Benimle paylaşılanlar
+            </button>
+          ) : null}
+        </div>
+        {here.id !== 'root' && here.id !== 'shared' ? (
+          <Button className="Button Button--primary FramioAssistant-addHere" icon="fas fa-plus" disabled={added(here.id)} onclick={() => add(here)}>
+            {added(here.id) ? 'Bu klasör ekli' : `"${here.name}" klasörünü ekle`}
+          </Button>
+        ) : null}
+        <div className="FramioAssistant-driveList">
+          {b.loading ? <p className="helpText"><i className="fas fa-circle-notch fa-spin"></i> Klasörler okunuyor…</p> : null}
+          {b.error ? <p className="helpText">{b.error}</p> : null}
+          {!b.loading && !b.error && !b.items.length ? <p className="helpText">Bu klasörde alt klasör yok.</p> : null}
+          {b.items.map((f) => (
+            <div className="FramioAssistant-sourceRow">
+              <button type="button" className="FramioAssistant-driveDir" onclick={() => this.browseDrive(f)}>
+                <i className="fas fa-folder"></i> {f.name}
+              </button>
+              <button type="button" className="FramioAssistant-iconBtn" title={added(f.id) ? 'Ekli' : 'Ekle'} aria-label={added(f.id) ? 'Ekli' : 'Ekle'} disabled={added(f.id)} onclick={() => add(f)}>
+                <i className={added(f.id) ? 'fas fa-check' : 'fas fa-plus'}></i>
+              </button>
+            </div>
+          ))}
+        </div>
+        <Button className="Button Button--link" onclick={() => (this.driveBrowse = null)}>
+          Gezgini kapat
+        </Button>
+      </div>
+    );
   }
 
   async linkFolder() {

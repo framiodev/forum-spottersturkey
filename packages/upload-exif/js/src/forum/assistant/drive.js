@@ -120,6 +120,28 @@ const drive = {
     });
   },
 
+  /** Panel içi klasör gezgini için: bir klasörün alt klasörleri ('root' = Drive'ım, 'shared' = Benimle paylaşılanlar) */
+  async listFolders(parent = 'root') {
+    const q = parent === 'shared' ? "sharedWithMe and mimeType='application/vnd.google-apps.folder' and trashed=false" : `'${parent}' in parents and mimeType='application/vnd.google-apps.folder' and trashed=false`;
+    const out = [];
+    let pageToken = '';
+    do {
+      const res = await (
+        await this.request('https://www.googleapis.com/drive/v3/files?' + new URLSearchParams({ q, fields: 'nextPageToken,files(id,name)', orderBy: 'name', pageSize: '200', ...(pageToken ? { pageToken } : {}) }))
+      ).json();
+      (res.files || []).forEach((f) => out.push({ id: f.id, name: f.name }));
+      pageToken = res.nextPageToken || '';
+    } while (pageToken && out.length < 1000);
+    return out;
+  },
+
+  addFolder(id, name) {
+    const list = this.folders();
+    if (!list.some((f) => f.id === id)) list.push({ id, name, enabled: true });
+    this.saveFolders(list);
+    return list;
+  },
+
   toggle(id, enabled) {
     this.saveFolders(this.folders().map((f) => (f.id === id ? { ...f, enabled } : f)));
   },

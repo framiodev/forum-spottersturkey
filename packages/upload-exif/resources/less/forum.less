@@ -2063,3 +2063,19 @@ button.FramioAssistant-folder {
 .picker-dialog { z-index: 2001 !important; }
 .picker-dialog { position: fixed !important; top: 50% !important; left: 50% !important; transform: translate(-50%, -50%); max-width: calc(100vw - 32px); }
 .picker-dialog-bg { position: fixed !important; inset: 0 !important; width: auto !important; height: auto !important; }
+
+/* Asistan: panel içi Google Drive klasör gezgini */
+.FramioAssistant-driveBrowse { display: flex; flex-direction: column; gap: 6px; margin: 6px 0; padding: 8px; border-radius: 10px; background: var(--body-bg); }
+.FramioAssistant-crumbs {
+    display: flex; flex-wrap: wrap; align-items: center; gap: 4px; font-size: 12px;
+    button { border: 0; background: none; cursor: pointer; color: var(--primary-color); font-weight: 600; padding: 2px 4px; border-radius: 6px; &:hover { background: var(--control-bg); } }
+    button.is-alt { margin-left: auto; color: var(--muted-color); font-weight: 500; }
+    .fa-chevron-right { font-size: 9px; color: var(--muted-color); }
+}
+.FramioAssistant-driveList { max-height: 260px; overflow-y: auto; display: flex; flex-direction: column; gap: 2px; }
+.FramioAssistant-driveDir {
+    flex: 1; min-width: 0; text-align: left; border: 0; background: none; cursor: pointer; padding: 6px; border-radius: 6px; color: var(--text-color);
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis; .fa-folder { color: #f4b400; margin-right: 4px; }
+    &:hover { background: var(--control-bg); }
+}
+.FramioAssistant-addHere { align-self: flex-start; }
