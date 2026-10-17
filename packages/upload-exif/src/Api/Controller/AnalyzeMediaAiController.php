@@ -184,7 +184,14 @@ class AnalyzeMediaAiController implements RequestHandlerInterface
             . "SADECE geçerli JSON döndür, açıklama ekleme.";
 
         $useHistory = $this->history->appliesTo($discussionId ? (int) $discussionId : null, $tagSlug ?: null);
-        if ($useHistory && ($known = $this->history->knownModels())) {
+        $known = $useHistory ? $this->history->knownModels() : [];
+        foreach ((array) json_decode((string) $this->settings->get('framio-upload-exif.assistant_model_map'), true) as $row) {
+            // Yöneticinin tanımladığı Marka + Model adları her zaman listede (yapay zeka bu yazımı kullanır)
+            if (!empty($row['brand']) && !empty($row['model']) && !in_array($row['model'], $known[$row['brand']] ?? [], true)) {
+                $known[$row['brand']] = array_merge([$row['model']], $known[$row['brand']] ?? []);
+            }
+        }
+        if ($known) {
             $lines = [];
             foreach ($known as $brand => $models) {
                 $lines[] = $brand . ': ' . implode(', ', $models);

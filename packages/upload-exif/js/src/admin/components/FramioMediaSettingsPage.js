@@ -2728,6 +2728,7 @@ export default class FramioMediaSettingsPage extends ExtensionPage {
               Arşiv karşılığı sırasıyla: aynı adlı başlık → aynı bölümün Arşiv etiketindeki marka başlığı → "Diğer …" başlığı. Alt etiketler üst etiketinin dönemini alır.
             </div>
           </div>
+          {this.modelMapEditor()}
           <Switch state={this.setting('framio-upload-exif.assistant_show_actions', '1')() !== '0'} onchange={(val) => this.setting('framio-upload-exif.assistant_show_actions')(val ? '1' : '0')}>
             Varsayılan olarak asistanın yaptıklarını ekranda göster (imleç, tıklamalar, alanların doldurulması); üyeler profillerinden değiştirebilir
           </Switch>
@@ -4380,6 +4381,68 @@ export default class FramioMediaSettingsPage extends ExtensionPage {
       m.redraw();
     });
   }
+
+  /** Asistan: hangi marka/model hangi tartışmaya — yapay zeka ve başlık seçimi bu listeyi esas alır */
+  modelMapEditor() {
+    const key = 'framio-upload-exif.assistant_model_map';
+    let rows = [];
+    try {
+      rows = JSON.parse(this.setting(key, '[]')() || '[]');
+    } catch (e) {}
+    if (!Array.isArray(rows)) rows = [];
+    const save = (next) => this.setting(key)(JSON.stringify(next));
+    const set = (i, k, v) => {
+      const next = rows.map((r) => Object.assign({}, r));
+      next[i][k] = v;
+      save(next);
+    };
+    const cell = { padding: '4px' };
+
+    return (
+      <div className="Form-group" style={{ marginTop: '12px' }}>
+        <label style={{ fontWeight: 'bold', fontSize: '13px' }}>Marka / model → tartışma eşleştirmeleri</label>
+        <div className="helpText" style={{ fontSize: '11px', color: '#888', marginBottom: '6px' }}>
+          Asistan ve Framio AI bu listeyi her şeyden önce kullanır: tanınan model burada varsa fotoğraf yazdığınız tartışmaya önerilir ve model adı bu yazımla doldurulur.
+          En özel eşleşme kazanır ("Tourismo 16 RHD" satırı "Tourismo" satırından önce gelir). Tartışma alanına numara ya da bağlantı yapıştırabilirsiniz.
+          Güncel/Arşiv kuralı yine uygulanır (eski çekimler aynı adlı Arşiv başlığına gider). Çekim yeri öğrenmesi ayrıca kendiliğinden sürer.
+        </div>
+        <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+          <thead>
+            <tr style={{ fontSize: '12px', textAlign: 'left' }}>
+              <th style={cell}>Marka</th>
+              <th style={cell}>Model</th>
+              <th style={cell}>Tartışma (numara ya da bağlantı)</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            {rows.map((r, i) => (
+              <tr key={i}>
+                <td style={cell}>
+                  <input className="FormControl" placeholder="Mercedes-Benz" value={r.brand || ''} onchange={(e) => set(i, 'brand', e.target.value.trim())} />
+                </td>
+                <td style={cell}>
+                  <input className="FormControl" placeholder="Tourismo 16 RHD" value={r.model || ''} onchange={(e) => set(i, 'model', e.target.value.trim())} />
+                </td>
+                <td style={cell}>
+                  <input className="FormControl" placeholder="https://…/d/123-mercedes-benz-tourismo" value={r.discussion || ''} onchange={(e) => set(i, 'discussion', e.target.value.trim())} />
+                </td>
+                <td style={cell}>
+                  <button type="button" className="Button Button--icon Button--link" aria-label="Satırı sil" onclick={() => save(rows.filter((_, j) => j !== i))}>
+                    <i className="fas fa-times"></i>
+                  </button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+        <button type="button" className="Button" style={{ marginTop: '6px' }} onclick={() => save(rows.concat([{ brand: '', model: '', discussion: '' }]))}>
+          <i className="fas fa-plus"></i> Satır ekle
+        </button>
+      </div>
+    );
+  }
+
 }
 
 

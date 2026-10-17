@@ -41,7 +41,10 @@ class AssistantController implements RequestHandlerInterface
             str_ends_with($path, '/route') => new JsonResponse($this->route($actor, $body)),
             str_ends_with($path, '/learn') => new JsonResponse($this->learn($actor, $body)),
             str_ends_with($path, '/forget') => new JsonResponse($this->forget($actor)),
-            str_ends_with($path, '/history') && $request->getMethod() === 'GET' => new JsonResponse($this->history($actor, (int) Arr::get($request->getQueryParams(), 'limit', 60), (bool) Arr::get($request->getQueryParams(), 'mark'))),
+            str_ends_with($path, '/conversations') && $request->getMethod() === 'GET' => new JsonResponse($this->conversations($actor)),
+            str_ends_with($path, '/conversations') && $request->getMethod() === 'DELETE' => new JsonResponse($this->deleteConversation($actor, (int) Arr::get($request->getQueryParams(), 'id'))),
+            str_ends_with($path, '/conversations') => new JsonResponse($this->updateConversation($actor, $body)),
+            str_ends_with($path, '/history') && $request->getMethod() === 'GET' => new JsonResponse($this->history($actor, (int) Arr::get($request->getQueryParams(), 'limit', 60), (bool) Arr::get($request->getQueryParams(), 'mark'), (int) Arr::get($request->getQueryParams(), 'conversation'))),
             str_ends_with($path, '/history') && $request->getMethod() === 'DELETE' => new JsonResponse($this->clearHistory($actor)),
             str_ends_with($path, '/history') => new JsonResponse($this->remember($actor, $body)),
             str_ends_with($path, '/schedule') && $request->getMethod() === 'GET' => new JsonResponse($this->schedule($actor)),
@@ -50,6 +53,43 @@ class AssistantController implements RequestHandlerInterface
             str_ends_with($path, '/seen') => new JsonResponse($this->seen($actor, (array) Arr::get($body, 'names', []))),
             default => new JsonResponse(['error' => 'Bilinmeyen işlem'], 404),
         };
+    }
+
+    /** Admin'deki "Marka | Model → tartışma" listesi: en uzun (en özel) model eşleşmesi kazanır */
+    public function mappedDiscussion(string $brand, string $model): ?int
+    {
+        $rows = json_decode((string) $this->settings->get('framio-upload-exif.assistant_model_map'), true);
+        if (!is_array($rows) || trim($model) === '') return null;
+        $fold = fn ($s) => trim(preg_replace('/[^a-z0-9]+/', ' ', strtr(mb_strtolower((string) $s, 'UTF-8'), ['ç' => 'c', 'ğ' => 'g', 'ı' => 'i', 'ö' => 'o', 'ş' => 's', 'ü' => 'u', 'i̇' => 'i'])));
+        $b = $fold($brand);
+        $m = $fold($model);
+        // "Mercedes-Benz Tourismo 16" gibi markalı yazım da kabul edilir
+        if ($b !== '' && str_starts_with($m, $b . ' ')) $m = trim(substr($m, strlen($b)));
+        $best = null;
+        $bestLen = 0;
+        foreach ($rows as $r) {
+            $rb = $fold($r['brand'] ?? '');
+            $rm = $fold($r['model'] ?? '');
+            if ($rm === '' || ($rb !== '' && $b !== '' && $rb !== $b && !str_contains($b, $rb) && !str_contains($rb, $b))) continue;
+            if (($m === $rm || str_starts_with($m . ' ', $rm . ' ')) && strlen($rm) > $bestLen) {
+                $id = $this->discussionIdOf((string) ($r['discussion'] ?? ''));
+                if ($id) {
+                    $best = $id;
+                    $bestLen = strlen($rm);
+                }
+            }
+        }
+
+        return $best;
+    }
+
+    /** "123", "/d/123-baslik", "https://site/d/123-baslik/5" → 123 */
+    protected function discussionIdOf(string $v): ?int
+    {
+        $v = trim($v);
+        if (preg_match('#/d/(\d+)#', $v, $m) || preg_match('/^(\d+)/', $v, $m)) return (int) $m[1];
+
+        return null;
     }
 
     /** Öğrenmenin otomatiğe geçtiği onay sayısı (admin ayarı, varsayılan 3) */
@@ -163,6 +203,8 @@ class AssistantController implements RequestHandlerInterface
             . "Forum bölümleri: " . implode('; ', $sections) . ".\n"
             . "Güncel/Arşiv kuralı: çekim yılı {$year} ya da " . ($year - 1) . " ise Güncel, daha eskiyse Arşiv.\n"
             . "Sen konuşmayı bağlamıyla anlayan, akıllı ve doğal konuşan bir asistansın (Gemini/ChatGPT/Claude gibi). Önceki mesajlara bak: kullanıcı önceki bir işe atıfta bulunuyor, düzeltme yapıyor ya da soru soruyor olabilir.\n"
+            . "'Leb demeden leblebiyi anla': kullanıcının asıl niyetini yarım cümleden, kısaltmadan, yazım hatasından ve önceki mesajlardan çıkar; makul varsayılanları kendin doldur, gereksiz soru sorma. Yalnızca gerçekten belirsiz ve sonucu değiştiren bir bilgi eksikse sor.\n"
+            . "reply alanı her zaman sıcak, doğal, kısa ve insan gibi olsun; robotik kalıplar, madde listeleri ve gereksiz özür kullanma. Kullanıcıya 'siz' diye hitap et.\n"
             . ($history ? "Son konuşma (eskiden yeniye):\n" . implode("\n", array_map(fn ($m) => (($m['who'] ?? '') === 'me' ? 'Kullanıcı: ' : 'Asistan: ') . mb_substr(str_replace(["\n", '"'], [' ', "'"], (string) ($m['text'] ?? '')), 0, 300), array_slice($history, -12))) . "\n" : '')
             . ($card ? "Şu an onay bekleyen fotoğraf kartı: " . json_encode($card, JSON_UNESCAPED_UNICODE) . "\n"
                 . "Kullanıcı bu karttaki bir bilgiyi düzeltiyorsa (ör. \"model Travego değil Tourismo 16\", \"EGO değil, şehirlerarası başlığa\", \"yer Antalya\") action=\"correct\" yap ve corrections alanına YALNIZCA değişen alanları yaz.\n" : '')
@@ -302,6 +344,11 @@ class AssistantController implements RequestHandlerInterface
         $out = [];
         $auto = false;
 
+        // 0) Yönetici eşleştirmesi (Marka + Model → tartışma): en güvenilir kaynak
+        if ($mapped = $this->mappedDiscussion((string) Arr::get($body, 'brand', ''), (string) Arr::get($body, 'model', ''))) {
+            if ($d = $this->describe($mapped, $actor)) $out[] = $d + ['reason' => 'admin'];
+        }
+
         // 1) Kullanıcının öğrendikleri (en özelden genele: model → marka → firma)
         $wantEra = $this->era->enabled() ? $this->era->forYear((int) Arr::get($body, 'year') ?: null) : null;
         foreach ($this->keys($body) as $key) {
@@ -362,7 +409,7 @@ class AssistantController implements RequestHandlerInterface
         if ($modelName !== '') {
             $key = mb_strtolower(preg_split('/\s+/', $modelName)[0], 'UTF-8');
             if (mb_strlen($key) >= 3) {
-                $out = array_values(array_filter($out, fn ($s) => str_contains(mb_strtolower($s['title'], 'UTF-8'), $key)));
+                $out = array_values(array_filter($out, fn ($s) => $s['reason'] === 'admin' || str_contains(mb_strtolower($s['title'], 'UTF-8'), $key)));
                 if (!$out) {
                     $ids = $this->db->table('discussions')->whereNull('hidden_at')
                         ->where('title', 'like', '%' . $key . '%')->orderByDesc('comment_count')->limit(6)->pluck('id');
@@ -438,10 +485,13 @@ class AssistantController implements RequestHandlerInterface
 
     // ── Sohbet geçmişi ───────────────────────────────────────────────────────
 
-    public function history(User $actor, int $limit, bool $mark = false): array
+    public function history(User $actor, int $limit, bool $mark = false, int $conversation = 0): array
     {
-        $limit = max(10, min(200, $limit));
-        $rows = $this->db->table('framio_assistant_messages')->where('user_id', $actor->id)->orderByDesc('id')->limit($limit)->get(['id', 'role', 'text', 'seen', 'created_at'])->reverse()->values();
+        $limit = max(10, min(500, $limit));
+        $q = $this->db->table('framio_assistant_messages')->where('user_id', $actor->id);
+        // Sohbet seçilmediyse (yeni sohbet) yalnızca okunmamış bildirimler döner
+        $conversation ? $q->where('conversation_id', $conversation) : $q->where('role', 'notice')->where('seen', false);
+        $rows = $q->orderByDesc('id')->limit($limit)->get(['id', 'role', 'text', 'seen', 'created_at'])->reverse()->values();
         $unseen = $this->db->table('framio_assistant_messages')->where('user_id', $actor->id)->where('seen', false)->count();
         // Görüntülenen bildirimler okundu sayılır
         if ($mark) {
@@ -456,10 +506,52 @@ class AssistantController implements RequestHandlerInterface
         $role = in_array(Arr::get($body, 'role'), ['me', 'bot'], true) ? Arr::get($body, 'role') : 'bot';
         $text = mb_substr(trim((string) Arr::get($body, 'text', '')), 0, 2000);
         if ($text === '') return ['ok' => false];
-        $this->db->table('framio_assistant_messages')->insert(['user_id' => $actor->id, 'role' => $role, 'text' => $text, 'seen' => true, 'created_at' => Carbon::now()]);
-        // Geçmiş sınırsız büyümesin: son 500 mesaj tutulur
-        $keep = $this->db->table('framio_assistant_messages')->where('user_id', $actor->id)->orderByDesc('id')->skip(500)->value('id');
-        if ($keep) $this->db->table('framio_assistant_messages')->where('user_id', $actor->id)->where('id', '<=', $keep)->delete();
+        $now = Carbon::now();
+        $conv = (int) Arr::get($body, 'conversation_id');
+        if ($conv && !$this->db->table('framio_assistant_conversations')->where('id', $conv)->where('user_id', $actor->id)->exists()) $conv = 0;
+        if (!$conv) {
+            // İlk mesaj yeni sohbeti açar; başlık kullanıcının ilk cümlesidir
+            $conv = (int) $this->db->table('framio_assistant_conversations')->insertGetId([
+                'user_id' => $actor->id, 'title' => mb_substr(preg_replace('/\s+/', ' ', $text), 0, 80), 'created_at' => $now, 'updated_at' => $now,
+            ]);
+        } else {
+            $this->db->table('framio_assistant_conversations')->where('id', $conv)->update(['updated_at' => $now]);
+        }
+        $this->db->table('framio_assistant_messages')->insert(['user_id' => $actor->id, 'conversation_id' => $conv, 'role' => $role, 'text' => $text, 'seen' => true, 'created_at' => $now]);
+
+        return ['ok' => true, 'conversation_id' => $conv];
+    }
+
+    // ── Sohbet listesi: başa tutturma, arşiv, silme ─────────────────────────
+
+    public function conversations(User $actor): array
+    {
+        $rows = $this->db->table('framio_assistant_conversations')->where('user_id', $actor->id)
+            ->orderByDesc('pinned')->orderByDesc('updated_at')->limit(300)->get();
+
+        return ['conversations' => $rows->map(fn ($r) => [
+            'id' => (int) $r->id, 'title' => $r->title, 'pinned' => (bool) $r->pinned, 'archived' => (bool) $r->archived, 'at' => $r->updated_at,
+        ])->all()];
+    }
+
+    public function updateConversation(User $actor, array $body): array
+    {
+        $q = $this->db->table('framio_assistant_conversations')->where('id', (int) Arr::get($body, 'id'))->where('user_id', $actor->id);
+        $set = [];
+        foreach (['pinned', 'archived'] as $k) {
+            if (Arr::has($body, $k)) $set[$k] = (bool) Arr::get($body, $k);
+        }
+        if (Arr::has($body, 'title') && trim((string) Arr::get($body, 'title')) !== '') $set['title'] = mb_substr(trim((string) Arr::get($body, 'title')), 0, 120);
+
+        return ['ok' => $set ? (bool) $q->update($set) : false];
+    }
+
+    public function deleteConversation(User $actor, int $id): array
+    {
+        $own = $this->db->table('framio_assistant_conversations')->where('id', $id)->where('user_id', $actor->id);
+        if (!$own->exists()) return ['ok' => false];
+        $this->db->table('framio_assistant_messages')->where('user_id', $actor->id)->where('conversation_id', $id)->delete();
+        $own->delete();
 
         return ['ok' => true];
     }

@@ -99,24 +99,172 @@ class Panel extends Component {
       m.redraw();
     });
     this.task = null; // soru-cevap bekleyen görev
+    this.convId = null; // her açılış yeni bir sohbet
+    this.convs = [];
+    this.showArchived = false;
+    this.sideOpen = window.innerWidth >= 900;
+    this.loadConversations();
+    this.welcome();
+  }
+
+  /** Yeni sohbet: karşılama + seçenekler; okunmamış planlı paylaşım bildirimleri de söylenir */
+  welcome() {
+    this.say('Bugün ne yapmak istersiniz?', true, false);
+    this.log.push({ who: 'choices' });
     app
-      .request({ method: 'GET', url: api('/framio-assistant/history?limit=60&mark=1') })
+      .request({ method: 'GET', url: api('/framio-assistant/history?mark=1') })
       .then((res) => {
-        const old = (res.messages || []).map((m) => ({ who: m.role, text: m.text, old: true }));
-        this.log = old.concat(this.log);
-        if (!old.length) this.say(`Merhaba, ben ${assistantName()}. "06 ABC 123 fotoğrafını paylaş", "bugün 10 yeni fotoğraf paylaş" ya da "Drive'dan 2026 çekimlerinden 70 poz seç, 7 gün boyunca günde 10, saat 12'de paylaş" diyebilirsiniz.`, false);
-        else {
-          const notices = (res.messages || []).filter((m) => m.role === 'notice' && !m.seen);
-          if (notices.length) this.say(notices.map((n) => n.text).join(' '), true, false);
-        }
+        const notices = (res.messages || []).filter((x) => x.role === 'notice');
+        if (notices.length) this.say(notices.map((n) => n.text).join(' '), true, false);
+      })
+      .catch(() => {});
+  }
+
+  /** Karşılamadaki seçenekler: tıklanınca kısa bir yönlendirme sorusu sorulur, cevabı serbestçe yazılır */
+  choose(kind) {
+    this.log = this.log.filter((l) => l.who !== 'choices');
+    const map = {
+      single: ['İçerik paylaşmak istiyorum', 'Hangi aracı paylaşalım? Plakası ya da dosya adı yeterli; isterseniz başlığı ya da çekim yerini de söyleyebilirsiniz.'],
+      batch: ['Toplu içerik paylaşmak istiyorum', 'Harika. Hangi fotoğraflardan, kaç tane ve hangi başlıklara? Örneğin "Esenler 2026 çekimlerinden her Mercedes başlığına birer tane".'],
+      plan: ['İleri bir tarih için içerik planlamak istiyorum', 'Ne zaman ve nasıl paylaşalım? Örneğin "Drive’daki 2026 çekimlerinden 70 fotoğraf, 7 gün boyunca her gün 12.00’de 10’ar tane".'],
+      list: ['Planlı paylaşımlarımı göster', null],
+    };
+    const [mine, reply] = map[kind];
+    this.log.push({ who: 'me', text: mine });
+    this.remember('me', mine);
+    if (kind === 'list') return this.listSchedule();
+    this.say(reply);
+  }
+
+  loadConversations() {
+    return app
+      .request({ method: 'GET', url: api('/framio-assistant/conversations') })
+      .then((res) => {
+        this.convs = res.conversations || [];
+        m.redraw();
+      })
+      .catch(() => {});
+  }
+
+  newConversation() {
+    hush();
+    this.convId = null;
+    this.log = [];
+    this.queue = [];
+    this.task = null;
+    this.confirming = null;
+    this.awaiting = null;
+    if (window.innerWidth < 900) this.sideOpen = false;
+    this.welcome();
+  }
+
+  openConversation(id) {
+    hush();
+    this.convId = id;
+    this.queue = [];
+    this.task = null;
+    this.confirming = null;
+    this.awaiting = null;
+    this.log = [];
+    if (window.innerWidth < 900) this.sideOpen = false;
+    m.redraw();
+    app
+      .request({ method: 'GET', url: api('/framio-assistant/history?limit=500&conversation=' + id) })
+      .then((res) => {
+        this.log = (res.messages || []).map((x) => ({ who: x.role === 'notice' ? 'bot' : x.role, text: x.text, old: true }));
         m.redraw();
         this.scroll();
       })
-      .catch(() => this.say(`Merhaba, ben ${assistantName()}.`, false));
+      .catch(() => {});
+  }
+
+  updateConversation(c, changes) {
+    Object.assign(c, changes);
+    m.redraw();
+    app.request({ method: 'POST', url: api('/framio-assistant/conversations'), body: Object.assign({ id: c.id }, changes) }).then(() => this.loadConversations()).catch(() => {});
+  }
+
+  deleteConversation(c) {
+    if (!confirm(`"${c.title}" sohbeti silinsin mi? Bu geri alınamaz.`)) return;
+    this.convs = this.convs.filter((x) => x.id !== c.id);
+    if (this.convId === c.id) this.newConversation();
+    m.redraw();
+    app.request({ method: 'DELETE', url: api('/framio-assistant/conversations?id=' + c.id) }).catch(() => {});
   }
 
   remember(role, text) {
-    app.request({ method: 'POST', url: api('/framio-assistant/history'), body: { role, text } }).catch(() => {});
+    // İlk kayıt sohbeti oluşturur; sonraki mesajlar aynı sohbete yazılır (sıra korunur)
+    this.saving = (this.saving || Promise.resolve()).then(() =>
+      app
+        .request({ method: 'POST', url: api('/framio-assistant/history'), body: { role, text, conversation_id: this.convId } })
+        .then((res) => {
+          if (res && res.conversation_id && res.conversation_id !== this.convId) {
+            this.convId = res.conversation_id;
+            this.loadConversations();
+          }
+        })
+        .catch(() => {})
+    );
+  }
+
+  sidebarView() {
+    const list = this.convs.filter((c) => !!c.archived === this.showArchived);
+    return (
+      <aside className="FramioAssistant-side">
+        <button type="button" className="FramioAssistant-new" onclick={() => this.newConversation()}>
+          <i className="fas fa-plus"></i> Yeni sohbet
+        </button>
+        <div className="FramioAssistant-sideTabs">
+          <button type="button" className={!this.showArchived ? 'is-active' : ''} onclick={() => (this.showArchived = false)}>
+            Sohbetler
+          </button>
+          <button type="button" className={this.showArchived ? 'is-active' : ''} onclick={() => (this.showArchived = true)}>
+            Arşiv
+          </button>
+        </div>
+        <div className="FramioAssistant-convs">
+          {list.length ? null : <p className="helpText">{this.showArchived ? 'Arşivde sohbet yok.' : 'Henüz sohbet yok.'}</p>}
+          {list.map((c) => (
+            <div className={'FramioAssistant-conv' + (c.id === this.convId ? ' is-active' : '')} key={c.id}>
+              <button type="button" className="FramioAssistant-convTitle" title={c.title} onclick={() => this.openConversation(c.id)}>
+                {c.pinned ? <i className="fas fa-thumbtack"></i> : null} {c.title}
+              </button>
+              <span className="FramioAssistant-convActions">
+                <button type="button" title={c.pinned ? 'Sabitlemeyi kaldır' : 'Başa tuttur'} aria-label={c.pinned ? 'Sabitlemeyi kaldır' : 'Başa tuttur'} onclick={() => this.updateConversation(c, { pinned: !c.pinned })}>
+                  <i className="fas fa-thumbtack"></i>
+                </button>
+                <button type="button" title={c.archived ? 'Arşivden çıkar' : 'Arşivle'} aria-label={c.archived ? 'Arşivden çıkar' : 'Arşivle'} onclick={() => this.updateConversation(c, { archived: !c.archived })}>
+                  <i className={c.archived ? 'fas fa-box-open' : 'fas fa-archive'}></i>
+                </button>
+                <button type="button" title="Sil" aria-label="Sil" onclick={() => this.deleteConversation(c)}>
+                  <i className="far fa-trash-alt"></i>
+                </button>
+              </span>
+            </div>
+          ))}
+        </div>
+      </aside>
+    );
+  }
+
+  choicesView() {
+    const items = [
+      ['single', 'fas fa-image', 'İçerik paylaş', 'Tek bir aracı plakasıyla bulup paylaşır'],
+      ['batch', 'fas fa-images', 'Toplu içerik paylaş', 'Birden çok fotoğrafı başlıklarına dağıtır'],
+      ['plan', 'far fa-calendar-alt', 'İleri tarihe planla', 'Seçtiğiniz gün ve saatlerde paylaşır'],
+      ['list', 'fas fa-list-ul', 'Planlarım', 'Bekleyen planlı paylaşımlar'],
+    ];
+    return (
+      <div className="FramioAssistant-choices" key="choices">
+        {items.map(([k, icon, title, desc]) => (
+          <button type="button" className="FramioAssistant-choice" onclick={() => this.choose(k)}>
+            <i className={icon}></i>
+            <strong>{title}</strong>
+            <span>{desc}</span>
+          </button>
+        ))}
+      </div>
+    );
   }
 
   /** Anlık durum satırı ("Klasörü tarıyorum…"); yeni adım gelince önceki ✓ olur */
@@ -149,8 +297,13 @@ class Panel extends Component {
 
   view() {
     return (
-      <div className="FramioAssistant" role="dialog" aria-label={assistantName()}>
+      <div className={'FramioAssistant' + (this.sideOpen ? ' has-side' : '')} role="dialog" aria-label={assistantName()}>
+        {this.sideOpen ? this.sidebarView() : null}
+        <div className="FramioAssistant-main">
         <header className="FramioAssistant-head">
+          <button type="button" className="FramioAssistant-sideToggle" aria-label="Sohbetler" title="Sohbetler" onclick={() => (this.sideOpen = !this.sideOpen)}>
+            <i className="fas fa-bars"></i>
+          </button>
           <span className="FramioAssistant-badge">
             <i className="fas fa-magic"></i>
           </span>
@@ -176,7 +329,9 @@ class Panel extends Component {
 
         <div className={'FramioAssistant-log' + (this.showSources ? ' is-hidden' : '')}>
           {this.log.map((l) =>
-            l.who === 'step' ? (
+            l.who === 'choices' ? (
+              this.choicesView()
+            ) : l.who === 'step' ? (
               <div className={'FramioAssistant-step' + (l.done ? ' is-done' : '')}>
                 <i className={l.done ? 'fas fa-check' : 'fas fa-circle-notch fa-spin'}></i> {l.text}
               </div>
@@ -232,6 +387,7 @@ class Panel extends Component {
             <i className="fas fa-paper-plane"></i>
           </button>
         </form>
+        </div>
       </div>
     );
   }
