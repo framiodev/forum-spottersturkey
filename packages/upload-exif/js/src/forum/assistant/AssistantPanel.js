@@ -18,6 +18,11 @@ import { shotYear, plateKey, slots, localStamp, humanDate, isAny, isYes } from '
 import { getMeta, putMeta } from './catalog';
 import AttributeModal from '../components/AttributeModal';
 
+/** 21:18:05 */
+const clock = (t) => new Date(t).toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+/** 850 ms · 12,4 sn · 2 dk 05 sn */
+const dur = (ms) => (ms < 1000 ? ms + ' ms' : ms < 60000 ? (ms / 1000).toFixed(1).replace('.', ',') + ' sn' : Math.floor(ms / 60000) + ' dk ' + String(Math.round((ms % 60000) / 1000)).padStart(2, '0') + ' sn');
+
 /** "34ARS603" → "34 ARS 603" */
 const plateText = (name) => {
   const k = plateKey(name);
@@ -181,7 +186,7 @@ class Panel extends Component {
     app
       .request({ method: 'GET', url: api('/framio-assistant/history?limit=500&conversation=' + id) })
       .then((res) => {
-        this.log = (res.messages || []).map((x) => ({ who: x.role === 'notice' ? 'bot' : x.role, text: x.text, old: true }));
+        this.log = (res.messages || []).map((x) => ({ who: x.role === 'notice' ? 'bot' : x.role, text: x.text, old: true, at: x.at ? Date.parse(String(x.at).replace(' ', 'T') + 'Z') : null }));
         m.redraw();
         this.scroll();
       })
@@ -279,8 +284,14 @@ class Panel extends Component {
 
   /** Anlık durum satırı ("Klasörü tarıyorum…"); yeni adım gelince önceki ✓ olur */
   step(text) {
-    this.log.forEach((l) => l.who === 'step' && (l.done = true));
-    if (text) this.log.push({ who: 'step', text, done: false });
+    const now = Date.now();
+    this.log.forEach((l) => {
+      if (l.who === 'step' && !l.done) {
+        l.done = true;
+        l.dur = now - (l.at || now);
+      }
+    });
+    if (text) this.log.push({ who: 'step', text, done: false, at: now });
     m.redraw();
     this.scroll();
   }
@@ -294,7 +305,16 @@ class Panel extends Component {
 
   say(text, voice = true, store = true) {
     this.log.forEach((l) => l.who === 'step' && (l.done = true));
-    this.log.push({ who: 'bot', text });
+    const now = Date.now();
+    this.log.forEach((l) => {
+      if (l.who === 'step' && !l.done) {
+        l.done = true;
+        l.dur = now - (l.at || now);
+      }
+    });
+    // Yanıt süresi: son kullanıcı mesajından bu yanıta kadar
+    const lastMe = [...this.log].reverse().find((l) => l.who === 'me' && l.at);
+    this.log.push({ who: 'bot', text, at: now, took: lastMe ? now - lastMe.at : null });
     if (store) this.remember('bot', text);
     const spoken = voice && pref('framio_assistant_speak', true) ? speak(text) : Promise.resolve();
     m.redraw();
@@ -344,9 +364,18 @@ class Panel extends Component {
             ) : l.who === 'step' ? (
               <div className={'FramioAssistant-step' + (l.done ? ' is-done' : '')}>
                 <i className={l.done ? 'fas fa-check' : 'fas fa-circle-notch fa-spin'}></i> {l.text}
+                {l.at ? <span className="FramioAssistant-time">{clock(l.at)}{l.dur != null ? ' · ' + dur(l.dur) : ''}</span> : null}
               </div>
             ) : (
-              <div className={'FramioAssistant-msg is-' + l.who + (l.old ? ' is-old' : '')}>{l.text}</div>
+              <div className={'FramioAssistant-msg is-' + l.who + (l.old ? ' is-old' : '')}>
+                {l.text}
+                {l.at ? (
+                  <span className="FramioAssistant-time">
+                    {clock(l.at)}
+                    {l.took != null ? ' · yanıt ' + dur(l.took) : ''}
+                  </span>
+                ) : null}
+              </div>
             )
           )}
           {this.queue.map((card) => this.cardView(card))}
@@ -441,6 +470,7 @@ class Panel extends Component {
     this.confirming = null;
     this.confirmed = decision === 'yes' ? cf.items.map((x) => ({ name: x.name, file: x.file, src: x.src })) : null;
     this.confirmedKunye = decision === 'yes' ? cf.kunye : null;
+    this.confirmedTopic = decision === 'yes' ? cf.topic : null;
     cf.items.forEach((x) => {
       try {
         URL.revokeObjectURL(x.url);
@@ -449,6 +479,36 @@ class Panel extends Component {
     this.log.push({ who: 'me', text: decision === 'yes' ? 'Paylaş' : decision === 'stop' ? 'Görevi durdur' : 'Atla' });
     m.redraw();
     cf.resolve(decision);
+  }
+
+  /** Onay kartındaki künyeyi sohbetle düzeltir ("marka Neoplan, model Tourliner"): mevcut kart güncellenir, başlık yeniden seçilir */
+  async correctConfirm(text) {
+    const cf = this.confirming;
+    this.log.push({ who: 'me', text, at: Date.now() });
+    this.remember('me', text);
+    cf.paused = true;
+    this.step('Düzeltmenizi anlıyorum…');
+    let it = {};
+    try {
+      it = await app.request({ method: 'POST', url: api('/framio-assistant/parse'), body: { text, context: 'Onay bekleyen fotoğrafın künyesi', card: cf.fields || {}, history: [] } });
+    } catch (e) {}
+    const fix = it.corrections || {};
+    const f = cf.fields || (cf.fields = {});
+    ['company', 'plate', 'brand', 'model', 'location'].forEach((k) => fix[k] && (f[k] = fix[k]));
+    if (f.brand && fold(f.model).startsWith(fold(f.brand) + ' ')) f.model = f.model.slice(f.brand.length).trim();
+    try {
+      const r = await app.request({ method: 'POST', url: api('/framio-assistant/route'), body: { plate: fix.model ? '' : f.plate, brand: f.brand, model: f.model, company: f.company, year: f.year, hint: [cf.path || '', fix.topic_hint || ''].join(' ') } });
+      const sugg = r.suggestions || [];
+      if (fix.topic_hint) sugg.sort((a, b) => fold(b.title).includes(fold(fix.topic_hint)) - fold(a.title).includes(fold(fix.topic_hint)));
+      if (sugg[0]) cf.topic = sugg[0];
+    } catch (e) {}
+    cf.summary = [[f.company, f.plate].filter(Boolean).join(' | '), [f.brand, f.model].filter(Boolean).join(' '), f.location].filter(Boolean).join(' · ');
+    cf.kunye = null; // künye yeni alanlarla yeniden yazılır
+    cf.paused = false;
+    cf.left = 120;
+    this.step(null);
+    m.redraw();
+    return this.say(`${it.reply ? it.reply + ' ' : ''}Güncelledim: ${cf.summary}. ${cf.topic.title} başlığına paylaşayım mı?`);
   }
 
   /** Kart üzerinde düzenleme: sıra, silme, bilgisayardan fotoğraf ekleme */
@@ -948,12 +1008,13 @@ class Panel extends Component {
       return done(text);
     }
     if (this.confirming) {
-      const low = text.toLocaleLowerCase('tr-TR');
-      if (/(iptal|durdur|dur\b|vazgeç|bitir)/.test(low)) return this.resolveConfirm('stop');
-      if (isYes(low) || /(paylaş|gönder)/.test(low)) return this.resolveConfirm('yes');
-      return this.resolveConfirm('no');
+      const low = text.toLocaleLowerCase('tr-TR').trim();
+      if (/^(iptal|durdur|dur|vazgeç|bitir)\b/.test(low)) return this.resolveConfirm('stop');
+      if (/^(atla|geç|hayır|istemiyorum|sonraki)\b/.test(low)) return this.resolveConfirm('no');
+      if (low.length < 25 && (isYes(low) || /^(paylaş|gönder|tamam)\b/.test(low))) return this.resolveConfirm('yes');
+      return this.correctConfirm(text);
     }
-    this.log.push({ who: 'me', text });
+    this.log.push({ who: 'me', text, at: Date.now() });
     this.remember('me', text);
     m.redraw();
 
@@ -999,6 +1060,11 @@ class Panel extends Component {
       intent.action = intent.days || intent.per_day || intent.time ? 'plan' : 'batch';
     }
     if (intent.action === 'plan' || intent.action === 'batch') return this.startTask(intent);
+    if ((intent.action === 'share' || intent.action === 'search') && (intent.plate || intent.query)) {
+      const fl = Object.assign({}, intent.filters || {});
+      if (intent.plate) fl.plate = intent.plate;
+      return this.startTask(Object.assign({}, intent, { action: 'batch', count: intent.count || 1, filters: fl, auto: true, single: true }));
+    }
     if (intent.action === 'schedule_list') return this.listSchedule();
     if (intent.action === 'schedule_cancel') return this.cancelSchedule();
     if (intent.action === 'help') {
@@ -1266,6 +1332,18 @@ class Panel extends Component {
     const out = {};
     const si = parts.findIndex((x) => fold(x) === 'sehirler');
     if (si >= 0 && parts[si + 1]) out.city = parts[si + 1];
+    // Model verilmediyse: bilinen marka klasörü → bir altı model → altında varyant ("16 RHD"); "Yeni/Eski Kasa" atlanır
+    if (!wantModel) {
+      const BRANDS = /^(mercedes benz|mercedes|man|neoplan|setra|temsa|otokar|isuzu|bmc|volvo|scania|iveco|ford|renault|karsan|guleryuz|irizar|van hool|higer|king long|yutong|daf|mitsubishi|fiat|volkswagen|toyota|hyundai)$/;
+      const bi = parts.findIndex((x) => BRANDS.test(fold(x)));
+      if (bi >= 0 && parts[bi + 1]) {
+        out.brand = parts[bi];
+        const rest = parts.slice(bi + 2);
+        const variant = rest.find((x) => /^(\d{1,3}\s?[a-z]{1,4}|[a-z]\s?\d{3}\s?[a-z]{1,4})$/i.test(x.trim()));
+        out.model = parts[bi + 1] + (variant ? ' ' + variant.trim() : '');
+      }
+      return out;
+    }
     const key = fold(wantModel).split(' ').filter((w) => w.length > 2 && !/^(mercedes|benz|man|setra)$/.test(w))[0];
     const mi = key ? parts.findIndex((x) => fold(x).split(' ').includes(key)) : -1;
     if (mi > 0) {
@@ -1542,6 +1620,20 @@ class Panel extends Component {
           t.placeFromPath = true;
         }
       }
+      const byName = (intent.filters || {}).plate || (intent.single && intent.query) || '';
+      if (!t.placeFromPath && byName) {
+        candidates = await folder.find(byName, 60, Math.max(depth, 6), (x) => this.step(x), { source: intent.source, hint: intent.location || '' });
+        if (!candidates.length && plateKey(byName)) {
+          const all = await folder.find('', 400, Math.max(depth, 6), (x) => this.step(x), { source: intent.source });
+          this.step(`Dosya adlarında yok; ${all.length} fotoğrafta plakayı görselden arıyorum…`);
+          for (let i = 0; i < all.length && candidates.length < 12; i += 6) {
+            const res = await Promise.all(all.slice(i, i + 6).map((c) => this.quickAnalyze(c).then((g) => ({ c, g })).catch(() => null)));
+            res.filter(Boolean).forEach(({ c, g }) => plateKey(g.plate) === plateKey(byName) && candidates.push(c));
+            this.step(`${Math.min(i + 6, all.length)}/${all.length} fotoğraf tarandı${candidates.length ? ` · ${candidates.length} eşleşme` : ''}…`);
+          }
+        }
+        t.placeFromPath = true;
+      }
       if (!t.placeFromPath) {
         candidates = await folder.find('', Math.max(pool, (t.targets ? t.targets.length : 0) * 20), depth, (x) => this.step(x), { source: intent.source, year: intent.shot_year, hint: intent.location || t.filter || '' });
       }
@@ -1800,6 +1892,7 @@ class Panel extends Component {
         const alt = [[f.company, f.plate].filter(Boolean).join(' | '), [f.brand, f.model].filter(Boolean).join(' ')].filter(Boolean).join(' - ');
         if (alt) code = code.replace(/alt="([^"]*)"/g, `alt="${alt.replace(/"/g, '&quot;')}"`);
         const kText = this.confirmedKunye || kunyeText(f);
+        if (this.confirmedTopic) topic = this.confirmedTopic;
         const content = code + (kText ? '\n' + kText : '') + '\n';
         items.push({ discussion_id: topic.discussion_id, title: topic.title, content, label: alt || c.name, f });
         t.filled[topic.discussion_id] = (t.filled[topic.discussion_id] || 0) + 1;
