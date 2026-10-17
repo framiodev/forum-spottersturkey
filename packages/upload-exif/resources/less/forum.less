@@ -1736,7 +1736,7 @@
     display: grid !important;
     line-height: 0;
 
-    > img { grid-area: 1 / 1 !important; }
+    > img { grid-row: 1 !important; grid-column: 1 !important; /* "1 / 1" LESS içinde bölme sanılıyor */ }
 
     .SpottersGallery-ImagePlaceholder {
         filter: blur(6px);
