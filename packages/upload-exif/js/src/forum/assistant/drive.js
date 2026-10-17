@@ -213,7 +213,7 @@ const drive = {
       const exact = found.filter((f) => fold(f.name) === fp);
       const list = exact.length ? exact : found.filter((f) => fold(f.name).includes(fp));
       if (!list.length) continue;
-      const paths = (await withPaths(list.slice(0, 40))).filter((x) => yearOk(x.parts));
+      const paths = (await withPaths(list.slice(0, 40))).filter((x) => yearOk(x.parts) && !x.parts.some((p) => /^videolar?$|^video$/i.test(fold(p))));
       if (paths.length) {
         base = paths.map((x) => ({ id: x.id, path: x.parts.join('/') }));
         break;
@@ -528,7 +528,7 @@ const drive = {
         if (!up.some((id) => rootIds.includes(id))) return null;
       }
       const path = (await this.pathOf(parent)).join('/');
-      const hinted = !words.length || words.some((w) => norm(path).includes(w.slice(0, 6)));
+      const hinted = !words.length || words.every((w) => norm(path).includes(w.slice(0, 6)));
       const exif = f.imageMediaMetadata && f.imageMediaMetadata.time;
       const pathYear = (path.match(/(?:^|\/)[^/]*?((?:19|20)\d{2})[^/]*/) || [])[1];
       const year = exif ? Number(String(exif).slice(0, 4)) : pathYear ? Number(pathYear) : null;

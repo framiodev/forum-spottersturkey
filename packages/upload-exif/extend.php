@@ -89,6 +89,7 @@ return [
 
         // Framio Asistan (sesli / yazılı komut)
         ->post('/framio-assistant/parse', 'framio.assistant.parse', \Framio\UploadExif\Assistant\AssistantController::class)
+        ->post('/framio-assistant/canon', 'framio.assistant.canon', \Framio\UploadExif\Assistant\AssistantController::class)
         ->post('/framio-assistant/route', 'framio.assistant.route', \Framio\UploadExif\Assistant\AssistantController::class)
         ->post('/framio-assistant/learn', 'framio.assistant.learn', \Framio\UploadExif\Assistant\AssistantController::class)
         ->post('/framio-assistant/forget', 'framio.assistant.forget', \Framio\UploadExif\Assistant\AssistantController::class)
@@ -125,6 +126,21 @@ return [
         ->serializeToForum('framio-upload-exif.active_bbcode_tag', 'framio-upload-exif.active_bbcode_tag')
         ->serializeToForum('framio-upload-exif.recognized_bbcode_tags', 'framio-upload-exif.recognized_bbcode_tags')
         // Framio Asistan: açık/kapalı ve sitenin uyandırma sözü (arayüzde gösterilmez; yalnızca admin ayarlar)
+        // Asistandaki model seçimi: admin'de açık sağlayıcılar (anahtar GÖNDERİLMEZ, yalnızca ad ve model)
+        ->serializeToForum('framioAiModels', 'framio-upload-exif.ai_providers', function ($v) {
+            $out = [];
+            foreach ((array) json_decode((string) $v, true) as $row) {
+                if (!is_array($row) || !($row['enabled'] ?? true) || empty($row['provider'])) continue;
+                $p = (string) $row['provider'];
+                $def = \Framio\UploadExif\Ai\VisionAnalyzer::PROVIDERS[$p] ?? null;
+                if (!$def) continue;
+                $model = trim((string) ($row['model'] ?? '')) ?: $def['model'];
+                $out[] = ['id' => $p . '|' . $model, 'label' => $def['name'] . ' · ' . $model];
+                if ($p === 'gemini') $out[] = ['id' => 'gemini|gemini-3.8-flash', 'label' => $def['name'] . ' · gemini-3.8-flash (güçlü)'];
+            }
+
+            return array_values(array_unique($out, SORT_REGULAR));
+        }, '[]')
         ->serializeToForum('framioAssistantEnabled', 'framio-upload-exif.assistant_enabled', fn ($v) => $v !== '0', true)
         ->serializeToForum('framioAssistantWake', 'framio-upload-exif.assistant_wake', 'strval', '')
         ->serializeToForum('framioAssistantAutoAfter', 'framio-upload-exif.assistant_auto_after', 'intval', 3)

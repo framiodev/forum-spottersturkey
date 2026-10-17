@@ -200,7 +200,7 @@ export default class AttributeModal extends Modal {
     this.isCityMode = false;
     this._currentTagSlugs = []; // Konunun tag slug'ları
 
-    if (app.current && typeof app.current.get === 'function') {
+    if (!this.attrs.globalContext && app.current && typeof app.current.get === 'function') {
         const discussion = app.current.get('discussion');
         if (discussion) {
             const tags = discussion.tags();
@@ -884,12 +884,12 @@ export default class AttributeModal extends Modal {
 
   loadTaxonomy() {
       let discussionId = null;
-      if (app.current && typeof app.current.get === 'function') {
+      if (!this.attrs.globalContext && app.current && typeof app.current.get === 'function') {
           const discussion = app.current.get('discussion');
           if (discussion) discussionId = discussion.id();
       }
       
-      if (!discussionId) {
+      if (!discussionId && !this.attrs.globalContext) {
           const match = window.location.pathname.match(/\/d\/(\d+)/);
           if (match) discussionId = match[1];
       }

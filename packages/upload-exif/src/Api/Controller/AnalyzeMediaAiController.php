@@ -247,6 +247,7 @@ class AnalyzeMediaAiController implements RequestHandlerInterface
         try {
             // quick=1: asistanın toplu taraması — yalnızca hızlı yanıt (plaka, firma, marka, model, konu); yan işler yapılmaz
             $quick = (bool) Arr::get($body, 'quick');
+            $this->vision->pick = ((string) Arr::get($body, 'ai_pick', '')) ?: null;
             $this->vision->fast = $quick;
             $result = $this->vision->analyze($candidates, $bytes, $mimeType, $promptText, $quick ? null : $parallel);
         } catch (\Throwable $e) {

@@ -82,6 +82,24 @@ class VisionAnalyzer
     }
 
     /** Doğruluk kipi (varsayılan): hız yerine en doğru sonuç — güçlü model düşünerek yanıtlar, tüm yanıtlar oylanır */
+    /** Kullanıcının asistanda seçtiği model ("gemini|gemini-3.8-flash"): o sağlayıcı/model önce ve güçlü kipte */
+    public ?string $pick = null;
+
+    protected function applyPick(array $candidates): array
+    {
+        [$prov, $model] = array_pad(explode('|', (string) $this->pick, 2), 2, '');
+        foreach ($candidates as $i => $c) {
+            if ($c['provider'] === $prov) {
+                $first = ['model' => $model !== '' ? $model : $c['model'], 'deep' => true] + $c;
+                unset($candidates[$i]);
+
+                return array_merge([$first], array_values($candidates));
+            }
+        }
+
+        return $candidates;
+    }
+
     /** true: bu istek için hızlı kip (çok fotoğraf taranırken) */
     public bool $fast = false;
 
@@ -217,7 +235,11 @@ class VisionAnalyzer
 
         $timeout = max(3, min(30, (float) $this->setting('ai_timeout', 10)));
         $accurate = $this->accurate();
-        if ($accurate) {
+        if ($this->pick && !$this->fast) {
+            $candidates = $this->applyPick($candidates);
+            $accurate = true;
+            $timeout = max($timeout, 30);
+        } elseif ($accurate) {
             $candidates = $this->withDeep($candidates);
             $timeout = max($timeout, 30);
         }
@@ -438,7 +460,11 @@ class VisionAnalyzer
     {
         if (!$candidates) return null;
         $accurate = $this->accurate();
-        if ($accurate) {
+        if ($this->pick) {
+            $candidates = $this->applyPick($candidates);
+            $accurate = true;
+            $timeout = max($timeout, 25);
+        } elseif ($accurate) {
             $candidates = $this->withDeep($candidates);
             $timeout = max($timeout, 25);
         }

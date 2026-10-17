@@ -35,7 +35,10 @@ class AssistantController implements RequestHandlerInterface
         $body = (array) ($request->getParsedBody() ?: []);
         $path = $request->getUri()->getPath();
 
+        $this->ai->pick = ((string) Arr::get($body, 'ai_pick', '')) ?: null;
+
         return match (true) {
+            str_ends_with($path, '/canon') => new JsonResponse($this->canon((string) Arr::get($body, 'brand', ''), (string) Arr::get($body, 'model', ''))),
             str_ends_with($path, '/parse') => new JsonResponse($this->understand($actor, (string) Arr::get($body, 'text', ''), (string) Arr::get($body, 'context', ''), (array) Arr::get($body, 'history', []), (array) Arr::get($body, 'card', []))),
             str_ends_with($path, '/targets') => new JsonResponse($this->targets($actor, $body)),
             str_ends_with($path, '/route') => new JsonResponse($this->route($actor, $body)),
@@ -53,6 +56,72 @@ class AssistantController implements RequestHandlerInterface
             str_ends_with($path, '/seen') => new JsonResponse($this->seen($actor, (array) Arr::get($body, 'names', []))),
             default => new JsonResponse(['error' => 'Bilinmeyen işlem'], 404),
         };
+    }
+
+    /**
+     * Yazılan ya da tahmin edilen marka/modeli forumda TANIMLI ada eşler: "Mercedes Turizme 16" → "Mercedes-Benz" + "Tourismo 16 RHD".
+     * Kaynak: forumdaki künyelerin model adları + admin eşleştirme listesi. Sayılar (16, 15, 516) birebir tutmalı.
+     */
+    public function canon(string $brand, string $model): array
+    {
+        $fold = fn ($s) => trim(preg_replace('/[^a-z0-9]+/', ' ', strtr(mb_strtolower((string) $s, 'UTF-8'), ['ç' => 'c', 'ğ' => 'g', 'ı' => 'i', 'ö' => 'o', 'ş' => 's', 'ü' => 'u', 'i̇' => 'i'])));
+        $known = resolve(\Framio\UploadExif\Ai\VisionHistory::class)->knownModels(200);
+        foreach ((array) json_decode((string) $this->settings->get('framio-upload-exif.assistant_model_map'), true) as $r) {
+            if (!empty($r['brand']) && !empty($r['model'])) $known[$r['brand']][] = $r['model'];
+        }
+        if (!$known) return ['brand' => $brand, 'model' => $model, 'matched' => false];
+
+        // Marka: en yakın tanımlı marka
+        $fb = $fold($brand);
+        $bestBrand = null;
+        $bestB = 0;
+        foreach (array_keys($known) as $kb) {
+            $f = $fold($kb);
+            $sc = $f === $fb ? 1 : (str_contains($f, $fb) || ($fb !== '' && str_contains($fb, $f)) ? 0.9 : 1 - levenshtein($f, $fb) / max(1, max(strlen($f), strlen($fb))));
+            if ($sc > $bestB) {
+                $bestB = $sc;
+                $bestBrand = $kb;
+            }
+        }
+        // Model marka adıyla yazıldıysa ayıkla
+        $fm = $fold($model);
+        foreach (array_keys($known) as $kb) {
+            if (str_starts_with($fm, $fold($kb) . ' ')) $fm = trim(substr($fm, strlen($fold($kb))));
+        }
+        $pool = $bestB >= 0.6 ? [$bestBrand => $known[$bestBrand]] : $known;
+        $nums = fn ($s) => preg_match_all('/\d+/', $s, $m) ? $m[0] : [];
+        $want = $nums($fm);
+        $best = null;
+        $bestS = 0;
+        foreach ($pool as $kb => $models) {
+            foreach (array_unique($models) as $km) {
+                $fk = $fold($km);
+                $kn = $nums($fk);
+                // Yazılan sayılar tanımlı adda da olmalı (16 ↔ "Tourismo 16 RHD"; 15 ≠ 16)
+                if ($want && array_diff($want, $kn)) continue;
+                $words = array_values(array_filter(explode(' ', preg_replace('/\d+/', ' ', $fm)), fn ($w) => strlen($w) > 1));
+                $kw = array_values(array_filter(explode(' ', preg_replace('/\d+/', ' ', $fk)), fn ($w) => strlen($w) > 1));
+                if (!$words) continue;
+                $sum = 0;
+                foreach ($words as $w) {
+                    $m = 0;
+                    foreach ($kw as $k) {
+                        $m = max($m, $k === $w ? 1 : (str_starts_with($k, $w) || str_starts_with($w, $k) ? 0.85 : 1 - levenshtein($w, $k) / max(strlen($w), strlen($k))));
+                    }
+                    $sum += $m;
+                }
+                $sc = $sum / count($words);
+                // Daha kısa ve tam karşılayan ad (varyantsız) eşitlikte önce; sayı da tutuyorsa öne
+                $sc += ($want && !array_diff($want, $kn)) ? 0.05 : 0;
+                if ($sc > $bestS) {
+                    $bestS = $sc;
+                    $best = [$kb, $km];
+                }
+            }
+        }
+        if ($best && $bestS >= 0.62) return ['brand' => $best[0], 'model' => $best[1], 'matched' => true, 'score' => round($bestS, 2)];
+
+        return ['brand' => $bestB >= 0.6 ? $bestBrand : $brand, 'model' => $model, 'matched' => false];
     }
 
     /** Admin'deki "Marka | Model → tartışma" listesi: en uzun (en özel) model eşleşmesi kazanır */

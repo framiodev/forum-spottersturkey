@@ -18,6 +18,15 @@ import { shotYear, plateKey, slots, localStamp, humanDate, isAny, isYes } from '
 import { getMeta, putMeta } from './catalog';
 import AttributeModal from '../components/AttributeModal';
 
+/** Asistanda seçilen yapay zeka modeli ("" = otomatik) */
+const aiPick = () => {
+  try {
+    return localStorage.getItem('framio-ai-pick') || '';
+  } catch (e) {
+    return '';
+  }
+};
+
 /** 21:18:05 */
 const clock = (t) => new Date(t).toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
 /** 850 ms · 12,4 sn · 2 dk 05 sn */
@@ -368,6 +377,24 @@ class Panel extends Component {
           >
             <i className="far fa-folder"></i> {this.folderName || 'Kaynak ekle'} <i className={'fas fa-chevron-' + (this.showSources ? 'up' : 'down')}></i>
           </button>
+          {(app.forum.attribute('framioAiModels') || []).length ? (
+            <select
+              className="FramioAssistant-model"
+              title="Yapay zeka modeli"
+              aria-label="Yapay zeka modeli"
+              value={aiPick()}
+              onchange={(e) => {
+                try {
+                  localStorage.setItem('framio-ai-pick', e.target.value);
+                } catch (x) {}
+              }}
+            >
+              <option value="">Otomatik (en doğru)</option>
+              {(app.forum.attribute('framioAiModels') || []).map((o) => (
+                <option value={o.id}>{o.label}</option>
+              ))}
+            </select>
+          ) : null}
           <button type="button" className="FramioAssistant-close" aria-label="Kapat" onclick={() => assistant.close()}>
             <i className="fas fa-times"></i>
           </button>
@@ -379,6 +406,14 @@ class Panel extends Component {
           {this.log.map((l) =>
             l.who === 'choices' ? (
               this.choicesView()
+            ) : l.who === 'thumbs' ? (
+              <div className="FramioAssistant-thumbs">
+                {l.items.map((it) => (
+                  <div className={'FramioAssistant-thumb is-' + (it.state || 'wait')} title={it.name}>
+                    {it.url ? <img src={it.url} alt={it.name} /> : <i className="far fa-image"></i>}
+                  </div>
+                ))}
+              </div>
             ) : l.who === 'options' ? (
               <div className="FramioAssistant-options">
                 {l.items.map((label, i) => (
@@ -396,8 +431,16 @@ class Panel extends Component {
                 {l.at ? <span className="FramioAssistant-time">{clock(l.at)}{l.dur != null ? ' · ' + dur(l.dur) : ''}</span> : null}
               </div>
             ) : (
-              <div className={'FramioAssistant-msg is-' + l.who + (l.old ? ' is-old' : '')}>
+              <div className={'FramioAssistant-msg is-' + l.who + (l.old ? ' is-old' : '') + (l.queued ? ' is-queued' : '')}>
                 {l.text}
+                {l.queued ? (
+                  <span className="FramioAssistant-queued">
+                    <i className="far fa-clock"></i> Sırada — iş bitince işlenecek ·{' '}
+                    <button type="button" onclick={() => this.sendNow(l)}>
+                      Şimdi gönder
+                    </button>
+                  </span>
+                ) : null}
                 {l.at ? (
                   <span className="FramioAssistant-time">
                     {clock(l.at)}
@@ -525,6 +568,11 @@ class Panel extends Component {
     const f = cf.fields || (cf.fields = {});
     ['company', 'plate', 'brand', 'model', 'location'].forEach((k) => fix[k] && (f[k] = fix[k]));
     if (f.brand && fold(f.model).startsWith(fold(f.brand) + ' ')) f.model = f.model.slice(f.brand.length).trim();
+    if (fix.brand || fix.model) {
+      await this.canon(f);
+      // Öğrenme: bu plaka/firma için doğru marka-model (sonraki tahminlerde ve başlık seçiminde kullanılır)
+      app.request({ method: 'POST', url: api('/framio-assistant/learn'), body: { plate: f.plate, brand: f.brand, model: f.model, company: f.company, discussion_id: 0 } }).catch(() => {});
+    }
     try {
       const r = await app.request({ method: 'POST', url: api('/framio-assistant/route'), body: { plate: fix.model ? '' : f.plate, brand: f.brand, model: f.model, company: f.company, year: f.year, hint: [cf.path || '', fix.topic_hint || ''].join(' ') } });
       const sugg = r.suggestions || [];
@@ -581,6 +629,7 @@ class Panel extends Component {
       resume();
     };
     app.modal.show(AttributeModal, {
+      globalContext: true,
       initialValues: { company: f.company || '', plate: f.plate || '', brand: f.brand || '', model: f.model || '', location: f.location || '', year: f.year || '' },
       files,
       session: { fileList: files, result: { customFileNames: files.map((x) => x.name) }, completedUploads: [] },
@@ -682,6 +731,7 @@ class Panel extends Component {
     fd.append('image', await shrink(im), 'ai.jpg');
     if (c.file) fd.append('exif_head', c.file.slice(0, 256 * 1024), 'head.jpg');
     fd.append('file_name', c.name);
+    if (aiPick()) fd.append('ai_pick', aiPick());
     fd.append('quick', '1');
     const ai = await app.request({ method: 'POST', url: api('/framio-media/analyze-ai'), body: fd });
     const d = (ai && ai.data) || {};
@@ -700,6 +750,19 @@ class Panel extends Component {
       } catch (e) {}
     }
     return (c.file = await c.load());
+  }
+
+  /** Marka/model forumdaki tanımlı ada eşlenir ("Turizme 16" → "Tourismo 16 RHD"); eşleşme yoksa olduğu gibi */
+  async canon(f) {
+    if (!f || !f.model) return f;
+    try {
+      const r = await app.request({ method: 'POST', url: api('/framio-assistant/canon'), body: { brand: f.brand || '', model: f.model } });
+      if (r && r.matched) {
+        f.brand = r.brand;
+        f.model = r.model;
+      } else if (r && r.brand) f.brand = r.brand;
+    } catch (e) {}
+    return f;
   }
 
   /** Klasör yapısından firma ve plaka: …/<firma>/<plaka>/<plaka>-1.jpg */
@@ -1041,11 +1104,25 @@ class Panel extends Component {
     }
   }
 
-  async command(text) {
+  /** Asistan bir iş yürütüyor ve kullanıcıdan cevap beklemiyor mu */
+  working() {
+    return !!(this.task && !this.task.waiting && !this.awaiting && !this.confirming);
+  }
+
+  async command(text, opts = {}) {
     text = String(text || '').trim();
     if (!text) return;
     hush();
     this.input = '';
+    if (!opts.force && this.working()) {
+      // Desktop yapay zeka uygulamalarındaki gibi: iş bitince sırayla işlenir; istenirse hemen gönderilir
+      const q = { who: 'me', text, at: Date.now(), queued: true };
+      this.queue2 = (this.queue2 || []).concat([q]);
+      this.log.push(q);
+      m.redraw();
+      this.scroll();
+      return;
+    }
     if (this.awaiting) {
       const done = this.awaiting;
       this.awaiting = null;
@@ -1074,6 +1151,7 @@ class Panel extends Component {
         url: api('/framio-assistant/parse'),
         body: {
           text,
+          ai_pick: aiPick(),
           context: this.task && this.task.waiting ? this.task.question : '',
           history: this.log.filter((l) => l.who === 'me' || l.who === 'bot').slice(-13, -1).map((l) => ({ who: l.who, text: l.text })),
           card: pendingCard ? Object.assign({}, pendingCard.fields, { topic: ((pendingCard.suggestions || []).find((x) => String(x.discussion_id) === String(pendingCard.topic)) || {}).title || '' }) : null,
@@ -1615,6 +1693,22 @@ class Panel extends Component {
   async runTask() {
     await this.runTaskInner();
     if (!this.task && this.pendingItems && this.pendingItems.length) return this.nextItem();
+    this.drainQueue();
+  }
+
+  /** Sırada bekleyen mesajlar: iş bitince ilki işlenir */
+  drainQueue() {
+    if (this.working() || !(this.queue2 || []).length) return;
+    const q = this.queue2.shift();
+    q.queued = false;
+    this.log = this.log.filter((l) => l !== q);
+    this.command(q.text, { force: true });
+  }
+
+  sendNow(q) {
+    this.queue2 = (this.queue2 || []).filter((x) => x !== q);
+    this.log = this.log.filter((l) => l !== q);
+    this.command(q.text, { force: true });
   }
 
   /** "Antalya'dan bir Travego, Esenler'den bir Tourismo 15" → her parça ayrı, kısa bir görev olarak sırayla yapılır */
@@ -1768,6 +1862,29 @@ class Panel extends Component {
             this.step(`${Math.min(i + 6, all.length)}/${all.length} fotoğraf tarandı${candidates.length ? ` · ${candidates.length} eşleşme` : ''}…`);
           }
         }
+        if (intent.location && candidates.length) {
+          const words = fold(intent.location).replace(/\botogari\b/g, 'otogar').split(' ').filter((w) => w.length > 2);
+          const exact = candidates.filter((c) => words.every((w) => fold(c.path).includes(w)));
+          if (exact.length) candidates = exact;
+          else {
+            // Bu aracın pozları başka yerlerde: hangi yerden olacağı sorulur (yanlış yerden paylaşılmaz)
+            const groups = {};
+            candidates.forEach((c) => {
+              const parts = String(c.path).split('/').filter((x) => !plateKey(x));
+              const label = parts.slice(-3).join(' / ');
+              (groups[label] = groups[label] || []).push(c);
+            });
+            const opts = Object.entries(groups).map(([label, list]) => ({ label: `${label} (${list.length})`, dirs: list }));
+            const t0 = this.task;
+            const picked = await this.pickOption(`"${intent.location}" klasöründe ${byName} pozu bulamadım. Bu aracın pozları şu yerlerde var; hangisinden paylaşayım?`, opts);
+            if (this.task !== t0) return;
+            if (!picked.length) {
+              this.task = null;
+              return this.say('Tamam, paylaşmıyorum.');
+            }
+            candidates = [].concat(...picked.map((o) => o.dirs));
+          }
+        }
         t.placeFromPath = true;
       }
       if (!t.placeFromPath) {
@@ -1821,6 +1938,18 @@ class Panel extends Component {
       return this.say('Koşullara uyan yeni bir fotoğraf bulamadım.');
     }
     await this.say(`${picked.length} aday fotoğraf seçtim; Framio AI ile inceleyip ${t.plan ? 'planı hazırlıyorum' : 'paylaşıyorum'}. Bu biraz sürebilir, sekmeyi açık bırakın.`);
+    // Adayların küçük önizlemeleri: hangi fotoğrafların tarandığı görünür, incelenen/atlanan işaretlenir
+    const thumbs = { who: 'thumbs', items: picked.map((c) => ({ c, name: c.name, url: null, state: '' })) };
+    this.log.push(thumbs);
+    t.thumbs = thumbs;
+    m.redraw();
+    drive.pool(thumbs.items, 6, async (it) => {
+      try {
+        const b = it.c.file || it.c.preview || (it.c.loadPreview ? (it.c.preview = await it.c.loadPreview()) : null);
+        if (b) it.url = URL.createObjectURL(b);
+      } catch (e) {}
+      m.redraw();
+    });
 
     // 4) Hazırla: analiz → (filtre) → başlık → yükle → içerik
     const times = t.plan ? slots({ count: t.count, days: intent.days, perDay: intent.per_day, time: intent.time }) : [];
@@ -1833,7 +1962,7 @@ class Panel extends Component {
         return { c, error: 'indirilemedi' };
       }
       let f = {};
-      const fp = c.path ? this.fieldsFromPath(c.path, (intent.filters || {}).model || t.filter || '') : {};
+      const fp = c.path ? this.fieldsFromPath(c.path, (intent.filters || {}).model || '') : {};
       const pt = plateText(c.name);
       if (fp.model && pt) {
         // Düzenli arşiv: marka/model/şehir klasörlerden, plaka dosya adından, firma plaka klasörünün üstünden — yapay zeka gerekmez
@@ -1877,7 +2006,10 @@ class Panel extends Component {
           ? `Fotoğraflar inceleniyor (${checked + 1}–${checked + group.length}) · ${filledCount()}/${t.targets.length} başlık doldu…`
           : `${items.length + 1}/${t.count} · ${group.length} fotoğraf aynı anda inceleniyor…`
       );
+      if (t.thumbs) t.thumbs.items.forEach((it) => group.includes(it.c) && (it.state = 'busy'));
+      m.redraw();
       const results = await Promise.all(group.map(analyze));
+      if (t.thumbs) t.thumbs.items.forEach((it) => group.includes(it.c) && (it.state = 'done'));
       t.accepted = t.accepted || [];
       checked += group.length;
 
@@ -1904,7 +2036,7 @@ class Panel extends Component {
         // Klasör yapısı esastır (elle düzenlenmiş arşiv): …/Şehirler/Antalya/…/Mercedes-Benz/Travego/Eski Kasa/15 SHD/<firma>/<plaka>
         // Marka, model (+ varyant) ve şehir klasör adlarından alınır; yapay zekanın tahmini bunların önüne geçemez.
         if (c.path) {
-          const fromPath = this.fieldsFromPath(c.path, (intent.filters || {}).model || t.filter || '');
+          const fromPath = this.fieldsFromPath(c.path, (intent.filters || {}).model || '');
           let changed = false;
           if (fromPath.model && fold(fromPath.model) !== fold(f.model)) {
             f.brand = fromPath.brand || f.brand;
@@ -1956,9 +2088,11 @@ class Panel extends Component {
             fd.append('image', await shrink(await this.img(c)), 'ai.jpg');
             if (c.file) fd.append('exif_head', c.file.slice(0, 256 * 1024), 'head.jpg');
             fd.append('file_name', c.name);
+    if (aiPick()) fd.append('ai_pick', aiPick());
             const ai = await app.request({ method: 'POST', url: api('/framio-media/analyze-ai'), body: fd });
             const d = (ai && ai.data) || {};
             ['company', 'plate', 'brand', 'model', 'location'].forEach((k) => d[k] && (f[k] = d[k]));
+            await this.canon(f);
             if (d.year) f.year = d.year;
             putMeta(c, { company: f.company, plate: f.plate, brand: f.brand, model: f.model, subject: f.subject || 'vehicle', year: f.year, location: f.location });
             const r3 = await app.request({ method: 'POST', url: api('/framio-assistant/route'), body: { plate: f.plate, brand: f.brand, model: f.model, company: f.company, year: f.year, hint: c.path || '' } });
