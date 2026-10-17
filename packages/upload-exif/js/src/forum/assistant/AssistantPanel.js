@@ -1473,7 +1473,9 @@ class Panel extends Component {
             } catch (e) {}
           }
         }
-        if (needle && !fold([f.company, f.plate, f.brand, f.model].join(' ')).includes(fold(needle).split(' ').filter((w) => !fold(f.brand).includes(w)).join(' ') || fold(needle))) {
+        // Klasör yolu komuttaki tüm ayrıntılarla zaten eşleştiyse tekrar kontrol edilmez; değilse her kelime künyede geçmeli
+        const have = fold([f.company, f.plate, f.brand, f.model].join(' '));
+        if (needle && !t.pathStrict && !fold(needle).split(' ').filter((w) => w.length > 1).every((w) => have.includes(w))) {
           this.step(`"${c.name}" ${[f.brand, f.model].filter(Boolean).join(' ') || 'araç'} çıktı, aranan "${t.filter}" değil, atlıyorum.`);
           continue;
         }
