@@ -10,10 +10,11 @@ import PostListState from 'flarum/forum/states/PostListState';
  * `sort: '-createdAt'`.
  */
 export default class BookmarkedPostListState extends PostListState {
-  constructor() {
+  constructor(collectionId: number | null = null) {
     // Core types filter values as strings, and they are serialized into the query string
     // either way, so the flag is sent as '1' rather than a boolean.
-    super({ filter: { bookmarked: '1' } }, 1, 20);
+    // Bir kitaplık seçiliyse yalnızca o kitaplıktaki kayıtlar.
+    super({ filter: collectionId ? { bookmarked: '1', bookmarkCollection: String(collectionId) } : { bookmarked: '1' } }, 1, 20);
   }
 
   requestParams(): PaginatedListRequestParams {

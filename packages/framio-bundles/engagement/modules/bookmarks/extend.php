@@ -33,6 +33,24 @@ return [
 
     new Extend\Locales(__DIR__.'/locale'),
 
+    // Yer imi kitaplıkları (koleksiyonlar)
+    (new Extend\Routes('api'))
+        ->get('/framio/bookmark-collections', 'framio.bookmark_collections.index', Collections\CollectionsController::class)
+        ->post('/framio/bookmark-collections', 'framio.bookmark_collections.create', Collections\CollectionsController::class)
+        ->post('/framio/bookmark-collections/assign', 'framio.bookmark_collections.assign', Collections\CollectionsController::class)
+        ->patch('/framio/bookmark-collections/{id}', 'framio.bookmark_collections.update', Collections\CollectionsController::class)
+        ->delete('/framio/bookmark-collections/{id}', 'framio.bookmark_collections.delete', Collections\CollectionsController::class),
+
+    // Mesajın kaydedildiği kitaplık (yalnızca kaydeden kişiye; bookmarkState kişiye göre yüklenir)
+    (new Extend\ApiResource(Resource\PostResource::class))
+        ->fields(fn () => [
+            Schema\Integer::make('bookmarkCollectionId')
+                ->nullable()
+                ->get(fn (Post $post) => $post->relationLoaded('bookmarkState') && $post->getRelation('bookmarkState')
+                    ? ($post->getRelation('bookmarkState')->collection_id ?? null)
+                    : null),
+        ]),
+
     // Discussion bookmarks are stored as a timestamp on core's `discussion_user`
     // state table, so they ride along with the state relationship core already loads.
     // Core's UserState only declares `last_read_at` as a date, so the column has to be
@@ -132,7 +150,7 @@ return [
     // before an admin has ever opened the extension page.
     (new Extend\Settings())
         ->default('fof-bookmarks.independentButton', '1')
-        ->default('fof-bookmarks.postButtonPosition', 'header')
+        ->default('fof-bookmarks.postButtonPosition', 'menu')
         ->default('fof-bookmarks.postHeaderBadge', '0')
         ->serializeToForum('fof-bookmarks.independentButton', 'fof-bookmarks.independentButton', 'boolval')
         ->serializeToForum('fof-bookmarks.postButtonPosition', 'fof-bookmarks.postButtonPosition')
@@ -140,6 +158,7 @@ return [
     (new Extend\SearchDriver(DatabaseSearchDriver::class))
         ->addFilter(DiscussionSearcher::class, Search\Filter\DiscussionBookmarkedFilter::class)
         ->addFilter(PostSearcher::class, Search\Filter\PostBookmarkedFilter::class)
+        ->addFilter(PostSearcher::class, Search\Filter\PostBookmarkCollectionFilter::class)
         // fof/blog hides blog-tagged discussions from every discussion listing, which
         // would silently drop bookmarked articles from the bookmarks page.
         ->addMutator(DiscussionSearcher::class, Search\AllowBlogArticlesWhenFilteringBookmarks::class),

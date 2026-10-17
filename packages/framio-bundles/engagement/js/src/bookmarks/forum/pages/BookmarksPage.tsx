@@ -13,6 +13,8 @@ import PostList from 'flarum/forum/components/PostList';
 import DiscussionListState from 'flarum/forum/states/DiscussionListState';
 import type Mithril from 'mithril';
 import BookmarkedPostListState from '../states/BookmarkedPostListState';
+import Button from 'flarum/common/components/Button';
+import collections from '../collections';
 
 export type BookmarksTab = 'discussions' | 'posts';
 
@@ -35,6 +37,7 @@ export default class BookmarksPage extends Page {
   private tab: BookmarksTab = 'discussions';
   private discussions!: DiscussionListState;
   private posts!: BookmarkedPostListState;
+  private collectionId: number | null = null;
 
   oninit(vnode: Mithril.Vnode<IPageAttrs, this>): void {
     super.oninit(vnode);
@@ -58,7 +61,10 @@ export default class BookmarksPage extends Page {
     // `params.filter` into the request and special-cases only `params.q`, so a top-level
     // key is silently dropped and the list comes back unfiltered.
     this.discussions = new DiscussionListState({ filter: { bookmarked: true } });
-    this.posts = new BookmarkedPostListState();
+    // ?c=ID: seçili kitaplık
+    this.collectionId = Number(m.route.param('c')) || null;
+    this.posts = new BookmarkedPostListState(this.collectionId);
+    if (this.tab === 'posts') collections.load();
 
     this.loadCurrentTab();
 
@@ -114,7 +120,75 @@ export default class BookmarksPage extends Page {
    * loading indicator, the empty placeholder, pagination and the per-item markup.
    */
   private content(): Mithril.Children {
-    return this.tab === 'discussions' ? <DiscussionList state={this.discussions} /> : <PostList state={this.posts} />;
+    if (this.tab === 'discussions') return <DiscussionList state={this.discussions} />;
+
+    return [this.collectionStrip(), <PostList state={this.posts} />];
+  }
+
+  /** Instagram'daki koleksiyonlar gibi kitaplık kartları; seçiliye göre liste süzülür */
+  private collectionStrip(): Mithril.Children {
+    const list = collections.list || [];
+    const current = list.find((c) => c.id === this.collectionId);
+    const go = (id: number | null) => m.route.set(app.route('fof-bookmarks', id ? { tab: 'posts', c: id } : { tab: 'posts' }));
+
+    return (
+      <div className="BookmarkCollections-strip">
+        <div className="BookmarkCollections-track">
+          <button type="button" className={'BookmarkCollection-chip' + (!this.collectionId ? ' is-active' : '')} onclick={() => go(null)}>
+            <span className="BookmarkCollection-cover is-all">
+              <i className="fas fa-bookmark"></i>
+            </span>
+            <span className="BookmarkCollection-name">Tümü</span>
+          </button>
+          {list.map((c) => (
+            <button type="button" key={c.id} className={'BookmarkCollection-chip' + (this.collectionId === c.id ? ' is-active' : '')} onclick={() => go(c.id)}>
+              <span className="BookmarkCollection-cover" style={c.cover ? { backgroundImage: 'url("' + c.cover + '")' } : undefined}>
+                {c.cover ? null : <i className="far fa-images"></i>}
+              </span>
+              <span className="BookmarkCollection-name">{c.name}</span>
+              <span className="BookmarkCollection-count">{c.count}</span>
+            </button>
+          ))}
+          <button
+            type="button"
+            className="BookmarkCollection-chip is-new"
+            onclick={() => {
+              const name = window.prompt('Yeni kitaplık adı');
+              if (name && name.trim()) collections.create(name.trim()).then((id) => go(id));
+            }}
+          >
+            <span className="BookmarkCollection-cover is-new">
+              <i className="fas fa-plus"></i>
+            </span>
+            <span className="BookmarkCollection-name">Yeni kitaplık</span>
+          </button>
+        </div>
+        {current ? (
+          <div className="BookmarkCollections-manage">
+            <strong>{current.name}</strong>
+            <Button
+              className="Button Button--link"
+              icon="fas fa-pen"
+              onclick={() => {
+                const name = window.prompt('Kitaplığın yeni adı', current.name);
+                if (name && name.trim()) collections.rename(current.id, name.trim());
+              }}
+            >
+              Yeniden adlandır
+            </Button>
+            <Button
+              className="Button Button--link"
+              icon="far fa-trash-alt"
+              onclick={() => {
+                if (confirm('"' + current.name + '" kitaplığı silinsin mi? Kaydedilen mesajlar "Tümü"nde kalır.')) collections.remove(current.id).then(() => go(null));
+              }}
+            >
+              Kitaplığı sil
+            </Button>
+          </div>
+        ) : null}
+      </div>
+    );
   }
 
   /**

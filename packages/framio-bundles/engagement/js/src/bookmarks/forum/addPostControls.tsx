@@ -5,6 +5,8 @@ import app from 'flarum/forum/app';
 import CommentPost from 'flarum/forum/components/CommentPost';
 import PostControls from 'flarum/forum/utils/PostControls';
 import BookmarkButton from './components/BookmarkButton';
+import CollectionModal from './components/CollectionModal';
+import Button from 'flarum/common/components/Button';
 
 type ButtonPosition = 'header' | 'actions' | 'menu';
 
@@ -48,10 +50,22 @@ export default function addPostControls(): void {
   });
 
   extend(PostControls, 'userControls', function (items, post: Post) {
-    if (!app.session.user || buttonPosition() !== 'menu') return;
+    if (!app.session.user) return;
 
-    // No `className`: dropdown items are styled by the menu, and core's own PostControls
-    // entries (Edit, Flag, Delete) pass none either. Adding `Button` here indents the row.
-    items.add('bookmark', <BookmarkButton subject={post} labels="postButton" alert />);
+    if (buttonPosition() === 'menu') {
+      // No `className`: dropdown items are styled by the menu, and core's own PostControls
+      // entries (Edit, Flag, Delete) pass none either. Adding `Button` here indents the row.
+      items.add('bookmark', <BookmarkButton subject={post} labels="postButton" alert />);
+    }
+
+    // Instagram'daki koleksiyonlar gibi: mesajı adlandırılmış bir kitaplığa kaydet
+    if (post.contentType() === 'comment') {
+      items.add(
+        'bookmarkCollection',
+        <Button icon="far fa-folder-open" onclick={() => app.modal.show(CollectionModal, { post })}>
+          {post.attribute('bookmarkCollectionId') ? 'Kitaplığı değiştir…' : 'Kitaplığa kaydet…'}
+        </Button>
+      );
+    }
   });
 }

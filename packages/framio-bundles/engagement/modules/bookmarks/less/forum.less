@@ -38,3 +38,32 @@
   padding: 0 16px;
   text-align: right;
 }
+
+/* Yer imi kitaplıkları (Instagram koleksiyonları gibi), sitenin ana rengiyle */
+.BookmarkCollections-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 12px; margin-bottom: 16px; max-height: 50vh; overflow-y: auto; }
+.BookmarkCollection-tile, .BookmarkCollection-chip {
+  position: relative; display: flex; flex-direction: column; align-items: flex-start; gap: 4px; padding: 0;
+  border: 0; background: none; cursor: pointer; text-align: left; color: var(--text-color);
+}
+.BookmarkCollection-cover {
+  display: flex; align-items: center; justify-content: center; width: 100%; aspect-ratio: 1; border-radius: 12px;
+  background: var(--control-bg) center / cover no-repeat; color: var(--muted-color); font-size: 22px;
+  border: 2px solid transparent; transition: border-color .15s;
+  &.is-all { background: var(--primary-color); color: #fff; }
+  &.is-new { border: 2px dashed var(--control-bg); background: none; }
+}
+.BookmarkCollection-name { font-weight: 700; font-size: 13px; line-height: 1.25; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.BookmarkCollection-count { font-size: 11px; color: var(--muted-color); }
+.BookmarkCollection-check { position: absolute; top: 8px; right: 8px; color: #fff; font-size: 18px; text-shadow: 0 1px 4px rgba(0,0,0,.5); }
+.BookmarkCollection-tile.is-current .BookmarkCollection-cover,
+.BookmarkCollection-chip.is-active .BookmarkCollection-cover { border-color: var(--primary-color); }
+.BookmarkCollection-tile:hover .BookmarkCollection-cover, .BookmarkCollection-chip:hover .BookmarkCollection-cover { border-color: var(--primary-color); }
+.BookmarkCollection-new { display: flex; gap: 8px; .FormControl { flex: 1; } }
+
+.BookmarkCollections-strip { margin: 0 0 16px; }
+.BookmarkCollections-track { display: flex; gap: 12px; overflow-x: auto; padding-bottom: 6px; scrollbar-width: thin;
+  .BookmarkCollection-chip { flex: 0 0 96px; }
+  .BookmarkCollection-chip.is-active .BookmarkCollection-name { color: var(--primary-color); }
+}
+.BookmarkCollections-manage { display: flex; align-items: center; flex-wrap: wrap; gap: 6px 14px; margin-top: 8px; font-size: 13px; }
+@media (max-width: 600px) { .BookmarkCollections-track .BookmarkCollection-chip { flex-basis: 76px; } }

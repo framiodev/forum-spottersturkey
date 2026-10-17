@@ -6,6 +6,7 @@ import Icon from 'flarum/common/components/Icon';
 import app from 'flarum/forum/app';
 import type Mithril from 'mithril';
 import classList from 'flarum/common/utils/classList';
+import CollectionModal from './CollectionModal';
 
 export interface BookmarkButtonAttrs {
   /**
@@ -88,10 +89,22 @@ export default class BookmarkButton extends Component<BookmarkButtonAttrs> {
       return;
     }
 
+    const isPost = this.attrs.subject.constructor && (this.attrs.subject as any).contentType !== undefined;
     const alert = app.alerts.show(
       {
         type: 'success',
         controls: [
+          bookmarked && isPost ? (
+            <Button
+              className="Button Button--link"
+              onclick={() => {
+                app.alerts.dismiss(alert);
+                app.modal.show(CollectionModal, { post: this.attrs.subject });
+              }}
+            >
+              Kitaplığa kaydet
+            </Button>
+          ) : null,
           <Button
             className="Button Button--link"
             onclick={() => {

@@ -3,7 +3,6 @@ import { extend } from 'flarum/common/extend';
 import CommentPost from 'flarum/forum/components/CommentPost';
 import DiscussionControls from 'flarum/forum/utils/DiscussionControls';
 import Button from 'flarum/common/components/Button';
-import Tooltip from 'flarum/common/components/Tooltip';
 import ViewersModal from './components/ViewersModal';
 
 /**
@@ -89,25 +88,8 @@ export default function registerPostViews() {
     }
   });
 
-  // Mesaj başlığında görüntülenme sayısı
-  extend(CommentPost.prototype, 'headerItems', function (items) {
-    const post: any = this.attrs.post;
-    const views = post && post.attribute && post.attribute('framioViews');
-    if (views === null || views === undefined || !app.forum.attribute('framioCanViewPostViews')) return;
-
-    const canViewers = !!app.forum.attribute('framioCanViewViewers');
-    const label = `${Number(views).toLocaleString('tr-TR')} kez okundu`;
-    const badge = (
-      <span
-        className={'FramioPostViews' + (canViewers ? ' is-clickable' : '')}
-        onclick={canViewers ? () => app.modal.show(ViewersModal, { kind: 'post', id: post.id() }) : undefined}
-      >
-        <i className="far fa-eye" aria-hidden="true"></i> {Number(views).toLocaleString('tr-TR')}
-      </span>
-    );
-
-    items.add('framioViews', <Tooltip text={canViewers ? label + ' · kimlerin okuduğunu gör' : label}>{badge}</Tooltip>, -20);
-  });
+  // Mesaj başlığındaki görüntülenme sayısı kaldırıldı: sayı, mesajın altındaki okunma
+  // sayacında (engagement → kim okudu) gösteriliyor.
 
   // Tartışma menüsü: "Görüntüleyenler"
   extend(DiscussionControls, 'moderationControls', function (items, discussion) {
