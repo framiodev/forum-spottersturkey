@@ -2199,10 +2199,11 @@ body.fnav-bg-custom #header { background: var(--fnav-header-bg) !important; }
     &.is-busy { opacity: .5; pointer-events: none; transition: opacity .2s; }
 }
 .Explore-Masonry {
-    columns: 3 260px; column-gap: 10px;
-    .Explore-Card { aspect-ratio: auto; margin-bottom: 10px; break-inside: avoid; img { height: auto; } }
+    display: flex; gap: 10px; align-items: flex-start;
+    .Explore-Card { aspect-ratio: auto; margin-bottom: 10px; img { height: auto; } }
     &.is-busy { opacity: .5; }
 }
+.Explore-MasonryCol { flex: 1 1 0; min-width: 0; }
 .Explore-Filters { display: flex; gap: 6px; flex-wrap: wrap; }
 .Explore-Filter { width: auto; min-width: 140px; max-width: 200px; height: 34px; padding: 4px 10px; font-size: 13px; }
 .Explore-More { text-align: center; margin-top: 14px; }
@@ -2272,7 +2273,7 @@ body.fnav-bg-custom #header { background: var(--fnav-header-bg) !important; }
     .Explore-Potd-Media { aspect-ratio: 3 / 2; }
     .Explore-Potd-Info { padding: 40px 14px 14px; h2 { font-size: 18px; } }
     .Explore-Grid { grid-template-columns: repeat(2, 1fr); gap: 6px; }
-    .Explore-Masonry { columns: 2; column-gap: 6px; .Explore-Card { margin-bottom: 6px; } }
+    .Explore-Masonry { gap: 6px; .Explore-Card { margin-bottom: 6px; } }
     .Explore-Filters { width: 100%; }
     .Explore-Filter { flex: 1 1 45%; max-width: none; min-width: 0; }
     .Explore-Coll { flex-basis: 160px; height: 110px; }

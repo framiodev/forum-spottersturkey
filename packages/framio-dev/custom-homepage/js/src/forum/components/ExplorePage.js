@@ -50,11 +50,22 @@ export default class ExplorePage extends Page {
   oncreate(vnode) {
     super.oncreate(vnode);
     this.gallery.oncreate(vnode);
+    // Sütun sayısı ekran genişliğine bağlı (masaüstü 3, mobil 2)
+    this.onResize = () => {
+      const wide = window.innerWidth > 600;
+      if (wide !== this.wasWide) {
+        this.wasWide = wide;
+        m.redraw();
+      }
+    };
+    this.wasWide = window.innerWidth > 600;
+    window.addEventListener('resize', this.onResize);
   }
 
   onremove(vnode) {
     super.onremove(vnode);
     this.gallery.onremove(vnode);
+    window.removeEventListener('resize', this.onResize);
   }
 
   setTitle() {
@@ -240,6 +251,29 @@ export default class ExplorePage extends Page {
     );
   }
 
+  /**
+   * Satır sıralı taş duvar: kartlar sırayla (en yeni önce) o an en kısa sütuna yerleşir;
+   * böylece soldan sağa okunur. CSS sütunları yukarıdan aşağı dizdiği için sıra karışık görünüyordu.
+   */
+  masonryColumns(list) {
+    const count = window.innerWidth <= 600 ? 2 : 3;
+    const cols = Array.from({ length: count }, () => []);
+    const heights = new Array(count).fill(0);
+    list.forEach((g, i) => {
+      const a = (g.images[0] && (g.images[0].attributes || g.images[0])) || {};
+      const w = Number(a.thumb_width || a.width) || 3;
+      const h = Number(a.thumb_height || a.height) || 2;
+      // Eşite yakın yükseklikte soldaki sütun tercih edilir (sıra soldan sağa kalsın)
+      let c = 0;
+      heights.forEach((v, k) => {
+        if (v < heights[c] - 0.05) c = k;
+      });
+      cols[c].push(i);
+      heights[c] += h / w;
+    });
+    return cols;
+  }
+
   sectionRecent() {
     if (!this.meta.recent) return null;
     const facets = this.meta.facets || {};
@@ -257,9 +291,17 @@ export default class ExplorePage extends Page {
             {facets.year && facets.year.length ? this.filterSelect('year', 'Tüm yıllar', facets.year) : null}
           </div>
         </header>
-        <div className={'Explore-Masonry' + (this.busy === 'recent' && !this.recentOffset ? ' is-busy' : '')}>
-          {list.length ? list.map((g, i) => this.card(g, list, i, 480)) : <p className="Explore-Empty">Bu seçimle eşleşen fotoğraf yok.</p>}
-        </div>
+        {list.length ? (
+          <div className={'Explore-Masonry' + (this.busy === 'recent' && !this.recentOffset ? ' is-busy' : '')}>
+            {this.masonryColumns(list).map((col, c) => (
+              <div className="Explore-MasonryCol" key={'col' + c}>
+                {col.map((i) => this.card(list[i], list, i, 480))}
+              </div>
+            ))}
+          </div>
+        ) : (
+          <p className="Explore-Empty">Bu seçimle eşleşen fotoğraf yok.</p>
+        )}
         {!this.recentDone && list.length ? (
           <div className="Explore-More">
             <button
