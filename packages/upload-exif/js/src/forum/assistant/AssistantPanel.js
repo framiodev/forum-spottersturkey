@@ -487,6 +487,7 @@ class Panel extends Component {
       try {
         const res = await app.request({ method: 'POST', url: api('/framio-assistant/targets'), body: { section: intent.section || '', era: intent.era || '' } });
         this.task.targets = res.topics || [];
+        this.task.sections = res.sections || [];
         this.task.perTopic = intent.per_topic || 1;
         count = this.task.targets.length * this.task.perTopic;
         this.task.count = count;
@@ -503,6 +504,13 @@ class Panel extends Component {
     const year = intent.shot_year ? `, yalnızca ${intent.shot_year} çekimleri` : '';
     const place = intent.location ? `, çekim yeri ${intent.location}` : '';
     const scope = this.task.targets ? ` ${this.task.targets.length} başlığın her birine ${this.task.perTopic} adet olmak üzere` : '';
+    // İfade birden çok bölüme uyuyorsa (otomatik modda bile) hangisi olduğu sorulur
+    if (this.task.sections && this.task.sections.length > 1) {
+      await this.say(`"${intent.section || 'Bu bölüm'}" birden fazla bölüme uyuyor: ${this.task.sections.map((x) => `${x.name} (${x.count} başlık)`).join(', ')}. Hangisinde paylaşayım? Birini söyleyin ya da "hepsi" deyin.`);
+      this.task.waiting = 'section';
+      this.task.question = 'Hangi bölümde paylaşayım?';
+      return;
+    }
     if (intent.auto) {
       await this.say(`Anladım: ${from}${year}${place}${scope} ${what}. Otomatik başlıyorum; durdurmak için "iptal" deyin.`);
       return this.runTask();
@@ -542,6 +550,21 @@ class Panel extends Component {
       return this.say('Görevi iptal ettim.');
     }
 
+    if (step === 'section') {
+      const low = String(a.value || text).toLocaleLowerCase('tr-TR');
+      if (!/(hepsi|hepsinde|ikisi|ikisinde|tümü|tümünde|her ikisi)/.test(low)) {
+        const pick = t.sections.filter((x) => low.split(/\s+/).some((w) => w.length > 3 && x.name.toLocaleLowerCase('tr-TR').includes(w.slice(0, 6))));
+        if (pick.length) {
+          const slugs = pick.map((x) => x.slug);
+          t.targets = t.targets.filter((g) => slugs.includes(g.section_slug));
+        }
+      }
+      t.sections = null;
+      t.count = t.targets.length * t.perTopic;
+      await this.say(`Tamam: ${t.targets.length} başlığın her birine ${t.perTopic} adet, toplam ${t.count} fotoğraf.`);
+      if (t.intent.auto) return this.runTask();
+      return this.ask('filter');
+    }
     if (step === 'topic') {
       if (!(a.any || isAny(text))) {
         // Başlık adı: forumda arayıp en uygun başlığı bul

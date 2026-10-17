@@ -251,10 +251,15 @@ class AssistantController implements RequestHandlerInterface
             if (isset($out[$r->id])) continue;
             if (!$this->describe((int) $r->id, $actor)) continue;
             if ($era && $this->era->ofDiscussion((int) $r->id) !== $era) continue;
-            $out[$r->id] = ['discussion_id' => (int) $r->id, 'title' => $r->title, 'brand' => $tags[$r->tag_id]->name ?? ''];
+            $rootTag = $tags[$rootOf($r->tag_id)] ?? null;
+            $out[$r->id] = ['discussion_id' => (int) $r->id, 'title' => $r->title, 'brand' => $tags[$r->tag_id]->name ?? '', 'section' => $rootTag->name ?? '', 'section_slug' => $rootTag->slug ?? ''];
         }
 
-        return ['topics' => array_values($out)];
+        // Birden çok bölüm eşleştiyse (ör. "otobüs" → Şehirlerarası + Turizm) hangisi olduğu sorulabilsin
+        $sections = [];
+        foreach ($out as $t) $sections[$t['section_slug']] = ['slug' => $t['section_slug'], 'name' => $t['section'], 'count' => ($sections[$t['section_slug']]['count'] ?? 0) + 1];
+
+        return ['topics' => array_values($out), 'sections' => array_values($sections)];
     }
 
     // ── Başlık önerisi ───────────────────────────────────────────────────────

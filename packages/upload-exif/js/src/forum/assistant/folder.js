@@ -147,9 +147,28 @@ const folder = {
       onStep(`"${f.label}" klasörünü tarıyorum…`);
 
       // 1) Yalnızca adlara bakılarak eşleşen dosyalar toplanır (dosya açılmaz: hızlı)
+      // Bulut sürücülerinde (ExpanDrive, Google Drive masaüstü vb.) bazı öğeler okuma hatası verebilir:
+      // hata veren alt klasör / dosya atlanır, taramanın geri kalanı sürer
       const entries = [];
+      const errors = [];
       const walk = async (dir, level, path) => {
-        for await (const entry of dir.values()) {
+        let iter;
+        try {
+          iter = dir.values();
+        } catch (e) {
+          errors.push(path + ': ' + (e.name || 'hata'));
+          return;
+        }
+        while (true) {
+          let step;
+          try {
+            step = await iter.next();
+          } catch (e) {
+            errors.push(path + ': ' + (e.name || 'hata'));
+            return;
+          }
+          if (step.done) return;
+          const entry = step.value;
           if (entry.kind === 'file' && IMAGE.test(entry.name)) {
             if (!needle || normalize(entry.name).includes(needle)) entries.push({ entry, path });
           } else if (entry.kind === 'directory' && level < depth && !entry.name.startsWith('.')) {
@@ -157,12 +176,11 @@ const folder = {
           }
         }
       };
-      try {
-        await walk(f.handle, 0, f.label);
-      } catch (e) {
-        onStep(`"${f.label}" klasörü okunamadı, atlıyorum.`);
-        continue;
+      await walk(f.handle, 0, f.label);
+      if (errors.length) {
+        onStep(`"${f.label}": ${errors.length} alt klasör okunamadı (${errors.slice(0, 2).join('; ')}${errors.length > 2 ? '…' : ''}); diğerleri tarandı.`);
       }
+      onStep(`"${f.label}": ${entries.length} fotoğraf bulundu.`);
 
       // 2) Tarih için dosya bilgileri 50'şerli paralel gruplarla okunur; ilerleme gösterilir
       for (let i = 0; i < entries.length; i += 50) {
