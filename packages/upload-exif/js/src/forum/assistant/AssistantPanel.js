@@ -522,7 +522,11 @@ class Panel extends Component {
   async posesFor(c, pool, max = 3) {
     if (max <= 1 || !c.path) return [];
     const num = (n) => Number((String(n).match(/(\d+)(?=\.[a-z]+$)/i) || [])[1] || 0);
-    const same = [c, ...pool.filter((x) => x !== c && x.path === c.path && x.name !== c.name)].sort((a, b) => num(a.name) - num(b.name) || a.name.localeCompare(b.name));
+    // Aynı araç: aynı klasör VE (dosya adındaki plaka aynı ya da çekim zamanı en çok 3 dk farklı).
+    // Düzensiz klasörlerde (IMG_1234.jpg, yüzlerce farklı araç) başka araçların kareleri böylece karışmaz.
+    const pk = plateKey(c.name);
+    const near = (x) => (pk && plateKey(x.name) === pk) || (c.modified && x.modified && Math.abs(c.modified - x.modified) <= 180000);
+    const same = [c, ...pool.filter((x) => x !== c && x.path === c.path && x.name !== c.name && near(x))].sort((a, b) => num(a.name) - num(b.name) || a.name.localeCompare(b.name));
     if (same.length < 2) return [];
     const idx = [...new Set([0, Math.floor((same.length - 1) / 2), same.length - 1])];
     const picks = idx.map((i) => same[i]).filter((x) => x !== c).slice(0, max - 1);
