@@ -176,6 +176,7 @@ class Panel extends Component {
             )
           )}
           {this.queue.map((card) => this.cardView(card))}
+          {this.confirmView()}
           {this.busy ? (
             <div className="FramioAssistant-msg is-bot is-typing">
               <span></span>
@@ -222,6 +223,65 @@ class Panel extends Component {
             <i className="fas fa-paper-plane"></i>
           </button>
         </form>
+      </div>
+    );
+  }
+
+  /**
+   * Bulunan fotoğrafı gösterir ve onay ister: "Paylaş" / "Atla" / "Görevi durdur" (ya da sesli/yazılı evet, hayır, iptal).
+   * @return {Promise<'yes'|'no'|'stop'>}
+   */
+  confirmItem(c, f, topic, summary) {
+    return new Promise(async (resolve) => {
+      const preview = URL.createObjectURL(c.file);
+      this.confirming = { preview, name: c.name, path: c.path, summary, topic, resolve };
+      m.redraw();
+      this.scroll();
+      await this.say(`Şunu buldum: ${summary || c.name}. ${topic.title} başlığına paylaşayım mı?`);
+    });
+  }
+
+  resolveConfirm(decision) {
+    const cf = this.confirming;
+    if (!cf) return;
+    this.confirming = null;
+    try {
+      URL.revokeObjectURL(cf.preview);
+    } catch (e) {}
+    this.log.push({ who: 'me', text: decision === 'yes' ? 'Paylaş' : decision === 'stop' ? 'Görevi durdur' : 'Atla' });
+    m.redraw();
+    cf.resolve(decision);
+  }
+
+  confirmView() {
+    const cf = this.confirming;
+    if (!cf) return null;
+    return (
+      <div className="FramioAssistant-card is-confirm" key="confirm">
+        <img src={cf.preview} alt="" />
+        <div className="FramioAssistant-cardBody">
+          <p>
+            <strong>{cf.summary || cf.name}</strong>
+          </p>
+          <p className="helpText">
+            {cf.path ? cf.path + '/' : ''}
+            {cf.name}
+          </p>
+          <p>
+            <i className="fas fa-arrow-right"></i> {cf.topic.title}
+          </p>
+          <div className="FramioAssistant-actions">
+            <Button className="Button Button--primary" icon="fas fa-paper-plane" onclick={() => this.resolveConfirm('yes')}>
+              Paylaş
+            </Button>
+            <Button className="Button" onclick={() => this.resolveConfirm('no')}>
+              Atla
+            </Button>
+            <Button className="Button Button--link" onclick={() => this.resolveConfirm('stop')}>
+              Durdur
+            </Button>
+          </div>
+        </div>
       </div>
     );
   }
@@ -442,6 +502,12 @@ class Panel extends Component {
     if (!text) return;
     hush();
     this.input = '';
+    if (this.confirming) {
+      const low = text.toLocaleLowerCase('tr-TR');
+      if (/(iptal|durdur|dur\b|vazgeç|bitir)/.test(low)) return this.resolveConfirm('stop');
+      if (isYes(low) || /(paylaş|gönder)/.test(low)) return this.resolveConfirm('yes');
+      return this.resolveConfirm('no');
+    }
     this.log.push({ who: 'me', text });
     this.remember('me', text);
     m.redraw();
@@ -735,15 +801,41 @@ class Panel extends Component {
     const depth = Number(pref('framio_assistant_depth', 2));
     const pool = Math.min(400, t.count * 6);
     let candidates = [];
+    t.placeFromPath = false;
     try {
-      candidates = await folder.find('', Math.max(pool, (t.targets ? t.targets.length : 0) * 20), depth, (x) => this.step(x), { source: intent.source, year: intent.shot_year, hint: intent.location || t.filter || '' });
+      // Çekim yeri verildiyse: önce o yerin klasörü (ör. …/İstanbul/…/Esenler) bulunur, yalnızca içine bakılır
+      const placeWords = intent.location
+        ? intent.location
+            .split(/[\s,/]+/)
+            .map((w) => w.replace(/['’](da|de|ta|te|nda|nde|ndaki|ndeki|daki|deki)$/i, ''))
+            .filter((w) => w.length > 2 && !/^(otogar|otogarı|terminal|terminali|garaj|garajı|il|ilçe)$/i.test(w))
+        : [];
+      // "Esenler Otogarı, İstanbul" → en özel kelime önce gelir; sıralamada son kelime en özel sayılır
+      const ordered = placeWords.slice().reverse();
+      if (ordered.length && intent.source !== 'drive' && (folder.list || []).some((f) => f.enabled)) {
+        const dirs = await folder.findDirs(ordered, (x) => this.step(x));
+        if (dirs.length) {
+          this.step(`Çekim yeri klasörü bulundu: ${dirs.map((d) => d.path).join(' · ')}`);
+          candidates = await folder.filesIn(dirs, (x) => this.step(x));
+          t.placeFromPath = true;
+        } else if (!drive.folders().some((f) => f.enabled)) {
+          this.task = null;
+          return this.say(`Kaynaklarınızda adında "${ordered.join('" ya da "')}" geçen bir klasör bulamadım. Fotoğrafların yerini tahmin ederek yanlış paylaşım yapmak istemedim; klasörü kaynaklara ekleyip tekrar deneyebilirsiniz.`);
+        }
+      }
+      if (!t.placeFromPath) {
+        candidates = await folder.find('', Math.max(pool, (t.targets ? t.targets.length : 0) * 20), depth, (x) => this.step(x), { source: intent.source, year: intent.shot_year, hint: intent.location || t.filter || '' });
+      }
       // Çekim yeri klasör adında geçiyorsa ("…/Esenler/…") önce onlar
-      if (intent.location) {
-        const words = intent.location.toLocaleLowerCase('tr-TR').split(/[\s,]+/).filter((w) => w.length > 3 && !/otogar|terminal|garaj/.test(w));
+      if (intent.location && !t.placeFromPath) {
+        // Drive: klasör yolunda yer geçenler (drive.find yolu zaten süzdü); yerel klasör yoksa yapay zekanın bulduğu yer
+        const words = placeWords.map((w) => w.toLocaleLowerCase('tr-TR'));
         const inPath = candidates.filter((c) => words.some((w) => String(c.path || '').toLocaleLowerCase('tr-TR').includes(w.slice(0, 6))));
-        if (inPath.length) candidates = inPath.concat(candidates.filter((c) => !inPath.includes(c)));
+        if (inPath.length) {
+          candidates = inPath;
+          t.placeFromPath = true;
+        }
         t.placeWords = words;
-        t.placeFromPath = inPath.length > 0;
       }
     } catch (e) {
       this.task = null;
@@ -799,7 +891,7 @@ class Panel extends Component {
         fd.append('file_name', c.name);
         const ai = await app.request({ method: 'POST', url: api('/framio-media/analyze-ai'), body: fd });
         const d = (ai && ai.data) || {};
-        f = { company: d.company || '', plate: d.plate || '', brand: d.brand || '', model: d.model || '', location: d.location || '', year: d.year || String((await shotYear(c.file)) || '') };
+        f = { company: d.company || '', plate: d.plate || '', brand: d.brand || '', model: d.model || '', location: d.location || '', subject: d.subject || '', year: d.year || String((await shotYear(c.file)) || '') };
       } catch (e) {
         f = { year: String((await shotYear(c.file)) || '') };
       }
@@ -826,6 +918,7 @@ class Panel extends Component {
           : `${items.length + 1}/${t.count} · ${group.length} fotoğraf aynı anda inceleniyor…`
       );
       const results = await Promise.all(group.map(analyze));
+      t.accepted = t.accepted || [];
       checked += group.length;
 
       for (const { c, f, sugg, error } of results) {
@@ -833,6 +926,20 @@ class Panel extends Component {
         if (error) {
           this.step(`"${c.name}" ${error}, atlıyorum.`);
           continue;
+        }
+        // Yalnızca aracın ana konu olduğu kareler (insan, iç mekan, detay kareleri atlanır)
+        if ((f.subject && f.subject !== 'vehicle') || !f.brand) {
+          this.step(`"${c.name}" araç fotoğrafı değil (${f.subject === 'person' ? 'insan karesi' : f.subject === 'interior' ? 'iç mekan' : f.subject === 'detail' ? 'detay' : 'araç tanınamadı'}), atlıyorum.`);
+          continue;
+        }
+        // Aynı aracın art arda çekilmiş kareleri: plaka ya da (plakasızsa) firma+model ve 2 dakika içinde çekim
+        const sig = f.plate ? 'p:' + f.plate.replace(/\s+/g, '') : 'm:' + [f.company, f.brand, f.model].join('|').toLocaleLowerCase('tr-TR');
+        if (t.targets || intent.diverse) {
+          const twin = (t.accepted || []).find((a) => a.sig === sig && (sig.startsWith('p:') || Math.abs(a.modified - (c.modified || 0)) < 120000));
+          if (twin) {
+            this.step(`"${c.name}" daha önce seçilen "${twin.name}" ile aynı araç, atlıyorum.`);
+            continue;
+          }
         }
         if (needle && ![f.company, f.plate, f.brand, f.model].join(' ').toLocaleLowerCase('tr-TR').includes(needle)) continue;
         // Çekim yeri klasörden anlaşılmadıysa Framio AI'nın bulduğu yere bakılır
@@ -848,11 +955,37 @@ class Panel extends Component {
 
         let topic = t.topic;
         if (!topic) {
-          topic = t.targets
-            ? sugg.find((x) => t.targets.some((g) => g.discussion_id === x.discussion_id) && (t.filled[x.discussion_id] || 0) < t.perTopic)
-            : sugg[0];
+          if (t.targets) {
+            // Model birebir eşleşmeli: yalnızca bu modelin başlığı (marka düzeyi öneriler sayılmaz);
+            // o başlık doluysa fotoğraf başka bir modele KONMAZ
+            const own = sugg.find((x) => x.reason !== 'brand' && t.targets.some((g) => g.discussion_id === x.discussion_id));
+            if (!own) {
+              this.step(`"${c.name}" (${[f.brand, f.model].filter(Boolean).join(' ')}) hedef başlıklardan birinin modeli değil, atlıyorum.`);
+              continue;
+            }
+            if ((t.filled[own.discussion_id] || 0) >= t.perTopic) {
+              this.step(`${own.title} zaten doldu, "${c.name}" atlıyorum.`);
+              continue;
+            }
+            topic = own;
+          } else {
+            topic = sugg[0];
+          }
         }
         if (!topic) continue;
+
+        // Paylaşmadan önce onay
+        const summary = [[f.company, f.plate].filter(Boolean).join(' | '), [f.brand, f.model].filter(Boolean).join(' '), f.location].filter(Boolean).join(' · ');
+        const decision = await this.confirmItem(c, f, topic, summary);
+        if (decision === 'stop' || this.task !== t) {
+          this.task = null;
+          return this.say(`Görevi durdurdum. ${items.length} fotoğraf ${t.plan ? 'planlandı' : 'paylaşıldı'}.`);
+        }
+        if (decision !== 'yes') {
+          this.step(`"${c.name}" atlandı.`);
+          continue;
+        }
+        t.accepted.push({ sig, name: c.name, modified: c.modified || 0 });
 
         this.step(`"${c.name}" → ${topic.title}: imzalanıp yükleniyor…`);
         let code;

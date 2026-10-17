@@ -129,6 +129,117 @@ const folder = {
     return ok;
   },
 
+  /**
+   * Adında verilen kelimelerden biri geçen klasörler (ör. "Esenler"), derinlik sınırı olmadan.
+   * Yalnızca klasör adlarına bakılır, dosyalar açılmaz: büyük arşivlerde de hızlıdır.
+   * En özel (en derindeki) eşleşmeler döner; "İstanbul" ve "Esenler" birlikte geçiyorsa Esenler seçilir.
+   * @return {Promise<{handle, path, label}[]>}
+   */
+  async findDirs(words, onStep = () => {}) {
+    await this.load();
+    const want = words.map((w) => w.toLocaleLowerCase('tr-TR')).filter((w) => w.length > 2);
+    if (!want.length) return [];
+    const hits = [];
+    let seen = 0;
+    const walk = async (dir, path, level) => {
+      if (level > 12) return;
+      let iter;
+      try {
+        iter = dir.values();
+      } catch (e) {
+        return;
+      }
+      while (true) {
+        let step;
+        try {
+          step = await iter.next();
+        } catch (e) {
+          return;
+        }
+        if (step.done) return;
+        const entry = step.value;
+        if (entry.kind !== 'directory' || entry.name.startsWith('.')) continue;
+        seen++;
+        if (seen % 300 === 0) onStep(`Klasör yapısı taranıyor… (${seen} klasör)`);
+        const p = path + '/' + entry.name;
+        const name = entry.name.toLocaleLowerCase('tr-TR');
+        const score = want.filter((w) => name.includes(w.slice(0, 6))).length;
+        if (score) hits.push({ handle: entry, path: p, score, depth: level + 1 });
+        await walk(entry, p, level + 1);
+      }
+    };
+    for (const f of this.list.filter((x) => x.enabled)) {
+      onStep(`"${f.label}" içinde "${words.join(', ')}" klasörü aranıyor…`);
+      await walk(f.handle, f.label, 0);
+    }
+    if (!hits.length) return [];
+    // En özel eşleşme: kelime listesinde en sonda gelen (ör. "Esenler") ve en derindeki klasör
+    const rank = (h) => {
+      const name = h.path.split('/').pop().toLocaleLowerCase('tr-TR');
+      const idx = Math.max(...want.map((w, i) => (name.includes(w.slice(0, 6)) ? i + 1 : 0)));
+      return idx * 100 + h.depth;
+    };
+    const top = Math.max(...hits.map(rank));
+    // Bir eşleşme başka bir eşleşmenin içindeyse (İstanbul/…/Esenler) yalnızca içteki kalır
+    const best = hits.filter((h) => rank(h) === top);
+    return best.map((h) => ({ handle: h.handle, path: h.path, label: h.path.split('/').pop() }));
+  },
+
+  /** Verilen klasörlerin içindeki tüm fotoğraflar (alt klasörler dahil) */
+  async filesIn(dirs, onStep = () => {}) {
+    const out = [];
+    for (const d of dirs) {
+      onStep(`"${d.path}" klasöründeki fotoğraflar okunuyor…`);
+      const entries = [];
+      const walk = async (dir, path, level) => {
+        if (level > 6) return;
+        let iter;
+        try {
+          iter = dir.values();
+        } catch (e) {
+          return;
+        }
+        while (true) {
+          let step;
+          try {
+            step = await iter.next();
+          } catch (e) {
+            return;
+          }
+          if (step.done) return;
+          const entry = step.value;
+          if (entry.kind === 'file' && IMAGE.test(entry.name)) entries.push({ entry, path });
+          else if (entry.kind === 'directory' && !entry.name.startsWith('.')) await walk(entry, path + '/' + entry.name, level + 1);
+        }
+      };
+      await walk(d.handle, d.path, 0);
+      for (let i = 0; i < entries.length; i += 50) {
+        const batch = await Promise.all(
+          entries.slice(i, i + 50).map(async ({ entry, path }) => {
+            try {
+              const file = await entry.getFile();
+              const py = (path.match(/(?:^|\/)[^/]*?((?:19|20)\d{2})[^/]*/) || [])[1];
+              return { file, name: file.name, source: path, path, year: py ? Number(py) : null, modified: file.lastModified, size: file.size, load: async () => file };
+            } catch (e) {
+              return null;
+            }
+          })
+        );
+        batch.forEach((x) => x && out.push(x));
+      }
+    }
+    // Aynı dosya iki kaynakta varsa bir kez
+    const seen = new Set();
+    return out
+      .filter((x) => {
+        const k = x.name + '|' + x.size;
+        if (seen.has(k)) return false;
+        seen.add(k);
+        return true;
+      })
+      .sort((a, b) => b.modified - a.modified);
+  },
+
   hasAny() {
     return (this.list || []).some((f) => f.enabled) || drive.folders().some((f) => f.enabled);
   },

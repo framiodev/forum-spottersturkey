@@ -178,7 +178,7 @@ const drive = {
   async find(query, limit = 20, opts = {}) {
     if (!this.folders().some((f) => f.enabled)) return [];
     const q = String(query || '').replace(/'/g, "\\'");
-    let folders = await this.tree(3);
+    let folders = await this.tree(opts.hint || opts.year ? 8 : 3);
 
     // Klasör adı yılı ya da kategoriyi söylüyorsa yalnızca o klasörlere bakılır
     const norm = (v) => String(v || '').toLocaleLowerCase('tr-TR');

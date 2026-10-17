@@ -178,6 +178,7 @@ class AnalyzeMediaAiController implements RequestHandlerInterface
             . "- Firma: en büyük logo/kelimeyi değil, gövdede yazan resmî adın tamamını yaz (ör. logoda 'Anka' yazsa da yan yüzde 'Adıyaman Anka Turizm' yazıyorsa onu yaz). Şehir ön eki, 'Turizm', 'Seyahat', 'Taşımacılık' gibi kelimeleri atma.\n"
             . "- Model: ön/arka maske, far, cam ve yan pencere dizilimine bakarak tam modeli belirle (ör. Mercedes-Benz Travego 15 SHD, Tourismo 16 RHD, Setra S 516 HD, MAN Lion's Coach, Temsa Maraton). Aşağıdaki forum listesinde uygun bir ad varsa birebir o yazımı kullan.\n"
             . $locationRule
+            . "- JSON'a ayrıca \"subject\" ekle: fotoğrafın ANA konusu araçsa \"vehicle\"; ön planda insan/portre varsa \"person\"; araç içi \"interior\"; yakın detay (logo, far, jant) \"detail\"; diğer \"other\".\n"
             . "- Okuyamadığın ya da emin olmadığın her alanı boş string bırak; uydurma.\n"
             . "SADECE geçerli JSON döndür, açıklama ekleme.";
 
