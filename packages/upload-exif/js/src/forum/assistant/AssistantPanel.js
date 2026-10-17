@@ -667,7 +667,13 @@ class Panel extends Component {
     const parts = String(c.path || '').split('/');
     const pk = plateKey(c.name);
     const i = parts.findIndex((x) => pk && plateKey(x) === pk);
-    return i > 0 ? parts[i - 1] : '';
+    if (i <= 0) return '';
+    // Plaka klasörünün üstü model ya da varyantsa (…/Neoplan/Tourliner C/55 ASM 355) firma klasörü yoktur
+    const up = parts[i - 1];
+    const fp = this.fieldsFromPath(c.path, '');
+    if (/^(\d{1,3}\s?[a-z]{1,4}|[a-z]\s?\d{3}\s?[a-z]{1,4}|yeni kasa|eski kasa)$/i.test(fold(up))) return '';
+    if (fp.brand && (fold(up) === fold(fp.brand) || fold(fp.model).startsWith(fold(up)))) return '';
+    return up;
   }
 
   /**
@@ -1699,9 +1705,16 @@ class Panel extends Component {
       let f = {};
       const fp = c.path ? this.fieldsFromPath(c.path, (intent.filters || {}).model || t.filter || '') : {};
       const pt = plateText(c.name);
-      if (fp.model && pt && (t.pathStrict || this.companyFromPath(c))) {
+      if (fp.model && pt) {
         // Düzenli arşiv: marka/model/şehir klasörlerden, plaka dosya adından, firma plaka klasörünün üstünden — yapay zeka gerekmez
-        f = { company: this.companyFromPath(c) || ((intent.filters || {}).company || ''), plate: pt, brand: fp.brand || '', model: fp.model, location: fp.city || '', subject: 'vehicle', year: String(c.year || (c.file ? await shotYear(c.file) : '') || ''), fromPath: true };
+        let company = this.companyFromPath(c) || (intent.filters || {}).company || '';
+        // Klasörde firma yoksa yalnızca firma için hızlı inceleme (katalog önbellekli)
+        if (!company) {
+          try {
+            company = (await this.quickAnalyze(c)).company || '';
+          } catch (e) {}
+        }
+        f = { company, plate: pt, brand: fp.brand || '', model: fp.model, location: fp.city || '', subject: 'vehicle', year: String(c.year || (c.file ? await shotYear(c.file) : '') || ''), fromPath: true };
       } else {
         try {
           // Hızlı tarama (katalog önbellekli); seçilen fotoğraf onaydan önce ayrıntılı incelenir
