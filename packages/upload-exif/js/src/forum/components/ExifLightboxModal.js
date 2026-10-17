@@ -435,10 +435,20 @@ export default class ExifLightboxModal extends Modal {
 
     const hasNav = this.items.length > 1;
     // Aynı mesajın fotoğrafları birlikte: "Mesaj 3/12 · Fotoğraf 2/3" ve mesaj içi küçük resim şeridi
+    // Mesaj kimliği: post nesnesi yoksa fotoğrafın bulunduğu mesaj öğesi (PostStream) esas alınır
+    this._hostIds = this._hostIds || new Map();
     const keyOf = (it) => {
       const p = it && it.post;
-      return p ? String(typeof p.id === 'function' ? p.id() : p.id) : it && it.containerEl ? it.containerEl : '#' + this.items.indexOf(it);
+      if (p) return 'p' + String(typeof p.id === 'function' ? p.id() : p.id);
+      const el = it && it.containerEl;
+      const host = el && el.closest ? el.closest('.PostStream-item') || el.closest('.Post') || el.closest('[data-post-id]') : null;
+      if (host) {
+        if (!this._hostIds.has(host)) this._hostIds.set(host, 'h' + this._hostIds.size);
+        return this._hostIds.get(host);
+      }
+      return '#' + this.items.indexOf(it);
     };
+    this._keyOf = keyOf;
     const keys = [];
     this.items.forEach((it) => {
       const k = keyOf(it);
