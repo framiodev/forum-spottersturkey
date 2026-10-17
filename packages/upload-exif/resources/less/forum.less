@@ -2097,3 +2097,7 @@ button.FramioAssistant-folder {
     &:hover { border-color: var(--primary-color); color: var(--primary-color); }
     input { display: none; }
 }
+
+/* Asistan açıkken künye modalı panelin üstünde */
+body.framio-assistant-open .ModalManager { z-index: 2100; }
+body.framio-assistant-open .modal-backdrop { z-index: 2090; }

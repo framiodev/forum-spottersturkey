@@ -16,6 +16,7 @@ import ghost from './ghost';
 import drive from './drive';
 import { shotYear, plateKey, slots, localStamp, humanDate, isAny, isYes } from './planner';
 import { getMeta, putMeta } from './catalog';
+import AttributeModal from '../components/AttributeModal';
 
 /** "34ARS603" → "34 ARS 603" */
 const plateText = (name) => {
@@ -408,9 +409,10 @@ class Panel extends Component {
   confirmItem(c, f, topic, summary, extras = []) {
     return new Promise(async (resolve) => {
       const items = [c, ...extras].filter((x) => x && x.file).map((x) => ({ name: x.name, file: x.file, url: URL.createObjectURL(x.file) }));
-      const cf = { items, name: c.name, path: c.path, summary, topic, resolve, left: 120 };
+      const cf = { items, name: c.name, path: c.path, summary, topic, resolve, left: 120, fields: f, kunye: null };
       // Kullanıcıdan 120 saniye haber gelmezse paylaşılır (her dokunuşta süre baştan başlar)
       cf.timer = setInterval(() => {
+        if (cf.paused) return; // künye düzenlenirken süre durur
         cf.left -= 1;
         if (cf.left <= 0) {
           this.say('120 saniyedir yanıt gelmedi, paylaşıyorum.', false);
@@ -432,6 +434,7 @@ class Panel extends Component {
     clearInterval(cf.timer);
     this.confirming = null;
     this.confirmed = decision === 'yes' ? cf.items.map((x) => ({ name: x.name, file: x.file })) : null;
+    this.confirmedKunye = decision === 'yes' ? cf.kunye : null;
     cf.items.forEach((x) => {
       try {
         URL.revokeObjectURL(x.url);
@@ -449,6 +452,41 @@ class Panel extends Component {
     cf.left = 120;
     fn(cf.items);
     m.redraw();
+  }
+
+  /** Künye modalı (elle yüklemedeki ile aynı) asistanın üstünde açılır; süre bu sırada durur */
+  editKunye() {
+    const cf = this.confirming;
+    if (!cf) return;
+    cf.paused = true;
+    const files = cf.items.map((x) => x.file);
+    const f = cf.fields || {};
+    const resume = () => {
+      if (this.confirming === cf) {
+        cf.paused = false;
+        cf.left = 120;
+        m.redraw();
+      }
+    };
+    const done = (text) => {
+      if (this.confirming !== cf) return;
+      cf.kunye = Array.isArray(text) ? text.filter(Boolean).join('\n') : text || null;
+      cf.summary = (cf.summary || '') + ' · künye düzenlendi';
+      resume();
+    };
+    app.modal.show(AttributeModal, {
+      initialValues: { company: f.company || '', plate: f.plate || '', brand: f.brand || '', model: f.model || '', location: f.location || '', year: f.year || '' },
+      files,
+      session: { fileList: files, result: { customFileNames: files.map((x) => x.name) }, completedUploads: [] },
+      onsubmit: (text) => done(text),
+      onInfo: (text) => {
+        done(text);
+        app.modal.close();
+      },
+      onskip: () => resume(),
+      oncancel: () => resume(),
+      ongoback: () => resume(),
+    });
   }
 
   confirmView() {
@@ -509,6 +547,9 @@ class Panel extends Component {
           <div className="FramioAssistant-actions">
             <Button className="Button Button--primary" icon="fas fa-paper-plane" disabled={!cf.items.length} onclick={() => this.resolveConfirm('yes')}>
               Paylaş ({cf.left} sn)
+            </Button>
+            <Button className="Button" icon="fas fa-pen" onclick={() => this.editKunye()}>
+              Künyeyi düzenle
             </Button>
             <Button className="Button" onclick={() => this.resolveConfirm('no')}>
               Atla
@@ -1699,6 +1740,7 @@ class Panel extends Component {
         // Paylaşmadan önce onay
         const summary = [[f.company, f.plate].filter(Boolean).join(' | '), [f.brand, f.model].filter(Boolean).join(' '), f.location].filter(Boolean).join(' · ');
         const extras = await this.posesFor(c, t.pool || [], intent.per_post || 3);
+        this.confirmedKunye = null;
         const decision = await this.confirmItem(c, f, topic, summary, extras);
         if (decision === 'stop' || this.task !== t) {
           this.task = null;
@@ -1728,7 +1770,8 @@ class Panel extends Component {
         chosen.forEach((x) => (t.usedNames = t.usedNames || new Set()).add(x.name));
         const alt = [[f.company, f.plate].filter(Boolean).join(' | '), [f.brand, f.model].filter(Boolean).join(' ')].filter(Boolean).join(' - ');
         if (alt) code = code.replace(/alt="([^"]*)"/g, `alt="${alt.replace(/"/g, '&quot;')}"`);
-        const content = code + (kunyeText(f) ? '\n' + kunyeText(f) : '') + '\n';
+        const kText = this.confirmedKunye || kunyeText(f);
+        const content = code + (kText ? '\n' + kText : '') + '\n';
         items.push({ discussion_id: topic.discussion_id, title: topic.title, content, label: alt || c.name, f });
         t.filled[topic.discussion_id] = (t.filled[topic.discussion_id] || 0) + 1;
 
