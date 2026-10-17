@@ -553,7 +553,13 @@ class Panel extends Component {
     if (step === 'section') {
       const low = String(a.value || text).toLocaleLowerCase('tr-TR');
       if (!/(hepsi|hepsinde|ikisi|ikisinde|tümü|tümünde|her ikisi)/.test(low)) {
-        const pick = t.sections.filter((x) => low.split(/\s+/).some((w) => w.length > 3 && x.name.toLocaleLowerCase('tr-TR').includes(w.slice(0, 6))));
+        const words = low.split(/[\s,.]+/).filter((w) => w.length > 3);
+        const names = t.sections.map((x) => x.name.toLocaleLowerCase('tr-TR'));
+        // Her bölümde ortak geçen kelimeler sayılmaz
+        const distinct = words.filter((w) => names.filter((n) => n.includes(w.slice(0, 6))).length < names.length);
+        const scored = t.sections.map((x, i) => ({ x, score: distinct.filter((w) => names[i].includes(w.slice(0, 6))).length }));
+        const best = Math.max(0, ...scored.map((z) => z.score));
+        const pick = best > 0 ? scored.filter((z) => z.score === best).map((z) => z.x) : [];
         if (pick.length) {
           const slugs = pick.map((x) => x.slug);
           t.targets = t.targets.filter((g) => slugs.includes(g.section_slug));
@@ -665,14 +671,11 @@ class Panel extends Component {
     const times = t.plan ? slots({ count: t.count, days: intent.days, perDay: intent.per_day, time: intent.time }) : [];
     const items = [];
     const usedPlates = new Set();
-    for (const c of picked) {
-      if (items.length >= t.count) break;
-      this.step(`${items.length + 1}/${t.count} · "${c.name}" ${c.file ? 'inceleniyor' : 'indiriliyor'}…`);
+    const analyze = async (c) => {
       try {
         if (!c.file) c.file = await c.load();
       } catch (e) {
-        this.step(`"${c.name}" indirilemedi, atlıyorum.`);
-        continue;
+        return { c, error: 'indirilemedi' };
       }
       let f = {};
       try {
@@ -686,62 +689,79 @@ class Panel extends Component {
       } catch (e) {
         f = { year: String((await shotYear(c.file)) || '') };
       }
-      if (needle && ![f.company, f.plate, f.brand, f.model].join(' ').toLocaleLowerCase('tr-TR').includes(needle)) continue;
-      // Çekim yeri klasörden anlaşılmadıysa Framio AI'nın bulduğu yere bakılır
-      if (t.placeWords && t.placeWords.length && !t.placeFromPath) {
-        const loc = String(f.location || '').toLocaleLowerCase('tr-TR');
-        if (!loc || !t.placeWords.some((w) => loc.includes(w.slice(0, 6)))) continue;
-      }
-      if (intent.diverse && f.plate) {
-        const k = f.plate.replace(/\s+/g, '');
-        if (usedPlates.has(k)) continue;
-        usedPlates.add(k);
-      }
-
-      let topic = t.topic;
-      if (!topic) {
+      let sugg = [];
+      if (!t.topic) {
         try {
           const r = await app.request({ method: 'POST', url: api('/framio-assistant/route'), body: { brand: f.brand, model: f.model, company: f.company, year: f.year, hint: c.path || '' } });
-          const sugg = r.suggestions || [];
-          if (t.targets) {
-            // Yalnızca hedef başlıklardan, henüz kotası dolmamış olanı
-            t.filled = t.filled || {};
-            topic = sugg.find((x) => t.targets.some((g) => g.discussion_id === x.discussion_id) && (t.filled[x.discussion_id] || 0) < t.perTopic);
-          } else {
-            topic = sugg[0];
-          }
+          sugg = r.suggestions || [];
         } catch (e) {}
       }
-      if (t.targets && !topic) {
-        this.step(`"${c.name}" hedef başlıklardan birine uymuyor ya da o başlık doldu, atlıyorum.`);
-        continue;
-      }
-      if (!topic) {
-        this.step(`"${c.name}" için uygun başlık bulamadım, atlıyorum.`);
-        continue;
-      }
+      return { c, f, sugg };
+    };
 
-      this.step(`${items.length + 1}/${t.count} · imzalanıp yükleniyor…`);
-      let code;
-      try {
-        code = await upload(c.file, pref('framio_assistant_watermark', 'none'));
-      } catch (e) {
-        this.step(`"${c.name}" yüklenemedi, atlıyorum.`);
-        continue;
-      }
-      const alt = [[f.company, f.plate].filter(Boolean).join(' | '), [f.brand, f.model].filter(Boolean).join(' ')].filter(Boolean).join(' - ');
-      if (alt) code = code.replace(/alt="([^"]*)"/g, `alt="${alt.replace(/"/g, '&quot;')}"`);
-      const content = code + (kunyeText(f) ? '\n' + kunyeText(f) : '') + '\n';
-      items.push({ discussion_id: topic.discussion_id, title: topic.title, content, label: alt || c.name, f });
-      if (t.targets) t.filled[topic.discussion_id] = (t.filled[topic.discussion_id] || 0) + 1;
+    const filledCount = () => (t.targets ? t.targets.filter((g) => (t.filled[g.discussion_id] || 0) >= t.perTopic).length : 0);
+    t.filled = t.filled || {};
+    let checked = 0;
 
-      if (!t.plan) {
-        // Hemen paylaş
+    for (let i = 0; i < picked.length && items.length < t.count; i += 3) {
+      if (this.task !== t) return; // "iptal" denildi
+      const group = picked.slice(i, i + 3);
+      this.step(
+        t.targets
+          ? `Fotoğraflar inceleniyor (${checked + 1}–${checked + group.length}) · ${filledCount()}/${t.targets.length} başlık doldu…`
+          : `${items.length + 1}/${t.count} · ${group.length} fotoğraf aynı anda inceleniyor…`
+      );
+      const results = await Promise.all(group.map(analyze));
+      checked += group.length;
+
+      for (const { c, f, sugg, error } of results) {
+        if (items.length >= t.count || this.task !== t) break;
+        if (error) {
+          this.step(`"${c.name}" ${error}, atlıyorum.`);
+          continue;
+        }
+        if (needle && ![f.company, f.plate, f.brand, f.model].join(' ').toLocaleLowerCase('tr-TR').includes(needle)) continue;
+        // Çekim yeri klasörden anlaşılmadıysa Framio AI'nın bulduğu yere bakılır
+        if (t.placeWords && t.placeWords.length && !t.placeFromPath) {
+          const loc = String(f.location || '').toLocaleLowerCase('tr-TR');
+          if (!loc || !t.placeWords.some((w) => loc.includes(w.slice(0, 6)))) continue;
+        }
+        if (intent.diverse && f.plate) {
+          const k = f.plate.replace(/\s+/g, '');
+          if (usedPlates.has(k)) continue;
+          usedPlates.add(k);
+        }
+
+        let topic = t.topic;
+        if (!topic) {
+          topic = t.targets
+            ? sugg.find((x) => t.targets.some((g) => g.discussion_id === x.discussion_id) && (t.filled[x.discussion_id] || 0) < t.perTopic)
+            : sugg[0];
+        }
+        if (!topic) continue;
+
+        this.step(`"${c.name}" → ${topic.title}: imzalanıp yükleniyor…`);
+        let code;
         try {
-          await app.request({ method: 'POST', url: api('/posts'), body: { data: { type: 'posts', attributes: { content }, relationships: { discussion: { data: { type: 'discussions', id: String(topic.discussion_id) } } } } } });
-          app.request({ method: 'POST', url: api('/framio-assistant/learn'), body: { brand: f.brand, model: f.model, company: f.company, discussion_id: topic.discussion_id } }).catch(() => {});
+          code = await upload(c.file, pref('framio_assistant_watermark', 'none'));
         } catch (e) {
-          this.step(`"${c.name}" paylaşılamadı.`);
+          this.step(`"${c.name}" yüklenemedi, atlıyorum.`);
+          continue;
+        }
+        const alt = [[f.company, f.plate].filter(Boolean).join(' | '), [f.brand, f.model].filter(Boolean).join(' ')].filter(Boolean).join(' - ');
+        if (alt) code = code.replace(/alt="([^"]*)"/g, `alt="${alt.replace(/"/g, '&quot;')}"`);
+        const content = code + (kunyeText(f) ? '\n' + kunyeText(f) : '') + '\n';
+        items.push({ discussion_id: topic.discussion_id, title: topic.title, content, label: alt || c.name, f });
+        t.filled[topic.discussion_id] = (t.filled[topic.discussion_id] || 0) + 1;
+
+        if (!t.plan) {
+          try {
+            await app.request({ method: 'POST', url: api('/posts'), body: { data: { type: 'posts', attributes: { content }, relationships: { discussion: { data: { type: 'discussions', id: String(topic.discussion_id) } } } } } });
+            app.request({ method: 'POST', url: api('/framio-assistant/learn'), body: { brand: f.brand, model: f.model, company: f.company, discussion_id: topic.discussion_id } }).catch(() => {});
+            this.say(`✓ ${topic.title}: ${alt || c.name}` + (t.targets ? ` (${filledCount()}/${t.targets.length} başlık)` : ''), false);
+          } catch (e) {
+            this.step(`"${c.name}" paylaşılamadı.`);
+          }
         }
       }
     }
