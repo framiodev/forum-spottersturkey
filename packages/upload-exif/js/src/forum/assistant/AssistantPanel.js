@@ -830,7 +830,7 @@ class Panel extends Component {
       }
       if (!files.length) files = await folder.find(intent.query, intent.count === 0 ? 20 : intent.count || 1, depth, (t) => this.step(t), { source: intent.source });
     } catch (e) {
-      return this.say('Kaynakları okuyamadım.');
+      return this.say('Kaynakları okuyamadım' + (e && e.message ? ': ' + e.message : '.'));
     }
 
     if (!files.length) return this.say(`"${intent.query}" adını taşıyan bir fotoğraf bulamadım.`);
@@ -1253,10 +1253,14 @@ class Panel extends Component {
       }
       // Drive: yer adıyla klasör araması (tüm ağacı gezmeden), ardından o klasörlerin fotoğrafları
       if (!t.placeFromPath && ordered.length && intent.source !== 'local' && drive.roots().length) {
-        this.step('Google Drive\'da çekim yeri klasörünü arıyorum…');
-        const ddirs = await drive.findDirs(ordered);
+        this.step('Google Drive klasör yapısında hedefi arıyorum…');
+        const fl = intent.filters || {};
+        const ddirs = await drive.locate(
+          { year: intent.shot_year, place: [intent.location, ...ordered].filter(Boolean).map((p) => String(p).replace(/['’]\S*$/, '').replace(/\b(otogarı|otogari)\b/gi, 'Otogar')), brand: fl.brand, model: fl.model },
+          (x) => this.step(x)
+        );
         if (ddirs.length) {
-          this.step(`Drive'da çekim yeri klasörü bulundu: ${ddirs.map((d) => d.path).join(' · ')}`);
+          this.step(`Klasör bulundu: ${ddirs.slice(0, 3).map((d) => d.path).join(' · ')}${ddirs.length > 3 ? ` (+${ddirs.length - 3})` : ''}`);
           candidates = (await drive.filesUnder(ddirs)).filter((c) => !intent.shot_year || !c.year || c.year === intent.shot_year);
           t.placeFromPath = true;
         }
@@ -1277,7 +1281,7 @@ class Panel extends Component {
       }
     } catch (e) {
       this.task = null;
-      return this.say('Kaynakları okuyamadım.');
+      return this.say('Kaynakları okuyamadım' + (e && e.message ? ': ' + e.message : '.'));
     }
 
     // 2) Daha önce yüklenmiş olanlar çıkarılır ("yeni" fotoğraflar)

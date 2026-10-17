@@ -88,6 +88,78 @@ const drive = {
     return [];
   },
 
+  /** Klasörün Drive'daki tam yolu ("Medya/Karayolu/Otobüs/2026/Şehirler/Antalya/…"); üst klasörler önbelleklenir */
+  async pathOf(id) {
+    this.meta = this.meta || {};
+    const parts = [];
+    let cur = id;
+    for (let i = 0; cur && i < 30; i++) {
+      if (!this.meta[cur]) {
+        try {
+          const j = await (await this.request(`https://www.googleapis.com/drive/v3/files/${cur}?fields=name,parents`)).json();
+          this.meta[cur] = { name: j.name, parent: (j.parents || [])[0] || null };
+        } catch (e) {
+          break;
+        }
+      }
+      parts.unshift(this.meta[cur].name);
+      cur = this.meta[cur].parent;
+    }
+    // En üstteki "Drive'ım" (My Drive) adı yoldan atılır
+    if (parts.length > 1 && /^(my drive|drive'ım|drive’ım|drivem)$/i.test(parts[0])) parts.shift();
+    return parts;
+  },
+
+  /**
+   * Klasör yapısından hedefi bulur: Karayolu/Otobüs/2026/Şehirler/Antalya/…/Antalya Otogar/…/Mercedes-Benz/Travego
+   * want: { year, place: ["Antalya Otogar", "Antalya"], brand, model }
+   * 1) En özel ada (model → marka → yer) sahip klasörler Drive aramasıyla bulunur,
+   * 2) her birinin tam yolu çıkarılır ve yolda yıl + yer (+ marka) geçmesi şartı aranır,
+   * 3) en çok koşulu sağlayan klasörler döner (içleri alt klasörleriyle taranır).
+   */
+  async locate(want, onStep = () => {}) {
+    const fold = (v) => String(v || '').toLocaleLowerCase('tr-TR').replace(/[çğıöşü]/g, (c) => ({ ç: 'c', ğ: 'g', ı: 'i', ö: 'o', ş: 's', ü: 'u' })[c]).replace(/[^a-z0-9]+/g, ' ').trim();
+    const places = (want.place || []).map(fold).filter((w) => w.length > 2);
+    const model = fold(want.model).split(' ')[0] || '';
+    const brand = fold(want.brand).split(' ')[0] || '';
+    const year = want.year ? String(want.year) : '';
+    const terms = [model && want.model.split(/\s+/)[0], brand && want.brand.split(/[\s-]+/)[0], ...(want.place || [])].filter(Boolean);
+
+    for (const term of terms) {
+      onStep(`Drive'da "${term}" klasörlerini arıyorum…`);
+      const q = String(term).replace(/'/g, "\\'");
+      const res = await (
+        await this.request('https://www.googleapis.com/drive/v3/files?' + new URLSearchParams({ q: `mimeType='application/vnd.google-apps.folder' and trashed=false and name contains '${q}'`, fields: 'files(id,name,parents)', pageSize: '200' }))
+      ).json();
+      const found = res.files || [];
+      if (!found.length) continue;
+      found.forEach((f) => (this.meta = Object.assign(this.meta || {}, { [f.id]: { name: f.name, parent: (f.parents || [])[0] || null } })));
+      const scored = [];
+      for (const f of found) {
+        const parts = await this.pathOf(f.id);
+        const segs = parts.map(fold);
+        const has = (w) => segs.some((s) => s === w || s.includes(w));
+        // Zorunlu koşullar: yıl ve (varsa) yer yolda geçmeli; model aranıyorsa klasör modelin kendisi ya da altı
+        if (year && !segs.some((s) => s.split(' ').includes(year))) continue;
+        if (places.length && !places.some(has)) continue;
+        let score = 0;
+        places.forEach((p) => has(p) && (score += 3));
+        if (brand && has(brand)) score += 2;
+        if (model && has(model)) score += 4;
+        // En özel klasör: yer adının birebir geçtiği klasör ("Antalya Otogar") genel olandan ("Antalya") üstündür
+        if (places.some((p) => segs.includes(p))) score += 1;
+        scored.push({ id: f.id, path: parts.join('/'), score, depth: parts.length });
+      }
+      if (!scored.length) continue;
+      const best = Math.max(...scored.map((x) => x.score));
+      // Aynı yolun hem üstü hem altı seçilmişse yalnızca en derindeki (en özel) kalır
+      let top = scored.filter((x) => x.score === best).sort((a, b) => b.depth - a.depth);
+      top = top.filter((x) => !top.some((y) => y !== x && y.path.startsWith(x.path + '/')));
+      return top.slice(0, 12);
+    }
+    return [];
+  },
+
   /** Verilen klasörlerin (alt klasörleri dahil) içindeki fotoğraflar */
   async filesUnder(dirs, limit = 600) {
     const out = [];
@@ -96,9 +168,14 @@ const drive = {
       const f = queue.shift();
       let pageToken = '';
       do {
-        const res = await (
+        let res = {};
+        try {
+          res = await (
           await this.request('https://www.googleapis.com/drive/v3/files?' + new URLSearchParams({ q: `'${f.id}' in parents and trashed=false`, fields: 'nextPageToken,files(id,name,mimeType,modifiedTime,imageMediaMetadata(time))', pageSize: '500', ...(pageToken ? { pageToken } : {}) }))
         ).json();
+        } catch (e) {
+          res = {};
+        }
         (res.files || []).forEach((x) => {
           if (x.mimeType === 'application/vnd.google-apps.folder') {
             if (f.depth < 40) queue.push({ id: x.id, path: f.path + '/' + x.name, depth: f.depth + 1 });
