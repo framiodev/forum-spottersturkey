@@ -2752,6 +2752,15 @@ export default class FramioMediaSettingsPage extends ExtensionPage {
               <input className="FormControl" placeholder="API anahtarı (Picker için)" bidi={this.setting('framio-upload-exif.drive_api_key', '')} />
               <input className="FormControl" placeholder="Proje numarası (App ID)" bidi={this.setting('framio-upload-exif.drive_app_id', '')} />
             </div>
+            <input
+              className="FormControl"
+              style={{ marginTop: '8px' }}
+              placeholder="Erişebilecek kullanıcı adları (virgülle, ör. alikaan, framio) — boşsa yalnızca yöneticiler"
+              bidi={this.setting('framio-upload-exif.drive_users', '')}
+            />
+            <div className="helpText" style={{ fontSize: '11px', color: '#888' }}>
+              Drive bağlantı bilgileri yalnızca bu kullanıcılara gönderilir; diğer üyeler "Google ile oturum aç" seçeneğini görmez. Google tarafında da yalnızca Test users listesindeki hesaplar giriş yapabilir.
+            </div>
             <div className="helpText" style={{ fontSize: '11px', color: '#888' }}>
               Google Cloud Console'da Drive API ve Google Picker API'yi açın; "Web uygulaması" OAuth istemcisine sitenin adresini yetkili kaynak olarak ekleyin ve API anahtarını
               bu alan adıyla kısıtlayın. Asistan yalnızca <code>drive.readonly</code> izni ister: dosyaları görür ve indirir, silemez ya da değiştiremez.

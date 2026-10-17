@@ -134,9 +134,6 @@ return [
         ->serializeToForum('framioAssistantSay', 'framio-upload-exif.assistant_pronounce', 'strval', '')
         // Google Drive (yalnızca okuma): OAuth istemci kimliği, API anahtarı ve proje numarası tarayıcıda kullanılan
         // herkese açık tanımlayıcılardır (gizli anahtar değildir); Google Cloud'da alan adıyla kısıtlanmalıdır
-        ->serializeToForum('framioDriveClientId', 'framio-upload-exif.drive_client_id', 'strval', '')
-        ->serializeToForum('framioDriveApiKey', 'framio-upload-exif.drive_api_key', 'strval', '')
-        ->serializeToForum('framioDriveAppId', 'framio-upload-exif.drive_app_id', 'strval', '')
         ->serializeToForum('framioLiveEnabled', 'framio-upload-exif.live_enabled', fn ($v) => $v !== '0', true)
         ->serializeToForum('framioLiveInterval', 'framio-upload-exif.live_interval', 'intval', 30),
 
@@ -217,6 +214,23 @@ return [
     // Görsellere gerçek en/boy: sayfa kaydırılırken mesajlar zıplamasın
     (new Extend\Formatter)
         ->render(\Framio\UploadExif\Formatter\AddImageDimensions::class),
+
+    // Google Drive bağlantı bilgileri yalnızca admin'de izin verilen kullanıcılara gönderilir
+    // (liste boşsa yalnızca yöneticiler); diğer üyeler Drive seçeneğini hiç görmez
+    (new Extend\ApiResource(\Flarum\Api\Resource\ForumResource::class))
+        ->fields(fn () => array_map(
+            fn ($attr, $key) => Schema\Str::make($attr)->get(function ($forum, Context $context) use ($key) {
+                $actor = $context->getActor();
+                if ($actor->isGuest()) return '';
+                $settings = resolve(\Flarum\Settings\SettingsRepositoryInterface::class);
+                $allowed = array_filter(array_map(fn ($u) => mb_strtolower(trim(ltrim($u, '@')), 'UTF-8'), preg_split('/[,\n]+/', (string) $settings->get('framio-upload-exif.drive_users'))));
+                $ok = $allowed ? in_array(mb_strtolower($actor->username, 'UTF-8'), $allowed, true) : $actor->isAdmin();
+
+                return $ok ? (string) $settings->get('framio-upload-exif.' . $key) : '';
+            }),
+            ['framioDriveClientId', 'framioDriveApiKey', 'framioDriveAppId'],
+            ['drive_client_id', 'drive_api_key', 'drive_app_id']
+        )),
 
     // Yönetici: konuyu/mesajı seçilen üye adına paylaş (bkz. PostAsHandler)
     (new Extend\ApiResource(DiscussionResource::class))
