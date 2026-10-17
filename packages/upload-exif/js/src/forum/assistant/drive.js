@@ -468,63 +468,88 @@ const drive = {
    * zaman item.load() ile indirilir.
    * opts.year: çekim yılı · opts.hint: kategori ipucu (ör. "şehirlerarası")
    */
+  /** Klasörün üst klasör kimlikleri (önbellekli): seçili kökün altında mı kontrolü için */
+  async ancestors(id) {
+    await this.pathOf(id);
+    const out = [];
+    let cur = id;
+    for (let i = 0; cur && i < 30; i++) {
+      out.push(cur);
+      cur = this.meta[cur] ? this.meta[cur].parent : null;
+    }
+    return out;
+  },
+
+  /**
+   * Fotoğraf arama — klasör ağacı GEZİLMEZ, Drive'ın kendi araması kullanılır (tek istek):
+   *  - ad aranıyorsa (plaka, dosya adı): adında geçen fotoğraflar; yoksa adında geçen klasörlerin içi
+   *  - ad yoksa: en yeni fotoğraflar
+   * Seçili Drive klasörleri varsa yalnızca onların altındakiler alınır. Dosya içeriği indirilmez.
+   * opts.year: çekim yılı · opts.hint: yol ipucu (ör. "aşti", "şehirlerarası")
+   */
   async find(query, limit = 20, opts = {}) {
-    if (!this.roots().length) return [];
-    const q = String(query || '').replace(/'/g, "\\'");
-    let folders = await this.tree(opts.hint || opts.year || query ? 40 : 3);
-
-    // Klasör adı yılı ya da kategoriyi söylüyorsa yalnızca o klasörlere bakılır
-    const norm = (v) => String(v || '').toLocaleLowerCase('tr-TR');
-    if (opts.year) {
-      const byYear = folders.filter((f) => norm(f.path).split('/').some((part) => part.includes(String(opts.year))));
-      if (byYear.length) folders = byYear;
-    }
-    if (opts.hint) {
-      const words = norm(opts.hint).split(/\s+/).filter((w) => w.length > 3);
-      const byHint = folders.filter((f) => words.some((w) => norm(f.path).includes(w.slice(0, 6))));
-      if (byHint.length) folders = byHint;
-    }
-
+    const roots = this.roots();
+    if (!roots.length) return [];
+    const q = String(query || '').trim().replace(/'/g, "\\'");
     const compact = q.replace(/\s+/g, '');
     const nameQ = q ? ` and (name contains '${q}'${compact !== q ? ` or name contains '${compact}'` : ''})` : '';
-    const out = [];
-    for (const p of folders) {
+    const fields = 'nextPageToken,files(id,name,mimeType,modifiedTime,parents,thumbnailLink,imageMediaMetadata(time))';
+
+    const list = async (qq, max) => {
+      const out = [];
       let pageToken = '';
       do {
         const res = await (
-          await this.request(
-            'https://www.googleapis.com/drive/v3/files?' +
-              new URLSearchParams({
-                q: `'${p.id}' in parents and ${IMAGE_MIME} and trashed=false${nameQ}`,
-                fields: 'nextPageToken,files(id,name,mimeType,modifiedTime,thumbnailLink,imageMediaMetadata(time))',
-                orderBy: 'modifiedTime desc',
-                pageSize: '200',
-                ...(pageToken ? { pageToken } : {}),
-              })
-          )
+          await this.request('https://www.googleapis.com/drive/v3/files?' + new URLSearchParams({ q: qq, fields, orderBy: 'modifiedTime desc', pageSize: '200', ...(pageToken ? { pageToken } : {}) }))
         ).json();
-        (res.files || []).forEach((f) => {
-          const exif = f.imageMediaMetadata && f.imageMediaMetadata.time; // "2026:05:14 13:22:10"
-          const pathYear = (p.path.match(/(?:^|\/)[^/]*?((?:19|20)\d{2})[^/]*/) || [])[1];
-          const year = exif ? Number(String(exif).slice(0, 4)) : pathYear ? Number(pathYear) : null;
-          out.push({
-            driveId: f.id,
-            name: f.name,
-            mime: f.mimeType,
-            path: p.path,
-            source: 'Drive: ' + p.path,
-            year,
-            modified: Date.parse(f.modifiedTime) || 0,
-            load: () => this.download(f.id, f.name, f.mimeType, Date.parse(f.modifiedTime) || 0),
-            loadPreview: this.previewLoader(f),
-          });
-        });
+        (res.files || []).forEach((f) => out.push(f));
         pageToken = res.nextPageToken || '';
-      } while (pageToken && out.length < limit * 3);
-      if (out.length >= limit * 3) break;
+      } while (pageToken && out.length < max);
+      return out;
+    };
+
+    let files = await list(`trashed=false and mimeType contains 'image/'${nameQ}`, Math.max(limit * 4, 200));
+    // Adı plaka olan klasör (…/34 ARS 603/IMG_1.jpg): klasörün içindekiler
+    if (!files.length && q) {
+      const dirs = await this.searchFolders(q);
+      if (dirs.length) return (await this.filesUnder(dirs.map((d) => ({ id: d.id, path: d.name })), limit * 4)).slice(0, limit);
     }
-    out.sort((a, b) => b.modified - a.modified);
-    return out.filter((i) => !opts.year || !i.year || i.year === opts.year).slice(0, limit);
+
+    // Yol, seçili kök kontrolü ve yıl/ipucu süzmesi (üst klasörler önbellekli, 8'li paralel)
+    const rootIds = roots.map((r) => r.id);
+    const anyRoot = rootIds.includes('root');
+    const norm = (v) => String(v || '').toLocaleLowerCase('tr-TR');
+    const words = opts.hint ? norm(opts.hint).split(/\s+/).filter((w) => w.length > 3) : [];
+    const items = await this.pool(files, 8, async (f) => {
+      const parent = (f.parents || [])[0];
+      if (!parent) return null;
+      if (!anyRoot) {
+        const up = await this.ancestors(parent);
+        if (!up.some((id) => rootIds.includes(id))) return null;
+      }
+      const path = (await this.pathOf(parent)).join('/');
+      const hinted = !words.length || words.some((w) => norm(path).includes(w.slice(0, 6)));
+      const exif = f.imageMediaMetadata && f.imageMediaMetadata.time;
+      const pathYear = (path.match(/(?:^|\/)[^/]*?((?:19|20)\d{2})[^/]*/) || [])[1];
+      const year = exif ? Number(String(exif).slice(0, 4)) : pathYear ? Number(pathYear) : null;
+      if (opts.year && year && year !== opts.year) return null;
+      return {
+        hinted,
+        driveId: f.id,
+        name: f.name,
+        mime: f.mimeType,
+        path,
+        source: 'Drive: ' + path,
+        year,
+        modified: Date.parse(f.modifiedTime) || 0,
+        load: () => this.download(f.id, f.name, f.mimeType, Date.parse(f.modifiedTime) || 0),
+        loadPreview: this.previewLoader(f),
+      };
+    });
+    const found = items.filter(Boolean);
+    // Yol ipucuna ("Aşti") uyanlar önce; hiç uyan yoksa hepsi
+    const hinted = found.filter((x) => x.hinted);
+    return (hinted.length ? hinted : found).slice(0, limit);
   },
 
   /** Tek dosyayı indirir (salt okunur: alt=media) */

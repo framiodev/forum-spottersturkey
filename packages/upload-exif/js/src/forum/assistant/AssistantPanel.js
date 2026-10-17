@@ -1029,7 +1029,7 @@ class Panel extends Component {
         const needle = normalize(intent.query);
         files = (await folder.filesIn(dirs, (t) => this.step(t))).filter((x) => normalize(x.name).includes(needle)).slice(0, intent.count === 0 ? 20 : intent.count || 1);
       }
-      if (!files.length) files = await folder.find(intent.query, intent.count === 0 ? 20 : intent.count || 1, depth, (t) => this.step(t), { source: intent.source });
+      if (!files.length) files = await folder.find(intent.query, intent.count === 0 ? 20 : Math.max(intent.count || 1, 12), depth, (t) => this.step(t), { source: intent.source, hint: intent.location || '' });
       const wantPlate = plateKey(intent.plate || intent.query);
       if (!files.length && wantPlate) {
         // Dosya adları plaka değil (IMG_1234.jpg): fotoğraflardaki plaka okunur. Önce katalog, sonra hızlı tarama (6'şar).
