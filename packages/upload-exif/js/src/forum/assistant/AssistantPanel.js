@@ -255,7 +255,7 @@ class Panel extends Component {
       ['list', 'fas fa-list-ul', 'Planlarım', 'Bekleyen planlı paylaşımlar'],
     ];
     return (
-      <div className="FramioAssistant-choices" key="choices">
+      <div className="FramioAssistant-choices">
         {items.map(([k, icon, title, desc]) => (
           <button type="button" className="FramioAssistant-choice" onclick={() => this.choose(k)}>
             <i className={icon}></i>
