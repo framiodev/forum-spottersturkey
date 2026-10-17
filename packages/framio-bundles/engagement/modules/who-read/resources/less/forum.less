@@ -53,10 +53,30 @@
 
     .Avatar {
         .Avatar--size(24px);
-        object-fit: cover;
+        flex-shrink: 0;
         box-sizing: border-box;
         border: 1px solid var(--control-bg);
+    }
+
+    // Fotoğraflı avatar: kare olmayan görsel kırpılmadan ortalanır, şeffaf logolar sayfa renginde
+    img.Avatar {
+        object-fit: cover;
+        object-position: center;
         background: var(--body-bg);
+    }
+
+    // Fotoğrafı olmayan kullanıcı: kendi rengi ve harf tam ortada
+    span.Avatar {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        background: var(--avatar-bg, var(--control-bg));
+        color: #fff;
+        font-size: 11px;
+        font-weight: 700;
+        line-height: 1;
+        text-align: center;
+        padding: 0;
     }
 
     .WhoRead-avatar--outdated .Avatar {
