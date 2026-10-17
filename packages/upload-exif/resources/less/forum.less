@@ -1994,3 +1994,6 @@ button.FramioAssistant-folder {
 .FramioAssistant-google { background: #fff; color: #3c4043; border: 1px solid #dadce0; .fa-google { color: #4285f4; } }
 .FramioAssistant-sourceActions { display: flex; flex-direction: column; gap: 4px; }
 .FramioAssistant-sourcesDone { align-self: flex-end; }
+
+/* Asistan: içerik sıkışmasın, kaydırma çalışsın */
+.FramioAssistant-log { min-height: 0; overscroll-behavior: contain; > * { flex-shrink: 0; } }

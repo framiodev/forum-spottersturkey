@@ -502,6 +502,13 @@ class Panel extends Component {
     if (!text) return;
     hush();
     this.input = '';
+    if (this.awaiting) {
+      const done = this.awaiting;
+      this.awaiting = null;
+      this.log.push({ who: 'me', text });
+      m.redraw();
+      return done(text);
+    }
     if (this.confirming) {
       const low = text.toLocaleLowerCase('tr-TR');
       if (/(iptal|durdur|dur\b|vazgeç|bitir)/.test(low)) return this.resolveConfirm('stop');
@@ -630,6 +637,13 @@ class Panel extends Component {
       await ghost.type(input, value, (v) => (card.fields[key] = v));
       card.fields[key] = value;
     }
+    // Eksik bilgi: tahmin etmek yerine kullanıcıya sorulur ("geç" denirse boş kalır)
+    const labels = { company: 'Firma', plate: 'Plaka', brand: 'Marka', model: 'Model', location: 'Çekim yeri' };
+    for (const key of Object.keys(labels)) {
+      if (String(card.fields[key] || '').trim()) continue;
+      const ans = String(await this.prompt(`${labels[key]} bilgisini bulamadım. Söyler misiniz? Bilmiyorsanız "geç" deyin.`)).trim();
+      if (ans && !/^(geç|gec|atla|bilmiyorum|yok|pas)/i.test(ans)) card.fields[key] = ans;
+    }
     card.state = 'analyzing';
 
     this.step('Uygun başlığı arıyorum…');
@@ -639,6 +653,35 @@ class Panel extends Component {
       card.topic = card.suggestions.length ? String(card.suggestions[0].discussion_id) : '';
       card.auto = !!r.auto && pref('framio_assistant_auto', true);
     } catch (e) {}
+
+    // Başlık, tanınan modelle çelişiyorsa (ör. Tourismo bulundu ama Travego başlığı) sorulur
+    {
+      const fm = normalize(card.fields.model || '');
+      const first = card.suggestions[0];
+      if (fm && first && !normalize(first.title).includes(fm)) {
+        const match = card.suggestions.find((x) => normalize(x.title).includes(fm));
+        const why = first.reason === 'plate' ? 'bu plaka daha önce bu başlıkta paylaşılmış' : 'en yakın başlık bu';
+        const ans = normalize(String(await this.prompt(`Fotoğrafta ${[card.fields.brand, card.fields.model].filter(Boolean).join(' ')} görünüyor, ama ${why}: ${first.title}. Hangisi doğru? "${card.fields.model}" ya da "başlık" deyin.`)));
+        card.auto = false;
+        if (ans.includes(fm) || /model|fotograf/.test(ans)) {
+          if (match) card.topic = String(match.discussion_id);
+          else {
+            try {
+              const r2 = await app.request({ method: 'POST', url: api('/framio-assistant/route'), body: { brand: card.fields.brand, model: card.fields.model, company: card.fields.company, year: card.fields.year, hint: path } });
+              const own = (r2.suggestions || []).find((x) => normalize(x.title).includes(fm));
+              card.suggestions = own ? [own].concat(card.suggestions) : card.suggestions;
+              card.topic = own ? String(own.discussion_id) : '';
+            } catch (e) {}
+          }
+          card.suggestions.sort((a, b) => (String(b.discussion_id) === card.topic) - (String(a.discussion_id) === card.topic));
+        } else {
+          // Başlık doğruysa model başlıktan düzeltilir
+          const bn = normalize(card.fields.brand || '');
+          const tm = (first.title || '').split(/\s+/).filter((w) => !bn.includes(normalize(w))).join(' ').trim();
+          if (tm) card.fields.model = tm;
+        }
+      }
+    }
 
     card.state = 'ready';
     const f = card.fields;
@@ -663,6 +706,12 @@ class Panel extends Component {
       this.say(`${summary || 'Künyeyi çıkaramadım'}. Uygun başlık bulamadım; listeden seçebilirsiniz.`);
     }
     m.redraw();
+  }
+
+  /** Soru sorar, kullanıcının bir sonraki (yazılı ya da sesli) cevabını döndürür */
+  async prompt(question) {
+    await this.say(question);
+    return new Promise((resolve) => (this.awaiting = resolve));
   }
 
   // ── Çok adımlı görevler: önce sorar, sonra seçer, hazırlar, paylaşır ya da planlar ──────────
