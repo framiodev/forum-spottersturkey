@@ -146,15 +146,26 @@ class Panel extends Component {
             <i className="fas fa-magic"></i>
           </span>
           <strong>{assistantName()}</strong>
-          <span className="FramioAssistant-folder" title="Bağlı fotoğraf klasörü">
-            <i className="far fa-folder"></i> {this.folderName || 'Klasör bağlı değil'}
-          </span>
+          <button
+            type="button"
+            className={'FramioAssistant-folder' + (this.showSources ? ' is-open' : '')}
+            title="Fotoğraf kaynaklarını yönet"
+            aria-expanded={this.showSources ? 'true' : 'false'}
+            onclick={() => {
+              this.showSources = !this.showSources;
+              folder.load().then(() => m.redraw());
+            }}
+          >
+            <i className="far fa-folder"></i> {this.folderName || 'Kaynak ekle'} <i className={'fas fa-chevron-' + (this.showSources ? 'up' : 'down')}></i>
+          </button>
           <button type="button" className="FramioAssistant-close" aria-label="Kapat" onclick={() => assistant.close()}>
             <i className="fas fa-times"></i>
           </button>
         </header>
 
-        <div className="FramioAssistant-log">
+        {this.showSources ? this.sourcesView() : null}
+
+        <div className={'FramioAssistant-log' + (this.showSources ? ' is-hidden' : '')}>
           {this.log.map((l) =>
             l.who === 'step' ? (
               <div className={'FramioAssistant-step' + (l.done ? ' is-done' : '')}>
@@ -211,6 +222,109 @@ class Panel extends Component {
             <i className="fas fa-paper-plane"></i>
           </button>
         </form>
+      </div>
+    );
+  }
+
+  /** Kaynak yöneticisi: klasörler, Google Drive oturumu, arama derinliği (profil ayarlarına gitmeden) */
+  sourcesView() {
+    const refresh = () => {
+      this.folderName = folder.name();
+      m.redraw();
+    };
+    const depth = String(pref('framio_assistant_depth', 2));
+    const local = folder.list || [];
+    const drives = drive.folders();
+
+    return (
+      <div className="FramioAssistant-sourcesPanel">
+        <div className="FramioAssistant-sourcesHead">
+          <strong>Fotoğraf kaynakları</strong>
+          <span className="helpText">Yalnızca okuma — asistan silemez, değiştiremez.</span>
+        </div>
+
+        <div className="FramioAssistant-sourceGroup">
+          <div className="FramioAssistant-sourceGroupTitle">
+            <i className="fas fa-desktop"></i> Bu bilgisayar
+          </div>
+          {local.length ? null : <p className="helpText">Henüz klasör yok.</p>}
+          {local.map((f) => (
+            <div className={'FramioAssistant-sourceRow' + (f.enabled ? '' : ' is-off')} key={f.id}>
+              <i className="far fa-folder"></i>
+              <span className="FramioAssistant-sourceName" title={f.label}>
+                {f.label}
+              </span>
+              <button type="button" className={'FramioAssistant-toggle' + (f.enabled ? ' is-on' : '')} aria-label={f.enabled ? 'Kapat' : 'Aç'} onclick={() => folder.toggle(f.id, !f.enabled).then(refresh)}>
+                <span></span>
+              </button>
+              <button type="button" className="FramioAssistant-iconBtn" aria-label="Kaldır" title="Kaldır" onclick={() => confirm(`"${f.label}" kaynaklardan kaldırılsın mı? (Klasörünüze dokunulmaz.)`) && folder.remove(f.id).then(refresh)}>
+                <i className="far fa-trash-alt"></i>
+              </button>
+            </div>
+          ))}
+          <Button className="Button FramioAssistant-addSource" icon="fas fa-plus" disabled={!folder.supported()} onclick={() => this.linkFolder().then(refresh)}>
+            Klasör ekle
+          </Button>
+          {!folder.supported() ? <p className="helpText">Bu tarayıcı klasör erişimini desteklemiyor (Chrome ya da Edge gerekir).</p> : null}
+          <p className="helpText">ExpanDrive, Google Drive masaüstü, OneDrive gibi bulut sürücülerindeki klasörler de buradan eklenebilir.</p>
+        </div>
+
+        <div className="FramioAssistant-sourceGroup">
+          <div className="FramioAssistant-sourceGroupTitle">
+            <i className="fab fa-google-drive"></i> Google Drive
+          </div>
+          {!drive.available() ? (
+            <p className="helpText">Google Drive bağlantısı bu sitede henüz açılmadı (yönetici Google Cloud bilgilerini girince "Google ile oturum aç" düğmesi burada görünür).</p>
+          ) : (
+            [
+              drives.map((f) => (
+                <div className={'FramioAssistant-sourceRow' + (f.enabled ? '' : ' is-off')} key={f.id}>
+                  <i className="fab fa-google-drive"></i>
+                  <span className="FramioAssistant-sourceName" title={f.name}>
+                    {f.name}
+                  </span>
+                  <button type="button" className={'FramioAssistant-toggle' + (f.enabled ? ' is-on' : '')} aria-label={f.enabled ? 'Kapat' : 'Aç'} onclick={() => { drive.toggle(f.id, !f.enabled); refresh(); }}>
+                    <span></span>
+                  </button>
+                  <button type="button" className="FramioAssistant-iconBtn" aria-label="Kaldır" title="Kaldır" onclick={() => { drive.remove(f.id); refresh(); }}>
+                    <i className="far fa-trash-alt"></i>
+                  </button>
+                </div>
+              )),
+              <div className="FramioAssistant-sourceActions">
+                <Button className="Button FramioAssistant-google" icon="fab fa-google" onclick={() => this.linkDrive().then(refresh)}>
+                  {drive.connected() ? 'Drive klasörü ekle' : 'Google ile oturum aç'}
+                </Button>
+                {drive.connected() ? (
+                  <Button className="Button Button--link" icon="fas fa-unlink" onclick={() => confirm('Google Drive bağlantısı kaldırılsın mı? (Google tarafındaki izin de geri alınır.)') && drive.disconnect().then(refresh)}>
+                    Oturumu kapat
+                  </Button>
+                ) : null}
+              </div>,
+            ]
+          )}
+        </div>
+
+        <div className="FramioAssistant-sourceGroup">
+          <label className="FramioAssistant-sourceGroupTitle" for="framio-depth">
+            <i className="fas fa-sitemap"></i> Alt klasörlerde arama
+          </label>
+          <select
+            id="framio-depth"
+            className="FormControl"
+            value={depth}
+            onchange={(e) => app.session.user.savePreferences({ framio_assistant_depth: Number(e.target.value) }).then(() => m.redraw())}
+          >
+            <option value="0">Yalnızca seçtiğim klasör</option>
+            <option value="1">1 alt klasöre kadar</option>
+            <option value="2">2 alt klasöre kadar</option>
+            <option value="6">Tüm alt klasörler (yavaş olabilir)</option>
+          </select>
+        </div>
+
+        <Button className="Button Button--primary FramioAssistant-sourcesDone" onclick={() => (this.showSources = false)}>
+          Tamam
+        </Button>
       </div>
     );
   }
