@@ -39,6 +39,16 @@
     }
 }
 
+// Mesaj altındaki "kim okudu" düğmesi: düğme etiketi 20px yüksekliğinde ve taşanı gizliyor,
+// 24px avatarın altı kesiliyordu
+.item-who-read .Button-labelText,
+.item-who-read .Button-label {
+    overflow: visible;
+    height: auto;
+    display: inline-flex;
+    align-items: center;
+}
+
 .WhoRead-summary {
     // Satır yüksekliği avatarları kırpmasın; logo avatarları kenarda kesilmesin
     display: inline-flex;
