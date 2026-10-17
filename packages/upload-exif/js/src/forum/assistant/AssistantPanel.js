@@ -1041,6 +1041,26 @@ class Panel extends Component {
     }
   }
 
+  /**
+   * Klasör yolundan künye: model klasörü (aranan modelin adı geçen klasör) → bir üstü marka;
+   * altındaki "15 SHD", "16 RHD", "S 516 HD" gibi varyant klasörü modele eklenir ("Eski Kasa" gibi kasa adları eklenmez);
+   * "Şehirler" klasöründen sonraki klasör şehirdir.
+   */
+  fieldsFromPath(path, wantModel) {
+    const parts = String(path || '').split('/');
+    const out = {};
+    const si = parts.findIndex((x) => fold(x) === 'sehirler');
+    if (si >= 0 && parts[si + 1]) out.city = parts[si + 1];
+    const key = fold(wantModel).split(' ').filter((w) => w.length > 2 && !/^(mercedes|benz|man|setra)$/.test(w))[0];
+    const mi = key ? parts.findIndex((x) => fold(x).split(' ').includes(key)) : -1;
+    if (mi > 0) {
+      out.brand = parts[mi - 1];
+      const variant = parts.slice(mi + 1).find((x) => /^(\d{1,3}\s?[a-z]{1,4}|[a-z]\s?\d{3}\s?[a-z]{1,4})$/i.test(x.trim()));
+      out.model = parts[mi] + (variant ? ' ' + variant.trim() : '');
+    }
+    return out;
+  }
+
   /** Soru sorar, kullanıcının bir sonraki (yazılı ya da sesli) cevabını döndürür */
   async prompt(question) {
     await this.say(question);
@@ -1391,22 +1411,31 @@ class Panel extends Component {
             continue;
           }
         }
-        if (needle && ![f.company, f.plate, f.brand, f.model].join(' ').toLocaleLowerCase('tr-TR').includes(needle)) {
-          // Klasör adı esastır: ".../Mercedes-Benz/Travego" klasöründeki fotoğraf Travego'dur (yapay zeka karıştırsa da)
-          const seg = String(c.path || '').split('/').reverse().find((x) => needle.split(/\s+/).some((w) => w.length > 2 && x.toLocaleLowerCase('tr-TR').includes(w)));
-          if (!seg) {
-            this.step(`"${c.name}" ${[f.brand, f.model].filter(Boolean).join(' ') || 'araç'} çıktı, aranan "${t.filter}" değil, atlıyorum.`);
-            continue;
+        // Klasör yapısı esastır (elle düzenlenmiş arşiv): …/Şehirler/Antalya/…/Mercedes-Benz/Travego/Eski Kasa/15 SHD/<firma>/<plaka>
+        // Marka, model (+ varyant) ve şehir klasör adlarından alınır; yapay zekanın tahmini bunların önüne geçemez.
+        if (c.path) {
+          const fromPath = this.fieldsFromPath(c.path, (intent.filters || {}).model || t.filter || '');
+          let changed = false;
+          if (fromPath.model && fold(fromPath.model) !== fold(f.model)) {
+            f.brand = fromPath.brand || f.brand;
+            f.model = fromPath.model;
+            changed = true;
           }
-          const parts = String(c.path || '').split('/');
-          const bi = parts.indexOf(seg) - 1;
-          if (bi >= 0 && /benz|man|setra|neoplan|temsa|otokar|isuzu|bmc|volvo|scania|iveco|ford|renault|karsan|güleryüz|guleryuz/i.test(parts[bi])) f.brand = parts[bi];
-          f.model = seg;
-          this.step(`"${c.name}": model klasöründen alındı (${f.brand} ${f.model}).`);
-          try {
-            const r2 = await app.request({ method: 'POST', url: api('/framio-assistant/route'), body: { plate: f.plate, brand: f.brand, model: f.model, company: f.company, year: f.year, hint: c.path || '' } });
-            if (sugg) sugg.splice(0, sugg.length, ...(r2.suggestions || []));
-          } catch (e) {}
+          if (fromPath.city && !fold(f.location).includes(fold(fromPath.city))) {
+            f.location = fromPath.city;
+            changed = true;
+          }
+          if (changed) {
+            this.step(`"${c.name}": künye klasörlerden alındı (${[f.brand, f.model].filter(Boolean).join(' ')}${fromPath.city ? ' · ' + fromPath.city : ''}).`);
+            try {
+              const r2 = await app.request({ method: 'POST', url: api('/framio-assistant/route'), body: { plate: f.plate, brand: f.brand, model: f.model, company: f.company, year: f.year, hint: c.path } });
+              if (sugg) sugg.splice(0, sugg.length, ...(r2.suggestions || []));
+            } catch (e) {}
+          }
+        }
+        if (needle && !fold([f.company, f.plate, f.brand, f.model].join(' ')).includes(fold(needle).split(' ').filter((w) => !fold(f.brand).includes(w)).join(' ') || fold(needle))) {
+          this.step(`"${c.name}" ${[f.brand, f.model].filter(Boolean).join(' ') || 'araç'} çıktı, aranan "${t.filter}" değil, atlıyorum.`);
+          continue;
         }
         // Çekim yeri klasörden anlaşılmadıysa Framio AI'nın bulduğu yere bakılır
         if (t.placeWords && t.placeWords.length && !t.placeFromPath) {
