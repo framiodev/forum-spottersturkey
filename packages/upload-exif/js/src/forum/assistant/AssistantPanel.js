@@ -765,6 +765,17 @@ class Panel extends Component {
     return f;
   }
 
+  modelTerms(title) {
+    if (/^\\s*diğer|^\\s*diger/i.test(String(title))) return [];
+    const BR = /^(mercedes benz|mercedes|man|neoplan|setra|temsa|otokar|isuzu|bmc|volvo|scania|iveco|ford|renault|karsan|guleryuz|irizar|van hool|higer|king long|yutong|daf|mitsubishi|fiat|volkswagen|toyota|hyundai)\\b\\s*/;
+    return String(title)
+      .split('/')
+      .map((x) => fold(x).replace(BR, '').trim())
+      .filter(Boolean)
+      .map((x) => x.split(' ')[0])
+      .filter((w, i, a) => w.length > 2 && a.indexOf(w) === i);
+  }
+
   /** Klasör yapısından firma ve plaka: …/<firma>/<plaka>/<plaka>-1.jpg */
   companyFromPath(c) {
     const parts = String(c.path || '').split('/');
@@ -1850,6 +1861,42 @@ class Panel extends Component {
         }
         t.placeFromPath = true;
       }
+      if (!t.placeFromPath && t.targets && t.targets.length && drive.roots().length && intent.source !== 'local') {
+        this.step(`${t.targets.length} hedef başlığın her biri için model klasörlerini arıyorum…`);
+        const generic = /^(otobus|otobusler|fotograf|fotograflari|fotograflar|araclari|arac|ulasim)$/;
+        const secWords = fold(intent.section || '').split(' ').filter((w) => w.length > 4 && !generic.test(w));
+        const locWords = fold(intent.location || '').replace(/\botogari\b/g, 'otogar').split(' ').filter((w) => w.length > 2);
+        const per = await drive.pool(t.targets, 4, async (g) => {
+          let dirs = [];
+          for (const term of this.modelTerms(g.title)) {
+            const found = (await drive.searchFolders(term)).filter((f) => fold(f.name).startsWith(term));
+            const withP = await drive.pool(found.slice(0, 30), 6, async (f) => ({ id: f.id, parts: await drive.pathOf(f.id) }));
+            withP.filter(Boolean).forEach((x) => {
+              const segs = x.parts.map(fold);
+              if (segs.some((q) => /^videolar?$|^video$/.test(q))) return;
+              if (intent.shot_year && !segs.some((q) => q.split(' ').includes(String(intent.shot_year)))) return;
+              if (secWords.length && !secWords.some((w) => segs.some((q) => q.includes(w.slice(0, 7))))) return;
+              if (locWords.length && !locWords.every((w) => segs.some((q) => q.includes(w)))) return;
+              dirs.push({ id: x.id, path: x.parts.join('/') });
+            });
+          }
+          // İç içe seçilenlerden yalnızca üstteki (alt klasörler zaten taranır)
+          dirs = dirs.filter((d) => !dirs.some((o) => o !== d && d.path.startsWith(o.path + '/')));
+          const files = dirs.length ? await drive.filesUnder(dirs, Math.max(20, t.perTopic * 20)) : [];
+          for (let i = files.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [files[i], files[j]] = [files[j], files[i]];
+          }
+          files.forEach((f) => (f.target = g));
+          this.step(`${g.title}: ${dirs.length} klasör, ${files.length} fotoğraf`);
+          return files;
+        });
+        // Başlıklar sırayla karıştırılır: her başlığın adayları öne gelir, hiçbiri sona kalmaz
+        candidates = [];
+        for (let i = 0; per.some((l) => l && l[i]); i++) per.forEach((l) => l && l[i] && candidates.push(l[i]));
+        t.placeFromPath = true;
+        t.byTarget = true;
+      }
       const byName = (intent.filters || {}).plate || (intent.single && intent.query) || '';
       if (!t.placeFromPath && byName) {
         candidates = await folder.find(byName, 60, Math.max(depth, 6), (x) => this.step(x), { source: intent.source, hint: intent.location || '' });
@@ -1920,7 +1967,7 @@ class Panel extends Component {
     const needle = t.filter ? t.filter.toLocaleLowerCase('tr-TR') : null;
     for (const c of candidates) {
       // Aday havuzu geniş tutulur; inceleme istenen sayıya ulaşınca zaten durur
-      if (picked.length >= Math.min(60, t.count * (needle || t.targets || intent.location ? 12 : 3))) break;
+      if (picked.length >= (t.byTarget ? Math.min(400, t.count * 4) : Math.min(60, t.count * (needle || t.targets || intent.location ? 12 : 3)))) break;
       if (intent.shot_year) {
         // Drive: indirmeden bilinen yıl (EXIF ya da klasör adı); yerel dosyada EXIF okunur
         const y = c.year || (c.file ? await shotYear(c.file) : null);
@@ -1962,7 +2009,7 @@ class Panel extends Component {
         return { c, error: 'indirilemedi' };
       }
       let f = {};
-      const fp = c.path ? this.fieldsFromPath(c.path, (intent.filters || {}).model || '') : {};
+      const fp = c.path ? this.fieldsFromPath(c.path, (intent.filters || {}).model || (c.target ? this.modelTerms(c.target.title)[0] || '' : '')) : {};
       const pt = plateText(c.name);
       if (fp.model && pt) {
         // Düzenli arşiv: marka/model/şehir klasörlerden, plaka dosya adından, firma plaka klasörünün üstünden — yapay zeka gerekmez
@@ -2000,7 +2047,8 @@ class Panel extends Component {
 
     for (let i = 0; i < picked.length && items.length < t.count; i += 6) {
       if (this.task !== t) return; // "iptal" denildi
-      const group = picked.slice(i, i + 6);
+      const group = picked.slice(i, i + 6).filter((c) => !c.target || (t.filled[c.target.discussion_id] || 0) < t.perTopic);
+      if (!group.length) continue;
       this.step(
         t.targets
           ? `Fotoğraflar inceleniyor (${checked + 1}–${checked + group.length}) · ${filledCount()}/${t.targets.length} başlık doldu…`
@@ -2036,7 +2084,7 @@ class Panel extends Component {
         // Klasör yapısı esastır (elle düzenlenmiş arşiv): …/Şehirler/Antalya/…/Mercedes-Benz/Travego/Eski Kasa/15 SHD/<firma>/<plaka>
         // Marka, model (+ varyant) ve şehir klasör adlarından alınır; yapay zekanın tahmini bunların önüne geçemez.
         if (c.path) {
-          const fromPath = this.fieldsFromPath(c.path, (intent.filters || {}).model || '');
+          const fromPath = this.fieldsFromPath(c.path, (intent.filters || {}).model || (c.target ? this.modelTerms(c.target.title)[0] || '' : ''));
           let changed = false;
           if (fromPath.model && fold(fromPath.model) !== fold(f.model)) {
             f.brand = fromPath.brand || f.brand;
@@ -2105,7 +2153,7 @@ class Panel extends Component {
           if (t.targets) {
             // Model birebir eşleşmeli: yalnızca bu modelin başlığı (marka düzeyi öneriler sayılmaz);
             // o başlık doluysa fotoğraf başka bir modele KONMAZ
-            const own = sugg.find((x) => x.reason !== 'brand' && t.targets.some((g) => g.discussion_id === x.discussion_id));
+            const own = c.target || sugg.find((x) => x.reason !== 'brand' && t.targets.some((g) => g.discussion_id === x.discussion_id));
             if (!own) {
               this.step(`"${c.name}" (${[f.brand, f.model].filter(Boolean).join(' ')}) hedef başlıklardan birinin modeli değil, atlıyorum.`);
               continue;
