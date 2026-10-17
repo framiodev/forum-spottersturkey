@@ -153,7 +153,7 @@ const drive = {
    * 2) O klasörlerin içinde (alt seviyeler) model, yoksa marka klasörü aranır
    * Yer verilmediyse doğrudan model/marka klasörleri aranır ve yolunda yıl geçenler alınır.
    */
-  async locate(want, onStep = () => {}) {
+  async locate(want, onStep = () => {}, choose = null) {
     const fold = (v) => String(v || '').toLocaleLowerCase('tr-TR').replace(/[çğıöşü]/g, (c) => ({ ç: 'c', ğ: 'g', ı: 'i', ö: 'o', ş: 's', ü: 'u' })[c]).replace(/[^a-z0-9]+/g, ' ').trim();
     const year = want.year ? String(want.year) : '';
     const places = [...new Set((want.place || []).filter(Boolean))];
@@ -176,6 +176,26 @@ const drive = {
       const paths = (await withPaths(list.slice(0, 40))).filter((x) => yearOk(x.parts));
       if (paths.length) {
         base = paths.map((x) => ({ id: x.id, path: x.parts.join('/') }));
+        break;
+      }
+    }
+
+    // Aynı yer birden çok kategoride varsa (…/Şehirlerarası Otobüsler/Antalya Otogar ve …/Turizm ve Servis Otobüsleri/Antalya Otogar)
+    // önce komuttaki ipucu ("şehirlerarası") uygulanır; hâlâ birden çoksa kullanıcıya sorulur
+    if (base.length > 1) {
+      const split = base.map((b) => b.path.split('/'));
+      const min = Math.min(...split.map((x) => x.length));
+      for (let i = 0; i < min - 1; i++) {
+        const names = [...new Set(split.map((x) => x[i]))];
+        if (names.length < 2) continue;
+        const hint = fold(want.hint);
+        let pick = hint ? names.filter((n) => hint.split(' ').some((w) => w.length > 3 && fold(n).includes(w.slice(0, 6)))) : [];
+        if (pick.length !== 1 && choose) {
+          const ans = fold(await choose(names));
+          pick = names.filter((n) => fold(n).split(' ').some((w) => w.length > 3 && ans.includes(w.slice(0, 6))));
+          if (/hepsi|ikisi|tum/.test(ans)) pick = names;
+        }
+        if (pick.length) base = base.filter((b) => pick.includes(b.path.split('/')[i]));
         break;
       }
     }

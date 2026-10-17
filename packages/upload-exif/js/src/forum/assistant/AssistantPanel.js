@@ -1200,6 +1200,7 @@ class Panel extends Component {
       filters: { brand: it.brand, model: it.model, company: it.company },
       location: it.location,
       shot_year: it.shot_year,
+      note: it.note,
       source: this.multiSource,
       auto: true,
       diverse: true,
@@ -1256,12 +1257,18 @@ class Panel extends Component {
         this.step('Google Drive klasör yapısında hedefi arıyorum…');
         const fl = intent.filters || {};
         const ddirs = await drive.locate(
-          { year: intent.shot_year, place: [intent.location, ...ordered].filter(Boolean).map((p) => String(p).replace(/['’]\S*$/, '').replace(/\b(otogarı|otogari)\b/gi, 'Otogar')), brand: fl.brand, model: fl.model },
-          (x) => this.step(x)
+          { year: intent.shot_year, place: [intent.location, ...ordered].filter(Boolean).map((p) => String(p).replace(/['’]\S*$/, '').replace(/(otogarı|otogari)/gi, 'Otogar')), brand: fl.brand, model: fl.model, hint: [intent.section, intent.note].filter(Boolean).join(' ') },
+          (x) => this.step(x),
+          (names) => this.prompt(`"${intent.location}" klasörü birden fazla bölümde var: ${names.join(' ya da ')}. Hangisinden seçeyim?`)
         );
         if (ddirs.length) {
           this.step(`Klasör bulundu: ${ddirs.slice(0, 3).map((d) => d.path).join(' · ')}${ddirs.length > 3 ? ` (+${ddirs.length - 3})` : ''}`);
           candidates = (await drive.filesUnder(ddirs)).filter((c) => !intent.shot_year || !c.year || c.year === intent.shot_year);
+          // Klasörden rastgele seçim (aynı seri karelerin hep ilk sırada gelmemesi için)
+          for (let i = candidates.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [candidates[i], candidates[j]] = [candidates[j], candidates[i]];
+          }
           t.placeFromPath = true;
         }
       }
