@@ -82,8 +82,13 @@ class VisionAnalyzer
     }
 
     /** Doğruluk kipi (varsayılan): hız yerine en doğru sonuç — güçlü model düşünerek yanıtlar, tüm yanıtlar oylanır */
+    /** true: bu istek için hızlı kip (çok fotoğraf taranırken) */
+    public bool $fast = false;
+
     public function accurate(): bool
     {
+        if ($this->fast) return false;
+
         return $this->setting('ai_quality', 'accurate') !== 'fast';
     }
 

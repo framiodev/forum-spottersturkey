@@ -15,6 +15,14 @@ import { canListen, listenOnce, speak, whenQuiet, hush } from './speech';
 import ghost from './ghost';
 import drive from './drive';
 import { shotYear, plateKey, slots, localStamp, humanDate, isAny, isYes } from './planner';
+import { getMeta, putMeta } from './catalog';
+
+/** "34ARS603" → "34 ARS 603" */
+const plateText = (name) => {
+  const k = plateKey(name);
+  const m = k && k.match(/^(\d{2})([A-ZÇĞİÖŞÜ]{1,3})(\d{2,5})$/);
+  return m ? `${m[1]} ${m[2]} ${m[3]}` : '';
+};
 
 /**
  * Framio Asistan paneli: sesli / yazılı komutla bağlı klasördeki fotoğrafı bulur, Framio AI ile
@@ -516,6 +524,34 @@ class Panel extends Component {
   }
 
   /**
+   * Hızlı inceleme (katalogdan ya da yapay zekanın hızlı kipiyle). Dosya adında plaka varsa plaka oradan.
+   * Sonuç bu tarayıcının kataloğuna yazılır; aynı dosya bir daha gönderilmez.
+   */
+  async quickAnalyze(c) {
+    const hit = await getMeta(c);
+    if (hit) return Object.assign({}, hit, { plate: plateText(c.name) || hit.plate });
+    if (!c.file) c.file = await c.load();
+    const fd = new FormData();
+    fd.append('image', await shrink(c.file), 'ai.jpg');
+    fd.append('exif_head', c.file.slice(0, 256 * 1024), 'head.jpg');
+    fd.append('file_name', c.name);
+    fd.append('quick', '1');
+    const ai = await app.request({ method: 'POST', url: api('/framio-media/analyze-ai'), body: fd });
+    const d = (ai && ai.data) || {};
+    const f = { company: d.company || '', plate: plateText(c.name) || d.plate || '', brand: d.brand || '', model: d.model || '', subject: d.subject || '', year: d.year || '' };
+    putMeta(c, f);
+    return f;
+  }
+
+  /** Klasör yapısından firma ve plaka: …/<firma>/<plaka>/<plaka>-1.jpg */
+  companyFromPath(c) {
+    const parts = String(c.path || '').split('/');
+    const pk = plateKey(c.name);
+    const i = parts.findIndex((x) => pk && plateKey(x) === pk);
+    return i > 0 ? parts[i - 1] : '';
+  }
+
+  /**
    * Aynı aracın klasöründeki diğer pozlar: hareketi gösterecek şekilde dağıtılır
    * (sıralı karelerden ilk, orta ve son: en uzak → orta → en yakın / arka poz). En çok `max` kare.
    */
@@ -524,9 +560,29 @@ class Panel extends Component {
     const num = (n) => Number((String(n).match(/(\d+)(?=\.[a-z]+$)/i) || [])[1] || 0);
     // Aynı araç: aynı klasör VE (dosya adındaki plaka aynı ya da çekim zamanı en çok 3 dk farklı).
     // Düzensiz klasörlerde (IMG_1234.jpg, yüzlerce farklı araç) başka araçların kareleri böylece karışmaz.
-    const pk = plateKey(c.name);
-    const near = (x) => (pk && plateKey(x.name) === pk) || (c.modified && x.modified && Math.abs(c.modified - x.modified) <= 180000);
-    const same = [c, ...pool.filter((x) => x !== c && x.path === c.path && x.name !== c.name && near(x))].sort((a, b) => num(a.name) - num(b.name) || a.name.localeCompare(b.name));
+    // Aynı araç: aynı klasördeki kareler arasından bariz ayrıntıları (plaka; plaka okunmuyorsa firma + marka + model)
+    // birebir aynı olanlar. Klasör aracın plaka klasörüyse (…/34 ARS 603/) hepsi aynı araçtır.
+    const pk = plateKey(c.name) || plateKey(c.f && c.f.plate);
+    const folderIsPlate = pk && plateKey(String(c.path).split('/').pop()) === pk;
+    const siblings = pool
+      .filter((x) => x !== c && x.path === c.path && x.name !== c.name)
+      .sort((a, b) => Math.abs((a.modified || 0) - (c.modified || 0)) - Math.abs((b.modified || 0) - (c.modified || 0)))
+      .slice(0, 12);
+    const ok = [];
+    for (const x of siblings) {
+      if (folderIsPlate || (pk && plateKey(x.name) === pk)) {
+        ok.push(x);
+        continue;
+      }
+      try {
+        const g = await this.quickAnalyze(x);
+        const gp = plateKey(g.plate);
+        const ref = c.f || {};
+        const same = gp && pk ? gp === pk : !gp && fold(g.company) && fold(g.company) === fold(ref.company) && fold(g.model) === fold(ref.model) && fold(g.brand) === fold(ref.brand);
+        if (same && (!g.subject || g.subject === 'vehicle')) ok.push(x);
+      } catch (e) {}
+    }
+    const same = [c, ...ok].sort((a, b) => num(a.name) - num(b.name) || a.name.localeCompare(b.name));
     if (same.length < 2) return [];
     const idx = [...new Set([0, Math.floor((same.length - 1) / 2), same.length - 1])];
     const picks = idx.map((i) => same[i]).filter((x) => x !== c).slice(0, max - 1);
@@ -915,6 +971,20 @@ class Panel extends Component {
         files = (await folder.filesIn(dirs, (t) => this.step(t))).filter((x) => normalize(x.name).includes(needle)).slice(0, intent.count === 0 ? 20 : intent.count || 1);
       }
       if (!files.length) files = await folder.find(intent.query, intent.count === 0 ? 20 : intent.count || 1, depth, (t) => this.step(t), { source: intent.source });
+      const wantPlate = plateKey(intent.plate || intent.query);
+      if (!files.length && wantPlate) {
+        // Dosya adları plaka değil (IMG_1234.jpg): fotoğraflardaki plaka okunur. Önce katalog, sonra hızlı tarama (6'şar).
+        const all = await folder.find('', 400, Math.max(depth, 6), (t) => this.step(t), { source: intent.source });
+        this.step(`Dosya adlarında yok; ${all.length} fotoğrafta plakayı görselden arıyorum…`);
+        const hits = [];
+        for (let i = 0; i < all.length && hits.length < (intent.count || 1); i += 6) {
+          const group = all.slice(i, i + 6);
+          const res = await Promise.all(group.map((c) => this.quickAnalyze(c).then((g) => ({ c, g })).catch(() => null)));
+          res.filter(Boolean).forEach(({ c, g }) => plateKey(g.plate) === wantPlate && hits.push(c));
+          this.step(`${Math.min(i + 6, all.length)}/${all.length} fotoğraf tarandı${hits.length ? ` · ${hits.length} eşleşme` : ''}…`);
+        }
+        files = hits;
+      }
     } catch (e) {
       return this.say('Kaynakları okuyamadım' + (e && e.message ? ': ' + e.message : '.'));
     }
@@ -1476,17 +1546,21 @@ class Panel extends Component {
         return { c, error: 'indirilemedi' };
       }
       let f = {};
-      try {
-        const fd = new FormData();
-        fd.append('image', await shrink(c.file), 'ai.jpg');
-        fd.append('exif_head', c.file.slice(0, 256 * 1024), 'head.jpg');
-        fd.append('file_name', c.name);
-        const ai = await app.request({ method: 'POST', url: api('/framio-media/analyze-ai'), body: fd });
-        const d = (ai && ai.data) || {};
-        f = { company: d.company || '', plate: d.plate || '', brand: d.brand || '', model: d.model || '', location: d.location || '', subject: d.subject || '', year: d.year || String((await shotYear(c.file)) || '') };
-      } catch (e) {
-        f = { year: String((await shotYear(c.file)) || '') };
+      const fp = c.path ? this.fieldsFromPath(c.path, (intent.filters || {}).model || t.filter || '') : {};
+      const pt = plateText(c.name);
+      if (fp.model && pt && (t.pathStrict || this.companyFromPath(c))) {
+        // Düzenli arşiv: marka/model/şehir klasörlerden, plaka dosya adından, firma plaka klasörünün üstünden — yapay zeka gerekmez
+        f = { company: this.companyFromPath(c) || ((intent.filters || {}).company || ''), plate: pt, brand: fp.brand || '', model: fp.model, location: fp.city || '', subject: 'vehicle', year: String(c.year || (await shotYear(c.file)) || ''), fromPath: true };
+      } else {
+        try {
+          // Hızlı tarama (katalog önbellekli); seçilen fotoğraf onaydan önce ayrıntılı incelenir
+          f = await this.quickAnalyze(c);
+          f.year = f.year || String(c.year || (await shotYear(c.file)) || '');
+        } catch (e) {
+          f = { year: String((await shotYear(c.file)) || '') };
+        }
       }
+      c.f = f;
       let sugg = [];
       if (!t.topic) {
         try {
@@ -1501,9 +1575,9 @@ class Panel extends Component {
     t.filled = t.filled || {};
     let checked = 0;
 
-    for (let i = 0; i < picked.length && items.length < t.count; i += 3) {
+    for (let i = 0; i < picked.length && items.length < t.count; i += 6) {
       if (this.task !== t) return; // "iptal" denildi
-      const group = picked.slice(i, i + 3);
+      const group = picked.slice(i, i + 6);
       this.step(
         t.targets
           ? `Fotoğraflar inceleniyor (${checked + 1}–${checked + group.length}) · ${filledCount()}/${t.targets.length} başlık doldu…`
@@ -1578,6 +1652,24 @@ class Panel extends Component {
             continue;
           }
           usedPlates.add(k);
+        }
+
+        // Seçilen fotoğraf (klasörden kesin künyesi yoksa): ayrıntılı inceleme — güçlü model, %95+ forum benzerliği, konum
+        if (!f.fromPath) {
+          try {
+            this.step(`"${c.name}" ayrıntılı inceleniyor…`);
+            const fd = new FormData();
+            fd.append('image', await shrink(c.file), 'ai.jpg');
+            fd.append('exif_head', c.file.slice(0, 256 * 1024), 'head.jpg');
+            fd.append('file_name', c.name);
+            const ai = await app.request({ method: 'POST', url: api('/framio-media/analyze-ai'), body: fd });
+            const d = (ai && ai.data) || {};
+            ['company', 'plate', 'brand', 'model', 'location'].forEach((k) => d[k] && (f[k] = d[k]));
+            if (d.year) f.year = d.year;
+            putMeta(c, { company: f.company, plate: f.plate, brand: f.brand, model: f.model, subject: f.subject || 'vehicle', year: f.year, location: f.location });
+            const r3 = await app.request({ method: 'POST', url: api('/framio-assistant/route'), body: { plate: f.plate, brand: f.brand, model: f.model, company: f.company, year: f.year, hint: c.path || '' } });
+            if (sugg) sugg.splice(0, sugg.length, ...(r3.suggestions || []));
+          } catch (e) {}
         }
 
         let topic = t.topic;

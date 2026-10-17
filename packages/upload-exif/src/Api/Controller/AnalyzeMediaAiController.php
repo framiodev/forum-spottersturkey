@@ -245,7 +245,10 @@ class AnalyzeMediaAiController implements RequestHandlerInterface
         };
 
         try {
-            $result = $this->vision->analyze($candidates, $bytes, $mimeType, $promptText, $parallel);
+            // quick=1: asistanın toplu taraması — yalnızca hızlı yanıt (plaka, firma, marka, model, konu); yan işler yapılmaz
+            $quick = (bool) Arr::get($body, 'quick');
+            $this->vision->fast = $quick;
+            $result = $this->vision->analyze($candidates, $bytes, $mimeType, $promptText, $quick ? null : $parallel);
         } catch (\Throwable $e) {
             return new JsonResponse(['success' => false, 'error' => 'Yapay zeka yanıt veremedi: ' . $e->getMessage()]);
         }
