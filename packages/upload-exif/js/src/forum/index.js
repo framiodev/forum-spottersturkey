@@ -112,8 +112,15 @@ app.initializers.add('framio/upload-exif', () => {
     b.setAttribute('aria-label', assistantName());
     b.title = assistantName();
     b.innerHTML = '<i class="fas fa-magic" aria-hidden="true"></i>';
-    b.onclick = () => assistant.toggle();
+    b.onclick = () => {
+      b.classList.remove('has-notice');
+      assistant.toggle();
+    };
     document.body.appendChild(b);
+    // Planlı paylaşım haberi gibi okunmamış not varsa düğmede işaret
+    app.request({ method: 'GET', url: app.forum.attribute('apiUrl') + '/framio-assistant/history?limit=1' })
+      .then((r) => r.unseen && b.classList.add('has-notice'))
+      .catch(() => {});
   };
   extend(Page.prototype, 'oncreate', mountFab);
   extend(HeaderSecondary.prototype, 'items', function (items) {
@@ -132,7 +139,8 @@ app.initializers.add('framio/upload-exif', () => {
     if (!prefs.framio_assistant_listen) return;
     const phrases = [app.forum.attribute('framioAssistantWake'), prefs.framio_assistant_wake, prefs.framio_assistant_name ? 'hey ' + prefs.framio_assistant_name : ''].filter(Boolean);
     if (!phrases.length) return;
-    assistant.wake = wakeListener(phrases, (rest) => assistant.open(rest || null));
+    // Uyandırma sözünden sonra cümlenin tamamı beklenir (konuşma bitmeden işlem yapılmaz)
+    assistant.wake = wakeListener(phrases, (rest) => assistant.open(rest || null, { listen: true }));
   };
   extend(Page.prototype, 'oncreate', startWake);
 

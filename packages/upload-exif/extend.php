@@ -91,7 +91,14 @@ return [
         ->post('/framio-assistant/parse', 'framio.assistant.parse', \Framio\UploadExif\Assistant\AssistantController::class)
         ->post('/framio-assistant/route', 'framio.assistant.route', \Framio\UploadExif\Assistant\AssistantController::class)
         ->post('/framio-assistant/learn', 'framio.assistant.learn', \Framio\UploadExif\Assistant\AssistantController::class)
-        ->post('/framio-assistant/forget', 'framio.assistant.forget', \Framio\UploadExif\Assistant\AssistantController::class),
+        ->post('/framio-assistant/forget', 'framio.assistant.forget', \Framio\UploadExif\Assistant\AssistantController::class)
+        ->get('/framio-assistant/history', 'framio.assistant.history', \Framio\UploadExif\Assistant\AssistantController::class)
+        ->post('/framio-assistant/history', 'framio.assistant.history.add', \Framio\UploadExif\Assistant\AssistantController::class)
+        ->delete('/framio-assistant/history', 'framio.assistant.history.clear', \Framio\UploadExif\Assistant\AssistantController::class)
+        ->get('/framio-assistant/schedule', 'framio.assistant.schedule', \Framio\UploadExif\Assistant\AssistantController::class)
+        ->post('/framio-assistant/schedule', 'framio.assistant.schedule.add', \Framio\UploadExif\Assistant\AssistantController::class)
+        ->post('/framio-assistant/schedule/cancel', 'framio.assistant.schedule.cancel', \Framio\UploadExif\Assistant\AssistantController::class)
+        ->post('/framio-assistant/seen', 'framio.assistant.seen', \Framio\UploadExif\Assistant\AssistantController::class),
 
     // Admin Ayarlarının Frontend Forum Context'ine Aktarımı
     (new Extend\Settings())
@@ -223,5 +230,9 @@ return [
 
     (new Extend\Console())
         ->command(\Framio\UploadExif\Console\FillDimensionsCommand::class)
-        ->command(\Framio\UploadExif\Console\VisionIndexCommand::class),
+        ->command(\Framio\UploadExif\Console\VisionIndexCommand::class)
+        ->command(\Framio\UploadExif\Console\ArchiveRotateCommand::class)
+        ->command(\Framio\UploadExif\Console\AssistantRunCommand::class)
+        // Planlı paylaşımlar dakikada bir (Flarum zamanlayıcısı: cron'da "php flarum schedule:run")
+        ->schedule(\Framio\UploadExif\Console\AssistantRunCommand::class, fn ($event) => $event->everyMinute()->withoutOverlapping()),
 ];

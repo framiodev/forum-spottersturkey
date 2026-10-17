@@ -5,6 +5,7 @@ import folder from './folder';
 import { canListen, listenOnce, speak } from './speech';
 import ghost from './ghost';
 import drive from './drive';
+import { shotYear, plateKey, slots, localStamp, humanDate, isAny, isYes } from './planner';
 
 /**
  * Framio Asistan paneli: sesli / yazılı komutla bağlı klasördeki fotoğrafı bulur, Framio AI ile
@@ -88,7 +89,25 @@ class Panel extends Component {
       this.folderName = folder.name();
       m.redraw();
     });
-    this.say(`Merhaba, ben ${assistantName()}. "06 ABC 123 fotoğrafını paylaş" gibi bir komut verin.`, false);
+    this.task = null; // soru-cevap bekleyen görev
+    app
+      .request({ method: 'GET', url: api('/framio-assistant/history?limit=60&mark=1') })
+      .then((res) => {
+        const old = (res.messages || []).map((m) => ({ who: m.role, text: m.text, old: true }));
+        this.log = old.concat(this.log);
+        if (!old.length) this.say(`Merhaba, ben ${assistantName()}. "06 ABC 123 fotoğrafını paylaş", "bugün 10 yeni fotoğraf paylaş" ya da "Drive'dan 2026 çekimlerinden 70 poz seç, 7 gün boyunca günde 10, saat 12'de paylaş" diyebilirsiniz.`, false);
+        else {
+          const notices = (res.messages || []).filter((m) => m.role === 'notice' && !m.seen);
+          if (notices.length) this.say(notices.map((n) => n.text).join(' '), true, false);
+        }
+        m.redraw();
+        this.scroll();
+      })
+      .catch(() => this.say(`Merhaba, ben ${assistantName()}.`, false));
+  }
+
+  remember(role, text) {
+    app.request({ method: 'POST', url: api('/framio-assistant/history'), body: { role, text } }).catch(() => {});
   }
 
   /** Anlık durum satırı ("Klasörü tarıyorum…"); yeni adım gelince önceki ✓ olur */
@@ -106,9 +125,10 @@ class Panel extends Component {
     }, 30);
   }
 
-  say(text, voice = true) {
+  say(text, voice = true, store = true) {
     this.log.forEach((l) => l.who === 'step' && (l.done = true));
     this.log.push({ who: 'bot', text });
+    if (store) this.remember('bot', text);
     if (voice && pref('framio_assistant_speak', true)) speak(text);
     m.redraw();
     setTimeout(() => {
@@ -140,7 +160,7 @@ class Panel extends Component {
                 <i className={l.done ? 'fas fa-check' : 'fas fa-circle-notch fa-spin'}></i> {l.text}
               </div>
             ) : (
-              <div className={'FramioAssistant-msg is-' + l.who}>{l.text}</div>
+              <div className={'FramioAssistant-msg is-' + l.who + (l.old ? ' is-old' : '')}>{l.text}</div>
             )
           )}
           {this.queue.map((card) => this.cardView(card))}
@@ -277,7 +297,7 @@ class Panel extends Component {
     }
   }
 
-  async listen() {
+  async listen(prefix = '') {
     if (this.listening) return;
     this.listening = true;
     assistant.wake && assistant.wake.pause();
@@ -290,7 +310,8 @@ class Panel extends Component {
         },
       });
       this.listening = false;
-      if (text) this.command(text);
+      const full = [prefix, text].filter(Boolean).join(' ').trim();
+      if (full) this.command(full);
     } catch (e) {
       this.listening = false;
       this.say(e.message);
@@ -305,7 +326,11 @@ class Panel extends Component {
     if (!text) return;
     this.input = '';
     this.log.push({ who: 'me', text });
+    this.remember('me', text);
     m.redraw();
+
+    // Asistan bir soru sormuştu: bu cevap o göreve aittir
+    if (this.task && this.task.waiting) return this.answer(text);
 
     let intent;
     this.step('Komutu anlıyorum…');
@@ -323,6 +348,9 @@ class Panel extends Component {
       return this.say('Tamam, iptal ettim.');
     }
     if (intent.action === 'folder') return this.linkFolder();
+    if (intent.action === 'plan' || intent.action === 'batch') return this.startTask(intent);
+    if (intent.action === 'schedule_list') return this.listSchedule();
+    if (intent.action === 'schedule_cancel') return this.cancelSchedule();
     if (intent.action === 'help') {
       return this.say('Bağlı klasörünüzdeki fotoğrafları plaka ya da dosya adıyla bulurum, Framio AI ile künyesini çıkarırım ve uygun başlığa paylaşırım. Örnek: "06 ABC 123 fotoğrafını paylaş" ya da "34 TK 1234 için 3 fotoğraf bul".');
     }
@@ -400,7 +428,7 @@ class Panel extends Component {
 
     this.step('Uygun başlığı arıyorum…');
     try {
-      const r = await app.request({ method: 'POST', url: api('/framio-assistant/route'), body: { brand: card.fields.brand, model: card.fields.model, company: card.fields.company } });
+      const r = await app.request({ method: 'POST', url: api('/framio-assistant/route'), body: { brand: card.fields.brand, model: card.fields.model, company: card.fields.company, year: card.fields.year } });
       card.suggestions = r.suggestions || [];
       card.topic = card.suggestions.length ? String(card.suggestions[0].discussion_id) : '';
       card.auto = !!r.auto && pref('framio_assistant_auto', true);
@@ -429,6 +457,244 @@ class Panel extends Component {
       this.say(`${summary || 'Künyeyi çıkaramadım'}. Uygun başlık bulamadım; listeden seçebilirsiniz.`);
     }
     m.redraw();
+  }
+
+  // ── Çok adımlı görevler: önce sorar, sonra seçer, hazırlar, paylaşır ya da planlar ──────────
+
+  startTask(intent) {
+    const count = intent.count === 0 ? 20 : intent.count || (intent.days && intent.per_day ? intent.days * intent.per_day : 10);
+    this.task = { intent, count, plan: intent.action === 'plan', topic: null, filter: null, waiting: null };
+    const what = this.task.plan
+      ? `${count} fotoğrafı ${intent.days ? intent.days + ' gün boyunca ' : ''}${intent.per_day ? 'günde ' + intent.per_day + ' adet, ' : ''}${intent.time ? 'saat ' + intent.time + "'de " : ''}paylaşacak şekilde planlayacağım`
+      : `${count} yeni fotoğraf paylaşacağım`;
+    const from = intent.source === 'drive' ? "Google Drive'dan" : intent.source === 'local' ? 'bilgisayardaki klasörlerden' : 'bağlı kaynaklardan';
+    const year = intent.shot_year ? `, yalnızca ${intent.shot_year} çekimleri` : '';
+    this.say(`Anladım: ${from}${year} ${what}. Birkaç sorum var.`);
+    this.ask('topic');
+  }
+
+  ask(what) {
+    this.task.waiting = what;
+    if (what === 'topic') this.say('Hangi başlıkta paylaşayım? Her fotoğraf için uygun başlığı benim seçmemi isterseniz "otomatik" deyin ya da bir başlık adı söyleyin.');
+    if (what === 'filter') this.say('Özellikle istediğiniz bir firma, plaka, marka ya da model var mı? Yoksa "fark etmez" deyin.');
+    if (what === 'confirm') {
+      const t = this.task;
+      const parts = [
+        `${t.count} fotoğraf`,
+        t.topic ? `başlık: ${t.topic.title}` : 'başlık: her fotoğrafa uygun olan (Güncel/Arşiv çekim yılına göre)',
+        t.filter ? `filtre: ${t.filter}` : null,
+        t.intent.diverse ? 'her biri farklı araç' : null,
+        t.plan && t.intent.time ? `her gün ${t.intent.time}` : null,
+      ].filter(Boolean);
+      this.say(`Özetle: ${parts.join(', ')}. Başlayayım mı?`);
+    }
+  }
+
+  async answer(text) {
+    const t = this.task;
+    const step = t.waiting;
+    t.waiting = null;
+
+    if (/^(iptal|vazgeç|dur)/i.test(text.trim())) {
+      this.task = null;
+      return this.say('Görevi iptal ettim.');
+    }
+
+    if (step === 'topic') {
+      if (!isAny(text)) {
+        // Başlık adı: forumda arayıp en uygun başlığı bul
+        this.step('Başlığı arıyorum…');
+        try {
+          const res = await app.request({ method: 'GET', url: api('/discussions?' + new URLSearchParams({ 'filter[q]': text, 'page[limit]': '5' })) });
+          const d = (res.data || [])[0];
+          if (d) t.topic = { discussion_id: d.id, title: d.attributes.title };
+        } catch (e) {}
+        if (!t.topic) {
+          this.say(`"${text}" adında bir başlık bulamadım; her fotoğraf için uygun başlığı ben seçeceğim.`);
+        } else {
+          this.say(`Tamam, "${t.topic.title}" başlığına paylaşacağım.`);
+        }
+      }
+      return this.ask('filter');
+    }
+    if (step === 'filter') {
+      t.filter = isAny(text) ? null : text.trim();
+      return this.ask('confirm');
+    }
+    if (step === 'confirm') {
+      if (!isYes(text)) {
+        this.task = null;
+        return this.say('Tamam, başlatmadım.');
+      }
+      return this.runTask();
+    }
+  }
+
+  async runTask() {
+    const t = this.task;
+    const intent = t.intent;
+    await folder.load();
+    if (!folder.hasAny()) {
+      this.task = null;
+      return this.say('Önce bir fotoğraf kaynağı bağlamanız gerekiyor.');
+    }
+    if (intent.source !== 'drive' && (folder.list || []).some((f) => f.enabled)) {
+      this.step('Klasör erişim iznini kontrol ediyorum…');
+      if (!(await folder.ensure())) {
+        this.task = null;
+        return this.say('Klasöre erişim izni gerekiyor; izin verip komutu tekrarlayın.');
+      }
+    }
+
+    // 1) Aday fotoğraflar (kaynak kısıtı, filtre dosya adında geçiyorsa önce onlar)
+    const depth = Number(pref('framio_assistant_depth', 2));
+    const pool = Math.min(400, t.count * 6);
+    let candidates = [];
+    try {
+      const keep = { drive: intent.source !== 'local', local: intent.source !== 'drive' };
+      candidates = (await folder.find('', pool, depth, (x) => this.step(x))).filter((c) => (String(c.source).startsWith('Drive:') ? keep.drive : keep.local));
+    } catch (e) {
+      this.task = null;
+      return this.say('Kaynakları okuyamadım.');
+    }
+
+    // 2) Daha önce yüklenmiş olanlar çıkarılır ("yeni" fotoğraflar)
+    this.step('Daha önce paylaştıklarınızı ayıklıyorum…');
+    try {
+      const seen = new Set((await app.request({ method: 'POST', url: api('/framio-assistant/seen'), body: { names: candidates.map((c) => c.name) } })).seen || []);
+      candidates = candidates.filter((c) => !seen.has(c.name));
+    } catch (e) {}
+
+    // 3) Çekim yılı ve çeşitlilik (her araç bir kez)
+    const picked = [];
+    const plates = new Set();
+    const needle = t.filter ? t.filter.toLocaleLowerCase('tr-TR') : null;
+    for (const c of candidates) {
+      if (picked.length >= t.count * (needle ? 3 : 1)) break;
+      if (intent.shot_year) {
+        const y = await shotYear(c.file);
+        if (y !== intent.shot_year) continue;
+      }
+      const key = plateKey(c.name);
+      if (intent.diverse && key) {
+        if (plates.has(key)) continue;
+        plates.add(key);
+      }
+      picked.push(c);
+    }
+    if (!picked.length) {
+      this.task = null;
+      return this.say('Koşullara uyan yeni bir fotoğraf bulamadım.');
+    }
+    this.say(`${picked.length} aday fotoğraf seçtim; Framio AI ile inceleyip ${t.plan ? 'planı hazırlıyorum' : 'paylaşıyorum'}. Bu biraz sürebilir, sekmeyi açık bırakın.`);
+
+    // 4) Hazırla: analiz → (filtre) → başlık → yükle → içerik
+    const times = t.plan ? slots({ count: t.count, days: intent.days, perDay: intent.per_day, time: intent.time }) : [];
+    const items = [];
+    const usedPlates = new Set();
+    for (const c of picked) {
+      if (items.length >= t.count) break;
+      this.step(`${items.length + 1}/${t.count} · "${c.name}" inceleniyor…`);
+      let f = {};
+      try {
+        const fd = new FormData();
+        fd.append('image', await shrink(c.file), 'ai.jpg');
+        fd.append('exif_head', c.file.slice(0, 256 * 1024), 'head.jpg');
+        fd.append('file_name', c.name);
+        const ai = await app.request({ method: 'POST', url: api('/framio-media/analyze-ai'), body: fd });
+        const d = (ai && ai.data) || {};
+        f = { company: d.company || '', plate: d.plate || '', brand: d.brand || '', model: d.model || '', location: d.location || '', year: d.year || String((await shotYear(c.file)) || '') };
+      } catch (e) {
+        f = { year: String((await shotYear(c.file)) || '') };
+      }
+      if (needle && ![f.company, f.plate, f.brand, f.model].join(' ').toLocaleLowerCase('tr-TR').includes(needle)) continue;
+      if (intent.diverse && f.plate) {
+        const k = f.plate.replace(/\s+/g, '');
+        if (usedPlates.has(k)) continue;
+        usedPlates.add(k);
+      }
+
+      let topic = t.topic;
+      if (!topic) {
+        try {
+          const r = await app.request({ method: 'POST', url: api('/framio-assistant/route'), body: { brand: f.brand, model: f.model, company: f.company, year: f.year } });
+          topic = (r.suggestions || [])[0];
+        } catch (e) {}
+      }
+      if (!topic) {
+        this.step(`"${c.name}" için uygun başlık bulamadım, atlıyorum.`);
+        continue;
+      }
+
+      this.step(`${items.length + 1}/${t.count} · imzalanıp yükleniyor…`);
+      let code;
+      try {
+        code = await upload(c.file, pref('framio_assistant_watermark', 'none'));
+      } catch (e) {
+        this.step(`"${c.name}" yüklenemedi, atlıyorum.`);
+        continue;
+      }
+      const alt = [[f.company, f.plate].filter(Boolean).join(' | '), [f.brand, f.model].filter(Boolean).join(' ')].filter(Boolean).join(' - ');
+      if (alt) code = code.replace(/alt="([^"]*)"/g, `alt="${alt.replace(/"/g, '&quot;')}"`);
+      const content = code + (kunyeText(f) ? '\n' + kunyeText(f) : '') + '\n';
+      items.push({ discussion_id: topic.discussion_id, title: topic.title, content, label: alt || c.name, f });
+
+      if (!t.plan) {
+        // Hemen paylaş
+        try {
+          await app.request({ method: 'POST', url: api('/posts'), body: { data: { type: 'posts', attributes: { content }, relationships: { discussion: { data: { type: 'discussions', id: String(topic.discussion_id) } } } } } });
+          app.request({ method: 'POST', url: api('/framio-assistant/learn'), body: { brand: f.brand, model: f.model, company: f.company, discussion_id: topic.discussion_id } }).catch(() => {});
+        } catch (e) {
+          this.step(`"${c.name}" paylaşılamadı.`);
+        }
+      }
+    }
+
+    if (!items.length) {
+      this.task = null;
+      return this.say('Koşullara uyan fotoğraf hazırlayamadım.');
+    }
+
+    if (t.plan) {
+      this.step('Planı kaydediyorum…');
+      const body = { items: items.map((it, i) => ({ discussion_id: it.discussion_id, content: it.content, label: it.label, publish_at: localStamp(times[i] || times[times.length - 1]) })) };
+      try {
+        const res = await app.request({ method: 'POST', url: api('/framio-assistant/schedule'), body });
+        const first = times[0];
+        const last = times[Math.min(items.length, times.length) - 1];
+        this.say(`Plan hazır: ${res.count} fotoğraf, ilk paylaşım ${humanDate(first)}, son paylaşım ${humanDate(last)}. Her paylaşımdan sonra size buradan haber vereceğim. "Planlarım" diyerek durumu görebilir, "planı iptal et" diyerek durdurabilirsiniz.`);
+      } catch (e) {
+        this.say('Planı kaydedemedim.');
+      }
+    } else {
+      const byTopic = {};
+      items.forEach((it) => (byTopic[it.title] = (byTopic[it.title] || 0) + 1));
+      this.say(`Tamamlandı: ${items.length} fotoğraf paylaştım — ${Object.entries(byTopic).map(([k, v]) => `${k} (${v})`).join(', ')}.`);
+    }
+    this.task = null;
+  }
+
+  async listSchedule() {
+    try {
+      const res = await app.request({ method: 'GET', url: api('/framio-assistant/schedule') });
+      if (!res.pending) return this.say('Bekleyen planlı paylaşımınız yok.');
+      const slotsTxt = Object.entries(res.slots)
+        .slice(0, 6)
+        .map(([d, n]) => `${d} (${n})`)
+        .join(', ');
+      this.say(`Sırada ${res.pending} paylaşım var: ${slotsTxt}${Object.keys(res.slots).length > 6 ? '…' : ''}.`);
+    } catch (e) {
+      this.say('Planları alamadım.');
+    }
+  }
+
+  async cancelSchedule() {
+    try {
+      const res = await app.request({ method: 'POST', url: api('/framio-assistant/schedule/cancel'), body: {} });
+      this.say(res.cancelled ? `${res.cancelled} planlı paylaşımı iptal ettim.` : 'İptal edilecek planlı paylaşım yoktu.');
+    } catch (e) {
+      this.say('İptal edemedim.');
+    }
   }
 
   skip(card) {
@@ -495,7 +761,7 @@ const assistant = {
   panel: null,
   wake: null,
 
-  open(command) {
+  open(command, opts = {}) {
     if (!app.session.user) return;
     if (!this.el) {
       this.el = document.createElement('div');
@@ -507,7 +773,8 @@ const assistant = {
       });
     }
     document.body.classList.add('framio-assistant-open');
-    if (command) setTimeout(() => this.panel && this.panel.command(command), 50);
+    if (opts.listen) setTimeout(() => this.panel && this.panel.listen(command || ''), 80);
+    else if (command) setTimeout(() => this.panel && this.panel.command(command), 50);
   },
 
   close() {
