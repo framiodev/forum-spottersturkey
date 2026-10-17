@@ -358,6 +358,31 @@ export default class ExifLightboxModal extends Modal {
     }
   }
 
+  /** Aynı mesajın fotoğrafları arasında (başa/sona dönerek) */
+  goInPost(sameIdx, dir) {
+    const pos = sameIdx.indexOf(this.currentIndex);
+    this.showShareMenu = false;
+    this.currentIndex = sameIdx[(pos + dir + sameIdx.length) % sameIdx.length];
+    this.processCurrentItem();
+    m.redraw();
+  }
+
+  /** Önceki / sonraki mesaj (o mesajın ilk fotoğrafı) */
+  goPost(dir) {
+    if (this.items.length <= 1 || !this._keyOf) return dir < 0 ? this.prev() : this.next();
+    const keys = [];
+    this.items.forEach((it) => {
+      const k = this._keyOf(it);
+      if (keys.indexOf(k) === -1) keys.push(k);
+    });
+    const cur = keys.indexOf(this._keyOf(this.items[this.currentIndex]));
+    const target = keys[(cur + dir + keys.length) % keys.length];
+    this.showShareMenu = false;
+    this.currentIndex = this.items.findIndex((it) => this._keyOf(it) === target);
+    this.processCurrentItem();
+    m.redraw();
+  }
+
   prev() {
     if (this.items.length <= 1) return;
     this.showShareMenu = false;
@@ -499,7 +524,7 @@ export default class ExifLightboxModal extends Modal {
             className="SpottersGallery-NavBtn Prev"
             onclick={(e) => {
               e.stopPropagation();
-              this.prev();
+              this.goPost(-1);
             }}
             title="Önceki Mesaj / Fotoğraf (Sol Ok)"
           >
@@ -513,13 +538,31 @@ export default class ExifLightboxModal extends Modal {
             className="SpottersGallery-NavBtn Next"
             onclick={(e) => {
               e.stopPropagation();
-              this.next();
+              this.goPost(1);
             }}
             title="Sonraki Mesaj / Fotoğraf (Sağ Ok)"
           >
             <i className="fas fa-chevron-right"></i>
           </button>
         )}
+
+        {sameIdx.length > 1 ? (
+          <div className="SpottersGallery-Filmstrip" onclick={(e) => e.stopPropagation()}>
+            {sameIdx.map((i) => (
+              <div
+                className={'SpottersGallery-Thumb' + (i === this.currentIndex ? ' active' : '')}
+                onclick={() => {
+                  this.showShareMenu = false;
+                  this.currentIndex = i;
+                  this.processCurrentItem();
+                  m.redraw();
+                }}
+              >
+                <img src={this.placeholderUrl(this.items[i])} alt="thumbnail" loading="lazy" />
+              </div>
+            ))}
+          </div>
+        ) : null}
 
         <div className="SpottersGallery-Lightbox-Wrapper" onclick={() => app.modal.close()}>
           <div className="SpottersGallery-Lightbox-Body PanelOpen" onclick={(e) => e.stopPropagation()}>
@@ -725,23 +768,14 @@ export default class ExifLightboxModal extends Modal {
                   ];
                 })()}
                 {sameIdx.length > 1 ? (
-                  <div className="SpottersGallery-PostStrip" onclick={(e) => e.stopPropagation()} aria-label="Bu mesajdaki fotoğraflar">
-                    {sameIdx.map((i, n) => (
-                      <button
-                        type="button"
-                        className={'SpottersGallery-PostThumb' + (i === this.currentIndex ? ' is-active' : '')}
-                        title={`Bu mesajdaki ${n + 1}. fotoğraf`}
-                        onclick={() => {
-                          this.showShareMenu = false;
-                          this.currentIndex = i;
-                          this.processCurrentItem();
-                          m.redraw();
-                        }}
-                      >
-                        <img src={this.placeholderUrl(this.items[i])} alt="" loading="lazy" />
-                      </button>
-                    ))}
-                  </div>
+                  <button className="SpottersGallery-InnerNav prev" onclick={(e) => { e.stopPropagation(); this.goInPost(sameIdx, -1); }} title="Bu mesajdaki önceki fotoğraf">
+                    <i className="fas fa-angle-left"></i>
+                  </button>
+                ) : null}
+                {sameIdx.length > 1 ? (
+                  <button className="SpottersGallery-InnerNav next" onclick={(e) => { e.stopPropagation(); this.goInPost(sameIdx, 1); }} title="Bu mesajdaki sonraki fotoğraf">
+                    <i className="fas fa-angle-right"></i>
+                  </button>
                 ) : null}
               </div>
             </div>
