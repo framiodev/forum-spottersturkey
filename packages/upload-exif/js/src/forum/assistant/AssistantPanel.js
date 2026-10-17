@@ -332,17 +332,22 @@ class Panel extends Component {
     this.remember('me', text);
     m.redraw();
 
-    // Asistan bir soru sormuştu: bu cevap o göreve aittir
-    if (this.task && this.task.waiting) return this.answer(text);
 
     let intent;
     this.step('Komutu anlıyorum…');
     try {
-      intent = await app.request({ method: 'POST', url: api('/framio-assistant/parse'), body: { text } });
+      intent = await app.request({ method: 'POST', url: api('/framio-assistant/parse'), body: { text, context: this.task && this.task.waiting ? this.task.question : '' } });
     } catch (e) {
       return this.say('Komutu işleyemedim.');
     }
     this.step(null);
+
+    // Asistan bir soru sormuştu: cevapsa göreve devam; yeni ve tam bir istekse eski görev bırakılır
+    if (this.task && this.task.waiting) {
+      const fresh = ['batch', 'plan', 'share'].includes(intent.action) && (intent.per_topic || intent.count || intent.plate || intent.shot_year || intent.location);
+      if (!fresh) return this.answer(text, intent.answer || {});
+      this.task = null;
+    }
 
     const pending = this.queue.find((c) => c.state === 'ready');
     if (intent.action === 'confirm' && pending) return this.share(pending);
@@ -468,26 +473,53 @@ class Panel extends Component {
   // ── Çok adımlı görevler: önce sorar, sonra seçer, hazırlar, paylaşır ya da planlar ──────────
 
   async startTask(intent) {
-    const count = intent.count === 0 ? 20 : intent.count || (intent.days && intent.per_day ? intent.days * intent.per_day : 10);
-    this.task = { intent, count, plan: intent.action === 'plan', topic: null, filter: null, waiting: null };
+    let count = intent.count === 0 ? 20 : intent.count || (intent.days && intent.per_day ? intent.days * intent.per_day : 10);
+    const f = intent.filters || {};
+    this.task = { intent, count, plan: intent.action === 'plan', topic: null, filter: [f.company, f.plate, f.brand, f.model].filter(Boolean).join(' ') || null, waiting: null, targets: null };
+
+    // "Her marka başlığına 1'er": hedef başlıklar sunucudan (bölüm + dönem)
+    if (intent.per_topic || intent.topics_scope === 'brand_topics') {
+      this.step('Hedef başlıkları belirliyorum…');
+      try {
+        const res = await app.request({ method: 'POST', url: api('/framio-assistant/targets'), body: { section: intent.section || '', era: intent.era || '' } });
+        this.task.targets = res.topics || [];
+        this.task.perTopic = intent.per_topic || 1;
+        count = this.task.targets.length * this.task.perTopic;
+        this.task.count = count;
+      } catch (e) {}
+      if (!this.task.targets || !this.task.targets.length) {
+        this.task = null;
+        return this.say('Bu tarife uyan hedef başlık bulamadım; bölümü biraz daha açık söyler misiniz?');
+      }
+    }
     const what = this.task.plan
       ? `${count} fotoğrafı ${intent.days ? intent.days + ' gün boyunca ' : ''}${intent.per_day ? 'günde ' + intent.per_day + ' adet, ' : ''}${intent.time ? 'saat ' + intent.time + "'de " : ''}paylaşacak şekilde planlayacağım`
       : `${count} yeni fotoğraf paylaşacağım`;
     const from = intent.source === 'drive' ? "Google Drive'dan" : intent.source === 'local' ? 'bilgisayardaki klasörlerden' : 'bağlı kaynaklardan';
     const year = intent.shot_year ? `, yalnızca ${intent.shot_year} çekimleri` : '';
-    await this.say(`Anladım: ${from}${year} ${what}. Birkaç sorum var.`);
-    this.ask('topic');
+    const place = intent.location ? `, çekim yeri ${intent.location}` : '';
+    const scope = this.task.targets ? ` ${this.task.targets.length} başlığın her birine ${this.task.perTopic} adet olmak üzere` : '';
+    if (intent.auto) {
+      await this.say(`Anladım: ${from}${year}${place}${scope} ${what}. Otomatik başlıyorum; durdurmak için "iptal" deyin.`);
+      return this.runTask();
+    }
+    await this.say(`Anladım: ${from}${year}${place}${scope} ${what}. Birkaç sorum var.`);
+    this.ask(this.task.targets ? 'filter' : 'topic');
   }
 
   ask(what) {
     this.task.waiting = what;
+    this.task.question =
+      what === 'topic' ? 'Hangi başlıkta paylaşayım?' : what === 'filter' ? 'Özellikle istediğiniz bir firma, plaka, marka ya da model var mı?' : 'Başlayayım mı?';
     if (what === 'topic') this.say('Hangi başlıkta paylaşayım? Her fotoğraf için uygun başlığı benim seçmemi isterseniz "otomatik" deyin ya da bir başlık adı söyleyin.');
     if (what === 'filter') this.say('Özellikle istediğiniz bir firma, plaka, marka ya da model var mı? Yoksa "fark etmez" deyin.');
     if (what === 'confirm') {
       const t = this.task;
       const parts = [
         `${t.count} fotoğraf`,
-        t.topic ? `başlık: ${t.topic.title}` : 'başlık: her fotoğrafa uygun olan (Güncel/Arşiv çekim yılına göre)',
+        t.targets ? `${t.targets.length} başlığa ${t.perTopic}'er adet` : t.topic ? `başlık: ${t.topic.title}` : 'başlık: her fotoğrafa uygun olan (Güncel/Arşiv çekim yılına göre)',
+        t.intent.location ? `çekim yeri: ${t.intent.location}` : null,
+        t.intent.shot_year ? `çekim yılı: ${t.intent.shot_year}` : null,
         t.filter ? `filtre: ${t.filter}` : null,
         t.intent.diverse ? 'her biri farklı araç' : null,
         t.plan && t.intent.time ? `her gün ${t.intent.time}` : null,
@@ -496,7 +528,7 @@ class Panel extends Component {
     }
   }
 
-  async answer(text) {
+  async answer(text, a = {}) {
     const t = this.task;
     const step = t.waiting;
     t.waiting = null;
@@ -507,11 +539,11 @@ class Panel extends Component {
     }
 
     if (step === 'topic') {
-      if (!isAny(text)) {
+      if (!(a.any || isAny(text))) {
         // Başlık adı: forumda arayıp en uygun başlığı bul
         this.step('Başlığı arıyorum…');
         try {
-          const res = await app.request({ method: 'GET', url: api('/discussions?' + new URLSearchParams({ 'filter[q]': text, 'page[limit]': '5' })) });
+          const res = await app.request({ method: 'GET', url: api('/discussions?' + new URLSearchParams({ 'filter[q]': a.value || text, 'page[limit]': '5' })) });
           const d = (res.data || [])[0];
           if (d) t.topic = { discussion_id: d.id, title: d.attributes.title };
         } catch (e) {}
@@ -524,11 +556,11 @@ class Panel extends Component {
       return this.ask('filter');
     }
     if (step === 'filter') {
-      t.filter = isAny(text) ? null : text.trim();
+      t.filter = a.any || isAny(text) ? null : (a.value || text).trim();
       return this.ask('confirm');
     }
     if (step === 'confirm') {
-      if (!isYes(text)) {
+      if (a.no || !(a.yes || isYes(text))) {
         this.task = null;
         return this.say('Tamam, başlatmadım.');
       }
@@ -557,7 +589,15 @@ class Panel extends Component {
     const pool = Math.min(400, t.count * 6);
     let candidates = [];
     try {
-      candidates = await folder.find('', pool, depth, (x) => this.step(x), { source: intent.source, year: intent.shot_year, hint: t.filter || '' });
+      candidates = await folder.find('', Math.max(pool, (t.targets ? t.targets.length : 0) * 20), depth, (x) => this.step(x), { source: intent.source, year: intent.shot_year, hint: intent.location || t.filter || '' });
+      // Çekim yeri klasör adında geçiyorsa ("…/Esenler/…") önce onlar
+      if (intent.location) {
+        const words = intent.location.toLocaleLowerCase('tr-TR').split(/[\s,]+/).filter((w) => w.length > 3 && !/otogar|terminal|garaj/.test(w));
+        const inPath = candidates.filter((c) => words.some((w) => String(c.path || '').toLocaleLowerCase('tr-TR').includes(w.slice(0, 6))));
+        if (inPath.length) candidates = inPath.concat(candidates.filter((c) => !inPath.includes(c)));
+        t.placeWords = words;
+        t.placeFromPath = inPath.length > 0;
+      }
     } catch (e) {
       this.task = null;
       return this.say('Kaynakları okuyamadım.');
@@ -575,7 +615,7 @@ class Panel extends Component {
     const plates = new Set();
     const needle = t.filter ? t.filter.toLocaleLowerCase('tr-TR') : null;
     for (const c of candidates) {
-      if (picked.length >= t.count * (needle ? 3 : 1)) break;
+      if (picked.length >= t.count * (needle || t.targets || intent.location ? 4 : 1)) break;
       if (intent.shot_year) {
         // Drive: indirmeden bilinen yıl (EXIF ya da klasör adı); yerel dosyada EXIF okunur
         const y = c.year || (c.file ? await shotYear(c.file) : null);
@@ -620,6 +660,11 @@ class Panel extends Component {
         f = { year: String((await shotYear(c.file)) || '') };
       }
       if (needle && ![f.company, f.plate, f.brand, f.model].join(' ').toLocaleLowerCase('tr-TR').includes(needle)) continue;
+      // Çekim yeri klasörden anlaşılmadıysa Framio AI'nın bulduğu yere bakılır
+      if (t.placeWords && t.placeWords.length && !t.placeFromPath) {
+        const loc = String(f.location || '').toLocaleLowerCase('tr-TR');
+        if (!loc || !t.placeWords.some((w) => loc.includes(w.slice(0, 6)))) continue;
+      }
       if (intent.diverse && f.plate) {
         const k = f.plate.replace(/\s+/g, '');
         if (usedPlates.has(k)) continue;
@@ -630,8 +675,19 @@ class Panel extends Component {
       if (!topic) {
         try {
           const r = await app.request({ method: 'POST', url: api('/framio-assistant/route'), body: { brand: f.brand, model: f.model, company: f.company, year: f.year, hint: c.path || '' } });
-          topic = (r.suggestions || [])[0];
+          const sugg = r.suggestions || [];
+          if (t.targets) {
+            // Yalnızca hedef başlıklardan, henüz kotası dolmamış olanı
+            t.filled = t.filled || {};
+            topic = sugg.find((x) => t.targets.some((g) => g.discussion_id === x.discussion_id) && (t.filled[x.discussion_id] || 0) < t.perTopic);
+          } else {
+            topic = sugg[0];
+          }
         } catch (e) {}
+      }
+      if (t.targets && !topic) {
+        this.step(`"${c.name}" hedef başlıklardan birine uymuyor ya da o başlık doldu, atlıyorum.`);
+        continue;
       }
       if (!topic) {
         this.step(`"${c.name}" için uygun başlık bulamadım, atlıyorum.`);
@@ -650,6 +706,7 @@ class Panel extends Component {
       if (alt) code = code.replace(/alt="([^"]*)"/g, `alt="${alt.replace(/"/g, '&quot;')}"`);
       const content = code + (kunyeText(f) ? '\n' + kunyeText(f) : '') + '\n';
       items.push({ discussion_id: topic.discussion_id, title: topic.title, content, label: alt || c.name, f });
+      if (t.targets) t.filled[topic.discussion_id] = (t.filled[topic.discussion_id] || 0) + 1;
 
       if (!t.plan) {
         // Hemen paylaş
@@ -681,7 +738,8 @@ class Panel extends Component {
     } else {
       const byTopic = {};
       items.forEach((it) => (byTopic[it.title] = (byTopic[it.title] || 0) + 1));
-      this.say(`Tamamlandı: ${items.length} fotoğraf paylaştım — ${Object.entries(byTopic).map(([k, v]) => `${k} (${v})`).join(', ')}.`);
+      const empty = t.targets ? t.targets.filter((g) => !(t.filled || {})[g.discussion_id]).map((g) => g.title) : [];
+      this.say(`Tamamlandı: ${items.length} fotoğraf paylaştım — ${Object.entries(byTopic).map(([k, v]) => `${k} (${v})`).join(', ')}.` + (empty.length ? ` Uygun fotoğraf bulamadığım başlıklar: ${empty.join(', ')}.` : ''));
     }
     this.task = null;
   }

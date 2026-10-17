@@ -57,11 +57,11 @@ export function humanDate(d) {
   return d.toLocaleString('tr-TR', { day: 'numeric', month: 'long', hour: '2-digit', minute: '2-digit' });
 }
 
-/** "fark etmez", "otomatik", "hayır yok" gibi serbest bırakma cevapları */
+/** "fark etmez", "otomatik", "sen seç" gibi serbest bırakma cevapları (cümlenin içinde de olabilir) */
 export function isAny(text) {
-  return /^(fark etmez|farketmez|otomatik|hepsi|her ?hangi|yok|hayır|olmasın|sen seç|sen karar ver|önemli değil|boş)/i.test(String(text || '').trim().toLocaleLowerCase('tr-TR'));
+  return /(fark etmez|farketmez|otomatik|sen seç|sen karar ver|kendin seç|uygun olan|uygununu|hepsi olur|her ?hangi|önemli değil|olmasın|^yok\b|^hayır\b)/i.test(String(text || '').trim().toLocaleLowerCase('tr-TR'));
 }
 
 export function isYes(text) {
-  return /^(evet|tamam|olur|onay|başla|devam|uygun|peki)/i.test(String(text || '').trim().toLocaleLowerCase('tr-TR'));
+  return /^(evet|tamam|olur|onay|başla|devam|uygun|peki|hadi|yap)/i.test(String(text || '').trim().toLocaleLowerCase('tr-TR'));
 }

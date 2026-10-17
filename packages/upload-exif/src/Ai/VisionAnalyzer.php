@@ -355,6 +355,66 @@ class VisionAnalyzer
         return $out;
     }
 
+    /**
+     * Görselsiz metin sorusu (ör. asistan komutunu anlama). Sağlayıcılar yarışır; ilk geçerli JSON döner.
+     * Ham JSON (iç içe alanlar korunur) döndürülür; hiçbiri yanıt veremezse null.
+     */
+    public function completeJson(array $candidates, string $prompt, float $timeout = 8): ?array
+    {
+        if (!$candidates) return null;
+        $client = new Client(['timeout' => $timeout, 'connect_timeout' => 3]);
+        $promises = [];
+        foreach ($candidates as $i => $c) {
+            $promises[$i] = $this->textRequest($client, $c, $prompt)->then(function ($res) use ($c) {
+                $raw = json_decode((string) $res->getBody(), true) ?: [];
+                $text = match ($c['provider']) {
+                    'claude' => collect($raw['content'] ?? [])->firstWhere('type', 'text')['text'] ?? '',
+                    'gemini' => $raw['candidates'][0]['content']['parts'][0]['text'] ?? '',
+                    default => $raw['choices'][0]['message']['content'] ?? '',
+                };
+                $text = trim(preg_replace('#<think>.*?</think>#s', '', (string) $text));
+                if (preg_match('/\{.*\}/s', $text, $m)) $text = $m[0];
+                $data = json_decode($text, true);
+                if (!is_array($data)) throw new \RuntimeException('JSON değil');
+
+                return $data;
+            });
+        }
+        try {
+            return Utils::any($promises)->wait();
+        } catch (\Throwable $e) {
+            return null;
+        }
+    }
+
+    protected function textRequest(Client $client, array $c, string $prompt): PromiseInterface
+    {
+        switch ($c['provider']) {
+            case 'claude':
+                return $this->send($client, 'https://api.anthropic.com/v1/messages', ['x-api-key' => $c['key'], 'anthropic-version' => '2023-06-01'],
+                    ['model' => $c['model'], 'max_tokens' => 800, 'thinking' => ['type' => 'disabled'], 'messages' => [['role' => 'user', 'content' => $prompt]]],
+                    ['thinking' => ['thinking']]);
+            case 'gemini':
+                return $this->send($client, 'https://generativelanguage.googleapis.com/v1beta/models/' . rawurlencode($c['model']) . ':generateContent', ['x-goog-api-key' => $c['key']],
+                    ['contents' => [['parts' => [['text' => $prompt]]]], 'generationConfig' => ['temperature' => 0, 'maxOutputTokens' => 800, 'responseMimeType' => 'application/json', 'thinkingConfig' => str_starts_with($c['model'], 'gemini-2.5') ? ['thinkingBudget' => 0] : ['thinkingLevel' => 'minimal']]],
+                    ['generationConfig.thinkingConfig' => ['thinking']]);
+            default:
+                $p = $c['provider'];
+                $body = ['model' => $c['model'], 'messages' => [['role' => 'user', 'content' => $prompt]], 'response_format' => ['type' => 'json_object']];
+                if ($p === 'openai') {
+                    $body['max_completion_tokens'] = 800;
+                    $body['reasoning_effort'] = 'minimal';
+                } else {
+                    $body['max_tokens'] = 800;
+                    $body['temperature'] = 0;
+                    if (in_array($p, ['groq', 'nvidia', 'grok'], true)) $body['reasoning_effort'] = $p === 'grok' ? 'low' : 'none';
+                }
+                $headers = ['Authorization' => 'Bearer ' . $c['key']];
+
+                return $this->send($client, self::CHAT_URLS[$p], $headers, $body, ['reasoning_effort' => ['reasoning'], 'response_format' => ['response_format', 'json_object', 'response format'], 'temperature' => ['temperature']]);
+        }
+    }
+
     /** Tek sağlayıcıya ayrı bir soru (ör. yalnızca konum); ayrıştırılmış JSON döner */
     public function askAsync(Client $client, array $c, string $b64, string $mime, string $prompt, float $timeout = 2.5): PromiseInterface
     {

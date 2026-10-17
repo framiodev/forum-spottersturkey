@@ -99,6 +99,7 @@ return [
         ->post('/framio-assistant/schedule', 'framio.assistant.schedule.add', \Framio\UploadExif\Assistant\AssistantController::class)
         ->post('/framio-assistant/schedule/cancel', 'framio.assistant.schedule.cancel', \Framio\UploadExif\Assistant\AssistantController::class)
         ->post('/framio-assistant/seen', 'framio.assistant.seen', \Framio\UploadExif\Assistant\AssistantController::class)
+        ->post('/framio-assistant/targets', 'framio.assistant.targets', \Framio\UploadExif\Assistant\AssistantController::class)
 
         // Canlı güncelleme (yeni sürüm ve yeni mesajlar)
         ->get('/framio/live', 'framio.live', \Framio\UploadExif\Api\Controller\LiveController::class),

@@ -24,7 +24,7 @@ use Psr\Http\Server\RequestHandlerInterface;
  */
 class AssistantController implements RequestHandlerInterface
 {
-    public function __construct(protected ConnectionInterface $db, protected SettingsRepositoryInterface $settings, protected Era $era)
+    public function __construct(protected ConnectionInterface $db, protected SettingsRepositoryInterface $settings, protected Era $era, protected \Framio\UploadExif\Ai\VisionAnalyzer $ai)
     {
     }
 
@@ -36,7 +36,8 @@ class AssistantController implements RequestHandlerInterface
         $path = $request->getUri()->getPath();
 
         return match (true) {
-            str_ends_with($path, '/parse') => new JsonResponse($this->parse((string) Arr::get($body, 'text', ''))),
+            str_ends_with($path, '/parse') => new JsonResponse($this->understand($actor, (string) Arr::get($body, 'text', ''), (string) Arr::get($body, 'context', ''))),
+            str_ends_with($path, '/targets') => new JsonResponse($this->targets($actor, $body)),
             str_ends_with($path, '/route') => new JsonResponse($this->route($actor, $body)),
             str_ends_with($path, '/learn') => new JsonResponse($this->learn($actor, $body)),
             str_ends_with($path, '/forget') => new JsonResponse($this->forget($actor)),
@@ -75,7 +76,7 @@ class AssistantController implements RequestHandlerInterface
 
         // Adet: "3 fotoğraf", "son üç", "hepsini"
         $count = null;
-        if (preg_match('/\b(\d{1,2})\s*(?:tane|adet|fotoğraf|foto|görsel|resim)/u', $t, $m)) {
+        if (preg_match('/(?<![\d\'’])(\d{1,3})\s*(?:tane|adet|fotoğraf|foto|görsel|resim|poz)/u', $t, $m) && !preg_match('/^(19|20)\d{2}$/', $m[1])) {
             $count = (int) $m[1];
         } elseif (preg_match('/\b(' . implode('|', array_keys($words)) . ')\s*(?:tane|adet|fotoğraf|foto|görsel|resim)/u', $t, $m)) {
             $count = $words[$m[1]];
@@ -104,7 +105,7 @@ class AssistantController implements RequestHandlerInterface
 
         // Dosya adı araması: plaka yoksa tırnak içindeki ya da "adlı/isimli" sonrası ifade
         $query = $plate;
-        if (!$query && preg_match('/["“”\']([^"“”\']{2,60})["“”\']/u', $raw, $m)) $query = trim($m[1]);
+        if (!$query && preg_match('/["“”]([^"“”]{2,60})["“”]/u', $raw, $m)) $query = trim($m[1]);
         if (!$query && preg_match('/(?:adlı|isimli|içinde)\s+(.{2,60}?)(?:\s+(?:fotoğraf|foto|görsel|dosya)|$)/u', $raw, $m)) $query = trim($m[1]);
 
         // Planlama: "7 gün boyunca günde 10", "her gün saat 12'de", "2026 çekimlerinden", "Drive'dan"
@@ -120,9 +121,9 @@ class AssistantController implements RequestHandlerInterface
         } elseif (preg_match('/sabah/u', $t)) {
             $time = '09:00';
         }
-        $shotYear = preg_match('/\b(19\d{2}|20\d{2})\s*(?:çekim|yılı|yılında|tarihli)/u', $t, $m) ? (int) $m[1] : null;
+        $shotYear = preg_match('/\b(19\d{2}|20\d{2})(?:\s*|\'?\s*(?:te|ta|de|da|’te|’de)?\s*)(?:çekim|yılı|yılında|tarihli|fotoğraf|foto|poz|görsel)/u', $t, $m) ? (int) $m[1] : null;
         $source = str_contains($t, 'drive') ? 'drive' : (preg_match('/(klasör|masaüstü|bilgisayar)/u', $t) ? 'local' : null);
-        if (preg_match('/(\d{1,3})\s*(?:farklı)?\s*(?:poz|fotoğraf|foto|görsel)/u', $t, $m)) $count = (int) $m[1];
+        if (preg_match('/(?<![\d\'’])(\d{1,3})\s*(?:farklı)?\s*(?:poz|fotoğraf|foto|görsel)/u', $t, $m)) $count = (int) $m[1];
         $diverse = (bool) preg_match('/farklı/u', $t);
         $notify = (bool) preg_match('/(haber ver|bildir|söyle)/u', $t);
         $today = (bool) preg_match('/\bbugün/u', $t);
@@ -137,6 +138,115 @@ class AssistantController implements RequestHandlerInterface
         return ['action' => $action, 'plate' => $plate, 'query' => $query, 'count' => $count, 'tag' => $tag, 'text' => $raw,
             'days' => $days, 'per_day' => $perDay, 'time' => $time, 'shot_year' => $shotYear, 'source' => $source,
             'diverse' => $diverse, 'notify' => $notify, 'today' => $today];
+    }
+
+    /**
+     * Komutu yapay zekayla anlar (karmaşık, çok koşullu istekler için); yapay zeka yoksa ya da yanıt
+     * vermezse kural tabanlı ayrıştırıcı kullanılır. Plaka her zaman kural tabanlı okunur (kesin).
+     * $context: asistanın o an sorduğu soru (cevap mı yeni komut mu ayırt etmek için)
+     */
+    public function understand(User $actor, string $text, string $context = ''): array
+    {
+        $base = $this->parse($text);
+        $candidates = $this->ai->candidates($actor);
+        if (!$candidates || mb_strlen(trim($text)) < 3) return $base + ['ai' => false];
+
+        $sections = [];
+        foreach ($this->db->table('tags')->orderBy('position')->get(['id', 'name', 'slug', 'parent_id']) as $t) {
+            if ($t->parent_id) continue;
+            $era = $this->era->tagEra((int) $t->id);
+            $sections[] = $t->name . ($era ? ' (' . ($era === Era::CURRENT ? 'Güncel' : 'Arşiv') . ')' : '');
+        }
+        $year = (int) Carbon::now()->format('Y');
+
+        $prompt = "Bir ulaşım fotoğrafı forumunun Türkçe asistanısın. Kullanıcının mesajını aşağıdaki JSON'a çevir. Bugün: " . Carbon::now()->format('d.m.Y') . ".\n"
+            . "Forum bölümleri: " . implode('; ', $sections) . ".\n"
+            . "Güncel/Arşiv kuralı: çekim yılı {$year} ya da " . ($year - 1) . " ise Güncel, daha eskiyse Arşiv.\n"
+            . ($context ? "Asistanın az önce sorduğu soru: \"$context\". Mesaj bu soruya bir CEVAP ise action=\"answer\" yap ve answer alanını doldur; yeni ve tam bir istekse cevap sayma.\n" : '')
+            . "JSON alanları (bilinmeyeni null bırak):\n"
+            . "{\"action\": \"share (tek araç/plaka) | batch (birden çok fotoğraf hemen) | plan (ileri tarihe zamanla) | search | schedule_list | schedule_cancel | folder | help | cancel | confirm | answer\",\n"
+            . " \"count\": sayı ya da null, \"per_topic\": her hedef başlığa kaç adet (\"her başlıkta 1'er\" → 1) ya da null,\n"
+            . " \"section\": hedef bölüm ipucu (ör. \"otobüs\", \"kamyon\", \"şehiriçi\") ya da null, \"era\": \"current\" | \"archive\" | null (\"güncel başlıklar\" → current),\n"
+            . " \"topics_scope\": \"brand_topics\" (her markanın alt başlıkları) | \"one_topic\" | null, \"topic_name\": belirli başlık adı ya da null,\n"
+            . " \"location\": çekim yeri filtresi (ör. \"Esenler Otogarı, İstanbul\") ya da null, \"shot_year\": çekim yılı ya da null,\n"
+            . " \"source\": \"drive\" | \"local\" | null, \"only_new\": daha önce paylaşılmamış olanlar mı (true/false),\n"
+            . " \"filters\": {\"company\": null, \"plate\": null, \"brand\": null, \"model\": null} (\"fark etmez\" denenler null),\n"
+            . " \"auto\": kullanıcı soru sorulmadan/otomatik yapılmasını istiyorsa true, \"diverse\": her fotoğraf farklı araç olsun mu,\n"
+            . " \"days\": null, \"per_day\": null, \"time\": \"HH:MM\" ya da null, \"notify\": haber verilsin mi,\n"
+            . " \"answer\": {\"any\": soru serbest bırakıldıysa (\"fark etmez\", \"sen seç\", \"otomatik\") true, \"yes\": onay (\"evet\", \"başla\") true, \"no\": ret true, \"value\": verilen değer ya da null}}\n"
+            . "Kullanıcının mesajı: \"" . str_replace('"', "'", $text) . "\"\nSADECE JSON döndür.";
+
+        $j = $this->ai->completeJson($candidates, $prompt);
+        if (!$j) return $base + ['ai' => false];
+
+        $intent = $base;
+        $action = (string) ($j['action'] ?? '');
+        if (in_array($action, ['share', 'batch', 'plan', 'search', 'schedule_list', 'schedule_cancel', 'folder', 'help', 'cancel', 'confirm', 'answer'], true)) {
+            // Tek plaka verildiyse "share" kalır (kural tabanlı okuma kesin)
+            $intent['action'] = $base['plate'] && in_array($action, ['batch', 'search'], true) ? $base['action'] : $action;
+        }
+        foreach (['count', 'days', 'per_day'] as $k) {
+            if (isset($j[$k]) && is_numeric($j[$k])) $intent[$k] = (int) $j[$k];
+        }
+        if (!empty($j['time']) && preg_match('/^\d{1,2}:\d{2}$/', (string) $j['time'])) $intent['time'] = (string) $j['time'];
+        if (!empty($j['shot_year'])) $intent['shot_year'] = (int) $j['shot_year'];
+        if (in_array($j['source'] ?? null, ['drive', 'local'], true)) $intent['source'] = $j['source'];
+        foreach (['notify', 'diverse', 'auto', 'only_new'] as $k) {
+            if (isset($j[$k])) $intent[$k] = (bool) $j[$k];
+        }
+        $intent['per_topic'] = isset($j['per_topic']) && is_numeric($j['per_topic']) ? max(1, (int) $j['per_topic']) : null;
+        $intent['section'] = $j['section'] ?? null;
+        $intent['era'] = in_array($j['era'] ?? null, ['current', 'archive'], true) ? $j['era'] : null;
+        $intent['topics_scope'] = $j['topics_scope'] ?? null;
+        $intent['topic_name'] = $j['topic_name'] ?? null;
+        $intent['location'] = $j['location'] ?? null;
+        $intent['filters'] = array_filter((array) ($j['filters'] ?? []), fn ($v) => is_string($v) && trim($v) !== '');
+        $intent['answer'] = (array) ($j['answer'] ?? []);
+        $intent['ai'] = true;
+
+        return $intent;
+    }
+
+    /**
+     * Hedef başlıklar: "güncel otobüs başlıklarında her markanın alt başlıkları" → o bölümdeki (ve dönemdeki)
+     * marka etiketlerinin altındaki fotoğraf başlıkları. "Diğer Konular" gibi genel etiketler dışarıda kalır.
+     */
+    public function targets(User $actor, array $body): array
+    {
+        $section = mb_strtolower(str_replace(['I', 'İ'], ['ı', 'i'], (string) Arr::get($body, 'section', '')), 'UTF-8');
+        $words = array_values(array_filter(preg_split('/\s+/u', $section), fn ($w) => mb_strlen($w) > 3));
+        $era = Arr::get($body, 'era');
+        $tags = $this->db->table('tags')->get(['id', 'name', 'slug', 'parent_id'])->keyBy('id');
+        $lower = fn ($v) => mb_strtolower(str_replace(['I', 'İ'], ['ı', 'i'], (string) $v), 'UTF-8');
+        $rootOf = function ($id) use ($tags, &$rootOf) {
+            $t = $tags[$id] ?? null;
+            return $t && $t->parent_id ? $rootOf($t->parent_id) : $id;
+        };
+
+        $tagIds = [];
+        foreach ($tags as $t) {
+            if (!$t->parent_id) continue; // marka/alt etiketler
+            $name = $lower($t->name);
+            if (preg_match('/(diğer konu|sohbet|haber|arşiv içerik)/u', $name)) continue;
+            $root = $tags[$rootOf($t->id)] ?? null;
+            if ($words && !collect($words)->contains(fn ($w) => str_contains($lower($root->name ?? ''), mb_substr($w, 0, 6)))) continue;
+            if ($era && $this->era->tagEra((int) $t->id) !== $era && !($era === Era::CURRENT && $this->era->tagEra((int) $t->id) === null)) continue;
+            $tagIds[] = (int) $t->id;
+        }
+        if (!$tagIds) return ['topics' => []];
+
+        $rows = $this->db->table('discussions')->join('discussion_tag', 'discussion_tag.discussion_id', '=', 'discussions.id')
+            ->whereIn('discussion_tag.tag_id', $tagIds)->whereNull('discussions.hidden_at')
+            ->select('discussions.id', 'discussions.title', 'discussion_tag.tag_id')->orderBy('discussions.id')->get();
+        $out = [];
+        foreach ($rows as $r) {
+            if (isset($out[$r->id])) continue;
+            if (!$this->describe((int) $r->id, $actor)) continue;
+            if ($era && $this->era->ofDiscussion((int) $r->id) !== $era) continue;
+            $out[$r->id] = ['discussion_id' => (int) $r->id, 'title' => $r->title, 'brand' => $tags[$r->tag_id]->name ?? ''];
+        }
+
+        return ['topics' => array_values($out)];
     }
 
     // ── Başlık önerisi ───────────────────────────────────────────────────────
