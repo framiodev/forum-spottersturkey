@@ -523,7 +523,17 @@ class Panel extends Component {
     let intent;
     this.step('Komutu anlıyorum…');
     try {
-      intent = await app.request({ method: 'POST', url: api('/framio-assistant/parse'), body: { text, context: this.task && this.task.waiting ? this.task.question : '' } });
+      const pendingCard = this.queue.find((c) => c.state === 'ready');
+      intent = await app.request({
+        method: 'POST',
+        url: api('/framio-assistant/parse'),
+        body: {
+          text,
+          context: this.task && this.task.waiting ? this.task.question : '',
+          history: this.log.filter((l) => l.who === 'me' || l.who === 'bot').slice(-13, -1).map((l) => ({ who: l.who, text: l.text })),
+          card: pendingCard ? Object.assign({}, pendingCard.fields, { topic: ((pendingCard.suggestions || []).find((x) => String(x.discussion_id) === String(pendingCard.topic)) || {}).title || '' }) : null,
+        },
+      });
     } catch (e) {
       return this.say('Komutu işleyemedim.');
     }
@@ -537,6 +547,8 @@ class Panel extends Component {
     }
 
     const pending = this.queue.find((c) => c.state === 'ready');
+    if (intent.action === 'chat') return this.say(intent.reply || 'Anlayamadım, biraz daha açar mısınız?');
+    if (intent.action === 'correct' && pending) return this.correctCard(pending, intent.corrections || {}, intent.reply);
     if (intent.action === 'confirm' && pending) return this.share(pending);
     if (intent.action === 'cancel') {
       if (pending) return this.skip(pending);
@@ -713,6 +725,37 @@ class Panel extends Component {
       this.say(`${summary || 'Künyeyi çıkaramadım'}. Uygun başlık bulamadım; listeden seçebilirsiniz.`);
     }
     m.redraw();
+  }
+
+  /** Kullanıcının düzeltmesini karta uygular, başlığı yeniden arar */
+  async correctCard(card, fix, reply) {
+    for (const k of ['company', 'plate', 'brand', 'model', 'location']) {
+      if (fix[k]) card.fields[k] = fix[k];
+    }
+    // Model marka adıyla yazıldıysa marka ayrılır ("Mercedes-Benz Tourismo 16" → "Tourismo 16")
+    if (card.fields.brand && normalize(card.fields.model || '').startsWith(normalize(card.fields.brand))) {
+      card.fields.model = card.fields.model.slice(card.fields.brand.length).trim();
+    }
+    card.state = 'analyzing';
+    m.redraw();
+    this.step('Başlığı yeniden arıyorum…');
+    try {
+      const r = await app.request({ method: 'POST', url: api('/framio-assistant/route'), body: { plate: fix.model ? '' : card.fields.plate, brand: card.fields.brand, model: card.fields.model, company: card.fields.company, year: card.fields.year, hint: [card.path || '', fix.topic_hint || ''].join(' ') } });
+      card.suggestions = r.suggestions || [];
+      if (fix.topic_hint) {
+        const h = normalize(fix.topic_hint);
+        card.suggestions.sort((a, b) => normalize(b.title).includes(h) - normalize(a.title).includes(h));
+      }
+      card.topic = card.suggestions.length ? String(card.suggestions[0].discussion_id) : '';
+    } catch (e) {}
+    this.step(null);
+    card.state = 'ready';
+    card.auto = false;
+    const f = card.fields;
+    const summary = [f.company, f.plate, [f.brand, f.model].filter(Boolean).join(' '), f.location].filter(Boolean).join(', ');
+    const topic = card.suggestions[0];
+    m.redraw();
+    return this.say(`${reply ? reply + ' ' : ''}${summary}. ${topic ? topic.title + ' başlığına paylaşayım mı?' : 'Uygun başlık bulamadım; listeden seçebilir ya da başlık adını söyleyebilirsiniz.'}`);
   }
 
   /** Soru sorar, kullanıcının bir sonraki (yazılı ya da sesli) cevabını döndürür */

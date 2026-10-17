@@ -225,10 +225,10 @@ class AnalyzeMediaAiController implements RequestHandlerInterface
 
             // Model doğrulama: güçlü modele yalnızca marka/model sorulur (hızlı yarışı kazanan zayıf modelin hatasını düzeltir)
             if ($geoCandidate) {
-                $jobs['vehicle'] = $this->vision->askAsync($client, $geoCandidate, $b64, $mime,
+                $jobs['vehicle'] = $this->vision->askAsync($client, ['deep' => $this->vision->accurate()] + $geoCandidate, $b64, $mime,
                     "Bu fotoğraftaki ana aracın markasını ve TAM modelini belirle. Ön/arka maske, far biçimi, ızgara, tavan çizgisi ve yan pencere dizilimine dikkatle bak.\n"
                     . self::MODEL_CUES . $modelList
-                    . "Yalnızca şu JSON'u döndür: {\"brand\": \"\", \"model\": \"marka adı olmadan\", \"confidence\": \"high|medium|low\"}. SADECE JSON.", 7.0);
+                    . "Yalnızca şu JSON'u döndür: {\"brand\": \"\", \"model\": \"marka adı olmadan\", \"confidence\": \"high|medium|low\"}. SADECE JSON.", $this->vision->accurate() ? 30.0 : 7.0);
             }
 
             return $jobs;

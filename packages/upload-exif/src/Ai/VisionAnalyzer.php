@@ -81,6 +81,58 @@ class VisionAnalyzer
         return ['provider' => $provider, 'key' => $key, 'model' => $model, 'source' => $source];
     }
 
+    /** Doğruluk kipi (varsayılan): hız yerine en doğru sonuç — güçlü model düşünerek yanıtlar, tüm yanıtlar oylanır */
+    public function accurate(): bool
+    {
+        return $this->setting('ai_quality', 'accurate') !== 'fast';
+    }
+
+    /** Doğruluk kipinde listeye, Gemini anahtarıyla çalışan güçlü (düşünen) model eklenir */
+    public function withDeep(array $candidates): array
+    {
+        if (!$this->accurate()) return $candidates;
+        foreach ($candidates as $c) {
+            if ($c['provider'] === 'gemini') {
+                $model = trim((string) $this->setting('ai_accurate_model', '')) ?: 'gemini-3.8-flash';
+                array_unshift($candidates, ['model' => $model, 'deep' => true] + $c);
+                break;
+            }
+            if (in_array($c['provider'], ['claude', 'openai', 'grok'], true)) {
+                array_unshift($candidates, ['deep' => true] + $c);
+                break;
+            }
+        }
+
+        return $candidates;
+    }
+
+    /** Alan bazında ağırlıklı oylama: güçlü model 3, diğerleri 1 oy */
+    protected function vote(array $results): array
+    {
+        $out = [];
+        $fields = [];
+        foreach ($results as $r) $fields = array_merge($fields, array_keys($r['data']));
+        foreach (array_unique($fields) as $f) {
+            $tally = [];
+            foreach ($results as $r) {
+                $v = $r['data'][$f] ?? null;
+                if (!is_scalar($v) || trim((string) $v) === '') continue;
+                $k = preg_replace('/[^\p{L}\p{N}]/u', '', mb_strtolower((string) $v, 'UTF-8'));
+                $tally[$k] ??= ['v' => $v, 'w' => 0];
+                $tally[$k]['w'] += !empty($r['deep']) ? 3 : 1;
+                if (!empty($r['deep'])) $tally[$k]['w'] += 0.5;
+            }
+            if ($tally) {
+                usort($tally, fn ($a, $b) => $b['w'] <=> $a['w']);
+                $out[$f] = $tally[0]['v'];
+            } else {
+                $out[$f] = '';
+            }
+        }
+
+        return $out;
+    }
+
     /** @return array<int,array{provider:string,key:string,model:string,source:string}> */
     public function candidates(?User $actor): array
     {
@@ -159,6 +211,11 @@ class VisionAnalyzer
         $b64 = base64_encode($bytes);
 
         $timeout = max(3, min(30, (float) $this->setting('ai_timeout', 10)));
+        $accurate = $this->accurate();
+        if ($accurate) {
+            $candidates = $this->withDeep($candidates);
+            $timeout = max($timeout, 30);
+        }
         $client = new Client(['timeout' => $timeout, 'connect_timeout' => 3]);
 
         // Yan işler (görsel benzerlik, konum sorusu, ters adres) aynı istemcide, yapay zeka isteğiyle
@@ -177,7 +234,7 @@ class VisionAnalyzer
             return is_array($side) ? array_map($one, $side) : $one($side);
         };
 
-        $cacheKey = 'framio_vision_' . sha1($b64 . '|' . $prompt);
+        $cacheKey = 'framio_vision_' . ($accurate ? 'acc_' : '') . sha1($b64 . '|' . $prompt);
         if ($hit = $this->cache->get($cacheKey)) {
             return $hit + ['cached' => true, 'side' => $sideValue(), 'ms' => (int) ((microtime(true) - $start) * 1000)];
         }
@@ -192,7 +249,7 @@ class VisionAnalyzer
                         throw new \RuntimeException(self::PROVIDERS[$c['provider']]['name'] . ': boş yanıt');
                     }
 
-                    return ['data' => $data, 'provider' => $c['provider'], 'model' => $c['model'], 'source' => $c['source']];
+                    return ['data' => $data, 'provider' => $c['provider'], 'model' => $c['model'], 'source' => $c['source'], 'deep' => !empty($c['deep'])];
                 },
                 function ($e) use ($c, &$errors) {
                     $errors[] = self::PROVIDERS[$c['provider']]['name'] . ': ' . $this->errorMessage($e);
@@ -202,8 +259,21 @@ class VisionAnalyzer
         }
 
         try {
-            // İlk başarılı yanıt kazanır; diğerleri beklenmez
-            $result = Utils::any($promises)->wait();
+            if ($accurate) {
+                // Doğruluk: tüm yanıtlar beklenir, alanlar oylanır (güçlü modelin oyu ağır basar)
+                $ok = [];
+                foreach (Utils::settle($promises)->wait() as $s) {
+                    if (($s['state'] ?? '') === 'fulfilled') $ok[] = $s['value'];
+                }
+                if (!$ok) throw new \RuntimeException('yanıt yok');
+                usort($ok, fn ($a, $b) => (int) $b['deep'] <=> (int) $a['deep']);
+                $result = $ok[0];
+                $result['data'] = count($ok) > 1 ? $this->vote($ok) : $ok[0]['data'];
+                $result['votes'] = count($ok);
+            } else {
+                // İlk başarılı yanıt kazanır; diğerleri beklenmez
+                $result = Utils::any($promises)->wait();
+            }
         } catch (\Throwable $e) {
             $message = $errors ? implode(' · ', $errors) : $this->errorMessage($e);
             // Yapay zeka yanıt veremese de benzer fotoğraf bulunduysa o kullanılır
@@ -224,9 +294,9 @@ class VisionAnalyzer
             case 'claude':
                 $body = [
                     'model' => $c['model'],
-                    'max_tokens' => 500,
-                    // Hız için düşünme kapalı; model kabul etmezse ayarsız tekrar denenir
-                    'thinking' => ['type' => 'disabled'],
+                    'max_tokens' => empty($c['deep']) ? 500 : 6000,
+                    // Hız için düşünme kapalı (güçlü çağrıda açık); model kabul etmezse ayarsız tekrar denenir
+                    'thinking' => empty($c['deep']) ? ['type' => 'disabled'] : ['type' => 'enabled', 'budget_tokens' => 3000],
                     'messages' => [['role' => 'user', 'content' => [
                         ['type' => 'image', 'source' => ['type' => 'base64', 'media_type' => $mime, 'data' => $b64]],
                         ['type' => 'text', 'text' => $prompt],
@@ -236,9 +306,9 @@ class VisionAnalyzer
                 return $this->send($client, 'https://api.anthropic.com/v1/messages', ['x-api-key' => $c['key'], 'anthropic-version' => '2023-06-01'], $body, ['thinking' => ['thinking']], $options);
 
             case 'gemini':
-                $config = ['temperature' => 0, 'maxOutputTokens' => 500, 'responseMimeType' => 'application/json'];
-                // Düşünme en aza indirilir (3.x: thinkingLevel, 2.5: thinkingBudget); desteklenmezse ayarsız tekrar denenir
-                $config['thinkingConfig'] = str_starts_with($c['model'], 'gemini-2.5') ? ['thinkingBudget' => 0] : ['thinkingLevel' => 'minimal'];
+                $config = ['temperature' => 0, 'maxOutputTokens' => empty($c['deep']) ? 500 : 6000, 'responseMimeType' => 'application/json'];
+                // Hızlı kipte düşünme en aza indirilir; güçlü (deep) çağrıda model düşünerek yanıtlar
+                $config['thinkingConfig'] = str_starts_with($c['model'], 'gemini-2.5') ? ['thinkingBudget' => empty($c['deep']) ? 0 : 2048] : ['thinkingLevel' => empty($c['deep']) ? 'minimal' : 'high'];
                 $body = [
                     'contents' => [['parts' => [['text' => $prompt], ['inline_data' => ['mime_type' => $mime, 'data' => $b64]]]]],
                     'generationConfig' => $config,
@@ -362,6 +432,11 @@ class VisionAnalyzer
     public function completeJson(array $candidates, string $prompt, float $timeout = 8): ?array
     {
         if (!$candidates) return null;
+        $accurate = $this->accurate();
+        if ($accurate) {
+            $candidates = $this->withDeep($candidates);
+            $timeout = max($timeout, 25);
+        }
         $client = new Client(['timeout' => $timeout, 'connect_timeout' => 3]);
         $promises = [];
         foreach ($candidates as $i => $c) {
@@ -381,6 +456,16 @@ class VisionAnalyzer
             });
         }
         try {
+            if ($accurate && !empty($candidates[0]['deep'])) {
+                // Güçlü model yanıt verirse o; vermezse ilk başarılı diğer yanıt
+                $all = Utils::settle($promises)->wait();
+                foreach ($all as $s) {
+                    if (($s['state'] ?? '') === 'fulfilled') return $s['value'];
+                }
+
+                return null;
+            }
+
             return Utils::any($promises)->wait();
         } catch (\Throwable $e) {
             return null;
@@ -396,7 +481,7 @@ class VisionAnalyzer
                     ['thinking' => ['thinking']]);
             case 'gemini':
                 return $this->send($client, 'https://generativelanguage.googleapis.com/v1beta/models/' . rawurlencode($c['model']) . ':generateContent', ['x-goog-api-key' => $c['key']],
-                    ['contents' => [['parts' => [['text' => $prompt]]]], 'generationConfig' => ['temperature' => 0, 'maxOutputTokens' => 800, 'responseMimeType' => 'application/json', 'thinkingConfig' => str_starts_with($c['model'], 'gemini-2.5') ? ['thinkingBudget' => 0] : ['thinkingLevel' => 'minimal']]],
+                    ['contents' => [['parts' => [['text' => $prompt]]]], 'generationConfig' => ['temperature' => empty($c['deep']) ? 0 : 0.4, 'maxOutputTokens' => empty($c['deep']) ? 800 : 6000, 'responseMimeType' => 'application/json', 'thinkingConfig' => str_starts_with($c['model'], 'gemini-2.5') ? ['thinkingBudget' => empty($c['deep']) ? 0 : 2048] : ['thinkingLevel' => empty($c['deep']) ? 'minimal' : 'medium']]],
                     ['generationConfig.thinkingConfig' => ['thinking']]);
             default:
                 $p = $c['provider'];

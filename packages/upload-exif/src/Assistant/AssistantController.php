@@ -36,7 +36,7 @@ class AssistantController implements RequestHandlerInterface
         $path = $request->getUri()->getPath();
 
         return match (true) {
-            str_ends_with($path, '/parse') => new JsonResponse($this->understand($actor, (string) Arr::get($body, 'text', ''), (string) Arr::get($body, 'context', ''))),
+            str_ends_with($path, '/parse') => new JsonResponse($this->understand($actor, (string) Arr::get($body, 'text', ''), (string) Arr::get($body, 'context', ''), (array) Arr::get($body, 'history', []), (array) Arr::get($body, 'card', []))),
             str_ends_with($path, '/targets') => new JsonResponse($this->targets($actor, $body)),
             str_ends_with($path, '/route') => new JsonResponse($this->route($actor, $body)),
             str_ends_with($path, '/learn') => new JsonResponse($this->learn($actor, $body)),
@@ -145,7 +145,7 @@ class AssistantController implements RequestHandlerInterface
      * vermezse kural tabanlı ayrıştırıcı kullanılır. Plaka her zaman kural tabanlı okunur (kesin).
      * $context: asistanın o an sorduğu soru (cevap mı yeni komut mu ayırt etmek için)
      */
-    public function understand(User $actor, string $text, string $context = ''): array
+    public function understand(User $actor, string $text, string $context = '', array $history = [], array $card = []): array
     {
         $base = $this->parse($text);
         $candidates = $this->ai->candidates($actor);
@@ -162,9 +162,15 @@ class AssistantController implements RequestHandlerInterface
         $prompt = "Bir ulaşım fotoğrafı forumunun Türkçe asistanısın. Kullanıcının mesajını aşağıdaki JSON'a çevir. Bugün: " . Carbon::now()->format('d.m.Y') . ".\n"
             . "Forum bölümleri: " . implode('; ', $sections) . ".\n"
             . "Güncel/Arşiv kuralı: çekim yılı {$year} ya da " . ($year - 1) . " ise Güncel, daha eskiyse Arşiv.\n"
+            . "Sen konuşmayı bağlamıyla anlayan, akıllı ve doğal konuşan bir asistansın (Gemini/ChatGPT/Claude gibi). Önceki mesajlara bak: kullanıcı önceki bir işe atıfta bulunuyor, düzeltme yapıyor ya da soru soruyor olabilir.\n"
+            . ($history ? "Son konuşma (eskiden yeniye):\n" . implode("\n", array_map(fn ($m) => (($m['who'] ?? '') === 'me' ? 'Kullanıcı: ' : 'Asistan: ') . mb_substr(str_replace(["\n", '"'], [' ', "'"], (string) ($m['text'] ?? '')), 0, 300), array_slice($history, -12))) . "\n" : '')
+            . ($card ? "Şu an onay bekleyen fotoğraf kartı: " . json_encode($card, JSON_UNESCAPED_UNICODE) . "\n"
+                . "Kullanıcı bu karttaki bir bilgiyi düzeltiyorsa (ör. \"model Travego değil Tourismo 16\", \"EGO değil, şehirlerarası başlığa\", \"yer Antalya\") action=\"correct\" yap ve corrections alanına YALNIZCA değişen alanları yaz.\n" : '')
             . ($context ? "Asistanın az önce sorduğu soru: \"$context\". Mesaj bu soruya bir CEVAP ise action=\"answer\" yap ve answer alanını doldur; yeni ve tam bir istekse cevap sayma.\n" : '')
             . "JSON alanları (bilinmeyeni null bırak):\n"
-            . "{\"action\": \"share (tek araç/plaka) | batch (birden çok fotoğraf hemen) | plan (ileri tarihe zamanla) | search | schedule_list | schedule_cancel | folder | help | cancel | confirm | answer\",\n"
+            . "{\"action\": \"share (tek araç/plaka) | batch (birden çok fotoğraf hemen) | plan (ileri tarihe zamanla) | search | schedule_list | schedule_cancel | folder | help | cancel | confirm | answer | correct (bekleyen karttaki bilgiyi düzeltme) | chat (soru, sohbet, açıklama isteği — iş değil)\",\n"
+            . " \"corrections\": {\"company\": null, \"plate\": null, \"brand\": null, \"model\": null, \"location\": null, \"topic_hint\": \"istenen başlık/bölüm ipucu ya da null\"},\n"
+            . " \"reply\": \"action chat ise kullanıcıya verilecek doğal, bilgili, kısa Türkçe yanıt; correct ise yaptığını anlatan kısa cümle; değilse null\",\n"
             . " \"count\": sayı ya da null, \"per_topic\": her hedef başlığa kaç adet (\"her başlıkta 1'er\" → 1) ya da null,\n"
             . " \"section\": hedef bölüm ipucu (ör. \"otobüs\", \"kamyon\", \"şehiriçi\") ya da null, \"era\": \"current\" | \"archive\" | null (\"güncel başlıklar\" → current),\n"
             . " \"topics_scope\": \"brand_topics\" (her markanın alt başlıkları) | \"one_topic\" | null, \"topic_name\": belirli başlık adı ya da null,\n"
@@ -181,6 +187,11 @@ class AssistantController implements RequestHandlerInterface
 
         $intent = $base;
         $action = (string) ($j['action'] ?? '');
+        $intent['corrections'] = array_filter((array) ($j['corrections'] ?? []), fn ($v) => is_string($v) && trim($v) !== '');
+        $intent['reply'] = is_string($j['reply'] ?? null) ? trim($j['reply']) : '';
+        if (in_array($action, ['correct', 'chat'], true)) {
+            return ['action' => $action, 'corrections' => $intent['corrections'], 'reply' => $intent['reply'], 'ai' => true] + $base;
+        }
         if (in_array($action, ['share', 'batch', 'plan', 'search', 'schedule_list', 'schedule_cancel', 'folder', 'help', 'cancel', 'confirm', 'answer'], true)) {
             // Tek plaka verildiyse "share" kalır (kural tabanlı okuma kesin)
             $intent['action'] = $base['plate'] && in_array($action, ['batch', 'search'], true) ? $base['action'] : $action;
