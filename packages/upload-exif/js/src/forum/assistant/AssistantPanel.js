@@ -356,6 +356,10 @@ class Panel extends Component {
       return this.say('Tamam, iptal ettim.');
     }
     if (intent.action === 'folder') return this.linkFolder();
+    // Plaka yokken çok koşullu istek: çoklu paylaşım
+    if ((intent.action === 'share' || intent.action === 'search') && !intent.plate && !intent.query && (intent.per_topic || intent.topics_scope || intent.count > 1 || intent.shot_year || intent.location)) {
+      intent.action = intent.days || intent.per_day || intent.time ? 'plan' : 'batch';
+    }
     if (intent.action === 'plan' || intent.action === 'batch') return this.startTask(intent);
     if (intent.action === 'schedule_list') return this.listSchedule();
     if (intent.action === 'schedule_cancel') return this.cancelSchedule();

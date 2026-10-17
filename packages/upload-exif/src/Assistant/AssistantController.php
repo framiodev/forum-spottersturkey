@@ -204,6 +204,14 @@ class AssistantController implements RequestHandlerInterface
         $intent['answer'] = (array) ($j['answer'] ?? []);
         $intent['ai'] = true;
 
+        // Plaka yokken çok koşullu bir paylaşım isteği her zaman çoklu iştir (tek araç "share" değil)
+        if (in_array($intent['action'], ['share', 'search'], true) && !$intent['plate']
+            && ($intent['per_topic'] || $intent['topics_scope'] === 'brand_topics' || ($intent['count'] ?? 0) > 1 || $intent['shot_year'] || $intent['location'] || ($intent['auto'] ?? false) && $intent['action'] === 'share')) {
+            $intent['action'] = ($intent['days'] || $intent['per_day'] || $intent['time']) ? 'plan' : 'batch';
+        }
+        // Yeni bir istekte "answer" yorumu gereksiz
+        if ($intent['action'] !== 'answer') $intent['answer'] = [];
+
         return $intent;
     }
 
