@@ -194,7 +194,7 @@ class VisionLocation
             ->unique('image_url')->values()
             ->map(function ($r) {
                 // Hızlı indirme için küçük boy (thumb) kullanılır
-                $thumb = $this->db->table('framio_media_images')->where('path', $r->image_url)->value('thumb_path');
+                $thumb = $this->db->table('framio_media_images')->whereIn('path', [$r->image_url, rawurldecode($r->image_url)])->value('thumb_path');
 
                 return ['post_id' => (int) $r->post_id, 'image_url' => $r->image_url, 'fetch_url' => $thumb ?: $r->image_url];
             })->all();
