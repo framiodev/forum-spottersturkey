@@ -1284,6 +1284,26 @@ class Panel extends Component {
         if (ddirs.length) {
           this.step(`Klasör bulundu: ${ddirs.slice(0, 3).map((d) => d.path).join(' · ')}${ddirs.length > 3 ? ` (+${ddirs.length - 3})` : ''}`);
           candidates = (await drive.filesUnder(ddirs)).filter((c) => !intent.shot_year || !c.year || c.year === intent.shot_year);
+          // Komuttaki her ayrıntı klasör/dosya yolunda geçmeli: firma ("Metro Turizm"), varyant ("16 SHD"), kasa ("Yeni Kasa"), plaka.
+          // Elle düzenlenmiş arşivde bu bilgiler klasör adıdır; yapay zekaya bırakılmaz.
+          {
+            const fl2 = intent.filters || {};
+            const variant = (String(fl2.model || '').match(/\b(\d{1,3}\s?[A-Za-z]{1,4}|[A-Za-z]\s?\d{3}\s?[A-Za-z]{1,4})\b/) || [])[1];
+            const terms = [fl2.company, fl2.plate, variant, intent.note].filter(Boolean).map(fold).filter((x) => x.length > 1);
+            if (terms.length) {
+              const strict = candidates.filter((c) => {
+                const where = fold((c.path || '') + ' ' + c.name);
+                return terms.every((w) => where.includes(w) || (w.split(' ').length > 1 && w.split(' ').every((x) => where.includes(x))));
+              });
+              this.step(`Klasörlerde "${terms.join('", "')}" geçenler: ${strict.length} fotoğraf.`);
+              if (!strict.length) {
+                this.task = null;
+                return this.say(`Bulduğum klasörlerde "${[fl2.company, variant, intent.note, fl2.plate].filter(Boolean).join(', ')}" ile eşleşen fotoğraf yok. İsterseniz bu koşullardan birini gevşetebiliriz.`);
+              }
+              candidates = strict;
+              t.pathStrict = true;
+            }
+          }
           // Klasörden rastgele seçim (aynı seri karelerin hep ilk sırada gelmemesi için)
           for (let i = candidates.length - 1; i > 0; i--) {
             const j = Math.floor(Math.random() * (i + 1));
@@ -1419,6 +1439,11 @@ class Panel extends Component {
           if (fromPath.model && fold(fromPath.model) !== fold(f.model)) {
             f.brand = fromPath.brand || f.brand;
             f.model = fromPath.model;
+            changed = true;
+          }
+          const fl3 = intent.filters || {};
+          if (t.pathStrict && fl3.company && !fold(f.company).includes(fold(fl3.company))) {
+            f.company = fl3.company;
             changed = true;
           }
           if (fromPath.city && !fold(f.location).includes(fold(fromPath.city))) {

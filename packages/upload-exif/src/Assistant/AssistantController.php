@@ -220,7 +220,8 @@ class AssistantController implements RequestHandlerInterface
             . " \"topics_scope\": \"brand_topics\" (her markanın alt başlıkları) | \"one_topic\" | null, \"topic_name\": belirli başlık adı ya da null,\n"
             . " \"location\": çekim yeri filtresi (ör. \"Esenler Otogarı, İstanbul\") ya da null, \"shot_year\": çekim yılı ya da null,\n"
             . " \"source\": \"drive\" | \"local\" | null, \"only_new\": daha önce paylaşılmamış olanlar mı (true/false),\n"
-            . " \"filters\": {\"company\": null, \"plate\": null, \"brand\": null, \"model\": null} (\"fark etmez\" denenler null),\n"
+            . " \"filters\": {\"company\": null, \"plate\": null, \"brand\": null, \"model\": null} (\"fark etmez\" denenler null; model varyantıyla birlikte yazılır: \"yeni kasa 16 SHD Travego\" → model \"Travego 16 SHD\"; firma adı tam: \"Metro Turizm\"),\n"
+            . " \"note\": kasa/nesil gibi ek ayrıntı (ör. \"yeni kasa\", \"eski kasa\") ya da null,\n"
             . " \"auto\": kullanıcı soru sorulmadan/otomatik yapılmasını istiyorsa true, \"diverse\": her fotoğraf farklı araç olsun mu,\n"
             . " \"days\": null, \"per_day\": null, \"time\": \"HH:MM\" ya da null, \"notify\": haber verilsin mi,\n"
             . " \"answer\": {\"any\": soru serbest bırakıldıysa (\"fark etmez\", \"sen seç\", \"otomatik\") true, \"yes\": onay (\"evet\", \"başla\") true, \"no\": ret true, \"value\": verilen değer ya da null}}\n"
@@ -271,6 +272,7 @@ class AssistantController implements RequestHandlerInterface
         $intent['topics_scope'] = $j['topics_scope'] ?? null;
         $intent['topic_name'] = $j['topic_name'] ?? null;
         $intent['location'] = $j['location'] ?? null;
+        $intent['note'] = is_string($j['note'] ?? null) ? trim($j['note']) : null;
         $intent['filters'] = array_filter((array) ($j['filters'] ?? []), fn ($v) => is_string($v) && trim($v) !== '');
         $intent['answer'] = (array) ($j['answer'] ?? []);
         $intent['ai'] = true;
