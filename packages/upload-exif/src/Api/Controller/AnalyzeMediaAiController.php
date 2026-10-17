@@ -214,6 +214,9 @@ class AnalyzeMediaAiController implements RequestHandlerInterface
             $jobs = [];
             if ($similarityOn) {
                 // Sahne (arka plan şeridi) parmak izi: araçtan bağımsız, çekim yeri hafızası
+                // Araç benzerliği (tüm kare): forumdaki %95+ benzer gönderilerin marka/modeli
+                $jobs['vehicle_sim'] = $this->similarity->embedAsync($client, $original, false)
+                    ->then(fn ($vec) => $this->similarity->nearestMany($vec, 5, 'vec'));
                 $jobs['similar'] = $this->similarity->embedAsync($client, $original, true)
                     ->then(fn ($vec) => ['vec' => $vec, 'nearest' => $this->similarity->nearestMany($vec, 5, 'scene_vec')]);
                 foreach ($recent as $i => $r) {
@@ -267,13 +270,35 @@ class AnalyzeMediaAiController implements RequestHandlerInterface
             $data['model'] = $verified['model'];
             $data['model_source'] = 'verified';
         }
+        // Forumdaki %95+ benzer gönderiler (elle girilmiş künyeler): marka/model için çoğunluk; yapay zekanın önüne geçer.
+        // Firma, plaka ve konum bu yoldan ALINMAZ.
+        $votes = [];
+        foreach ((array) ($side['vehicle_sim'] ?? []) as $n) {
+            if (($n['score'] ?? 0) < 0.95) continue;
+            $k = $this->history->kunyeOf($n);
+            if (empty($k['model'])) continue;
+            $brand = (string) ($k['brand'] ?? '');
+            $model = $brand !== '' && stripos($k['model'], $brand . ' ') === 0 ? trim(mb_substr($k['model'], mb_strlen($brand))) : $k['model'];
+            $key = mb_strtolower($brand . '|' . $model);
+            $votes[$key] ??= ['brand' => $brand, 'model' => $model, 'n' => 0, 'best' => 0];
+            $votes[$key]['n']++;
+            $votes[$key]['best'] = max($votes[$key]['best'], $n['score']);
+        }
+        if ($votes) {
+            usort($votes, fn ($a, $b) => [$b['n'], $b['best']] <=> [$a['n'], $a['best']]);
+            $v = $votes[0];
+            if ($v['brand'] !== '') $data['brand'] = $v['brand'];
+            $data['model'] = $v['model'];
+            $data['model_source'] = 'similar';
+            $data['model_similarity'] = round($v['best'] * 100);
+        }
         $seenModel = (string) ($data['model'] ?? '');
         if ($useHistory) {
             // Plaka forumda birebir kayıtlıysa (ve firma çelişmiyorsa) araç bilgisi o künyelerden
             ['data' => $data, 'notes' => $notes] = $this->history->enrich($data);
             // Forum geçmişi fotoğrafta doğrulanan modelle çelişiyorsa fotoğraf esas alınır, çelişki bildirilir (asistan sorar)
             $norm = fn ($s) => preg_replace('/[^a-z0-9]/', '', strtolower((string) $s));
-            if (($data['model_source'] ?? '') === 'verified' && $seenModel !== '' && $norm($data['model'] ?? '') !== $norm($seenModel)) {
+            if (in_array($data['model_source'] ?? '', ['verified', 'similar'], true) && $seenModel !== '' && $norm($data['model'] ?? '') !== $norm($seenModel)) {
                 $data['model_history'] = $data['model'];
                 $data['model'] = $seenModel;
                 if (!empty($verified['brand'])) $data['brand'] = $verified['brand'];
