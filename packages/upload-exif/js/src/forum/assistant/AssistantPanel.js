@@ -113,12 +113,29 @@ class Panel extends Component {
       m.redraw();
     });
     this.task = null; // soru-cevap bekleyen görev
-    this.convId = null; // her açılış yeni bir sohbet
+    this.sessionKey = this.attrs.sessionKey;
+    this.convId = this.attrs.convId || null; // her oturum ayrı bir sohbet
     this.convs = [];
     this.showArchived = false;
     this.sideOpen = window.innerWidth >= 900;
     this.loadConversations();
-    this.welcome();
+    if (this.convId) this.loadHistory(this.convId);
+    else this.welcome();
+  }
+
+  /** Bu oturum şu an ekranda mı (arka plandaysa sesli okunmaz, bildirim gider) */
+  shown() {
+    return assistant.isShown(this.sessionKey);
+  }
+
+  title() {
+    const c = (this.convs || []).find((x) => x.id === this.convId);
+    const first = this.log.find((l) => l.who === 'me');
+    return (c && c.title) || (first && first.text.slice(0, 40)) || 'Yeni sohbet';
+  }
+
+  $(sel) {
+    return this.element ? this.element.querySelector(sel) : null;
   }
 
   /** Yeni sohbet: karşılama + seçenekler; okunmamış planlı paylaşım bildirimleri de söylenir */
@@ -161,28 +178,16 @@ class Panel extends Component {
   }
 
   newConversation() {
-    hush();
-    this.convId = null;
-    this.log = [];
-    this.queue = [];
-    this.task = null;
-    this.confirming = null;
-    this.awaiting = null;
-    this.pendingItems = [];
     if (window.innerWidth < 900) this.sideOpen = false;
-    this.welcome();
+    assistant.newSession();
   }
 
   openConversation(id) {
-    hush();
-    this.convId = id;
-    this.queue = [];
-    this.task = null;
-    this.confirming = null;
-    this.awaiting = null;
-    this.log = [];
     if (window.innerWidth < 900) this.sideOpen = false;
-    m.redraw();
+    assistant.openSession(id);
+  }
+
+  loadHistory(id) {
     app
       .request({ method: 'GET', url: api('/framio-assistant/history?limit=500&conversation=' + id) })
       .then((res) => {
@@ -203,6 +208,9 @@ class Panel extends Component {
     if (!confirm(`"${c.title}" sohbeti silinsin mi? Bu geri alınamaz.`)) return;
     this.convs = this.convs.filter((x) => x.id !== c.id);
     if (this.convId === c.id) this.newConversation();
+    assistant.sessions.filter((x) => x.convId === c.id || (x.panel && x.panel.convId === c.id)).forEach((x) => {
+      if (x.panel && x.panel !== this) x.panel.convId = null;
+    });
     m.redraw();
     app.request({ method: 'DELETE', url: api('/framio-assistant/conversations?id=' + c.id) }).catch(() => {});
   }
@@ -215,7 +223,9 @@ class Panel extends Component {
         .then((res) => {
           if (res && res.conversation_id && res.conversation_id !== this.convId) {
             this.convId = res.conversation_id;
-            this.loadConversations();
+            const own = assistant.sessions.find((x) => x.key === this.sessionKey);
+            if (own) own.convId = this.convId;
+            assistant.sessions.forEach((x) => x.panel && x.panel.loadConversations());
           }
         })
         .catch(() => {})
@@ -242,7 +252,11 @@ class Panel extends Component {
           {list.map((c) => (
             <div className={'FramioAssistant-conv' + (c.id === this.convId ? ' is-active' : '')} key={c.id}>
               <button type="button" className="FramioAssistant-convTitle" title={c.title} onclick={() => this.openConversation(c.id)}>
-                {c.pinned ? <i className="fas fa-thumbtack"></i> : null} {c.title}
+                {c.pinned ? <i className="fas fa-thumbtack"></i> : null}{' '}
+                {assistant.sessions.some((x) => x.panel && x.panel.convId === c.id && (x.panel.task || x.panel.confirming)) ? (
+                  <i className="fas fa-circle-notch fa-spin FramioAssistant-running" title="Arka planda çalışıyor"></i>
+                ) : null}{' '}
+                {c.title}
               </button>
               <span className="FramioAssistant-convActions">
                 <button type="button" title={c.pinned ? 'Sabitlemeyi kaldır' : 'Başa tuttur'} aria-label={c.pinned ? 'Sabitlemeyi kaldır' : 'Başa tuttur'} onclick={() => this.updateConversation(c, { pinned: !c.pinned })}>
@@ -298,7 +312,7 @@ class Panel extends Component {
 
   scroll() {
     setTimeout(() => {
-      const el = document.querySelector('.FramioAssistant-log');
+      const el = this.$('.FramioAssistant-log');
       if (el) el.scrollTop = el.scrollHeight;
     }, 30);
   }
@@ -316,10 +330,14 @@ class Panel extends Component {
     const lastMe = [...this.log].reverse().find((l) => l.who === 'me' && l.at);
     this.log.push({ who: 'bot', text, at: now, took: lastMe ? now - lastMe.at : null });
     if (store) this.remember('bot', text);
+    if (!this.shown()) {
+      if (store) assistant.notify(this.sessionKey, text);
+      voice = false;
+    }
     const spoken = voice && pref('framio_assistant_speak', true) ? speak(text) : Promise.resolve();
     m.redraw();
     setTimeout(() => {
-      const el = document.querySelector('.FramioAssistant-log');
+      const el = this.$('.FramioAssistant-log');
       if (el) el.scrollTop = el.scrollHeight;
     }, 30);
     return spoken;
@@ -361,6 +379,17 @@ class Panel extends Component {
           {this.log.map((l) =>
             l.who === 'choices' ? (
               this.choicesView()
+            ) : l.who === 'options' ? (
+              <div className="FramioAssistant-options">
+                {l.items.map((label, i) => (
+                  <button type="button" className="FramioAssistant-option" onclick={() => this.command(String(i + 1))}>
+                    <span className="FramioAssistant-optionNo">{i + 1}</span> {label}
+                  </button>
+                ))}
+                <button type="button" className="FramioAssistant-option is-all" onclick={() => this.command('hepsi')}>
+                  Hepsi
+                </button>
+              </div>
             ) : l.who === 'step' ? (
               <div className={'FramioAssistant-step' + (l.done ? ' is-done' : '')}>
                 <i className={l.done ? 'fas fa-check' : 'fas fa-circle-notch fa-spin'}></i> {l.text}
@@ -505,6 +534,8 @@ class Panel extends Component {
     cf.summary = [[f.company, f.plate].filter(Boolean).join(' | '), [f.brand, f.model].filter(Boolean).join(' '), f.location].filter(Boolean).join(' · ');
     cf.kunye = null; // künye yeni alanlarla yeniden yazılır
     cf.paused = false;
+    // Künye penceresi açıksa kapatılıp güncel bilgilerle tek pencere olarak yeniden açılır
+    if (this.kunyeOpen) setTimeout(() => this.editKunye(), 50);
     cf.left = 120;
     this.step(null);
     m.redraw();
@@ -524,10 +555,19 @@ class Panel extends Component {
   editKunye() {
     const cf = this.confirming;
     if (!cf) return;
+    // Aynı araç için ikinci bir künye penceresi açılmaz
+    if (this.kunyeOpen) {
+      this.kunyeOpen = false;
+      try {
+        app.modal.close();
+      } catch (e) {}
+    }
+    this.kunyeOpen = true;
     cf.paused = true;
     const files = cf.items.map((x) => x.file || x.blob);
     const f = cf.fields || {};
     const resume = () => {
+      this.kunyeOpen = false;
       if (this.confirming === cf) {
         cf.paused = false;
         cf.left = 120;
@@ -1170,7 +1210,7 @@ class Panel extends Component {
     card.state = 'ready';
     m.redraw.sync();
     for (const [key, value] of Object.entries(card.aiFields || {})) {
-      const input = document.querySelector(`.FramioAssistant-card[data-id="${card.id}"] input[data-key="${key}"]`);
+      const input = this.$(`.FramioAssistant-card[data-id="${card.id}"] input[data-key="${key}"]`);
       await ghost.type(input, value, (v) => (card.fields[key] = v));
       card.fields[key] = value;
     }
@@ -1249,6 +1289,63 @@ class Panel extends Component {
       this.say(`${summary || 'Künyeyi çıkaramadım'}. Uygun başlık bulamadım; listeden seçebilirsiniz.`);
     }
     m.redraw();
+  }
+
+  /**
+   * Yönlendirme: "Travego paylaş" → Travego klasörlerinin bulunduğu yerler (yer · şehir · bölüm · yıl);
+   * "Varan paylaş" → Varan klasörlerinin marka/modelleri. Drive ve bu bilgisayardaki klasörler birlikte.
+   * @return {Promise<{label:string, dirs:object[]}[]>}
+   */
+  async discover(intent) {
+    const fl = intent.filters || {};
+    const byModel = !!fl.model;
+    const term = byModel ? String(fl.model).split(/\s+/)[0] : fl.company ? String(fl.company).split(/\s+/)[0] : '';
+    if (!term || term.length < 3) return [];
+    const opts = {};
+    const add = (label, dir) => label && (opts[label] = opts[label] || []).push(dir);
+    const describe = (parts) => {
+      const path = parts.join('/');
+      if (intent.shot_year && !parts.some((x) => fold(x).split(' ').includes(String(intent.shot_year)))) return null;
+      const si = parts.findIndex((x) => fold(x) === 'sehirler');
+      const city = si >= 0 ? parts[si + 1] : '';
+      const cat = si >= 0 ? parts[si + 2] : '';
+      const place = si >= 0 ? parts[si + 3] : '';
+      const year = parts.find((x) => /^(19|20)\d{2}$/.test(String(x).trim())) || '';
+      if (byModel) return [place, city, cat, year].filter(Boolean).join(' · ') || path.split('/').slice(-3).join(' / ');
+      const fp = this.fieldsFromPath(path, '');
+      if (!fp.model) return null; // "Varan Söğütözü Terminali" gibi yer klasörleri marka/model seçeneği değildir
+      return [[fp.brand, fp.model].filter(Boolean).join(' '), city, year].filter(Boolean).join(' · ');
+    };
+    if (drive.roots().length && intent.source !== 'local') {
+      this.step(`Drive'da "${term}" klasörlerini topluyorum…`);
+      try {
+        const found = (await drive.searchFolders(term)).filter((f) => fold(f.name).split(' ').includes(fold(term)) || fold(f.name).startsWith(fold(term)));
+        const paths = await drive.pool(found.slice(0, 80), 8, async (f) => ({ id: f.id, parts: await drive.pathOf(f.id) }));
+        paths.filter(Boolean).forEach((x) => add(describe(x.parts), { id: x.id, path: x.parts.join('/') }));
+      } catch (e) {}
+    }
+    if ((folder.list || []).some((f) => f.enabled) && intent.source !== 'drive') {
+      try {
+        const dirs = await folder.findDirs([term], (x) => this.step(x));
+        dirs.forEach((d) => add('Bu bilgisayar · ' + (describe(String(d.path).split('/')) || d.path), d));
+      } catch (e) {}
+    }
+    return Object.entries(opts).map(([label, dirs]) => ({ label, dirs }));
+  }
+
+  /** Seçenekleri tıklanabilir düğmeler olarak gösterip cevabı bekler: numara, ad ya da "hepsi" */
+  async pickOption(question, options) {
+    this.log.push({ who: 'options', items: options.map((o) => o.label) });
+    const ans = fold(await this.prompt(question));
+    this.log = this.log.filter((l) => l.who !== 'options');
+    if (/^(hepsi|tumu|tum|hepsinden|fark etmez|farketmez)/.test(ans)) return options;
+    const n = parseInt(ans, 10);
+    if (n >= 1 && n <= options.length) return [options[n - 1]];
+    const hit = options.filter((o) => {
+      const words = fold(o.label).split(' ').filter((w) => w.length > 2);
+      return ans.split(' ').filter((w) => w.length > 2).every((w) => words.some((x) => x.startsWith(w) || w.startsWith(x)));
+    });
+    return hit.length ? hit : [];
   }
 
   /** Kullanıcının düzeltmesini karta uygular, başlığı yeniden arar */
@@ -1402,6 +1499,27 @@ class Panel extends Component {
       this.task.waiting = 'section';
       this.task.question = 'Hangi bölümde paylaşayım?';
       return;
+    }
+    // Yer belirtilmeyen model/firma isteği: nerede olduğu sorulur ("Travego" → hangi otogar; "Varan" → hangi marka/model)
+    if (!intent.single && !this.task.targets && !intent.location && ((intent.filters || {}).model || (intent.filters || {}).company)) {
+      const t0 = this.task;
+      const options = await this.discover(intent);
+      this.step(null);
+      if (options.length > 1) {
+        const fl = intent.filters || {};
+        const what2 = fl.model ? `${fl.model} fotoğrafları ${options.length} farklı yerde var` : `${fl.company} için ${options.length} farklı marka/model buldum`;
+        const picked = await this.pickOption(`${what2}. Hangisinden paylaşayım? Numarasını ya da adını yazın, isterseniz "hepsi" deyin.`, options);
+        if (this.task !== t0) return;
+        if (!picked.length) {
+          this.task = null;
+          return this.say('Seçtiğinizi listede bulamadım; komutu yer ya da model adıyla tekrar verebilirsiniz.');
+        }
+        this.task.presetDirs = [].concat(...picked.map((o) => o.dirs));
+        await this.say(`Tamam: ${picked.map((o) => o.label).join(', ')}.`);
+      } else if (options.length === 1) {
+        this.task.presetDirs = options[0].dirs;
+        this.step(`Tek yer var: ${options[0].label}`);
+      }
     }
     if (intent.auto) {
       await this.say(`Anladım: ${from}${year}${place}${scope} ${what}. Otomatik başlıyorum; durdurmak için "iptal" deyin.`);
@@ -1625,6 +1743,18 @@ class Panel extends Component {
           }
           t.placeFromPath = true;
         }
+      }
+      if (t.presetDirs && t.presetDirs.length) {
+        const dd = t.presetDirs.filter((d) => d.id);
+        const ld = t.presetDirs.filter((d) => d.handle);
+        this.step(`Seçtiğiniz klasörler taranıyor (${t.presetDirs.length})…`);
+        candidates = [...(dd.length ? await drive.filesUnder(dd) : []), ...(ld.length ? await folder.filesIn(ld, (x) => this.step(x)) : [])];
+        if (intent.shot_year) candidates = candidates.filter((c) => !c.year || c.year === intent.shot_year);
+        for (let i = candidates.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [candidates[i], candidates[j]] = [candidates[j], candidates[i]];
+        }
+        t.placeFromPath = true;
       }
       const byName = (intent.filters || {}).plate || (intent.single && intent.query) || '';
       if (!t.placeFromPath && byName) {
@@ -2029,39 +2159,116 @@ class Panel extends Component {
 }
 
 /** Tek kopya: panel sayfada bir kez açılır */
+/**
+ * Oturumlar (Claude Desktop mantığı): her sohbet ayrı bir panel örneğidir ve kendi işini yürütür.
+ * Başka sohbete geçmek ya da paneli kapatmak işi durdurmaz; arka plandaki sohbetler bildirim gönderir.
+ */
 const assistant = {
-  el: null,
-  panel: null,
+  sessions: [], // { key, el, panel, convId }
+  active: null,
+  visible: false,
+  unread: 0,
   wake: null,
+  seq: 0,
+
+  get panel() {
+    const s = this.sessions.find((x) => x.key === this.active);
+    return s ? s.panel : null;
+  },
+
+  get el() {
+    return this.visible ? true : null;
+  },
+
+  create(convId = null) {
+    const key = 's' + ++this.seq;
+    const el = document.createElement('div');
+    el.className = 'FramioAssistant-host';
+    el.style.display = 'none';
+    document.body.appendChild(el);
+    const sess = { key, el, panel: null, convId };
+    m.mount(el, { view: () => m(Panel, { sessionKey: key, convId, oncreate: (v) => (sess.panel = v.state) }) });
+    this.sessions.push(sess);
+    return sess;
+  },
+
+  show(key) {
+    this.active = key;
+    this.sessions.forEach((x) => (x.el.style.display = this.visible && x.key === key ? '' : 'none'));
+    m.redraw();
+  },
+
+  isShown(key) {
+    return this.visible && this.active === key;
+  },
+
+  /** Yeni sohbet: boş (henüz mesaj yazılmamış) bir oturum varsa o kullanılır */
+  newSession() {
+    let s = this.sessions.find((x) => !x.convId && x.panel && !x.panel.task && !x.panel.confirming && x.panel.log.filter((l) => l.who === 'me').length === 0);
+    if (!s) s = this.create();
+    this.show(s.key);
+    return s;
+  },
+
+  /** Kayıtlı sohbeti aç: arka planda çalışan oturumu varsa ona geçilir, yoksa geçmişiyle yeni oturum */
+  openSession(convId) {
+    let s = this.sessions.find((x) => x.convId === convId || (x.panel && x.panel.convId === convId));
+    if (!s) s = this.create(convId);
+    this.show(s.key);
+    return s;
+  },
+
+  /** Arka plandaki (görünmeyen) bir sohbetin mesajı: bildirim + düğme rozeti */
+  notify(key, text) {
+    if (this.isShown(key)) return;
+    this.unread++;
+    document.querySelectorAll('.FramioAssistant-fab').forEach((f) => f.setAttribute('data-unread', String(this.unread)));
+    const s = this.sessions.find((x) => x.key === key);
+    const title = (s && s.panel && s.panel.title()) || 'Asistan';
+    try {
+      app.alerts.show({ type: 'info', className: 'FramioAssistant-alert' }, `${title}: ${String(text).slice(0, 140)}`);
+    } catch (e) {}
+    if (document.hidden && 'Notification' in window && Notification.permission === 'granted') {
+      try {
+        new Notification(title, { body: String(text).slice(0, 200) });
+      } catch (e) {}
+    }
+  },
 
   open(command, opts = {}) {
     if (!app.session.user) return;
-    if (!this.el) {
-      this.el = document.createElement('div');
-      this.el.className = 'FramioAssistant-host';
-      document.body.appendChild(this.el);
-      const self = this;
-      m.mount(this.el, {
-        view: () => m(Panel, { oncreate: (v) => (self.panel = v.state) }),
-      });
-    }
+    this.visible = true;
+    if (!this.sessions.length) this.create();
+    if (!this.active || !this.sessions.some((x) => x.key === this.active)) this.active = this.sessions[this.sessions.length - 1].key;
+    this.unread = 0;
+    document.querySelectorAll('.FramioAssistant-fab').forEach((f) => f.removeAttribute('data-unread'));
+    this.show(this.active);
     document.body.classList.add('framio-assistant-open');
-    if (opts.listen) setTimeout(() => this.panel && this.panel.listen(command || ''), 80);
-    else if (command) setTimeout(() => this.panel && this.panel.command(command), 50);
+    if ('Notification' in window && Notification.permission === 'default') {
+      try {
+        Notification.requestPermission();
+      } catch (e) {}
+    }
+    const go = () => {
+      const p = this.panel;
+      if (!p) return setTimeout(go, 50);
+      if (opts.listen) p.listen(command || '');
+      else if (command) p.command(command);
+    };
+    if (command || opts.listen) setTimeout(go, 50);
   },
 
+  /** Kapatmak işleri durdurmaz: paneller gizlenir, arka planda sürer */
   close() {
-    if (!this.el) return;
-    m.mount(this.el, null);
-    this.el.remove();
-    this.el = null;
-    this.panel = null;
+    this.visible = false;
+    this.sessions.forEach((x) => (x.el.style.display = 'none'));
     document.body.classList.remove('framio-assistant-open');
     ghost.hide();
+    m.redraw();
   },
 
   toggle() {
-    this.el ? this.close() : this.open();
+    this.visible ? this.close() : this.open();
   },
 };
 

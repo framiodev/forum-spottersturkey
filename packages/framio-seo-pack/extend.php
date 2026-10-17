@@ -106,7 +106,7 @@ return [
     // (SPA aynı adreste HubPage bileşeniyle açılır; sunucu tarafı SEO içeriği HubContent)
     (new Extend\Frontend('forum'))
         ->route('/arac', 'framio-seo.hubs', \Framio\SeoPack\HubContent::class)
-        ->route('/arac/{type:marka|model|firma|plaka|sehir|yil|yer}/{slug}', 'framio-seo.hub', \Framio\SeoPack\HubContent::class),
+        ->route('/arac/{type:marka|model|firma|plaka|sehir|yil|yer|hat}/{slug}', 'framio-seo.hub', \Framio\SeoPack\HubContent::class),
 
     // Eski adres yönlendirmeleri + 404 kaydı (hata yakalayıcının dışında çalışmalı)
     (new Extend\Middleware('forum'))

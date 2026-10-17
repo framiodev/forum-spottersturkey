@@ -25,6 +25,7 @@ class EntityIndex
         'city' => ['path' => 'sehir', 'label' => 'Şehir', 'title' => '{name} araç fotoğrafları'],
         'year' => ['path' => 'yil', 'label' => 'Çekim Yılı', 'title' => '{name} yılında çekilen araç fotoğrafları'],
         'place' => ['path' => 'yer', 'label' => 'Çekim Yeri', 'title' => '{name} araç fotoğrafları'],
+        'route' => ['path' => 'hat', 'label' => 'Hat', 'title' => '{name} hattı araç fotoğrafları'],
     ];
 
     /** Türkiye'nin 81 ili (uzun adlar önce: "Kahramanmaraş" ve "Afyonkarahisar" kısaltmalardan önce eşleşsin) */
@@ -220,6 +221,12 @@ class EntityIndex
         }
         if ($plate !== '') {
             $out[] = ['type' => 'plate', 'name' => $plate];
+        }
+
+        // Şehiriçi hat ("73F | Florya - Taksim"): künyede yazıldığı gibi bağlanır
+        $route = trim(preg_replace('/\s+/u', ' ', strip_tags($k['route'] ?? '')));
+        if ($route !== '' && mb_strlen($route) <= 90) {
+            $out[] = ['type' => 'route', 'name' => $route];
         }
 
         // Çekim yeri ve yılı ("Ankara / '26")

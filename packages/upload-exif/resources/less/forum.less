@@ -2106,3 +2106,31 @@ body.framio-assistant-open .modal-backdrop { z-index: 2090; }
 .FramioAssistant-time { display: block; margin-top: 3px; font-size: 10px; opacity: .55; font-variant-numeric: tabular-nums; }
 .FramioAssistant-step .FramioAssistant-time { display: inline; margin: 0 0 0 6px; }
 .FramioAssistant-msg.is-me .FramioAssistant-time { text-align: right; color: #fff; opacity: .75; }
+
+/* Lightbox: aynı mesajın fotoğrafları tek mesaj olarak (küçük resim şeridi) */
+.SpottersGallery-PostStrip {
+    position: absolute; left: 50%; bottom: 14px; transform: translateX(-50%); z-index: 6;
+    display: flex; gap: 6px; padding: 6px; border-radius: 12px; background: rgba(0,0,0,.55); backdrop-filter: blur(6px); max-width: calc(100% - 24px); overflow-x: auto;
+}
+.SpottersGallery-PostThumb {
+    flex: 0 0 auto; width: 64px; height: 44px; padding: 0; border: 2px solid transparent; border-radius: 7px; overflow: hidden; cursor: pointer; background: #222; opacity: .65;
+    img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    &.is-active { border-color: #fff; opacity: 1; }
+    &:hover { opacity: 1; }
+}
+
+/* Asistan: arka plan oturumları */
+.FramioAssistant-running { color: var(--primary-color); font-size: 10px; }
+.FramioAssistant-fab[data-unread]::after {
+    content: attr(data-unread); position: absolute; top: -4px; right: -4px; min-width: 18px; height: 18px; padding: 0 5px; border-radius: 9px;
+    background: #f59e0b; color: #000; font-size: 11px; font-weight: 700; line-height: 18px; text-align: center;
+}
+
+/* Asistan: yönlendirme seçenekleri */
+.FramioAssistant-options { display: flex; flex-wrap: wrap; gap: 6px; flex-shrink: 0; }
+.FramioAssistant-option {
+    border: 1px solid ~"color-mix(in srgb, var(--text-color) 15%, transparent)"; background: var(--body-bg); color: var(--text-color); border-radius: 18px; padding: 6px 12px; cursor: pointer; font-size: 12px; text-align: left;
+    &:hover { border-color: var(--primary-color); color: var(--primary-color); }
+    &.is-all { font-weight: 700; }
+}
+.FramioAssistant-optionNo { display: inline-block; min-width: 18px; height: 18px; line-height: 18px; text-align: center; border-radius: 9px; background: var(--primary-color); color: #fff; font-size: 10px; font-weight: 700; margin-right: 4px; }

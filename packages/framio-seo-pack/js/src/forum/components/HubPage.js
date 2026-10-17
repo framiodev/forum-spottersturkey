@@ -105,7 +105,7 @@ export default class HubPage extends Page {
 
             {d.page < d.pages ? (
               <div className="FramioHubPage-more">
-                <Button className="Button" loading={this.loading} onclick={() => this.load(d.path || ({ brand: 'marka', company: 'firma', plate: 'plaka', city: 'sehir', year: 'yil', place: 'yer' }[d.type] || 'model'), d.slug, d.page + 1)}>
+                <Button className="Button" loading={this.loading} onclick={() => this.load(d.path || ({ brand: 'marka', company: 'firma', plate: 'plaka', city: 'sehir', year: 'yil', place: 'yer', route: 'hat' }[d.type] || 'model'), d.slug, d.page + 1)}>
                   Daha fazla göster
                 </Button>
               </div>

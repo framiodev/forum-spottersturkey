@@ -434,6 +434,19 @@ export default class ExifLightboxModal extends Modal {
     const directUrl = window.location.origin + window.location.pathname.replace(/\/\d+$/, '') + '/' + postNumber;
 
     const hasNav = this.items.length > 1;
+    // Aynı mesajın fotoğrafları birlikte: "Mesaj 3/12 · Fotoğraf 2/3" ve mesaj içi küçük resim şeridi
+    const keyOf = (it) => {
+      const p = it && it.post;
+      return p ? String(typeof p.id === 'function' ? p.id() : p.id) : it && it.containerEl ? it.containerEl : '#' + this.items.indexOf(it);
+    };
+    const keys = [];
+    this.items.forEach((it) => {
+      const k = keyOf(it);
+      if (keys.indexOf(k) === -1) keys.push(k);
+    });
+    const curKey = keyOf(cur);
+    const sameIdx = this.items.map((it, i) => (keyOf(it) === curKey ? i : -1)).filter((i) => i !== -1);
+    const posInPost = sameIdx.indexOf(this.currentIndex) + 1;
 
     return (
       <div
@@ -461,7 +474,11 @@ export default class ExifLightboxModal extends Modal {
         {/* SAYAÇ ROZETİ */}
         {hasNav && (
           <div className="SpottersGallery-CounterBadge">
-            {this.currentIndex + 1} / {this.items.length}
+            {sameIdx.length > 1
+              ? `Mesaj ${keys.indexOf(curKey) + 1}/${keys.length} · Fotoğraf ${posInPost}/${sameIdx.length}`
+              : keys.length < this.items.length
+              ? `Mesaj ${keys.indexOf(curKey) + 1}/${keys.length}`
+              : `${this.currentIndex + 1} / ${this.items.length}`}
           </div>
         )}
 
@@ -697,6 +714,25 @@ export default class ExifLightboxModal extends Modal {
                     </div>,
                   ];
                 })()}
+                {sameIdx.length > 1 ? (
+                  <div className="SpottersGallery-PostStrip" onclick={(e) => e.stopPropagation()} aria-label="Bu mesajdaki fotoğraflar">
+                    {sameIdx.map((i, n) => (
+                      <button
+                        type="button"
+                        className={'SpottersGallery-PostThumb' + (i === this.currentIndex ? ' is-active' : '')}
+                        title={`Bu mesajdaki ${n + 1}. fotoğraf`}
+                        onclick={() => {
+                          this.showShareMenu = false;
+                          this.currentIndex = i;
+                          this.processCurrentItem();
+                          m.redraw();
+                        }}
+                      >
+                        <img src={this.placeholderUrl(this.items[i])} alt="" loading="lazy" />
+                      </button>
+                    ))}
+                  </div>
+                ) : null}
               </div>
             </div>
 

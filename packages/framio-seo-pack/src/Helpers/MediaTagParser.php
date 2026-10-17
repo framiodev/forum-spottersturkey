@@ -456,6 +456,7 @@ class MediaTagParser
         $brand = '';
         $model = '';
         $location = '';
+        $route = '';
 
         // 1. Satır Analizi (Örn: "Varan | 34 CDL 37", "Mercedes-Benz Tourismo 16 RHD", "Ankara / '26")
         foreach ($lines as $line) {
@@ -475,6 +476,12 @@ class MediaTagParser
                     $parts = explode('|', $cleanLine);
                     $company = trim($parts[0]);
                 }
+            }
+
+            // Şehiriçi hat satırı: "73F | Florya - Taksim", "559C | Şaşkınbakkal - Taksim" (plaka içermeyen)
+            if (!$route && !preg_match('/\b(0[1-9]|[1-7][0-9]|8[01])\s*[A-Z]{1,3}\s*[0-9]{2,4}\b/u', $cleanLine)
+                && preg_match('/^([0-9A-ZÇĞİÖŞÜ][0-9A-ZÇĞİÖŞÜa-zçğıöşü\-]{0,7})\s*\|\s*(.+\s[-–]\s.+)$/u', $cleanLine)) {
+                $route = $cleanLine;
             }
 
             // Araç Marka / Model Tespiti
@@ -527,6 +534,7 @@ class MediaTagParser
             'brand' => $brand,
             'model' => $model,
             'location' => $location,
+            'route' => $route,
             'author' => $author ?? null,
             'artist' => $author ?? null,
         ];
