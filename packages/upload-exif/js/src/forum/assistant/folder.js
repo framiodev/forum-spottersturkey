@@ -145,22 +145,41 @@ const folder = {
 
     for (const f of this.list.filter((x) => x.enabled && opts.source !== 'drive')) {
       onStep(`"${f.label}" klasörünü tarıyorum…`);
-      const walk = async (dir, level) => {
+
+      // 1) Yalnızca adlara bakılarak eşleşen dosyalar toplanır (dosya açılmaz: hızlı)
+      const entries = [];
+      const walk = async (dir, level, path) => {
         for await (const entry of dir.values()) {
           if (entry.kind === 'file' && IMAGE.test(entry.name)) {
-            if (!needle || normalize(entry.name).includes(needle)) {
-              const file = await entry.getFile();
-              out.push({ file, name: file.name, source: f.label, path: f.label, modified: file.lastModified, load: async () => file });
-            }
+            if (!needle || normalize(entry.name).includes(needle)) entries.push({ entry, path });
           } else if (entry.kind === 'directory' && level < depth && !entry.name.startsWith('.')) {
-            await walk(entry, level + 1);
+            await walk(entry, level + 1, path + '/' + entry.name);
           }
         }
       };
       try {
-        await walk(f.handle, 0);
+        await walk(f.handle, 0, f.label);
       } catch (e) {
         onStep(`"${f.label}" klasörü okunamadı, atlıyorum.`);
+        continue;
+      }
+
+      // 2) Tarih için dosya bilgileri 50'şerli paralel gruplarla okunur; ilerleme gösterilir
+      for (let i = 0; i < entries.length; i += 50) {
+        const batch = await Promise.all(
+          entries.slice(i, i + 50).map(async ({ entry, path }) => {
+            try {
+              const file = await entry.getFile();
+              // Klasör adı yıl ise ("…/2026/…") çekim yılı ipucu
+              const py = (path.match(/(?:^|\/)[^/]*?((?:19|20)\d{2})[^/]*/) || [])[1];
+              return { file, name: file.name, source: path, path, year: py ? Number(py) : null, modified: file.lastModified, load: async () => file };
+            } catch (e) {
+              return null;
+            }
+          })
+        );
+        batch.forEach((x) => x && out.push(x));
+        if (entries.length > 200 && i % 500 === 0) onStep(`"${f.label}": ${Math.min(i + 50, entries.length)}/${entries.length} fotoğraf tarandı…`);
       }
     }
 
