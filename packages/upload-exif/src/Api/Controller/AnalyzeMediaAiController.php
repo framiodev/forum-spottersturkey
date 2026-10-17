@@ -200,11 +200,18 @@ class AnalyzeMediaAiController implements RequestHandlerInterface
         // Görsel benzerlik YALNIZCA çekim yeri için kullanılır (firma/plaka/marka/model asla)
         $similarityOn = $this->similarity->available();
         $geoCandidate = $this->geoCandidate($candidates);
-        $parallel = function ($client, $original, $b64, $mime) use ($similarityOn, $geoCandidate, $exif, $locationRule) {
+        // Kullanıcının son 2 saatteki künyeli fotoğrafları: dizine girmemiş olsalar da aynı yerde art arda çekimler yakalanır
+        $recent = $similarityOn ? $this->location->recentUserImages((int) $actor->id) : [];
+        $parallel = function ($client, $original, $b64, $mime) use ($similarityOn, $geoCandidate, $exif, $locationRule, $recent) {
             $jobs = [];
             if ($similarityOn) {
                 // Sahne (arka plan şeridi) parmak izi: araçtan bağımsız, çekim yeri hafızası
-                $jobs['similar'] = $this->similarity->embedAsync($client, $original, true)->then(fn ($vec) => $this->similarity->nearestMany($vec, 5, 'scene_vec'));
+                $jobs['similar'] = $this->similarity->embedAsync($client, $original, true)
+                    ->then(fn ($vec) => ['vec' => $vec, 'nearest' => $this->similarity->nearestMany($vec, 5, 'scene_vec')]);
+                foreach ($recent as $i => $r) {
+                    $jobs['recent' . $i] = $client->getAsync($r['fetch_url'], ['timeout' => 2])
+                        ->then(fn ($res) => $this->similarity->embedAsync($client, (string) $res->getBody(), true));
+                }
             }
             if ($exif['lat'] !== null) {
                 $jobs['gps'] = $this->location->reverseAsync($client, $exif['lat'], $exif['lon']);
@@ -228,7 +235,15 @@ class AnalyzeMediaAiController implements RequestHandlerInterface
         $data = $this->dropGuessedLocation($result['data']);
         $notes = [];
         $similar = null;
-        $nearest = $side['similar'] ?? [];
+        $sceneVec = $side['similar']['vec'] ?? null;
+        $nearest = $side['similar']['nearest'] ?? [];
+        // Son yüklemeler, dizindekilerle aynı biçimde aday listesine katılır
+        foreach ($recent as $i => $r) {
+            if ($sceneVec && !empty($side['recent' . $i])) {
+                $nearest[] = $r + ['score' => array_sum(array_map(fn ($a, $b) => $a * $b, $sceneVec, $side['recent' . $i]))];
+            }
+        }
+        usort($nearest, fn ($a, $b) => $b['score'] <=> $a['score']);
         if ($useHistory) {
             // Plaka forumda birebir kayıtlıysa (ve firma çelişmiyorsa) araç bilgisi o künyelerden
             ['data' => $data, 'notes' => $notes] = $this->history->enrich($data);
@@ -253,7 +268,8 @@ class AnalyzeMediaAiController implements RequestHandlerInterface
             }
         }
         if (!$loc && $nearest) {
-            $placeThreshold = max(0.9, (float) ($this->settings->get('framio-upload-exif.ai_location_threshold') ?: 0.95));
+            // En az %95: daha düşük bir eşik kaydedilmiş olsa bile uygulanmaz
+            $placeThreshold = max(0.95, (float) ($this->settings->get('framio-upload-exif.ai_location_threshold') ?: 0.95));
             foreach ($nearest as $n) {
                 if ($n['score'] < $placeThreshold) break;
                 if ($s = $this->location->entitiesLocation([$n['post_id']], $n['image_url'])) {

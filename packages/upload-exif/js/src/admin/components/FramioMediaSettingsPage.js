@@ -2640,8 +2640,8 @@ export default class FramioMediaSettingsPage extends ExtensionPage {
             <div className="helpText" style={{ fontSize: '11px', color: '#888', marginBottom: '10px' }}>Bu bölümlerde çekim yeri şehir içindeki konumla birlikte yazılır (ör. Kızılay - Ankara).</div>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
               <div>
-                <label style={{ fontWeight: 'bold', fontSize: '13px' }}>Forum geçmişi benzerlik eşiği (en az 0.90)</label>
-                <input className="FormControl" type="number" min="0.9" max="0.99" step="0.01" placeholder="0.95" bidi={this.setting('framio-upload-exif.ai_location_threshold', '')} />
+                <label style={{ fontWeight: 'bold', fontSize: '13px' }}>Forum geçmişi benzerlik eşiği (en az 0.95)</label>
+                <input className="FormControl" type="number" min="0.95" max="0.99" step="0.01" placeholder="0.95" bidi={this.setting('framio-upload-exif.ai_location_threshold', '')} />
               </div>
               <div>
                 <label style={{ fontWeight: 'bold', fontSize: '13px' }}>Konum sorusu modeli (Gemini)</label>

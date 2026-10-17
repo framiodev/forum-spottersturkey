@@ -176,6 +176,30 @@ class VisionLocation
         return ['city' => $city, 'place' => (string) $q('place')];
     }
 
+    /**
+     * Kullanıcının son yüklediği (henüz benzerlik dizinine girmemiş olabilecek) künyeli fotoğrafları.
+     * Aynı yerde art arda çekilen fotoğrafların konumu, dizin beklenmeden karşılaştırılır.
+     *
+     * @return array<int,array{post_id:int, image_url:string}>
+     */
+    public function recentUserImages(int $userId, int $minutes = 120, int $limit = 4): array
+    {
+        if (!$this->db->getSchemaBuilder()->hasTable('framio_seo_entities')) return [];
+        $postIds = $this->db->table('posts')->where('user_id', $userId)->where('type', 'comment')
+            ->where('created_at', '>=', Carbon::now()->subMinutes($minutes))->orderByDesc('id')->limit(10)->pluck('id')->all();
+        if (!$postIds) return [];
+
+        return $this->db->table('framio_seo_entities')->where('type', 'city')->whereIn('post_id', $postIds)
+            ->whereNotNull('image_url')->orderByDesc('post_id')->limit($limit)->get(['post_id', 'image_url'])
+            ->unique('image_url')->values()
+            ->map(function ($r) {
+                // Hızlı indirme için küçük boy (thumb) kullanılır
+                $thumb = $this->db->table('framio_media_images')->where('path', $r->image_url)->value('thumb_path');
+
+                return ['post_id' => (int) $r->post_id, 'image_url' => $r->image_url, 'fetch_url' => $thumb ?: $r->image_url];
+            })->all();
+    }
+
     /** İstemde kullanılacak, forumda geçen çekim yerleri */
     public function knownPlaces(int $limit = 60): array
     {
