@@ -462,13 +462,14 @@ class VisionAnalyzer
         }
         try {
             if ($accurate && !empty($candidates[0]['deep'])) {
-                // Güçlü model yanıt verirse o; vermezse ilk başarılı diğer yanıt
-                $all = Utils::settle($promises)->wait();
-                foreach ($all as $s) {
-                    if (($s['state'] ?? '') === 'fulfilled') return $s['value'];
-                }
+                // Güçlü model yanıt verir vermez o kullanılır (diğerleri beklenmez); vermezse ilk başarılı diğer yanıt
+                try {
+                    return $promises[0]->wait();
+                } catch (\Throwable $e) {
+                    $rest = array_slice($promises, 1);
 
-                return null;
+                    return $rest ? Utils::any($rest)->wait() : null;
+                }
             }
 
             return Utils::any($promises)->wait();

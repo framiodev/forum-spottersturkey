@@ -408,7 +408,13 @@ class Panel extends Component {
    */
   confirmItem(c, f, topic, summary, extras = []) {
     return new Promise(async (resolve) => {
-      const items = [c, ...extras].filter((x) => x && x.file).map((x) => ({ name: x.name, file: x.file, url: URL.createObjectURL(x.file) }));
+      const items = [];
+      for (const x of [c, ...extras].filter(Boolean)) {
+        try {
+          const blob = await this.img(x);
+          items.push({ name: x.name, file: x.file || null, blob, src: x, url: URL.createObjectURL(blob) });
+        } catch (e) {}
+      }
       const cf = { items, name: c.name, path: c.path, summary, topic, resolve, left: 120, fields: f, kunye: null };
       // Kullanıcıdan 120 saniye haber gelmezse paylaşılır (her dokunuşta süre baştan başlar)
       cf.timer = setInterval(() => {
@@ -433,7 +439,7 @@ class Panel extends Component {
     if (!cf) return;
     clearInterval(cf.timer);
     this.confirming = null;
-    this.confirmed = decision === 'yes' ? cf.items.map((x) => ({ name: x.name, file: x.file })) : null;
+    this.confirmed = decision === 'yes' ? cf.items.map((x) => ({ name: x.name, file: x.file, src: x.src })) : null;
     this.confirmedKunye = decision === 'yes' ? cf.kunye : null;
     cf.items.forEach((x) => {
       try {
@@ -459,7 +465,7 @@ class Panel extends Component {
     const cf = this.confirming;
     if (!cf) return;
     cf.paused = true;
-    const files = cf.items.map((x) => x.file);
+    const files = cf.items.map((x) => x.file || x.blob);
     const f = cf.fields || {};
     const resume = () => {
       if (this.confirming === cf) {
@@ -504,7 +510,7 @@ class Panel extends Component {
       } catch (e) {}
     });
     const add = (files) => this.editConfirm((list) => {
-      Array.from(files || []).filter((f) => /^image\//.test(f.type)).forEach((f) => list.push({ name: f.name, file: f, url: URL.createObjectURL(f) }));
+      Array.from(files || []).filter((f) => /^image\//.test(f.type)).forEach((f) => list.push({ name: f.name, file: f, blob: f, url: URL.createObjectURL(f) }));
     });
     return (
       <div className="FramioAssistant-card is-confirm">
@@ -571,10 +577,10 @@ class Panel extends Component {
   async quickAnalyze(c) {
     const hit = await getMeta(c);
     if (hit) return Object.assign({}, hit, { plate: plateText(c.name) || hit.plate });
-    if (!c.file) c.file = await c.load();
+    const im = await this.img(c);
     const fd = new FormData();
-    fd.append('image', await shrink(c.file), 'ai.jpg');
-    fd.append('exif_head', c.file.slice(0, 256 * 1024), 'head.jpg');
+    fd.append('image', await shrink(im), 'ai.jpg');
+    if (c.file) fd.append('exif_head', c.file.slice(0, 256 * 1024), 'head.jpg');
     fd.append('file_name', c.name);
     fd.append('quick', '1');
     const ai = await app.request({ method: 'POST', url: api('/framio-media/analyze-ai'), body: fd });
@@ -582,6 +588,18 @@ class Panel extends Component {
     const f = { company: d.company || '', plate: plateText(c.name) || d.plate || '', brand: d.brand || '', model: d.model || '', subject: d.subject || '', year: d.year || '' };
     putMeta(c, f);
     return f;
+  }
+
+  /** İnceleme ve önizleme için görüntü: yerel dosya, yoksa Drive'ın küçük önizlemesi, o da yoksa tam dosya */
+  async img(c) {
+    if (c.file) return c.file;
+    if (c.preview) return c.preview;
+    if (c.loadPreview) {
+      try {
+        return (c.preview = await c.loadPreview());
+      } catch (e) {}
+    }
+    return (c.file = await c.load());
   }
 
   /** Klasör yapısından firma ve plaka: …/<firma>/<plaka>/<plaka>-1.jpg */
@@ -629,10 +647,10 @@ class Panel extends Component {
     const picks = idx.map((i) => same[i]).filter((x) => x !== c).slice(0, max - 1);
     for (const x of picks) {
       try {
-        if (!x.file) x.file = await x.load();
+        await this.img(x);
       } catch (e) {}
     }
-    return picks.filter((x) => x.file);
+    return picks.filter((x) => x.file || x.preview);
   }
 
   /** Kaynak yöneticisi: klasörler, Google Drive oturumu, arama derinliği (profil ayarlarına gitmeden) */
@@ -1582,7 +1600,7 @@ class Panel extends Component {
     const usedPlates = new Set();
     const analyze = async (c) => {
       try {
-        if (!c.file) c.file = await c.load();
+        await this.img(c);
       } catch (e) {
         return { c, error: 'indirilemedi' };
       }
@@ -1591,14 +1609,14 @@ class Panel extends Component {
       const pt = plateText(c.name);
       if (fp.model && pt && (t.pathStrict || this.companyFromPath(c))) {
         // Düzenli arşiv: marka/model/şehir klasörlerden, plaka dosya adından, firma plaka klasörünün üstünden — yapay zeka gerekmez
-        f = { company: this.companyFromPath(c) || ((intent.filters || {}).company || ''), plate: pt, brand: fp.brand || '', model: fp.model, location: fp.city || '', subject: 'vehicle', year: String(c.year || (await shotYear(c.file)) || ''), fromPath: true };
+        f = { company: this.companyFromPath(c) || ((intent.filters || {}).company || ''), plate: pt, brand: fp.brand || '', model: fp.model, location: fp.city || '', subject: 'vehicle', year: String(c.year || (c.file ? await shotYear(c.file) : '') || ''), fromPath: true };
       } else {
         try {
           // Hızlı tarama (katalog önbellekli); seçilen fotoğraf onaydan önce ayrıntılı incelenir
           f = await this.quickAnalyze(c);
-          f.year = f.year || String(c.year || (await shotYear(c.file)) || '');
+          f.year = f.year || String(c.year || (c.file ? await shotYear(c.file) : '') || '');
         } catch (e) {
-          f = { year: String((await shotYear(c.file)) || '') };
+          f = { year: String(c.year || (c.file ? await shotYear(c.file) : '') || '') };
         }
       }
       c.f = f;
@@ -1700,8 +1718,8 @@ class Panel extends Component {
           try {
             this.step(`"${c.name}" ayrıntılı inceleniyor…`);
             const fd = new FormData();
-            fd.append('image', await shrink(c.file), 'ai.jpg');
-            fd.append('exif_head', c.file.slice(0, 256 * 1024), 'head.jpg');
+            fd.append('image', await shrink(await this.img(c)), 'ai.jpg');
+            if (c.file) fd.append('exif_head', c.file.slice(0, 256 * 1024), 'head.jpg');
             fd.append('file_name', c.name);
             const ai = await app.request({ method: 'POST', url: api('/framio-media/analyze-ai'), body: fd });
             const d = (ai && ai.data) || {};
@@ -1754,7 +1772,18 @@ class Panel extends Component {
 
         this.step(`"${c.name}" → ${topic.title}: imzalanıp yükleniyor…`);
         let code = '';
-        const chosen = this.confirmed && this.confirmed.length ? this.confirmed : [{ name: c.name, file: c.file }];
+        const chosen = this.confirmed && this.confirmed.length ? this.confirmed : [{ name: c.name, file: c.file, src: c }];
+        // Tam boyutlu dosyalar yalnızca şimdi ve paralel indirilir (incelemede küçük önizleme kullanıldı)
+        if (chosen.some((x) => !x.file)) this.step('Tam boyutlu fotoğraflar indiriliyor…');
+        await Promise.all(
+          chosen.map(async (x) => {
+            if (!x.file && x.src) {
+              try {
+                x.file = x.src.file || (x.src.file = await x.src.load());
+              } catch (e) {}
+            }
+          })
+        );
         for (const x of chosen) {
           try {
             code += (code ? '\n' : '') + (await upload(x.file, pref('framio_assistant_watermark', 'none')));

@@ -90,7 +90,7 @@ const drive = {
 
   /** Klasörün Drive'daki tam yolu ("Medya/Karayolu/Otobüs/2026/Şehirler/Antalya/…"); üst klasörler önbelleklenir */
   async pathOf(id) {
-    this.meta = this.meta || {};
+    this.meta = this.meta || this.cacheGet('meta') || {};
     const parts = [];
     let cur = id;
     for (let i = 0; cur && i < 30; i++) {
@@ -105,6 +105,7 @@ const drive = {
       parts.unshift(this.meta[cur].name);
       cur = this.meta[cur].parent;
     }
+    this.cacheSet('meta', this.meta);
     // En üstteki "Drive'ım" (My Drive) adı yoldan atılır
     if (parts.length > 1 && /^(my drive|drive'ım|drive’ım|drivem)$/i.test(parts[0])) parts.shift();
     return parts;
@@ -129,21 +130,60 @@ const drive = {
     return out;
   },
 
+  /** Klasör sorguları oturum boyunca (sekme açıkken) saklanır: aynı yerde ikinci arama anında */
+  cacheGet(k) {
+    try {
+      this.cache = this.cache || JSON.parse(sessionStorage.getItem('framio-drive-tree') || '{}');
+    } catch (e) {
+      this.cache = {};
+    }
+    return this.cache[k];
+  },
+
+  cacheSet(k, v) {
+    this.cache = this.cache || {};
+    this.cache[k] = v;
+    try {
+      sessionStorage.setItem('framio-drive-tree', JSON.stringify(this.cache));
+    } catch (e) {}
+    return v;
+  },
+
+  /** Drive'ın küçük önizlemesi (1024 px, ~150 KB): inceleme ve onay kartı için; tam boyut yalnızca paylaşırken */
+  previewLoader(x) {
+    if (!x.thumbnailLink) return null;
+    const url = String(x.thumbnailLink).replace(/=s\d+$/, '=s1024');
+    return async () => {
+      const r = await fetch(url);
+      if (!r.ok) throw new Error('önizleme alınamadı');
+      const b = await r.blob();
+      return new File([b], x.name, { type: b.type || 'image/jpeg', lastModified: Date.parse(x.modifiedTime) || 0 });
+    };
+  },
+
   async searchFolders(term) {
+    const hit = this.cacheGet('s:' + term);
+    if (hit) {
+      this.meta = this.meta || {};
+      hit.forEach((f) => (this.meta[f.id] = { name: f.name, parent: (f.parents || [])[0] || null }));
+      return hit;
+    }
     const q = String(term).replace(/'/g, "\\'");
     const res = await (
       await this.request('https://www.googleapis.com/drive/v3/files?' + new URLSearchParams({ q: `mimeType='application/vnd.google-apps.folder' and trashed=false and name contains '${q}'`, fields: 'files(id,name,parents)', pageSize: '300' }))
     ).json();
     this.meta = this.meta || {};
     (res.files || []).forEach((f) => (this.meta[f.id] = { name: f.name, parent: (f.parents || [])[0] || null }));
-    return res.files || [];
+    return this.cacheSet('s:' + term, res.files || []);
   },
 
   async children(id) {
+    const hit = this.cacheGet('c:' + id);
+    if (hit) return hit;
     const res = await (
       await this.request('https://www.googleapis.com/drive/v3/files?' + new URLSearchParams({ q: `'${id}' in parents and mimeType='application/vnd.google-apps.folder' and trashed=false`, fields: 'files(id,name)', pageSize: '300' }))
     ).json();
-    return res.files || [];
+    return this.cacheSet('c:' + id, res.files || []);
   },
 
   /**
@@ -242,7 +282,7 @@ const drive = {
         let res = {};
         try {
           res = await (
-          await this.request('https://www.googleapis.com/drive/v3/files?' + new URLSearchParams({ q: `'${f.id}' in parents and trashed=false`, fields: 'nextPageToken,files(id,name,mimeType,modifiedTime,imageMediaMetadata(time))', pageSize: '500', ...(pageToken ? { pageToken } : {}) }))
+          await this.request('https://www.googleapis.com/drive/v3/files?' + new URLSearchParams({ q: `'${f.id}' in parents and trashed=false`, fields: 'nextPageToken,files(id,name,mimeType,modifiedTime,thumbnailLink,imageMediaMetadata(time))', pageSize: '500', ...(pageToken ? { pageToken } : {}) }))
         ).json();
         } catch (e) {
           res = {};
@@ -258,6 +298,7 @@ const drive = {
               year: exif ? Number(String(exif).slice(0, 4)) : pathYear ? Number(pathYear) : null,
               modified: Date.parse(x.modifiedTime) || 0,
               load: () => this.download(x.id, x.name, x.mimeType, Date.parse(x.modifiedTime) || 0),
+              loadPreview: this.previewLoader(x),
             });
           }
         });
@@ -455,7 +496,7 @@ const drive = {
             'https://www.googleapis.com/drive/v3/files?' +
               new URLSearchParams({
                 q: `'${p.id}' in parents and ${IMAGE_MIME} and trashed=false${nameQ}`,
-                fields: 'nextPageToken,files(id,name,mimeType,modifiedTime,imageMediaMetadata(time))',
+                fields: 'nextPageToken,files(id,name,mimeType,modifiedTime,thumbnailLink,imageMediaMetadata(time))',
                 orderBy: 'modifiedTime desc',
                 pageSize: '200',
                 ...(pageToken ? { pageToken } : {}),
@@ -475,6 +516,7 @@ const drive = {
             year,
             modified: Date.parse(f.modifiedTime) || 0,
             load: () => this.download(f.id, f.name, f.mimeType, Date.parse(f.modifiedTime) || 0),
+            loadPreview: this.previewLoader(f),
           });
         });
         pageToken = res.nextPageToken || '';
