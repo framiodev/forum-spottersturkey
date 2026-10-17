@@ -1296,6 +1296,21 @@ class Panel extends Component {
                 return terms.every((w) => where.includes(w) || (w.split(' ').length > 1 && w.split(' ').every((x) => where.includes(x))));
               });
               this.step(`Klasörlerde "${terms.join('", "')}" geçenler: ${strict.length} fotoğraf.`);
+              // Varyant yakın yazılmış olabilir ("16 SHD" ↔ klasörde "16 RHD"): sayısı aynı varyant klasörü denenir
+              if (!strict.length && variant) {
+                const num = fold(variant).match(/\d+/)[0];
+                const rest = terms.filter((w) => w !== fold(variant));
+                const near = candidates.filter((c) => {
+                  const segs = String(c.path || '').split('/').map(fold);
+                  const where = fold((c.path || '') + ' ' + c.name);
+                  return segs.some((x) => new RegExp('^' + num + '\s?[a-z]{1,4}$').test(x)) && rest.every((w) => where.includes(w));
+                });
+                if (near.length) {
+                  const seg = String(near[0].path).split('/').find((x) => new RegExp('^' + num + '\s?[a-z]{1,4}$', 'i').test(fold(x)));
+                  this.say(`"${variant}" klasörü yok ama "${seg}" var; ${near.length} fotoğraf onunla eşleşiyor, oradan seçiyorum.`, false);
+                  strict.push(...near);
+                }
+              }
               if (!strict.length) {
                 this.task = null;
                 return this.say(`Bulduğum klasörlerde "${[fl2.company, variant, intent.note, fl2.plate].filter(Boolean).join(', ')}" ile eşleşen fotoğraf yok. İsterseniz bu koşullardan birini gevşetebiliriz.`);
