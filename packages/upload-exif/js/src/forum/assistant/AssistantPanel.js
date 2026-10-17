@@ -1,7 +1,7 @@
 import app from 'flarum/forum/app';
 import Component from 'flarum/common/Component';
 import Button from 'flarum/common/components/Button';
-import folder from './folder';
+import folder, { normalize } from './folder';
 import { canListen, listenOnce, speak, whenQuiet, hush } from './speech';
 import ghost from './ghost';
 import drive from './drive';
@@ -560,7 +560,18 @@ class Panel extends Component {
     let files = [];
     try {
       const depth = Number(pref('framio_assistant_depth', 2));
-      files = await folder.find(intent.query, intent.count === 0 ? 20 : intent.count || 1, depth, (t) => this.step(t));
+      // Komutta yer belirtildiyse ("Antalya alt klasörlerindeki") önce o klasör bulunur, yalnızca içine bakılır
+      const placeWords = intent.location
+        ? intent.location.split(/[\s,/]+/).map((w) => w.replace(/['’](da|de|ta|te|nda|nde|ndaki|ndeki|daki|deki)$/i, '')).filter((w) => w.length > 2 && !/^(otogar|otogarı|terminal|garaj|il|ilçe)$/i.test(w))
+        : [];
+      let dirs = [];
+      if (placeWords.length && (folder.list || []).some((f) => f.enabled)) dirs = await folder.findDirs(placeWords.slice().reverse(), (t) => this.step(t));
+      if (dirs.length) {
+        this.step(`"${dirs.map((d) => d.path).join(' · ')}" içinde arıyorum…`);
+        const needle = normalize(intent.query);
+        files = (await folder.filesIn(dirs, (t) => this.step(t))).filter((x) => normalize(x.name).includes(needle)).slice(0, intent.count === 0 ? 20 : intent.count || 1);
+      }
+      if (!files.length) files = await folder.find(intent.query, intent.count === 0 ? 20 : intent.count || 1, depth, (t) => this.step(t), { source: intent.source });
     } catch (e) {
       return this.say('Kaynakları okuyamadım.');
     }

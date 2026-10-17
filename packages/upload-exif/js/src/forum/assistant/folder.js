@@ -260,6 +260,8 @@ const folder = {
       // 1) Yalnızca adlara bakılarak eşleşen dosyalar toplanır (dosya açılmaz: hızlı)
       // Bulut sürücülerinde (ExpanDrive, Google Drive masaüstü vb.) bazı öğeler okuma hatası verebilir:
       // hata veren alt klasör / dosya atlanır, taramanın geri kalanı sürer
+      // Adla (plaka, dosya adı) aramada yalnızca adlara bakılır: derinlik sınırı yok (hızlı)
+      const maxDepth = needle ? 12 : depth;
       const entries = [];
       const errors = [];
       const walk = async (dir, level, path) => {
@@ -282,7 +284,7 @@ const folder = {
           const entry = step.value;
           if (entry.kind === 'file' && IMAGE.test(entry.name)) {
             if (!needle || normalize(entry.name).includes(needle)) entries.push({ entry, path });
-          } else if (entry.kind === 'directory' && level < depth && !entry.name.startsWith('.')) {
+          } else if (entry.kind === 'directory' && level < maxDepth && !entry.name.startsWith('.')) {
             await walk(entry, level + 1, path + '/' + entry.name);
           }
         }
