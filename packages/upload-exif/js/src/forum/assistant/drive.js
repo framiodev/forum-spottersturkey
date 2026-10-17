@@ -65,7 +65,11 @@ const drive = {
   roots() {
     const chosen = this.folders().filter((f) => f.enabled);
     if (chosen.length) return chosen;
-    return this.token ? [{ id: 'root', name: "Drive'ım", enabled: true }] : [];
+    let live = !!this.token;
+    try {
+      live = live || !!sessionStorage.getItem(storeKey() + '-token');
+    } catch (e) {}
+    return live ? [{ id: 'root', name: "Drive'ım", enabled: true }] : [];
   },
 
   /**
@@ -117,6 +121,16 @@ const drive = {
 
   /** Yalnızca okuma izniyle erişim belirteci (ilk seferde Google onay penceresi açılır) */
   async authorize(interactive = true) {
+    // Belirteç bu tarayıcıda (oturum süresince, en çok 1 saat) saklanır: sayfa yenilense de hesap yeniden sorulmaz
+    if (!this.token) {
+      try {
+        const saved = JSON.parse(sessionStorage.getItem(storeKey() + '-token') || 'null');
+        if (saved && Date.now() < saved.expires - 60000) {
+          this.token = saved.token;
+          this.expires = saved.expires;
+        }
+      } catch (e) {}
+    }
     if (this.token && Date.now() < this.expires - 60000) return this.token;
     await loadScript('https://accounts.google.com/gsi/client');
     const { clientId } = this.config();
@@ -126,12 +140,22 @@ const drive = {
         client_id: clientId,
         scope: SCOPE,
         prompt: interactive ? '' : 'none',
+        // Daha önce bağlanan hesap hatırlanır: hesap seçme ekranı yeniden gelmez
+        ...(localStorage.getItem(storeKey() + '-email') ? { login_hint: localStorage.getItem(storeKey() + '-email') } : {}),
         callback: (res) => {
           if (res.error) return reject(new Error('Google Drive izni verilmedi.'));
           // Kullanıcı başka bir kapsam verdiyse bile yalnızca okuma kapsamı kullanılır
           if (!window.google.accounts.oauth2.hasGrantedAllScopes(res, SCOPE)) return reject(new Error('Drive okuma izni verilmedi.'));
           this.token = res.access_token;
           this.expires = Date.now() + (res.expires_in || 3600) * 1000;
+          try {
+            sessionStorage.setItem(storeKey() + '-token', JSON.stringify({ token: this.token, expires: this.expires }));
+          } catch (e) {}
+          // Hangi hesabın bağlandığı (bir sonraki girişte hesap seçimi atlanır)
+          fetch('https://www.googleapis.com/drive/v3/about?fields=user(emailAddress)', { headers: { Authorization: 'Bearer ' + this.token } })
+            .then((r) => r.json())
+            .then((j) => j.user && j.user.emailAddress && localStorage.setItem(storeKey() + '-email', j.user.emailAddress))
+            .catch(() => {});
           resolve(this.token);
         },
         error_callback: () => reject(new Error('Google Drive bağlantısı kurulamadı.')),
@@ -212,6 +236,10 @@ const drive = {
       } catch (e) {}
     }
     this.token = null;
+    try {
+      sessionStorage.removeItem(storeKey() + '-token');
+      localStorage.removeItem(storeKey() + '-email');
+    } catch (e) {}
     this.saveFolders([]);
   },
 
