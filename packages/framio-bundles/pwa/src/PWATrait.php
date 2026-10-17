@@ -84,6 +84,17 @@ trait PWATrait
             $manifest['short_name'] = $shortName;
         }
 
+        // Uygulama simgesine basılı tutunca: Framio Asistan kısayolu (asistan açıksa)
+        if ($settings->get('framio-upload-exif.assistant_enabled') !== '0') {
+            $manifest['shortcuts'] = [[
+                'name' => 'Asistan',
+                'short_name' => 'Asistan',
+                'description' => 'Sesli ya da yazılı komutla fotoğraf bul ve paylaş',
+                'url' => rtrim($basePath, '/') . '/?asistan=1',
+                'icons' => array_slice($manifest['icons'], 0, 1),
+            ]];
+        }
+
         $displayOverride = $settings->get('fof-pwa.windowControlsOverlay');
         if ($displayOverride) {
             $manifest['display_override'] = ['window-controls-overlay'];
