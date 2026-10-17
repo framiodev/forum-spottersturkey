@@ -1303,7 +1303,8 @@ class Panel extends Component {
     const plates = new Set();
     const needle = t.filter ? t.filter.toLocaleLowerCase('tr-TR') : null;
     for (const c of candidates) {
-      if (picked.length >= t.count * (needle || t.targets || intent.location ? 4 : 1)) break;
+      // Aday havuzu geniş tutulur; inceleme istenen sayıya ulaşınca zaten durur
+      if (picked.length >= Math.min(60, t.count * (needle || t.targets || intent.location ? 12 : 3))) break;
       if (intent.shot_year) {
         // Drive: indirmeden bilinen yıl (EXIF ya da klasör adı); yerel dosyada EXIF okunur
         const y = c.year || (c.file ? await shotYear(c.file) : null);
@@ -1390,7 +1391,23 @@ class Panel extends Component {
             continue;
           }
         }
-        if (needle && ![f.company, f.plate, f.brand, f.model].join(' ').toLocaleLowerCase('tr-TR').includes(needle)) continue;
+        if (needle && ![f.company, f.plate, f.brand, f.model].join(' ').toLocaleLowerCase('tr-TR').includes(needle)) {
+          // Klasör adı esastır: ".../Mercedes-Benz/Travego" klasöründeki fotoğraf Travego'dur (yapay zeka karıştırsa da)
+          const seg = String(c.path || '').split('/').reverse().find((x) => needle.split(/\s+/).some((w) => w.length > 2 && x.toLocaleLowerCase('tr-TR').includes(w)));
+          if (!seg) {
+            this.step(`"${c.name}" ${[f.brand, f.model].filter(Boolean).join(' ') || 'araç'} çıktı, aranan "${t.filter}" değil, atlıyorum.`);
+            continue;
+          }
+          const parts = String(c.path || '').split('/');
+          const bi = parts.indexOf(seg) - 1;
+          if (bi >= 0 && /benz|man|setra|neoplan|temsa|otokar|isuzu|bmc|volvo|scania|iveco|ford|renault|karsan|güleryüz|guleryuz/i.test(parts[bi])) f.brand = parts[bi];
+          f.model = seg;
+          this.step(`"${c.name}": model klasöründen alındı (${f.brand} ${f.model}).`);
+          try {
+            const r2 = await app.request({ method: 'POST', url: api('/framio-assistant/route'), body: { plate: f.plate, brand: f.brand, model: f.model, company: f.company, year: f.year, hint: c.path || '' } });
+            if (sugg) sugg.splice(0, sugg.length, ...(r2.suggestions || []));
+          } catch (e) {}
+        }
         // Çekim yeri klasörden anlaşılmadıysa Framio AI'nın bulduğu yere bakılır
         if (t.placeWords && t.placeWords.length && !t.placeFromPath) {
           const loc = String(f.location || '').toLocaleLowerCase('tr-TR');
@@ -1398,7 +1415,10 @@ class Panel extends Component {
         }
         if (intent.diverse && f.plate) {
           const k = f.plate.replace(/\s+/g, '');
-          if (usedPlates.has(k)) continue;
+          if (usedPlates.has(k)) {
+            this.step(`"${c.name}" aynı plakanın başka karesi, atlıyorum.`);
+            continue;
+          }
           usedPlates.add(k);
         }
 
@@ -1421,7 +1441,10 @@ class Panel extends Component {
             topic = sugg[0];
           }
         }
-        if (!topic) continue;
+        if (!topic) {
+          this.step(`"${c.name}" (${[f.brand, f.model].filter(Boolean).join(' ')}) için uygun başlık bulamadım, atlıyorum.`);
+          continue;
+        }
 
         // Paylaşmadan önce onay
         const summary = [[f.company, f.plate].filter(Boolean).join(' | '), [f.brand, f.model].filter(Boolean).join(' '), f.location].filter(Boolean).join(' · ');
@@ -1464,7 +1487,7 @@ class Panel extends Component {
 
     if (!items.length) {
       this.task = null;
-      return this.say('Koşullara uyan fotoğraf hazırlayamadım.');
+      return this.say('Koşullara uyan fotoğraf hazırlayamadım. Yukarıdaki adımlarda her fotoğrafın neden atlandığını görebilirsiniz.');
     }
 
     if (t.plan) {
