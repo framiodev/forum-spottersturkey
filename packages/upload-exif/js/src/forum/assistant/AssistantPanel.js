@@ -2,7 +2,7 @@ import app from 'flarum/forum/app';
 import Component from 'flarum/common/Component';
 import Button from 'flarum/common/components/Button';
 import folder from './folder';
-import { canListen, listenOnce, speak } from './speech';
+import { canListen, listenOnce, speak, whenQuiet, hush } from './speech';
 import ghost from './ghost';
 import drive from './drive';
 import { shotYear, plateKey, slots, localStamp, humanDate, isAny, isYes } from './planner';
@@ -129,12 +129,13 @@ class Panel extends Component {
     this.log.forEach((l) => l.who === 'step' && (l.done = true));
     this.log.push({ who: 'bot', text });
     if (store) this.remember('bot', text);
-    if (voice && pref('framio_assistant_speak', true)) speak(text);
+    const spoken = voice && pref('framio_assistant_speak', true) ? speak(text) : Promise.resolve();
     m.redraw();
     setTimeout(() => {
       const el = document.querySelector('.FramioAssistant-log');
       if (el) el.scrollTop = el.scrollHeight;
     }, 30);
+    return spoken;
   }
 
   view() {
@@ -299,6 +300,7 @@ class Panel extends Component {
 
   async listen(prefix = '') {
     if (this.listening) return;
+    await whenQuiet();
     this.listening = true;
     assistant.wake && assistant.wake.pause();
     m.redraw();
@@ -324,6 +326,7 @@ class Panel extends Component {
   async command(text) {
     text = String(text || '').trim();
     if (!text) return;
+    hush();
     this.input = '';
     this.log.push({ who: 'me', text });
     this.remember('me', text);
@@ -374,14 +377,17 @@ class Panel extends Component {
     }
 
     if (!files.length) return this.say(`"${intent.query}" adını taşıyan bir fotoğraf bulamadım.`);
-    this.say(files.length === 1 ? `Bir fotoğraf buldum (${files[0].source}), inceliyorum.` : `${files.length} fotoğraf buldum, inceliyorum.`);
+    await this.say(files.length === 1 ? `Bir fotoğraf buldum (${files[0].source}), inceliyorum.` : `${files.length} fotoğraf buldum, inceliyorum.`);
 
     for (const item of files) {
-      await this.prepare(item.file, intent, item.source);
+      this.step(item.file ? null : `"${item.name}" indiriliyor…`);
+      const file = item.file || (item.file = await item.load());
+      await this.prepare(file, intent, item.source, item.path);
+      await whenQuiet();
     }
   }
 
-  async prepare(file, intent, source = '') {
+  async prepare(file, intent, source = '', path = '') {
     const card = {
       id: Math.random().toString(36).slice(2),
       file,
@@ -428,7 +434,7 @@ class Panel extends Component {
 
     this.step('Uygun başlığı arıyorum…');
     try {
-      const r = await app.request({ method: 'POST', url: api('/framio-assistant/route'), body: { brand: card.fields.brand, model: card.fields.model, company: card.fields.company, year: card.fields.year } });
+      const r = await app.request({ method: 'POST', url: api('/framio-assistant/route'), body: { brand: card.fields.brand, model: card.fields.model, company: card.fields.company, year: card.fields.year, hint: path } });
       card.suggestions = r.suggestions || [];
       card.topic = card.suggestions.length ? String(card.suggestions[0].discussion_id) : '';
       card.auto = !!r.auto && pref('framio_assistant_auto', true);
@@ -440,7 +446,7 @@ class Panel extends Component {
     const topic = card.suggestions[0];
 
     if (card.auto && topic) {
-      this.say(`${summary}. Bunu her zamanki gibi ${topic.title} başlığına paylaşıyorum; durdurmak için "iptal" deyin.`);
+      await this.say(`${summary}. Bunu her zamanki gibi ${topic.title} başlığına paylaşıyorum; durdurmak için "iptal" deyin.`);
       card.countdown = 5;
       card.timer = setInterval(() => {
         card.countdown -= 1;
@@ -461,7 +467,7 @@ class Panel extends Component {
 
   // ── Çok adımlı görevler: önce sorar, sonra seçer, hazırlar, paylaşır ya da planlar ──────────
 
-  startTask(intent) {
+  async startTask(intent) {
     const count = intent.count === 0 ? 20 : intent.count || (intent.days && intent.per_day ? intent.days * intent.per_day : 10);
     this.task = { intent, count, plan: intent.action === 'plan', topic: null, filter: null, waiting: null };
     const what = this.task.plan
@@ -469,7 +475,7 @@ class Panel extends Component {
       : `${count} yeni fotoğraf paylaşacağım`;
     const from = intent.source === 'drive' ? "Google Drive'dan" : intent.source === 'local' ? 'bilgisayardaki klasörlerden' : 'bağlı kaynaklardan';
     const year = intent.shot_year ? `, yalnızca ${intent.shot_year} çekimleri` : '';
-    this.say(`Anladım: ${from}${year} ${what}. Birkaç sorum var.`);
+    await this.say(`Anladım: ${from}${year} ${what}. Birkaç sorum var.`);
     this.ask('topic');
   }
 
@@ -551,8 +557,7 @@ class Panel extends Component {
     const pool = Math.min(400, t.count * 6);
     let candidates = [];
     try {
-      const keep = { drive: intent.source !== 'local', local: intent.source !== 'drive' };
-      candidates = (await folder.find('', pool, depth, (x) => this.step(x))).filter((c) => (String(c.source).startsWith('Drive:') ? keep.drive : keep.local));
+      candidates = await folder.find('', pool, depth, (x) => this.step(x), { source: intent.source, year: intent.shot_year, hint: t.filter || '' });
     } catch (e) {
       this.task = null;
       return this.say('Kaynakları okuyamadım.');
@@ -572,8 +577,9 @@ class Panel extends Component {
     for (const c of candidates) {
       if (picked.length >= t.count * (needle ? 3 : 1)) break;
       if (intent.shot_year) {
-        const y = await shotYear(c.file);
-        if (y !== intent.shot_year) continue;
+        // Drive: indirmeden bilinen yıl (EXIF ya da klasör adı); yerel dosyada EXIF okunur
+        const y = c.year || (c.file ? await shotYear(c.file) : null);
+        if (y && y !== intent.shot_year) continue;
       }
       const key = plateKey(c.name);
       if (intent.diverse && key) {
@@ -586,7 +592,7 @@ class Panel extends Component {
       this.task = null;
       return this.say('Koşullara uyan yeni bir fotoğraf bulamadım.');
     }
-    this.say(`${picked.length} aday fotoğraf seçtim; Framio AI ile inceleyip ${t.plan ? 'planı hazırlıyorum' : 'paylaşıyorum'}. Bu biraz sürebilir, sekmeyi açık bırakın.`);
+    await this.say(`${picked.length} aday fotoğraf seçtim; Framio AI ile inceleyip ${t.plan ? 'planı hazırlıyorum' : 'paylaşıyorum'}. Bu biraz sürebilir, sekmeyi açık bırakın.`);
 
     // 4) Hazırla: analiz → (filtre) → başlık → yükle → içerik
     const times = t.plan ? slots({ count: t.count, days: intent.days, perDay: intent.per_day, time: intent.time }) : [];
@@ -594,7 +600,13 @@ class Panel extends Component {
     const usedPlates = new Set();
     for (const c of picked) {
       if (items.length >= t.count) break;
-      this.step(`${items.length + 1}/${t.count} · "${c.name}" inceleniyor…`);
+      this.step(`${items.length + 1}/${t.count} · "${c.name}" ${c.file ? 'inceleniyor' : 'indiriliyor'}…`);
+      try {
+        if (!c.file) c.file = await c.load();
+      } catch (e) {
+        this.step(`"${c.name}" indirilemedi, atlıyorum.`);
+        continue;
+      }
       let f = {};
       try {
         const fd = new FormData();
@@ -617,7 +629,7 @@ class Panel extends Component {
       let topic = t.topic;
       if (!topic) {
         try {
-          const r = await app.request({ method: 'POST', url: api('/framio-assistant/route'), body: { brand: f.brand, model: f.model, company: f.company, year: f.year } });
+          const r = await app.request({ method: 'POST', url: api('/framio-assistant/route'), body: { brand: f.brand, model: f.model, company: f.company, year: f.year, hint: c.path || '' } });
           topic = (r.suggestions || [])[0];
         } catch (e) {}
       }

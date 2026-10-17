@@ -61,17 +61,54 @@ export function pronounce(text) {
   return out;
 }
 
-/** Türkçe sesli yanıt */
+// Konuşmalar sıraya girer: asistan bir cümleyi bitirmeden ne yeni cümleye ne de işe geçer
+let queue = Promise.resolve();
+let speaking = 0;
+
+/** Türkçe sesli yanıt; konuşma bitince çözülen bir söz (promise) döner */
 export function speak(text) {
-  if (!window.speechSynthesis || !text) return;
+  if (!window.speechSynthesis || !text) return queue;
+  speaking++;
+  queue = queue.then(
+    () =>
+      new Promise((resolve) => {
+        try {
+          const u = new SpeechSynthesisUtterance(pronounce(text));
+          u.lang = 'tr-TR';
+          const voice = window.speechSynthesis.getVoices().find((v) => v.lang && v.lang.toLowerCase().startsWith('tr'));
+          if (voice) u.voice = voice;
+          u.rate = 1.05;
+          // Bazı tarayıcılar "end" olayını kaçırabilir: metin uzunluğuna göre üst sınır
+          const guard = setTimeout(resolve, 2000 + String(text).length * 90);
+          const done = () => {
+            clearTimeout(guard);
+            resolve();
+          };
+          u.onend = done;
+          u.onerror = done;
+          window.speechSynthesis.speak(u);
+        } catch (e) {
+          resolve();
+        }
+      })
+  );
+  const mine = queue;
+  mine.then(() => speaking--);
+  return mine;
+}
+
+/** Asistan şu an konuşuyor mu / konuşması bitene kadar bekle */
+export function isSpeaking() {
+  return speaking > 0;
+}
+export function whenQuiet() {
+  return queue;
+}
+
+/** Konuşmayı hemen kes (kullanıcı araya girdiğinde) */
+export function hush() {
   try {
     window.speechSynthesis.cancel();
-    const u = new SpeechSynthesisUtterance(pronounce(text));
-    u.lang = 'tr-TR';
-    const voice = window.speechSynthesis.getVoices().find((v) => v.lang && v.lang.toLowerCase().startsWith('tr'));
-    if (voice) u.voice = voice;
-    u.rate = 1.05;
-    window.speechSynthesis.speak(u);
   } catch (e) {}
 }
 
@@ -99,6 +136,8 @@ export function wakeListener(phrases, onWake) {
     r.continuous = true;
     r.interimResults = false;
     r.onresult = (e) => {
+      // Asistan konuşurken duyduklarını kendi sesi sayar; uyanmaz
+      if (speaking > 0) return;
       for (let i = e.resultIndex; i < e.results.length; i++) {
         if (!e.results[i].isFinal) continue;
         const heard = norm(e.results[i][0].transcript);

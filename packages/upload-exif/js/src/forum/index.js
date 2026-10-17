@@ -15,6 +15,7 @@ import SettingsPage from 'flarum/forum/components/SettingsPage';
 
 import Page from 'flarum/common/components/Page';
 import crosspostOnPublish from './crosspostOnPublish';
+import live from './live';
 import assistant, { assistantName } from './assistant/AssistantPanel';
 import { canListen, wakeListener } from './assistant/speech';
 import folder from './assistant/folder';
@@ -46,6 +47,8 @@ if (typeof document !== 'undefined') {
 
 app.initializers.add('framio/upload-exif', () => {
   crosspostOnPublish();
+  // Canlı güncelleme: yeni sürümde sekme yenilenir, yeni mesajlar akışa eklenir / bildirilir
+  setTimeout(live, 1500);
 
   // Yönetici "Üye adına paylaş" seçtiyse (imza penceresinde) konu/yanıt o üye adına gönderilir.
   // Sunucu yalnızca yöneticilerden gelen framioPostAs alanını dikkate alır (PostAsHandler).

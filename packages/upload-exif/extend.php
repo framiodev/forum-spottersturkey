@@ -98,7 +98,10 @@ return [
         ->get('/framio-assistant/schedule', 'framio.assistant.schedule', \Framio\UploadExif\Assistant\AssistantController::class)
         ->post('/framio-assistant/schedule', 'framio.assistant.schedule.add', \Framio\UploadExif\Assistant\AssistantController::class)
         ->post('/framio-assistant/schedule/cancel', 'framio.assistant.schedule.cancel', \Framio\UploadExif\Assistant\AssistantController::class)
-        ->post('/framio-assistant/seen', 'framio.assistant.seen', \Framio\UploadExif\Assistant\AssistantController::class),
+        ->post('/framio-assistant/seen', 'framio.assistant.seen', \Framio\UploadExif\Assistant\AssistantController::class)
+
+        // Canlı güncelleme (yeni sürüm ve yeni mesajlar)
+        ->get('/framio/live', 'framio.live', \Framio\UploadExif\Api\Controller\LiveController::class),
 
     // Admin Ayarlarının Frontend Forum Context'ine Aktarımı
     (new Extend\Settings())
@@ -129,7 +132,9 @@ return [
         // herkese açık tanımlayıcılardır (gizli anahtar değildir); Google Cloud'da alan adıyla kısıtlanmalıdır
         ->serializeToForum('framioDriveClientId', 'framio-upload-exif.drive_client_id', 'strval', '')
         ->serializeToForum('framioDriveApiKey', 'framio-upload-exif.drive_api_key', 'strval', '')
-        ->serializeToForum('framioDriveAppId', 'framio-upload-exif.drive_app_id', 'strval', ''),
+        ->serializeToForum('framioDriveAppId', 'framio-upload-exif.drive_app_id', 'strval', '')
+        ->serializeToForum('framioLiveEnabled', 'framio-upload-exif.live_enabled', fn ($v) => $v !== '0', true)
+        ->serializeToForum('framioLiveInterval', 'framio-upload-exif.live_interval', 'intval', 30),
 
     (new Extend\User())
         ->registerPreference('framio_carousel_enabled', 'boolval', true)
@@ -231,7 +236,6 @@ return [
     (new Extend\Console())
         ->command(\Framio\UploadExif\Console\FillDimensionsCommand::class)
         ->command(\Framio\UploadExif\Console\VisionIndexCommand::class)
-        ->command(\Framio\UploadExif\Console\ArchiveRotateCommand::class)
         ->command(\Framio\UploadExif\Console\AssistantRunCommand::class)
         // Planlı paylaşımlar dakikada bir (Flarum zamanlayıcısı: cron'da "php flarum schedule:run")
         ->schedule(\Framio\UploadExif\Console\AssistantRunCommand::class, fn ($event) => $event->everyMinute()->withoutOverlapping()),

@@ -207,7 +207,7 @@ class AssistantController implements RequestHandlerInterface
             foreach ($out as $sug) {
                 $era = $this->era->ofDiscussion($sug['discussion_id']);
                 if ($era && $era !== $want) {
-                    $mirror = $this->era->mirror($sug['discussion_id'], $want);
+                    $mirror = $this->era->counterpart($sug['discussion_id'], $want, (string) Arr::get($body, 'brand', ''));
                     $sug = $mirror && ($d = $this->describe($mirror, $actor)) ? $d + ['reason' => $sug['reason'], 'era_moved' => true] : null;
                     if ($sug && $sug['reason'] === 'learned') $auto = $auto && true;
                 }
@@ -218,6 +218,20 @@ class AssistantController implements RequestHandlerInterface
             }
             $out = $fixed;
             if (!$out) $auto = false;
+        }
+
+        // Klasör yolu ipucu ("…/Şehirlerarası Otobüsler"): o bölümdeki başlıklar öne alınır
+        $hint = mb_strtolower(str_replace(['I', 'İ'], ['ı', 'i'], (string) Arr::get($body, 'hint', '')), 'UTF-8');
+        $words = array_values(array_filter(preg_split('/[\s\/_.-]+/u', $hint), fn ($w) => mb_strlen($w) > 3 && !preg_match('/^\d+$/', $w)));
+        if ($words && count($out) > 1) {
+            foreach ($out as $i => &$sug) {
+                $names = mb_strtolower(str_replace(['I', 'İ'], ['ı', 'i'], implode(' ', $this->db->table('discussion_tag')->join('tags', 'tags.id', '=', 'discussion_tag.tag_id')
+                    ->where('discussion_tag.discussion_id', $sug['discussion_id'])->pluck('tags.name')->all())), 'UTF-8');
+                $sug['_score'] = count(array_filter($words, fn ($w) => str_contains($names, mb_substr($w, 0, 6)))) * 10 - $i;
+            }
+            unset($sug);
+            usort($out, fn ($a, $b) => $b['_score'] <=> $a['_score']);
+            $out = array_map(function ($x) { unset($x['_score']); return $x; }, $out);
         }
 
         return ['suggestions' => array_slice($out, 0, 5), 'auto' => $auto, 'auto_after' => $this->autoAfter(), 'era' => $want];

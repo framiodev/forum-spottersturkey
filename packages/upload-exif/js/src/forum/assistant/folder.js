@@ -138,19 +138,19 @@ const folder = {
    * @param {(text: string) => void} onStep  anlık durum ("Masaüstü klasörünü tarıyorum…")
    * @return {Promise<{file: File|Blob, name: string, source: string, modified: number}[]>}
    */
-  async find(query, limit = 20, depth = 2, onStep = () => {}) {
+  async find(query, limit = 20, depth = 2, onStep = () => {}, opts = {}) {
     await this.load();
     const needle = normalize(query);
     const out = [];
 
-    for (const f of this.list.filter((x) => x.enabled)) {
+    for (const f of this.list.filter((x) => x.enabled && opts.source !== 'drive')) {
       onStep(`"${f.label}" klasörünü tarıyorum…`);
       const walk = async (dir, level) => {
         for await (const entry of dir.values()) {
           if (entry.kind === 'file' && IMAGE.test(entry.name)) {
             if (!needle || normalize(entry.name).includes(needle)) {
               const file = await entry.getFile();
-              out.push({ file, name: file.name, source: f.label, modified: file.lastModified });
+              out.push({ file, name: file.name, source: f.label, path: f.label, modified: file.lastModified, load: async () => file });
             }
           } else if (entry.kind === 'directory' && level < depth && !entry.name.startsWith('.')) {
             await walk(entry, level + 1);
@@ -164,10 +164,10 @@ const folder = {
       }
     }
 
-    if (drive.folders().some((x) => x.enabled)) {
+    if (opts.source !== 'local' && drive.folders().some((x) => x.enabled)) {
       onStep('Google Drive klasörlerinde arıyorum…');
       try {
-        (await drive.find(query, limit)).forEach((d) => out.push(d));
+        (await drive.find(query, limit, opts)).forEach((d) => out.push(d));
       } catch (e) {
         onStep('Google Drive\'a ulaşamadım: ' + (e.message || 'bağlantı yok'));
       }

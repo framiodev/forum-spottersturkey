@@ -2656,6 +2656,22 @@ export default class FramioMediaSettingsPage extends ExtensionPage {
           </div>
         </div>
 
+        {/* Canlı güncelleme */}
+        <div style={{ background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '8px', padding: '16px', marginBottom: '20px' }}>
+          <h4 style={{ margin: '0 0 10px 0', fontSize: '14px', fontWeight: 'bold', color: '#334155' }}>
+            <i className="fas fa-bolt" style={{ marginRight: '6px', color: 'var(--primary-color)' }}></i>
+            Canlı güncelleme (forum geneli)
+          </h4>
+          <Switch state={this.setting('framio-upload-exif.live_enabled', '1')() !== '0'} onchange={(val) => this.setting('framio-upload-exif.live_enabled')(val ? '1' : '0')}>
+            Site güncellenince sekmeler kendini yenilesin; açık başlığa gelen mesajlar beklemeden eklensin, başka başlıklara gelenler sol altta bildirilsin
+          </Switch>
+          <div className="Form-group" style={{ marginTop: '10px', maxWidth: '260px' }}>
+            <label style={{ fontWeight: 'bold', fontSize: '13px' }}>Kontrol aralığı (saniye)</label>
+            <input className="FormControl" type="number" min="15" max="300" bidi={this.setting('framio-upload-exif.live_interval', '30')} />
+            <div className="helpText" style={{ fontSize: '11px', color: '#888' }}>Sekme arka plandayken 4 kat seyrek kontrol edilir. Mesaj yazılırken ya da pencere açıkken yenileme bekletilir.</div>
+          </div>
+        </div>
+
         {/* Framio Asistan */}
         <div style={{ background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '8px', padding: '16px', marginBottom: '20px' }}>
           <h4 style={{ margin: '0 0 10px 0', fontSize: '14px', fontWeight: 'bold', color: '#334155' }}>
@@ -2698,6 +2714,18 @@ export default class FramioMediaSettingsPage extends ExtensionPage {
                 <option value="right">Sağ alt</option>
                 <option value="left">Sol alt</option>
               </select>
+            </div>
+          </div>
+          <div className="Form-group" style={{ marginTop: '12px' }}>
+            <label style={{ fontWeight: 'bold', fontSize: '13px' }}>Güncel / Arşiv etiketleri</label>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
+              <input className="FormControl" placeholder="Güncel etiket kısa adları (virgülle)" bidi={this.setting('framio-upload-exif.era_current_tags', '')} />
+              <input className="FormControl" placeholder="Arşiv etiket kısa adları (virgülle)" bidi={this.setting('framio-upload-exif.era_archive_tags', '')} />
+            </div>
+            <div className="helpText" style={{ fontSize: '11px', color: '#888' }}>
+              Yeni paylaşımda çekim yılı bu yıl ya da geçen yılsa Güncel, daha eskiyse Arşiv başlığı seçilir; mevcut mesajlar hiçbir zaman taşınmaz.
+              Boş bırakılırsa otomatik: adında "Arşiv" geçen etiketler (ör. "Arşiv İçerikleri", "Otobüs Fotoğrafları Arşivi") Arşiv, diğer fotoğraf başlıkları Güncel sayılır.
+              Arşiv karşılığı sırasıyla: aynı adlı başlık → aynı bölümün Arşiv etiketindeki marka başlığı → "Diğer …" başlığı. Alt etiketler üst etiketinin dönemini alır.
             </div>
           </div>
           <Switch state={this.setting('framio-upload-exif.assistant_show_actions', '1')() !== '0'} onchange={(val) => this.setting('framio-upload-exif.assistant_show_actions')(val ? '1' : '0')}>
