@@ -422,7 +422,7 @@ class Panel extends Component {
     const cf = this.confirming;
     if (!cf) return null;
     return (
-      <div className="FramioAssistant-card is-confirm" key="confirm">
+      <div className="FramioAssistant-card is-confirm">
         <img src={cf.preview} alt="" />
         <div className="FramioAssistant-cardBody">
           <p>
