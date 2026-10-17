@@ -397,34 +397,72 @@ class Panel extends Component {
    * Bulunan fotoğrafı gösterir ve onay ister: "Paylaş" / "Atla" / "Görevi durdur" (ya da sesli/yazılı evet, hayır, iptal).
    * @return {Promise<'yes'|'no'|'stop'>}
    */
-  confirmItem(c, f, topic, summary) {
+  confirmItem(c, f, topic, summary, extras = []) {
     return new Promise(async (resolve) => {
-      const preview = URL.createObjectURL(c.file);
-      this.confirming = { preview, name: c.name, path: c.path, summary, topic, resolve };
+      const items = [c, ...extras].filter((x) => x && x.file).map((x) => ({ name: x.name, file: x.file, url: URL.createObjectURL(x.file) }));
+      const cf = { items, name: c.name, path: c.path, summary, topic, resolve, left: 120 };
+      // Kullanıcıdan 120 saniye haber gelmezse paylaşılır (her dokunuşta süre baştan başlar)
+      cf.timer = setInterval(() => {
+        cf.left -= 1;
+        if (cf.left <= 0) {
+          this.say('120 saniyedir yanıt gelmedi, paylaşıyorum.', false);
+          this.resolveConfirm('yes');
+        }
+        m.redraw();
+      }, 1000);
+      this.confirming = cf;
       m.redraw();
       this.scroll();
-      await this.say(`Şunu buldum: ${summary || c.name}. ${topic.title} başlığına paylaşayım mı?`);
+      const n = items.length;
+      await this.say(`Şunu buldum: ${summary || c.name}${n > 1 ? `, ${n} pozla` : ''}. ${topic.title} başlığına paylaşayım mı?`);
     });
   }
 
   resolveConfirm(decision) {
     const cf = this.confirming;
     if (!cf) return;
+    clearInterval(cf.timer);
     this.confirming = null;
-    try {
-      URL.revokeObjectURL(cf.preview);
-    } catch (e) {}
+    this.confirmed = decision === 'yes' ? cf.items.map((x) => ({ name: x.name, file: x.file })) : null;
+    cf.items.forEach((x) => {
+      try {
+        URL.revokeObjectURL(x.url);
+      } catch (e) {}
+    });
     this.log.push({ who: 'me', text: decision === 'yes' ? 'Paylaş' : decision === 'stop' ? 'Görevi durdur' : 'Atla' });
     m.redraw();
     cf.resolve(decision);
   }
 
+  /** Kart üzerinde düzenleme: sıra, silme, bilgisayardan fotoğraf ekleme */
+  editConfirm(fn) {
+    const cf = this.confirming;
+    if (!cf) return;
+    cf.left = 120;
+    fn(cf.items);
+    m.redraw();
+  }
+
   confirmView() {
     const cf = this.confirming;
     if (!cf) return null;
+    const move = (i, d) => this.editConfirm((list) => {
+      const j = i + d;
+      if (j < 0 || j >= list.length) return;
+      [list[i], list[j]] = [list[j], list[i]];
+    });
+    const remove = (i) => this.editConfirm((list) => {
+      const [x] = list.splice(i, 1);
+      try {
+        URL.revokeObjectURL(x.url);
+      } catch (e) {}
+    });
+    const add = (files) => this.editConfirm((list) => {
+      Array.from(files || []).filter((f) => /^image\//.test(f.type)).forEach((f) => list.push({ name: f.name, file: f, url: URL.createObjectURL(f) }));
+    });
     return (
       <div className="FramioAssistant-card is-confirm">
-        <img src={cf.preview} alt="" />
+        {cf.items[0] ? <img src={cf.items[0].url} alt="" /> : null}
         <div className="FramioAssistant-cardBody">
           <p>
             <strong>{cf.summary || cf.name}</strong>
@@ -433,12 +471,36 @@ class Panel extends Component {
             {cf.path ? cf.path + '/' : ''}
             {cf.name}
           </p>
+          <div className="FramioAssistant-poses">
+            {cf.items.map((x, i) => (
+              <div className="FramioAssistant-pose">
+                <img src={x.url} alt={x.name} title={x.name} />
+                <span className="FramioAssistant-poseNo">{i + 1}</span>
+                <div className="FramioAssistant-poseTools">
+                  <button type="button" aria-label="Sola al" title="Sola al" disabled={i === 0} onclick={() => move(i, -1)}>
+                    <i className="fas fa-chevron-left"></i>
+                  </button>
+                  <button type="button" aria-label="Kaldır" title="Kaldır" disabled={cf.items.length < 2} onclick={() => remove(i)}>
+                    <i className="fas fa-times"></i>
+                  </button>
+                  <button type="button" aria-label="Sağa al" title="Sağa al" disabled={i === cf.items.length - 1} onclick={() => move(i, 1)}>
+                    <i className="fas fa-chevron-right"></i>
+                  </button>
+                </div>
+              </div>
+            ))}
+            <label className="FramioAssistant-poseAdd" title="Fotoğraf ekle">
+              <i className="fas fa-plus"></i>
+              <span>Fotoğraf ekle</span>
+              <input type="file" accept="image/*" multiple onchange={(e) => { add(e.target.files); e.target.value = ''; }} />
+            </label>
+          </div>
           <p>
             <i className="fas fa-arrow-right"></i> {cf.topic.title}
           </p>
           <div className="FramioAssistant-actions">
-            <Button className="Button Button--primary" icon="fas fa-paper-plane" onclick={() => this.resolveConfirm('yes')}>
-              Paylaş
+            <Button className="Button Button--primary" icon="fas fa-paper-plane" disabled={!cf.items.length} onclick={() => this.resolveConfirm('yes')}>
+              Paylaş ({cf.left} sn)
             </Button>
             <Button className="Button" onclick={() => this.resolveConfirm('no')}>
               Atla
@@ -447,9 +509,29 @@ class Panel extends Component {
               Durdur
             </Button>
           </div>
+          <p className="helpText">Yanıt vermezseniz {cf.left} saniye sonra kendiliğinden paylaşırım. Pozları sıralayabilir, kaldırabilir ya da bilgisayarınızdan ekleyebilirsiniz.</p>
         </div>
       </div>
     );
+  }
+
+  /**
+   * Aynı aracın klasöründeki diğer pozlar: hareketi gösterecek şekilde dağıtılır
+   * (sıralı karelerden ilk, orta ve son: en uzak → orta → en yakın / arka poz). En çok `max` kare.
+   */
+  async posesFor(c, pool, max = 3) {
+    if (max <= 1 || !c.path) return [];
+    const num = (n) => Number((String(n).match(/(\d+)(?=\.[a-z]+$)/i) || [])[1] || 0);
+    const same = [c, ...pool.filter((x) => x !== c && x.path === c.path && x.name !== c.name)].sort((a, b) => num(a.name) - num(b.name) || a.name.localeCompare(b.name));
+    if (same.length < 2) return [];
+    const idx = [...new Set([0, Math.floor((same.length - 1) / 2), same.length - 1])];
+    const picks = idx.map((i) => same[i]).filter((x) => x !== c).slice(0, max - 1);
+    for (const x of picks) {
+      try {
+        if (!x.file) x.file = await x.load();
+      } catch (e) {}
+    }
+    return picks.filter((x) => x.file);
   }
 
   /** Kaynak yöneticisi: klasörler, Google Drive oturumu, arama derinliği (profil ayarlarına gitmeden) */
@@ -1351,6 +1433,7 @@ class Panel extends Component {
     try {
       const seen = new Set((await app.request({ method: 'POST', url: api('/framio-assistant/seen'), body: { names: candidates.map((c) => c.name) } })).seen || []);
       candidates = candidates.filter((c) => !seen.has(c.name));
+      t.pool = candidates;
     } catch (e) {}
 
     // 3) Çekim yılı ve çeşitlilik (her araç bir kez)
@@ -1519,7 +1602,8 @@ class Panel extends Component {
 
         // Paylaşmadan önce onay
         const summary = [[f.company, f.plate].filter(Boolean).join(' | '), [f.brand, f.model].filter(Boolean).join(' '), f.location].filter(Boolean).join(' · ');
-        const decision = await this.confirmItem(c, f, topic, summary);
+        const extras = await this.posesFor(c, t.pool || [], intent.per_post || 3);
+        const decision = await this.confirmItem(c, f, topic, summary, extras);
         if (decision === 'stop' || this.task !== t) {
           this.task = null;
           return this.say(`Görevi durdurdum. ${items.length} fotoğraf ${t.plan ? 'planlandı' : 'paylaşıldı'}.`);
@@ -1531,13 +1615,21 @@ class Panel extends Component {
         t.accepted.push({ sig, name: c.name, modified: c.modified || 0 });
 
         this.step(`"${c.name}" → ${topic.title}: imzalanıp yükleniyor…`);
-        let code;
-        try {
-          code = await upload(c.file, pref('framio_assistant_watermark', 'none'));
-        } catch (e) {
+        let code = '';
+        const chosen = this.confirmed && this.confirmed.length ? this.confirmed : [{ name: c.name, file: c.file }];
+        for (const x of chosen) {
+          try {
+            code += (code ? '\n' : '') + (await upload(x.file, pref('framio_assistant_watermark', 'none')));
+          } catch (e) {
+            this.step(`"${x.name}" yüklenemedi.`);
+          }
+        }
+        if (!code) {
           this.step(`"${c.name}" yüklenemedi, atlıyorum.`);
           continue;
         }
+        // Aynı klasörden eklenen pozlar bu görevde yeniden aday olmaz
+        chosen.forEach((x) => (t.usedNames = t.usedNames || new Set()).add(x.name));
         const alt = [[f.company, f.plate].filter(Boolean).join(' | '), [f.brand, f.model].filter(Boolean).join(' ')].filter(Boolean).join(' - ');
         if (alt) code = code.replace(/alt="([^"]*)"/g, `alt="${alt.replace(/"/g, '&quot;')}"`);
         const content = code + (kunyeText(f) ? '\n' + kunyeText(f) : '') + '\n';

@@ -221,6 +221,8 @@ class AssistantController implements RequestHandlerInterface
             . " \"location\": çekim yeri filtresi (ör. \"Esenler Otogarı, İstanbul\") ya da null, \"shot_year\": çekim yılı ya da null,\n"
             . " \"source\": \"drive\" | \"local\" | null, \"only_new\": daha önce paylaşılmamış olanlar mı (true/false),\n"
             . " \"filters\": {\"company\": null, \"plate\": null, \"brand\": null, \"model\": null} (\"fark etmez\" denenler null; model varyantıyla birlikte yazılır: \"yeni kasa 16 SHD Travego\" → model \"Travego 16 SHD\"; firma adı tam: \"Metro Turizm\"),\n"
+            . " \"per_post\": bir mesajda kaç poz/kare olsun (\"tek kare\", \"sadece 1 fotoğraf\" → 1; belirtilmediyse null),
+"
             . " \"note\": kasa/nesil gibi ek ayrıntı (ör. \"yeni kasa\", \"eski kasa\") ya da null,\n"
             . " \"auto\": kullanıcı soru sorulmadan/otomatik yapılmasını istiyorsa true, \"diverse\": her fotoğraf farklı araç olsun mu,\n"
             . " \"days\": null, \"per_day\": null, \"time\": \"HH:MM\" ya da null, \"notify\": haber verilsin mi,\n"
@@ -273,6 +275,7 @@ class AssistantController implements RequestHandlerInterface
         $intent['topic_name'] = $j['topic_name'] ?? null;
         $intent['location'] = $j['location'] ?? null;
         $intent['note'] = is_string($j['note'] ?? null) ? trim($j['note']) : null;
+        $intent['per_post'] = isset($j['per_post']) && is_numeric($j['per_post']) ? max(1, min(10, (int) $j['per_post'])) : null;
         $intent['filters'] = array_filter((array) ($j['filters'] ?? []), fn ($v) => is_string($v) && trim($v) !== '');
         $intent['answer'] = (array) ($j['answer'] ?? []);
         $intent['ai'] = true;
