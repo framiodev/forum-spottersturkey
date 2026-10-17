@@ -634,7 +634,7 @@ class Panel extends Component {
 
     this.step('Uygun başlığı arıyorum…');
     try {
-      const r = await app.request({ method: 'POST', url: api('/framio-assistant/route'), body: { brand: card.fields.brand, model: card.fields.model, company: card.fields.company, year: card.fields.year, hint: path } });
+      const r = await app.request({ method: 'POST', url: api('/framio-assistant/route'), body: { plate: card.fields.plate, brand: card.fields.brand, model: card.fields.model, company: card.fields.company, year: card.fields.year, hint: path } });
       card.suggestions = r.suggestions || [];
       card.topic = card.suggestions.length ? String(card.suggestions[0].discussion_id) : '';
       card.auto = !!r.auto && pref('framio_assistant_auto', true);
@@ -909,7 +909,7 @@ class Panel extends Component {
       let sugg = [];
       if (!t.topic) {
         try {
-          const r = await app.request({ method: 'POST', url: api('/framio-assistant/route'), body: { brand: f.brand, model: f.model, company: f.company, year: f.year, hint: c.path || '' } });
+          const r = await app.request({ method: 'POST', url: api('/framio-assistant/route'), body: { plate: f.plate, brand: f.brand, model: f.model, company: f.company, year: f.year, hint: c.path || '' } });
           sugg = r.suggestions || [];
         } catch (e) {}
       }
@@ -1015,7 +1015,7 @@ class Panel extends Component {
         if (!t.plan) {
           try {
             await app.request({ method: 'POST', url: api('/posts'), body: { data: { type: 'posts', attributes: { content }, relationships: { discussion: { data: { type: 'discussions', id: String(topic.discussion_id) } } } } } });
-            app.request({ method: 'POST', url: api('/framio-assistant/learn'), body: { brand: f.brand, model: f.model, company: f.company, discussion_id: topic.discussion_id } }).catch(() => {});
+            app.request({ method: 'POST', url: api('/framio-assistant/learn'), body: { plate: f.plate, brand: f.brand, model: f.model, company: f.company, discussion_id: topic.discussion_id } }).catch(() => {});
             this.say(`✓ ${topic.title}: ${alt || c.name}` + (t.targets ? ` (${filledCount()}/${t.targets.length} başlık)` : ''), false);
           } catch (e) {
             this.step(`"${c.name}" paylaşılamadı.`);
@@ -1111,7 +1111,7 @@ class Panel extends Component {
       card.topicTitle = s.title || 'başlık';
       const number = created && created.data && created.data.attributes && created.data.attributes.number;
       card.doneUrl = (s.url || '/d/' + card.topic) + (number ? '/' + number : '');
-      app.request({ method: 'POST', url: api('/framio-assistant/learn'), body: { brand: f.brand, model: f.model, company: f.company, discussion_id: card.topic } }).catch(() => {});
+      app.request({ method: 'POST', url: api('/framio-assistant/learn'), body: { plate: f.plate, brand: f.brand, model: f.model, company: f.company, discussion_id: card.topic } }).catch(() => {});
       this.say(`Paylaştım: ${card.topicTitle}.`);
       // Uzaktan kullanım görünümü: mesaja gidip gösterir
       if (ghost.enabled && created && created.data) {

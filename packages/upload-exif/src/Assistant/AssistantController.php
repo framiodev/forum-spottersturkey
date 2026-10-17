@@ -308,6 +308,28 @@ class AssistantController implements RequestHandlerInterface
         if ($this->db->getSchemaBuilder()->hasTable('framio_seo_entities')) {
             $brand = trim((string) Arr::get($body, 'brand', ''));
             $model = trim((string) Arr::get($body, 'model', ''));
+            // 0) Konunun devamı: bu plaka daha önce paylaşıldıysa aynı başlık; ardından aynı firmanın aynı modeli
+            $plate = Str::slug(preg_replace('/\s+/', ' ', strtoupper(trim((string) Arr::get($body, 'plate', '')))));
+            $company = trim((string) Arr::get($body, 'company', ''));
+            if ($plate !== '') {
+                $rows = $this->db->table('framio_seo_entities')->where('type', 'plate')->where('slug', $plate)
+                    ->groupBy('discussion_id')->selectRaw('discussion_id, COUNT(DISTINCT post_id) as n, MAX(post_id) as last')
+                    ->orderByDesc('n')->orderByDesc('last')->limit(3)->get();
+                foreach ($rows as $row) {
+                    if (collect($out)->contains('discussion_id', (int) $row->discussion_id)) continue;
+                    if ($d = $this->describe((int) $row->discussion_id, $actor)) $out[] = $d + ['reason' => 'plate', 'count' => (int) $row->n];
+                }
+            }
+            if ($company !== '' && $brand) {
+                $ids = $this->db->table('framio_seo_entities')->where('type', 'company')->where('slug', Str::slug($company))->pluck('post_id');
+                $q = $this->db->table('framio_seo_entities')->whereIn('post_id', $ids)
+                    ->where('type', $model ? 'model' : 'brand')->where('slug', Str::slug($model ? $brand . ' ' . $model : $brand))
+                    ->groupBy('discussion_id')->selectRaw('discussion_id, COUNT(DISTINCT post_id) as n')->orderByDesc('n')->limit(2)->get();
+                foreach ($q as $row) {
+                    if (collect($out)->contains('discussion_id', (int) $row->discussion_id)) continue;
+                    if ($d = $this->describe((int) $row->discussion_id, $actor)) $out[] = $d + ['reason' => $model ? 'model' : 'brand', 'count' => (int) $row->n];
+                }
+            }
             foreach ([['model', $brand && $model ? Str::slug($brand . ' ' . $model) : null], ['brand', $brand ? Str::slug($brand) : null]] as [$type, $slug]) {
                 if (!$slug) continue;
                 $rows = $this->db->table('framio_seo_entities')->where('type', $type)->where('slug', $slug)

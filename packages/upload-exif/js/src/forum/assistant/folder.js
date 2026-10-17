@@ -142,7 +142,7 @@ const folder = {
     const hits = [];
     let seen = 0;
     const walk = async (dir, path, level) => {
-      if (level > 12) return;
+      if (level > 40) return;
       let iter;
       try {
         iter = dir.values();
@@ -261,7 +261,7 @@ const folder = {
       // Bulut sürücülerinde (ExpanDrive, Google Drive masaüstü vb.) bazı öğeler okuma hatası verebilir:
       // hata veren alt klasör / dosya atlanır, taramanın geri kalanı sürer
       // Adla (plaka, dosya adı) aramada yalnızca adlara bakılır: derinlik sınırı yok (hızlı)
-      const maxDepth = needle ? 12 : depth;
+      const maxDepth = needle ? Infinity : depth;
       const entries = [];
       const errors = [];
       const walk = async (dir, level, path) => {
