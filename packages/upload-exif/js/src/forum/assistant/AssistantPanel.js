@@ -1303,10 +1303,10 @@ class Panel extends Component {
                 const near = candidates.filter((c) => {
                   const segs = String(c.path || '').split('/').map(fold);
                   const where = fold((c.path || '') + ' ' + c.name);
-                  return segs.some((x) => new RegExp('^' + num + '\s?[a-z]{1,4}$').test(x)) && rest.every((w) => where.includes(w));
+                  return segs.some((x) => new RegExp('^' + num + ' ?[a-z]{1,4}$').test(x)) && rest.every((w) => where.includes(w));
                 });
                 if (near.length) {
-                  const seg = String(near[0].path).split('/').find((x) => new RegExp('^' + num + '\s?[a-z]{1,4}$', 'i').test(fold(x)));
+                  const seg = String(near[0].path).split('/').find((x) => new RegExp('^' + num + ' ?[a-z]{1,4}$', 'i').test(fold(x)));
                   this.say(`"${variant}" klasörü yok ama "${seg}" var; ${near.length} fotoğraf onunla eşleşiyor, oradan seçiyorum.`, false);
                   strict.push(...near);
                 }
