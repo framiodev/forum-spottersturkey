@@ -663,12 +663,19 @@ class Panel extends Component {
         const why = first.reason === 'plate' ? 'bu plaka daha önce bu başlıkta paylaşılmış' : 'en yakın başlık bu';
         const ans = normalize(String(await this.prompt(`Fotoğrafta ${[card.fields.brand, card.fields.model].filter(Boolean).join(' ')} görünüyor, ama ${why}: ${first.title}. Hangisi doğru? "${card.fields.model}" ya da "başlık" deyin.`)));
         card.auto = false;
-        if (ans.includes(fm) || /model|fotograf/.test(ans)) {
-          if (match) card.topic = String(match.discussion_id);
+        if (!ans.includes(fm) && !/model|fotograf|baslik|evet|dogru/.test(ans) && ans.length > 2) {
+          // Kullanıcı modeli kendisi söyledi ("Tourismo 16"): model düzeltilir, başlık yeniden aranır
+          card.fields.model = ans.replace(normalize(card.fields.brand || ''), '').trim().replace(/(^|\s)\S/g, (x) => x.toLocaleUpperCase('tr-TR'));
+        }
+        const fm2 = normalize(card.fields.model || '');
+        if (fm2 !== fm || ans.includes(fm) || /model|fotograf/.test(ans)) {
+          const key2 = fm2.split(' ')[0];
+          const match2 = card.suggestions.find((x) => normalize(x.title).includes(key2));
+          if (match2) card.topic = String(match2.discussion_id);
           else {
             try {
               const r2 = await app.request({ method: 'POST', url: api('/framio-assistant/route'), body: { brand: card.fields.brand, model: card.fields.model, company: card.fields.company, year: card.fields.year, hint: path } });
-              const own = (r2.suggestions || []).find((x) => normalize(x.title).includes(fm));
+              const own = (r2.suggestions || []).find((x) => normalize(x.title).includes(key2));
               card.suggestions = own ? [own].concat(card.suggestions) : card.suggestions;
               card.topic = own ? String(own.discussion_id) : '';
             } catch (e) {}

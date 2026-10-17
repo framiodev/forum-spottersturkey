@@ -345,6 +345,24 @@ class AssistantController implements RequestHandlerInterface
             }
         }
 
+        // Model biliniyorsa başlık adı modeli içermeli (ör. Tourismo fotoğrafı EGO ya da Travego başlığına önerilmez);
+        // uyan başlık yoksa başlık adlarında model aranır
+        $modelName = trim((string) Arr::get($body, 'model', ''));
+        if ($modelName !== '') {
+            $key = mb_strtolower(preg_split('/\s+/', $modelName)[0], 'UTF-8');
+            if (mb_strlen($key) >= 3) {
+                $out = array_values(array_filter($out, fn ($s) => str_contains(mb_strtolower($s['title'], 'UTF-8'), $key)));
+                if (!$out) {
+                    $ids = $this->db->table('discussions')->whereNull('hidden_at')
+                        ->where('title', 'like', '%' . $key . '%')->orderByDesc('comment_count')->limit(6)->pluck('id');
+                    foreach ($ids as $id) {
+                        if ($d = $this->describe((int) $id, $actor)) $out[] = $d + ['reason' => 'title'];
+                    }
+                }
+                $auto = $auto && (bool) $out;
+            }
+        }
+
         // Güncel / Arşiv: çekim yılına göre doğru döneme ait aynı adlı başlık kullanılır
         $want = $this->era->forYear((int) Arr::get($body, 'year') ?: null);
         if ($want && $this->era->enabled()) {

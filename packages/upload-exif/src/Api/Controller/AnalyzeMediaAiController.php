@@ -177,6 +177,7 @@ class AnalyzeMediaAiController implements RequestHandlerInterface
         $promptText .= "\nKURALLAR:\n"
             . "- Firma: en büyük logo/kelimeyi değil, gövdede yazan resmî adın tamamını yaz (ör. logoda 'Anka' yazsa da yan yüzde 'Adıyaman Anka Turizm' yazıyorsa onu yaz). Şehir ön eki, 'Turizm', 'Seyahat', 'Taşımacılık' gibi kelimeleri atma.\n"
             . "- Model: ön/arka maske, far, cam ve yan pencere dizilimine bakarak tam modeli belirle (ör. Mercedes-Benz Travego 15 SHD, Tourismo 16 RHD, Setra S 516 HD, MAN Lion's Coach, Temsa Maraton). Aşağıdaki forum listesinde uygun bir ad varsa birebir o yazımı kullan.\n"
+            . self::MODEL_CUES
             . $locationRule
             . "- JSON'a ayrıca \"subject\" ekle: fotoğrafın ANA konusu araçsa \"vehicle\"; ön planda insan/portre varsa \"person\"; araç içi \"interior\"; yakın detay (logo, far, jant) \"detail\"; diğer \"other\".\n"
             . "- Okuyamadığın ya da emin olmadığın her alanı boş string bırak; uydurma.\n"
@@ -201,7 +202,8 @@ class AnalyzeMediaAiController implements RequestHandlerInterface
         $geoCandidate = $this->geoCandidate($candidates);
         // Kullanıcının son 2 saatteki künyeli fotoğrafları: dizine girmemiş olsalar da aynı yerde art arda çekimler yakalanır
         $recent = $similarityOn ? $this->location->recentUserImages((int) $actor->id) : [];
-        $parallel = function ($client, $original, $b64, $mime) use ($similarityOn, $geoCandidate, $exif, $locationRule, $recent) {
+        $modelList = !empty($lines) ? "Forumda kullanılan model adları (uygunsa birebir bu yazımı kullan):\n" . mb_substr(implode("\n", $lines), 0, 2500) . "\n" : '';
+        $parallel = function ($client, $original, $b64, $mime) use ($similarityOn, $geoCandidate, $exif, $locationRule, $recent, $modelList) {
             $jobs = [];
             if ($similarityOn) {
                 // Sahne (arka plan şeridi) parmak izi: araçtan bağımsız, çekim yeri hafızası
@@ -219,6 +221,14 @@ class AnalyzeMediaAiController implements RequestHandlerInterface
                     "Bu ulaşım fotoğrafının Türkiye'de NEREDE çekildiğini bul. Arka plandaki binalara, otogar/peron mimarisine, tabelalara, dağ/deniz/şehir siluetine, yol ve tesis yapısına bak.\n"
                     . "Yalnızca şu JSON'u döndür: {\"city\": \"il\", \"place\": \"yer\", \"location_confidence\": \"high|medium|low\"}\n" . $locationRule
                     . "SADECE JSON.");
+            }
+
+            // Model doğrulama: güçlü modele yalnızca marka/model sorulur (hızlı yarışı kazanan zayıf modelin hatasını düzeltir)
+            if ($geoCandidate) {
+                $jobs['vehicle'] = $this->vision->askAsync($client, $geoCandidate, $b64, $mime,
+                    "Bu fotoğraftaki ana aracın markasını ve TAM modelini belirle. Ön/arka maske, far biçimi, ızgara, tavan çizgisi ve yan pencere dizilimine dikkatle bak.\n"
+                    . self::MODEL_CUES . $modelList
+                    . "Yalnızca şu JSON'u döndür: {\"brand\": \"\", \"model\": \"marka adı olmadan\", \"confidence\": \"high|medium|low\"}. SADECE JSON.", 7.0);
             }
 
             return $jobs;
@@ -243,9 +253,25 @@ class AnalyzeMediaAiController implements RequestHandlerInterface
             }
         }
         usort($nearest, fn ($a, $b) => $b['score'] <=> $a['score']);
+        // Model doğrulaması (güçlü model, yüksek/orta güven) hızlı yanıtın marka/modelinin önüne geçer
+        $verified = $side['vehicle'] ?? [];
+        if (!empty($verified['model']) && in_array(strtolower((string) ($verified['confidence'] ?? '')), ['high', 'medium'], true)) {
+            if (!empty($verified['brand'])) $data['brand'] = $verified['brand'];
+            $data['model'] = $verified['model'];
+            $data['model_source'] = 'verified';
+        }
+        $seenModel = (string) ($data['model'] ?? '');
         if ($useHistory) {
             // Plaka forumda birebir kayıtlıysa (ve firma çelişmiyorsa) araç bilgisi o künyelerden
             ['data' => $data, 'notes' => $notes] = $this->history->enrich($data);
+            // Forum geçmişi fotoğrafta doğrulanan modelle çelişiyorsa fotoğraf esas alınır, çelişki bildirilir (asistan sorar)
+            $norm = fn ($s) => preg_replace('/[^a-z0-9]/', '', strtolower((string) $s));
+            if (($data['model_source'] ?? '') === 'verified' && $seenModel !== '' && $norm($data['model'] ?? '') !== $norm($seenModel)) {
+                $data['model_history'] = $data['model'];
+                $data['model'] = $seenModel;
+                if (!empty($verified['brand'])) $data['brand'] = $verified['brand'];
+                $notes[] = 'model_conflict';
+            }
         }
 
         // ── Çekim yeri: 1) fotoğrafın GPS bilgisi  2) yapay zekanın kendi tespiti (yüksek/orta güven)
@@ -332,6 +358,11 @@ class AnalyzeMediaAiController implements RequestHandlerInterface
     }
 
     /** Konum sorusu için yer tanımada güçlü bir Gemini sağlayıcısı (varsa) */
+    /** Sık karıştırılan modelleri ayırt etme ipuçları (ana istem ve model doğrulama sorusunda) */
+    public const MODEL_CUES = "- Sık karıştırılanlar: Mercedes-Benz Tourismo (2017 sonrası, ör. Tourismo 16 RHD): köşeli, ince uzun farlar; siyah, geniş ön panelde büyük yıldız; düz tavan çizgisi; ön camın üstü düz. "
+        . "Mercedes-Benz Travego (ör. Travego 15 SHD): yuvarlak hatlı, oval/damla farlar; krom çerçeveli ızgara; SHD'de arka bölüm belirgin yüksek (yükseltilmiş tavan); yan camların alt çizgisi arkaya doğru yükselir. "
+        . "Emin değilsen modeli boş bırak.\n";
+
     protected function geoCandidate(array $candidates): ?array
     {
         foreach ($candidates as $c) {
