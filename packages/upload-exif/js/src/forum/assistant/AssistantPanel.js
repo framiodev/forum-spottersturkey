@@ -2,6 +2,15 @@ import app from 'flarum/forum/app';
 import Component from 'flarum/common/Component';
 import Button from 'flarum/common/components/Button';
 import folder, { normalize } from './folder';
+
+/** Karşılaştırma için: küçük harf, Türkçe harfler sadeleşir, noktalama atılır ("Başlık." → "baslik") */
+const fold = (s) =>
+  String(s || '')
+    .toLocaleLowerCase('tr-TR')
+    .replace(/[çğıöşü]/g, (c) => ({ ç: 'c', ğ: 'g', ı: 'i', ö: 'o', ş: 's', ü: 'u' })[c])
+    .replace(/[^a-z0-9\s]/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
 import { canListen, listenOnce, speak, whenQuiet, hush } from './speech';
 import ghost from './ghost';
 import drive from './drive';
@@ -653,8 +662,9 @@ class Panel extends Component {
     const labels = { company: 'Firma', plate: 'Plaka', brand: 'Marka', model: 'Model', location: 'Çekim yeri' };
     for (const key of Object.keys(labels)) {
       if (String(card.fields[key] || '').trim()) continue;
-      const ans = String(await this.prompt(`${labels[key]} bilgisini bulamadım. Söyler misiniz? Bilmiyorsanız "geç" deyin.`)).trim();
-      if (ans && !/^(geç|gec|atla|bilmiyorum|yok|pas)/i.test(ans)) card.fields[key] = ans;
+      const q = `${labels[key]} bilgisini bulamadım. Söyler misiniz? Bilmiyorsanız "geç" deyin.`;
+      const value = await this.askField(q, key, card);
+      if (value) card.fields[key] = value;
     }
     card.state = 'analyzing';
 
@@ -666,39 +676,37 @@ class Panel extends Component {
       card.auto = !!r.auto && pref('framio_assistant_auto', true);
     } catch (e) {}
 
-    // Başlık, tanınan modelle çelişiyorsa (ör. Tourismo bulundu ama Travego başlığı) sorulur
+    // Başlık, tanınan modelle çelişiyorsa (ör. Tourismo bulundu ama Travego başlığı) sorulur.
+    // Karşılaştırma modelin ana adıyla yapılır: "Tourismo 16 RHD" ↔ "Mercedes-Benz Tourismo" çelişki DEĞİLDİR.
     {
-      const fm = normalize(card.fields.model || '');
+      const key = fold(card.fields.model).split(' ')[0] || '';
       const first = card.suggestions[0];
-      if (fm && first && !normalize(first.title).includes(fm)) {
-        const match = card.suggestions.find((x) => normalize(x.title).includes(fm));
-        const why = first.reason === 'plate' ? 'bu plaka daha önce bu başlıkta paylaşılmış' : 'en yakın başlık bu';
-        const ans = normalize(String(await this.prompt(`Fotoğrafta ${[card.fields.brand, card.fields.model].filter(Boolean).join(' ')} görünüyor, ama ${why}: ${first.title}. Hangisi doğru? "${card.fields.model}" ya da "başlık" deyin.`)));
+      if (key.length > 2 && first && !fold(first.title).includes(key)) {
+        const why = first.reason === 'plate' ? 'bu plaka daha önce bu başlıkta paylaşılmış' : 'bulabildiğim en yakın başlık bu';
+        const q = `Fotoğrafta ${[card.fields.brand, card.fields.model].filter(Boolean).join(' ')} görünüyor, ama ${why}: ${first.title}. Fotoğraftaki model mi doğru, başlık mı? Farklıysa doğru modeli yazın.`;
+        const pick = await this.askConflict(q, card, first);
         card.auto = false;
-        if (!ans.includes(fm) && !/model|fotograf|baslik|evet|dogru/.test(ans) && ans.length > 2) {
-          // Kullanıcı modeli kendisi söyledi ("Tourismo 16"): model düzeltilir, başlık yeniden aranır
-          card.fields.model = ans.replace(normalize(card.fields.brand || ''), '').trim().replace(/(^|\s)\S/g, (x) => x.toLocaleUpperCase('tr-TR'));
-        }
-        const fm2 = normalize(card.fields.model || '');
-        if (fm2 !== fm || ans.includes(fm) || /model|fotograf/.test(ans)) {
-          const key2 = fm2.split(' ')[0];
-          const match2 = card.suggestions.find((x) => normalize(x.title).includes(key2));
-          if (match2) card.topic = String(match2.discussion_id);
-          else {
+        if (pick.model) card.fields.model = pick.model;
+        if (pick.keepTitle) {
+          // Başlık doğru: model başlıktan düzeltilir
+          const bn = fold(card.fields.brand);
+          const tm = (first.title || '').split(/\s+/).filter((w) => !bn.includes(fold(w))).join(' ').trim();
+          if (tm) card.fields.model = tm;
+          card.topic = String(first.discussion_id);
+        } else {
+          const key2 = fold(card.fields.model).split(' ')[0] || '';
+          let own = card.suggestions.find((x) => fold(x.title).includes(key2));
+          if (!own) {
             try {
               const r2 = await app.request({ method: 'POST', url: api('/framio-assistant/route'), body: { brand: card.fields.brand, model: card.fields.model, company: card.fields.company, year: card.fields.year, hint: path } });
-              const own = (r2.suggestions || []).find((x) => normalize(x.title).includes(key2));
-              card.suggestions = own ? [own].concat(card.suggestions) : card.suggestions;
-              card.topic = own ? String(own.discussion_id) : '';
+              own = (r2.suggestions || []).find((x) => fold(x.title).includes(key2));
+              if (own) card.suggestions = [own].concat(card.suggestions.filter((x) => x.discussion_id !== own.discussion_id));
             } catch (e) {}
           }
-          card.suggestions.sort((a, b) => (String(b.discussion_id) === card.topic) - (String(a.discussion_id) === card.topic));
-        } else {
-          // Başlık doğruysa model başlıktan düzeltilir
-          const bn = normalize(card.fields.brand || '');
-          const tm = (first.title || '').split(/\s+/).filter((w) => !bn.includes(normalize(w))).join(' ').trim();
-          if (tm) card.fields.model = tm;
+          card.topic = own ? String(own.discussion_id) : '';
+          if (!own) card.suggestions = card.suggestions.filter((x) => fold(x.title).includes(key2));
         }
+        card.suggestions.sort((x, y) => (String(y.discussion_id) === card.topic) - (String(x.discussion_id) === card.topic));
       }
     }
 
@@ -756,6 +764,52 @@ class Panel extends Component {
     const topic = card.suggestions[0];
     m.redraw();
     return this.say(`${reply ? reply + ' ' : ''}${summary}. ${topic ? topic.title + ' başlığına paylaşayım mı?' : 'Uygun başlık bulamadım; listeden seçebilir ya da başlık adını söyleyebilirsiniz.'}`);
+  }
+
+  /**
+   * Eksik alan sorusunun cevabını yorumlar. Kısa ve açık cevaplar doğrudan alınır ("Antalya", "geç");
+   * cümle hâlindeki cevaplar ("çekim yeri Antalya otogarı", "bilmiyorum ama sanırım Bursa") yapay zekayla anlaşılır.
+   */
+  async askField(question, key, card) {
+    const raw = String(await this.prompt(question)).trim();
+    const f = fold(raw);
+    if (!f || /^(gec|atla|bilmiyorum|bilmem|yok|pas|bos birak|emin degilim)\b/.test(f)) return '';
+    // Başındaki etiket ve sondaki noktalama atılır: "Çekim yeri Antalya." → "Antalya"
+    const label = /^(cekim yeri|cekim yer|yer|konum|firma|firmasi|plaka|plakasi|marka|markasi|model|modeli)\s*[:=-]?\s*/;
+    let clean = raw.replace(/[.!…]+$/, '').trim();
+    if (label.test(f)) clean = clean.split(/\s+/).slice(f.match(label)[0].trim().split(/\s+/).length).join(' ').replace(/^[:=-]\s*/, '');
+    if (clean.split(/\s+/).length <= 4 && !/\b(degil|ama|sanirim|galiba|bence|olabilir)\b/.test(f)) return clean;
+    const it = await this.interpret(question, raw, card);
+    return (it.corrections && it.corrections[key]) || (it.answer && it.answer.value) || '';
+  }
+
+  /** Model–başlık çelişkisi cevabı: { keepTitle } ya da { model } */
+  async askConflict(question, card, first) {
+    const raw = String(await this.prompt(question)).trim();
+    const f = fold(raw);
+    const modelKey = fold(card.fields.model).split(' ')[0];
+    const titleKey = fold(first.title).split(' ').filter((w) => !fold(card.fields.brand).includes(w))[0] || '';
+    if (/^(baslik|basliktaki|baslik dogru|evet baslik|baslikta kalsin)\b/.test(f) || (titleKey && f.includes(titleKey) && !f.includes(modelKey) && !/degil/.test(f))) return { keepTitle: true };
+    if (/^(model|fotograf|fotograftaki|model dogru|fotograf dogru)\b/.test(f) || (f.includes(modelKey) && !/degil/.test(f) && f.split(' ').length <= 3)) return {};
+    // Serbest cevap ("Travego değil, Tourismo 16"): yapay zekayla anlaşılır
+    const it = await this.interpret(question, raw, card);
+    const m = it.corrections && it.corrections.model;
+    if (m) return { model: m.replace(new RegExp('^' + (card.fields.brand || '').replace(/[^\wÇĞİÖŞÜçğıöşü-]/g, '') + '\\s*', 'i'), '').trim() };
+    if (it.answer && it.answer.yes) return { keepTitle: true };
+    return {};
+  }
+
+  /** Bir soruya verilen serbest cevabı, soru ve kart bağlamıyla yapay zekaya yorumlatır */
+  async interpret(question, text, card) {
+    this.step('Cevabınızı anlıyorum…');
+    try {
+      const r = await app.request({ method: 'POST', url: api('/framio-assistant/parse'), body: { text, context: question, card: card ? card.fields : null, history: [] } });
+      this.step(null);
+      return r || {};
+    } catch (e) {
+      this.step(null);
+      return {};
+    }
   }
 
   /** Soru sorar, kullanıcının bir sonraki (yazılı ya da sesli) cevabını döndürür */
