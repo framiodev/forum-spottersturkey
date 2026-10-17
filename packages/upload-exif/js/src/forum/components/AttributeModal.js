@@ -461,7 +461,7 @@ export default class AttributeModal extends Modal {
       shrinkForAi(this.files[0]).then((small) => {
       formData.append('image', small, 'ai.jpg');
       // Küçültülen görselde EXIF kalmaz: GPS ve çekim zamanı için dosyanın başı ayrıca gider
-      if (this.files[0] && this.files[0].slice) formData.append('exif_head', this.files[0].slice(0, 256 * 1024), 'head.jpg');
+      if (this.files[0] && this.files[0].slice) formData.append('exif_head', this.files[0].slice(0, 256 * 1024), 'head.jpg'); if (this.files[0] && this.files[0].name) formData.append('file_name', this.files[0].name);
       return app.request({
           method: 'POST',
           url: app.forum.attribute('apiUrl') + '/framio-media/analyze-ai',

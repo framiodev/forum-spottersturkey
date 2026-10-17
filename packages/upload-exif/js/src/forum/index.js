@@ -18,6 +18,8 @@ import crosspostOnPublish from './crosspostOnPublish';
 import assistant, { assistantName } from './assistant/AssistantPanel';
 import { canListen, wakeListener } from './assistant/speech';
 import folder from './assistant/folder';
+import drive from './assistant/drive';
+import HeaderSecondary from 'flarum/forum/components/HeaderSecondary';
 
 // Mesaj görselleri inince yumuşakça belirsin (yer önceden ayrılır: bkz. AddImageDimensions)
 if (typeof document !== 'undefined') {
@@ -90,14 +92,37 @@ app.initializers.add('framio/upload-exif', () => {
   extend(TextEditor.prototype, 'toolbarItems', function(items) {
     items.add('framio-media-upload', <UploadButton editor={this} />, 102);
     items.add('framio-media-gallery', <GalleryButton editor={this} />, 101);
-    // Framio Asistan: yükleme ve galeri düğmelerinden hemen sonra
-    if (app.session.user && app.forum.attribute('framioAssistantEnabled') !== false) {
+    // Framio Asistan: yükleme ve galeri düğmelerinden hemen sonra (admin "araç çubuğu" seçtiyse)
+    if (app.session.user && app.forum.attribute('framioAssistantEnabled') !== false && launcher().includes('toolbar')) {
       items.add(
         'framio-assistant',
         <Button className="Button Button--icon Button--link FramioAssistant-toolbar" icon="fas fa-magic" title={assistantName()} aria-label={assistantName()} onclick={() => assistant.toggle()} />,
         100
       );
     }
+  });
+
+  // Framio Asistan başlatıcısı: sağ altta yuvarlak düğme (canlı destek gibi) ve/veya başlık menüsü
+  const launcher = () => String(app.forum.attribute('framioAssistantLauncher') || 'fab');
+  const mountFab = () => {
+    if (document.querySelector('.FramioAssistant-fab') || !app.session.user || app.forum.attribute('framioAssistantEnabled') === false || !launcher().includes('fab')) return;
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.className = 'FramioAssistant-fab is-' + (app.forum.attribute('framioAssistantPosition') || 'right');
+    b.setAttribute('aria-label', assistantName());
+    b.title = assistantName();
+    b.innerHTML = '<i class="fas fa-magic" aria-hidden="true"></i>';
+    b.onclick = () => assistant.toggle();
+    document.body.appendChild(b);
+  };
+  extend(Page.prototype, 'oncreate', mountFab);
+  extend(HeaderSecondary.prototype, 'items', function (items) {
+    if (!app.session.user || app.forum.attribute('framioAssistantEnabled') === false || !launcher().includes('header')) return;
+    items.add(
+      'framio-assistant',
+      <Button className="Button Button--flat Button--icon FramioAssistant-headerBtn" icon="fas fa-magic" aria-label={assistantName()} title={assistantName()} onclick={() => assistant.toggle()} />,
+      15
+    );
   });
 
   // Framio Asistan: uyandırma sözü (sitenin gizli sözü + kişinin kendi sözü), sayfa açıkken dinler
@@ -203,11 +228,57 @@ app.initializers.add('framio/upload-exif', () => {
               </select>
             </div>
             <div>
-              <label style={label}>Fotoğraf klasörü</label>
-              <Button className="Button" icon="far fa-folder-open" disabled={!folder.supported()} onclick={() => folder.link().then(() => m.redraw()).catch(() => {})}>
-                {folder.name() ? 'Değiştir (' + folder.name() + ')' : 'Klasör bağla'}
-              </Button>
+              <label style={label}>Klasör arama derinliği</label>
+              <select className="FormControl" value={String(prefs.framio_assistant_depth ?? 2)} onchange={(e) => save({ framio_assistant_depth: Number(e.target.value) })}>
+                <option value="0">Yalnızca seçtiğim klasör</option>
+                <option value="1">1 alt klasöre kadar</option>
+                <option value="2">2 alt klasöre kadar</option>
+                <option value="6">Tüm alt klasörler</option>
+              </select>
             </div>
+          </div>
+
+          <div className="FramioAssistant-sourceList">
+            <label style={label}>Fotoğraf kaynakları (yalnızca okuma — asistan silemez, değiştiremez)</label>
+            {(folder.list || []).map((f) => (
+              <div className="FramioAssistant-sourceRow" key={f.id}>
+                <i className="far fa-folder"></i>
+                <span className="FramioAssistant-sourceName">{f.label}</span>
+                <Switch state={f.enabled} onchange={(v) => folder.toggle(f.id, v).then(() => m.redraw())}>
+                  {f.enabled ? 'Açık' : 'Kapalı'}
+                </Switch>
+                <Button className="Button Button--icon Button--link" icon="far fa-trash-alt" aria-label="Kaldır" onclick={() => folder.remove(f.id).then(() => m.redraw())} />
+              </div>
+            ))}
+            {drive.folders().map((f) => (
+              <div className="FramioAssistant-sourceRow" key={f.id}>
+                <i className="fab fa-google-drive"></i>
+                <span className="FramioAssistant-sourceName">Drive: {f.name}</span>
+                <Switch state={f.enabled} onchange={(v) => { drive.toggle(f.id, v); m.redraw(); }}>
+                  {f.enabled ? 'Açık' : 'Kapalı'}
+                </Switch>
+                <Button className="Button Button--icon Button--link" icon="far fa-trash-alt" aria-label="Kaldır" onclick={() => { drive.remove(f.id); m.redraw(); }} />
+              </div>
+            ))}
+            <div className="FramioAssistant-sourceAdd">
+              <Button className="Button" icon="far fa-folder-open" disabled={!folder.supported()} onclick={() => folder.link().then(() => m.redraw()).catch(() => {})}>
+                Bilgisayardan klasör ekle
+              </Button>
+              {drive.available() ? (
+                <Button className="Button" icon="fab fa-google-drive" onclick={() => drive.pickFolders().then(() => m.redraw()).catch((e) => app.alerts.show({ type: 'error' }, e.message))}>
+                  Google Drive klasörü ekle
+                </Button>
+              ) : null}
+              {drive.connected() ? (
+                <Button className="Button Button--link" icon="fas fa-unlink" onclick={() => drive.disconnect().then(() => m.redraw())}>
+                  Drive bağlantısını kaldır
+                </Button>
+              ) : null}
+            </div>
+            {!folder.supported() ? <p className="helpText">Bu tarayıcı bilgisayardaki klasörlere erişimi desteklemiyor (Chrome ya da Edge gerekir).</p> : null}
+            <p className="helpText">
+              Tarayıcılar bir sitenin bilgisayarın tamamına erişmesine izin vermez; en geniş erişim için üst klasörü (ör. Resimler) ekleyip "Tüm alt klasörler"i seçin.
+            </p>
           </div>
           {canListen() ? (
             <Switch
@@ -230,6 +301,12 @@ app.initializers.add('framio/upload-exif', () => {
           )}
           <Switch state={prefs.framio_assistant_speak !== false} onchange={(v) => save({ framio_assistant_speak: v })}>
             Yanıtları sesli oku
+          </Switch>
+          <Switch
+            state={prefs.framio_assistant_show_actions === undefined || prefs.framio_assistant_show_actions === null ? app.forum.attribute('framioAssistantShowActions') !== false : !!prefs.framio_assistant_show_actions}
+            onchange={(v) => save({ framio_assistant_show_actions: v })}
+          >
+            Yaptıklarını ekranda göster (imleç tıklamaları ve alanların doldurulması)
           </Switch>
           <Switch state={prefs.framio_assistant_auto !== false} onchange={(v) => save({ framio_assistant_auto: v })}>
             Öğrendiği başlıklara kısa bir geri sayımla kendisi paylaşsın

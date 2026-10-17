@@ -166,8 +166,7 @@ class AnalyzeMediaAiController implements RequestHandlerInterface
                 . "  \"company\": \"Araç gövdesinde yazan firma / kurum adının TAMAMI\",\n"
                 . "  \"plate\": \"Plaka, ör. 34 ABC 123\",\n"
                 . "  \"brand\": \"Marka\",\n"
-                . "  \"model\": \"Model (marka adı olmadan)\",\n"
-                . "  \"year_guess\": \"Model yılı\"\n"
+                . "  \"model\": \"Model (marka adı olmadan)\"\n"
                 . "}\n"
             );
         }
@@ -179,7 +178,6 @@ class AnalyzeMediaAiController implements RequestHandlerInterface
             . "- Firma: en büyük logo/kelimeyi değil, gövdede yazan resmî adın tamamını yaz (ör. logoda 'Anka' yazsa da yan yüzde 'Adıyaman Anka Turizm' yazıyorsa onu yaz). Şehir ön eki, 'Turizm', 'Seyahat', 'Taşımacılık' gibi kelimeleri atma.\n"
             . "- Model: ön/arka maske, far, cam ve yan pencere dizilimine bakarak tam modeli belirle (ör. Mercedes-Benz Travego 15 SHD, Tourismo 16 RHD, Setra S 516 HD, MAN Lion's Coach, Temsa Maraton). Aşağıdaki forum listesinde uygun bir ad varsa birebir o yazımı kullan.\n"
             . $locationRule
-            . "- Yıl: yalnızca kasa nesli kesin biliniyorsa tahmin et, yoksa boş bırak.\n"
             . "- Okuyamadığın ya da emin olmadığın her alanı boş string bırak; uydurma.\n"
             . "SADECE geçerli JSON döndür, açıklama ekleme.";
 
@@ -281,6 +279,22 @@ class AnalyzeMediaAiController implements RequestHandlerInterface
             }
         }
         unset($data['city'], $data['place'], $data['location_confidence'], $data['location'], $data['location_guess']);
+
+        // Künyedeki yıl ÇEKİM yılıdır ('26): fotoğrafın EXIF tarihinden alınır. Yapay zekanın tahmin
+        // ettiği model yılı (ör. 2012) bu alana yazılmaz; EXIF yoksa yıl boş kalır (tarayıcı dosya tarihini kullanır).
+        unset($data['year'], $data['year_guess']);
+        if ($exif['date']) {
+            $data['year'] = $exif['date']->format('Y');
+            $data['year_source'] = 'exif';
+        }
+
+        // Plaka dosya adında yazılıysa o esas alınır (yapay zeka benzer harfleri karıştırabiliyor: ADH ↔ AOH)
+        $fileName = (string) Arr::get($body, 'file_name', '');
+        if ($fileName === '' && $file) $fileName = (string) $file->getClientFilename();
+        if (($fromName = $this->plateFromName($fileName)) !== null) {
+            $data['plate'] = $fromName;
+            $data['plate_source'] = 'filename';
+        }
         if ($loc) {
             $data['location'] = $this->location->format($loc['city'], $loc['place'] ?? '', $detailed);
             $data['city'] = $loc['city'];
@@ -325,6 +339,17 @@ class AnalyzeMediaAiController implements RequestHandlerInterface
 
                 return ['model' => $model !== '' ? $model : 'gemini-3.8-flash'] + $c;
             }
+        }
+
+        return null;
+    }
+
+    /** "02 ADH 788.webp", "02ADH788-1.jpg" → "02 ADH 788" */
+    protected function plateFromName(string $name): ?string
+    {
+        $base = mb_strtoupper(preg_replace('/\.[a-z0-9]+$/i', '', $name), 'UTF-8');
+        if (preg_match('/(?<!\d)(0[1-9]|[1-7]\d|8[01])[\s_.-]*([A-ZÇĞİÖŞÜ]{1,3})[\s_.-]*(\d{2,5})(?!\d)/u', $base, $m)) {
+            return $m[1] . ' ' . $m[2] . ' ' . $m[3];
         }
 
         return null;

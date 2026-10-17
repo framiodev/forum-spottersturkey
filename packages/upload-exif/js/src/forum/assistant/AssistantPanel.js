@@ -3,6 +3,8 @@ import Component from 'flarum/common/Component';
 import Button from 'flarum/common/components/Button';
 import folder from './folder';
 import { canListen, listenOnce, speak } from './speech';
+import ghost from './ghost';
+import drive from './drive';
 
 /**
  * Framio Asistan paneli: sesli / yazılı komutla bağlı klasördeki fotoğrafı bulur, Framio AI ile
@@ -78,6 +80,10 @@ class Panel extends Component {
     this.busy = false;
     this.queue = []; // onay bekleyen fotoğraf kartları
     this.folderName = null;
+    // "Uzaktan kullanım" görünümü: kullanıcı tercihi, yoksa sitenin varsayılanı
+    const sitePref = app.forum.attribute('framioAssistantShowActions') !== false;
+    const own = app.session.user.preferences().framio_assistant_show_actions;
+    ghost.enabled = own === undefined || own === null || own === '' ? sitePref : !!own;
     folder.load().then(() => {
       this.folderName = folder.name();
       m.redraw();
@@ -85,7 +91,23 @@ class Panel extends Component {
     this.say(`Merhaba, ben ${assistantName()}. "06 ABC 123 fotoğrafını paylaş" gibi bir komut verin.`, false);
   }
 
+  /** Anlık durum satırı ("Klasörü tarıyorum…"); yeni adım gelince önceki ✓ olur */
+  step(text) {
+    this.log.forEach((l) => l.who === 'step' && (l.done = true));
+    if (text) this.log.push({ who: 'step', text, done: false });
+    m.redraw();
+    this.scroll();
+  }
+
+  scroll() {
+    setTimeout(() => {
+      const el = document.querySelector('.FramioAssistant-log');
+      if (el) el.scrollTop = el.scrollHeight;
+    }, 30);
+  }
+
   say(text, voice = true) {
+    this.log.forEach((l) => l.who === 'step' && (l.done = true));
     this.log.push({ who: 'bot', text });
     if (voice && pref('framio_assistant_speak', true)) speak(text);
     m.redraw();
@@ -112,9 +134,15 @@ class Panel extends Component {
         </header>
 
         <div className="FramioAssistant-log">
-          {this.log.map((l) => (
-            <div className={'FramioAssistant-msg is-' + l.who}>{l.text}</div>
-          ))}
+          {this.log.map((l) =>
+            l.who === 'step' ? (
+              <div className={'FramioAssistant-step' + (l.done ? ' is-done' : '')}>
+                <i className={l.done ? 'fas fa-check' : 'fas fa-circle-notch fa-spin'}></i> {l.text}
+              </div>
+            ) : (
+              <div className={'FramioAssistant-msg is-' + l.who}>{l.text}</div>
+            )
+          )}
           {this.queue.map((card) => this.cardView(card))}
           {this.busy ? (
             <div className="FramioAssistant-msg is-bot is-typing">
@@ -128,9 +156,16 @@ class Panel extends Component {
         {!folder.supported() ? (
           <p className="FramioAssistant-note">Bu tarayıcı klasör erişimini desteklemiyor; Chrome ya da Edge kullanın.</p>
         ) : !this.folderName ? (
-          <Button className="Button FramioAssistant-link" icon="far fa-folder-open" onclick={() => this.linkFolder()}>
-            Fotoğraf klasörümü bağla
-          </Button>
+          <div className="FramioAssistant-sources">
+            <Button className="Button FramioAssistant-link" icon="far fa-folder-open" onclick={() => this.linkFolder()}>
+              Klasör bağla
+            </Button>
+            {drive.available() ? (
+              <Button className="Button FramioAssistant-link" icon="fab fa-google-drive" onclick={() => this.linkDrive()}>
+                Google Drive
+              </Button>
+            ) : null}
+          </div>
         ) : null}
 
         <form
@@ -164,12 +199,13 @@ class Panel extends Component {
     const field = (key, label) => (
       <label className="FramioAssistant-field">
         <span>{label}</span>
-        <input className="FormControl" value={f[key] || ''} oninput={(e) => (f[key] = e.target.value)} disabled={card.state !== 'ready'} />
+        <input className="FormControl" data-key={key} value={f[key] || ''} oninput={(e) => (f[key] = e.target.value)} disabled={card.state !== 'ready'} />
       </label>
     );
 
     return (
-      <div className={'FramioAssistant-card is-' + card.state} key={card.id}>
+      <div className={'FramioAssistant-card is-' + card.state} key={card.id} data-id={card.id}>
+        {card.source ? <span className="FramioAssistant-source">{card.source}</span> : null}
         <img src={card.preview} alt="" />
         <div className="FramioAssistant-cardBody">
           {card.state === 'analyzing' ? <p className="helpText">Framio AI inceliyor…</p> : null}
@@ -220,11 +256,22 @@ class Panel extends Component {
     );
   }
 
+  async linkDrive() {
+    try {
+      this.step('Google Drive klasör seçicisini açıyorum (yalnızca okuma izni)…');
+      const list = await drive.pickFolders();
+      this.folderName = folder.name();
+      this.say(list.length ? `Drive'dan ${list.length} klasör bağlı. Yalnızca okuyabilirim; silme ya da değiştirme yetkim yok.` : 'Drive klasörü seçilmedi.');
+    } catch (e) {
+      this.say(e.message || 'Google Drive bağlanamadı.');
+    }
+  }
+
   async linkFolder() {
     try {
-      await folder.link();
+      const f = await folder.link();
       this.folderName = folder.name();
-      this.say(`"${this.folderName}" klasörünü bağladım. Artık buradaki fotoğrafları bulabilirim.`);
+      this.say(`"${f.label}" klasörünü bağladım (yalnızca okuma). Profil ayarlarından başka klasörler de ekleyebilirsiniz.`);
     } catch (e) {
       if (e && e.name !== 'AbortError') this.say('Klasör bağlanamadı.');
     }
@@ -261,11 +308,13 @@ class Panel extends Component {
     m.redraw();
 
     let intent;
+    this.step('Komutu anlıyorum…');
     try {
       intent = await app.request({ method: 'POST', url: api('/framio-assistant/parse'), body: { text } });
     } catch (e) {
       return this.say('Komutu işleyemedim.');
     }
+    this.step(null);
 
     const pending = this.queue.find((c) => c.state === 'ready');
     if (intent.action === 'confirm' && pending) return this.share(pending);
@@ -281,30 +330,30 @@ class Panel extends Component {
       return this.say('Hangi aracın fotoğrafını arayayım? Plakayı ya da dosya adını söyleyin.');
     }
 
-    if (!folder.supported()) return this.say('Bu tarayıcıda klasör erişimi yok; Chrome ya da Edge kullanın.');
-    if (!(await folder.load())) return this.say('Önce fotoğraf klasörünüzü bağlamanız gerekiyor; aşağıdaki düğmeye dokunun.');
-    if (!(await folder.ensure())) return this.say('Klasöre erişim izni gerekiyor. Tarayıcının sorduğu izne "İzin ver" deyin ve komutu tekrarlayın.');
+    await folder.load();
+    if (!folder.hasAny()) return this.say('Önce bir fotoğraf kaynağı bağlamanız gerekiyor: bilgisayardan bir klasör ya da Google Drive.');
+    if ((folder.list || []).some((f) => f.enabled)) {
+      this.step('Klasör erişim iznini kontrol ediyorum…');
+      if (!(await folder.ensure())) return this.say('Klasöre erişim izni gerekiyor. Tarayıcının sorduğu izne "İzin ver" deyin ve komutu tekrarlayın.');
+    }
 
-    this.busy = true;
-    m.redraw();
     let files = [];
     try {
-      files = await folder.find(intent.query, intent.count === 0 ? 20 : intent.count || 1);
+      const depth = Number(pref('framio_assistant_depth', 2));
+      files = await folder.find(intent.query, intent.count === 0 ? 20 : intent.count || 1, depth, (t) => this.step(t));
     } catch (e) {
-      this.busy = false;
-      return this.say('Klasörü okuyamadım.');
+      return this.say('Kaynakları okuyamadım.');
     }
-    this.busy = false;
 
     if (!files.length) return this.say(`"${intent.query}" adını taşıyan bir fotoğraf bulamadım.`);
-    this.say(files.length === 1 ? `Bir fotoğraf buldum, inceliyorum.` : `${files.length} fotoğraf buldum, inceliyorum.`);
+    this.say(files.length === 1 ? `Bir fotoğraf buldum (${files[0].source}), inceliyorum.` : `${files.length} fotoğraf buldum, inceliyorum.`);
 
-    for (const file of files) {
-      await this.prepare(file, intent);
+    for (const item of files) {
+      await this.prepare(item.file, intent, item.source);
     }
   }
 
-  async prepare(file, intent) {
+  async prepare(file, intent, source = '') {
     const card = {
       id: Math.random().toString(36).slice(2),
       file,
@@ -313,29 +362,43 @@ class Panel extends Component {
       fields: { plate: intent.plate || '' },
       suggestions: [],
       topic: '',
+      source,
     };
     this.queue.push(card);
     m.redraw();
+    this.scroll();
+    this.step(`Framio AI "${file.name}" fotoğrafını inceliyor…`);
 
     try {
       const fd = new FormData();
       fd.append('image', await shrink(file), 'ai.jpg');
-      fd.append('exif_head', file.slice(0, 256 * 1024), 'head.jpg');
+      fd.append('exif_head', file.slice(0, 256 * 1024), 'head.jpg'); fd.append('file_name', file.name);
       if (intent.tag) fd.append('tag_slug', intent.tag);
       const ai = await app.request({ method: 'POST', url: api('/framio-media/analyze-ai'), body: fd });
       const d = (ai && ai.data) || {};
-      Object.assign(card.fields, {
+      card.aiFields = {
         company: d.company || '',
         plate: d.plate || card.fields.plate,
         brand: d.brand || '',
         model: d.model || '',
         location: d.location || d.location_guess || '',
-        year: d.year || d.year_guess || '',
-      });
+        year: d.year || String(new Date(file.lastModified).getFullYear()),
+      };
     } catch (e) {
       // Analiz olmadan da devam: alanlar elle doldurulabilir
     }
 
+    // Alanlar görünür biçimde doldurulur (uzaktan kullanım görünümünde yazılıyormuş gibi)
+    card.state = 'ready';
+    m.redraw.sync();
+    for (const [key, value] of Object.entries(card.aiFields || {})) {
+      const input = document.querySelector(`.FramioAssistant-card[data-id="${card.id}"] input[data-key="${key}"]`);
+      await ghost.type(input, value, (v) => (card.fields[key] = v));
+      card.fields[key] = value;
+    }
+    card.state = 'analyzing';
+
+    this.step('Uygun başlığı arıyorum…');
     try {
       const r = await app.request({ method: 'POST', url: api('/framio-assistant/route'), body: { brand: card.fields.brand, model: card.fields.model, company: card.fields.company } });
       card.suggestions = r.suggestions || [];
@@ -382,17 +445,21 @@ class Panel extends Component {
     if (card.state !== 'ready' || !card.topic) return;
     if (card.timer) clearInterval(card.timer);
     card.countdown = 0;
+    await ghost.click(`.FramioAssistant-card[data-id="${card.id}"] .Button--primary`, 'Paylaş');
     card.state = 'sharing';
     m.redraw();
 
     try {
-      let code = await upload(card.file, pref('framio_assistant_watermark', 'none'));
+      const wm = pref('framio_assistant_watermark', 'none');
+      this.step(wm === 'none' ? 'Fotoğrafı yüklüyorum…' : 'İmzayı ekleyip fotoğrafı yüklüyorum…');
+      let code = await upload(card.file, wm);
       const f = card.fields;
       const alt = [[f.company, f.plate].filter(Boolean).join(' | '), [f.brand, f.model].filter(Boolean).join(' ')].filter(Boolean).join(' - ');
       if (alt) code = code.replace(/alt="([^"]*)"/g, `alt="${alt.replace(/"/g, '&quot;')}"`);
       const content = code + (kunyeText(f) ? '\n' + kunyeText(f) : '') + '\n';
 
-      await app.request({
+      this.step('Mesajı yazıp başlığa gönderiyorum…');
+      const created = await app.request({
         method: 'POST',
         url: api('/posts'),
         body: { data: { type: 'posts', attributes: { content }, relationships: { discussion: { data: { type: 'discussions', id: String(card.topic) } } } } },
@@ -401,9 +468,18 @@ class Panel extends Component {
       const s = card.suggestions.find((x) => String(x.discussion_id) === String(card.topic)) || {};
       card.state = 'done';
       card.topicTitle = s.title || 'başlık';
-      card.doneUrl = s.url || '/d/' + card.topic;
+      const number = created && created.data && created.data.attributes && created.data.attributes.number;
+      card.doneUrl = (s.url || '/d/' + card.topic) + (number ? '/' + number : '');
       app.request({ method: 'POST', url: api('/framio-assistant/learn'), body: { brand: f.brand, model: f.model, company: f.company, discussion_id: card.topic } }).catch(() => {});
       this.say(`Paylaştım: ${card.topicTitle}.`);
+      // Uzaktan kullanım görünümü: mesaja gidip gösterir
+      if (ghost.enabled && created && created.data) {
+        m.route.set(card.doneUrl);
+        setTimeout(async () => {
+          await ghost.moveTo(`.PostStream-item[data-id="${created.data.id}"]`, 'Yeni mesajınız');
+          setTimeout(() => ghost.hide(), 2500);
+        }, 1500);
+      }
     } catch (e) {
       card.state = 'error';
       card.error = (e && e.message) || 'Paylaşılamadı.';
@@ -430,6 +506,7 @@ const assistant = {
         view: () => m(Panel, { oncreate: (v) => (self.panel = v.state) }),
       });
     }
+    document.body.classList.add('framio-assistant-open');
     if (command) setTimeout(() => this.panel && this.panel.command(command), 50);
   },
 
@@ -439,6 +516,8 @@ const assistant = {
     this.el.remove();
     this.el = null;
     this.panel = null;
+    document.body.classList.remove('framio-assistant-open');
+    ghost.hide();
   },
 
   toggle() {

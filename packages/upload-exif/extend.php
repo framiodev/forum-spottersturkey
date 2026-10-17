@@ -113,7 +113,16 @@ return [
         // Framio Asistan: açık/kapalı ve sitenin uyandırma sözü (arayüzde gösterilmez; yalnızca admin ayarlar)
         ->serializeToForum('framioAssistantEnabled', 'framio-upload-exif.assistant_enabled', fn ($v) => $v !== '0', true)
         ->serializeToForum('framioAssistantWake', 'framio-upload-exif.assistant_wake', 'strval', '')
-        ->serializeToForum('framioAssistantAutoAfter', 'framio-upload-exif.assistant_auto_after', 'intval', 3),
+        ->serializeToForum('framioAssistantAutoAfter', 'framio-upload-exif.assistant_auto_after', 'intval', 3)
+        ->serializeToForum('framioAssistantLauncher', 'framio-upload-exif.assistant_launcher', 'strval', 'fab')
+        ->serializeToForum('framioAssistantPosition', 'framio-upload-exif.assistant_position', 'strval', 'right')
+        ->serializeToForum('framioAssistantShowActions', 'framio-upload-exif.assistant_show_actions', fn ($v) => $v !== '0', true)
+        ->serializeToForum('framioAssistantSay', 'framio-upload-exif.assistant_pronounce', 'strval', '')
+        // Google Drive (yalnızca okuma): OAuth istemci kimliği, API anahtarı ve proje numarası tarayıcıda kullanılan
+        // herkese açık tanımlayıcılardır (gizli anahtar değildir); Google Cloud'da alan adıyla kısıtlanmalıdır
+        ->serializeToForum('framioDriveClientId', 'framio-upload-exif.drive_client_id', 'strval', '')
+        ->serializeToForum('framioDriveApiKey', 'framio-upload-exif.drive_api_key', 'strval', '')
+        ->serializeToForum('framioDriveAppId', 'framio-upload-exif.drive_app_id', 'strval', ''),
 
     (new Extend\User())
         ->registerPreference('framio_carousel_enabled', 'boolval', true)
@@ -126,7 +135,10 @@ return [
         ->registerPreference('framio_assistant_listen', 'boolval', false)
         ->registerPreference('framio_assistant_speak', 'boolval', true)
         ->registerPreference('framio_assistant_auto', 'boolval', true)
-        ->registerPreference('framio_assistant_watermark', 'strval', 'none'),
+        ->registerPreference('framio_assistant_watermark', 'strval', 'none')
+        ->registerPreference('framio_assistant_depth', 'intval', 2)
+        // Boş: sitenin varsayılanı geçerli
+        ->registerPreference('framio_assistant_show_actions', fn ($v) => $v === null || $v === '' ? null : (bool) $v, null),
 
     // BBCode Formatlayıcı (Çoklu Etiket & Geriye Dönük Tam Uyumluluk)
     (new Extend\Formatter)

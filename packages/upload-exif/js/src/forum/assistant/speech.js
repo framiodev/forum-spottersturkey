@@ -1,3 +1,4 @@
+import app from 'flarum/forum/app';
 /**
  * Framio Asistan: ses tanıma (tarayıcının kendi Türkçe tanıması, ücretsiz) ve sesli yanıt.
  */
@@ -30,12 +31,42 @@ export function listenOnce({ onInterim } = {}) {
   });
 }
 
+// Türkçe harf okunuşları (plakalar harf harf okunur)
+const LETTERS = { A: 'a', B: 'be', C: 'ce', Ç: 'çe', D: 'de', E: 'e', F: 'fe', G: 'ge', Ğ: 'yumuşak ge', H: 'he', I: 'ı', İ: 'i', J: 'je', K: 'ke', L: 'le', M: 'me', N: 'ne', O: 'o', Ö: 'ö', P: 'pe', R: 're', S: 'se', Ş: 'şe', T: 'te', U: 'u', Ü: 'ü', V: 've', Y: 'ye', Z: 'ze', Q: 'kü', W: 've', X: 'iks' };
+
+/**
+ * Yazımı okunuşa çevirir: admin'in telaffuz sözlüğü ("Mercedes=Mersedes" satırları) ve plakalar.
+ * Sözlük admin ayarından gelir; sitede tanımlı değilse yalnızca plaka kuralı uygulanır.
+ */
+export function pronounce(text) {
+  let out = String(text || '').replace(/[*_#>]/g, '');
+
+  // Plaka: "02 ADH 788" → "sıfır iki, a de he, 788" (il kodu tek tek, harfler harf adıyla)
+  out = out.replace(/\b(\d)(\d)\s*([A-ZÇĞİÖŞÜ]{1,3})\s*(\d{2,5})\b/gu, (all, a, b, letters, num) => {
+    const digit = ['sıfır', 'bir', 'iki', 'üç', 'dört', 'beş', 'altı', 'yedi', 'sekiz', 'dokuz'];
+    const code = a === '0' ? 'sıfır ' + digit[+b] : a + b;
+    return `${code}, ${[...letters].map((l) => LETTERS[l] || l).join(' ')}, ${num}`;
+  });
+
+  const dict = String(app.forum.attribute('framioAssistantSay') || '')
+    .split(/\r?\n/)
+    .map((l) => l.split('='))
+    .filter((p) => p.length === 2 && p[0].trim() && p[1].trim())
+    .sort((x, y) => y[0].trim().length - x[0].trim().length);
+  dict.forEach(([from, to]) => {
+    const re = new RegExp('(^|[^\\p{L}])' + from.trim().replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '(?=$|[^\\p{L}])', 'giu');
+    out = out.replace(re, (m, pre) => pre + to.trim());
+  });
+
+  return out;
+}
+
 /** Türkçe sesli yanıt */
 export function speak(text) {
   if (!window.speechSynthesis || !text) return;
   try {
     window.speechSynthesis.cancel();
-    const u = new SpeechSynthesisUtterance(String(text).replace(/[*_#>]/g, ''));
+    const u = new SpeechSynthesisUtterance(pronounce(text));
     u.lang = 'tr-TR';
     const voice = window.speechSynthesis.getVoices().find((v) => v.lang && v.lang.toLowerCase().startsWith('tr'));
     if (voice) u.voice = voice;

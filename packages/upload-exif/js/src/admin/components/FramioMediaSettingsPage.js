@@ -2681,6 +2681,53 @@ export default class FramioMediaSettingsPage extends ExtensionPage {
               </div>
             </div>
           </div>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginTop: '12px' }}>
+            <div className="Form-group">
+              <label style={{ fontWeight: 'bold', fontSize: '13px' }}>Asistan düğmesi nerede dursun</label>
+              <select className="FormControl" value={this.setting('framio-upload-exif.assistant_launcher', 'fab')() || 'fab'} onchange={(e) => this.setting('framio-upload-exif.assistant_launcher')(e.target.value)}>
+                <option value="fab">Köşede yuvarlak düğme (canlı destek gibi)</option>
+                <option value="header">Üst menüde</option>
+                <option value="toolbar">Yalnızca mesaj yazma araç çubuğunda</option>
+                <option value="fab,toolbar">Köşede + araç çubuğunda</option>
+                <option value="header,toolbar">Üst menüde + araç çubuğunda</option>
+              </select>
+            </div>
+            <div className="Form-group">
+              <label style={{ fontWeight: 'bold', fontSize: '13px' }}>Köşe düğmesinin yeri</label>
+              <select className="FormControl" value={this.setting('framio-upload-exif.assistant_position', 'right')() || 'right'} onchange={(e) => this.setting('framio-upload-exif.assistant_position')(e.target.value)}>
+                <option value="right">Sağ alt</option>
+                <option value="left">Sol alt</option>
+              </select>
+            </div>
+          </div>
+          <Switch state={this.setting('framio-upload-exif.assistant_show_actions', '1')() !== '0'} onchange={(val) => this.setting('framio-upload-exif.assistant_show_actions')(val ? '1' : '0')}>
+            Varsayılan olarak asistanın yaptıklarını ekranda göster (imleç, tıklamalar, alanların doldurulması); üyeler profillerinden değiştirebilir
+          </Switch>
+          <div className="Form-group" style={{ marginTop: '12px' }}>
+            <label style={{ fontWeight: 'bold', fontSize: '13px' }}>Telaffuz sözlüğü (her satır: yazılış=okunuş)</label>
+            <textarea
+              className="FormControl"
+              rows="5"
+              style={{ fontFamily: 'monospace', fontSize: '12px' }}
+              placeholder={'Mercedes-Benz=Mersedes Benz\nMercedes=Mersedes\nTourismo=Turismo\nIsuzu=İsuzu\nSHD=Es He De'}
+              bidi={this.setting('framio-upload-exif.assistant_pronounce', '')}
+            />
+            <div className="helpText" style={{ fontSize: '11px', color: '#888' }}>Sesli yanıtlarda kelimeler bu okunuşla söylenir. Plakalar (02 ADH 788) kendiliğinden harf harf okunur.</div>
+          </div>
+          <div className="Form-group" style={{ marginTop: '12px' }}>
+            <label style={{ fontWeight: 'bold', fontSize: '13px' }}>
+              <i className="fab fa-google-drive"></i> Google Drive bağlantısı (yalnızca okuma)
+            </label>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '8px' }}>
+              <input className="FormControl" placeholder="OAuth istemci kimliği (…apps.googleusercontent.com)" bidi={this.setting('framio-upload-exif.drive_client_id', '')} />
+              <input className="FormControl" placeholder="API anahtarı (Picker için)" bidi={this.setting('framio-upload-exif.drive_api_key', '')} />
+              <input className="FormControl" placeholder="Proje numarası (App ID)" bidi={this.setting('framio-upload-exif.drive_app_id', '')} />
+            </div>
+            <div className="helpText" style={{ fontSize: '11px', color: '#888' }}>
+              Google Cloud Console'da Drive API ve Google Picker API'yi açın; "Web uygulaması" OAuth istemcisine sitenin adresini yetkili kaynak olarak ekleyin ve API anahtarını
+              bu alan adıyla kısıtlayın. Asistan yalnızca <code>drive.readonly</code> izni ister: dosyaları görür ve indirir, silemez ya da değiştiremez.
+            </div>
+          </div>
         </div>
 
         {/* 3. Kullanıcı Yetkisi & Kendi API Kotası */}

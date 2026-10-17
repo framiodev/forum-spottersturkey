@@ -1899,3 +1899,49 @@ img.spotter-lazy:not([width]):not(.is-loaded) {
     .FramioAssistant-settingsGrid { grid-template-columns: 1fr; }
 }
 @media (prefers-reduced-motion: reduce) { .FramioAssistant, .FramioAssistant-mic.is-on, .FramioAssistant-msg.is-typing span { animation: none; } }
+
+
+/* Framio Asistan v2: köşe düğmesi, adımlar, kaynaklar, uzaktan kullanım imleci */
+.FramioAssistant-fab {
+    position: fixed; bottom: 22px; z-index: 1090; width: 56px; height: 56px; border-radius: 50%; border: 0; cursor: pointer;
+    background: var(--primary-color); color: #fff; font-size: 22px; box-shadow: 0 8px 24px rgba(0,0,0,.25);
+    transition: transform .15s ease, box-shadow .15s ease;
+    &:hover { transform: scale(1.06); box-shadow: 0 12px 28px rgba(0,0,0,.3); }
+    &.is-right { right: 22px; }
+    &.is-left { left: 22px; }
+}
+.framio-assistant-open .FramioAssistant-fab { display: none; }
+.FramioAssistant-step {
+    align-self: flex-start; font-size: 12px; color: var(--muted-color); display: flex; align-items: center; gap: 6px; padding: 0 4px;
+    i { width: 14px; color: var(--primary-color); }
+    &.is-done { opacity: .75; }
+}
+.FramioAssistant-sources { display: flex; gap: 6px; margin: 0 12px 8px; .FramioAssistant-link { margin: 0; flex: 1; } }
+.FramioAssistant-card { position: relative; }
+.FramioAssistant-source {
+    position: absolute; top: 8px; left: 8px; padding: 2px 8px; border-radius: 10px; font-size: 11px;
+    background: rgba(0,0,0,.6); color: #fff; max-width: 70%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.FramioAssistant-sourceList { margin: 6px 0 10px; }
+.FramioAssistant-sourceRow {
+    display: flex; align-items: center; gap: 10px; padding: 6px 8px; border-radius: 8px; background: var(--body-bg); margin-bottom: 6px;
+    > i { color: var(--primary-color); width: 16px; text-align: center; }
+    .Checkbox { margin: 0; }
+}
+.FramioAssistant-sourceName { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 600; font-size: 13px; }
+.FramioAssistant-sourceAdd { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
+.FramioGhost {
+    position: fixed; z-index: 1200; pointer-events: none; opacity: 0; transform: translate(-4px, -4px);
+    transition: left .6s cubic-bezier(.3,.7,.3,1), top .6s cubic-bezier(.3,.7,.3,1), opacity .2s;
+    filter: drop-shadow(0 2px 4px rgba(0,0,0,.35));
+    &.is-visible { opacity: 1; }
+    &::after { content: ''; position: absolute; left: -10px; top: -10px; width: 24px; height: 24px; border-radius: 50%; border: 2px solid var(--primary-color); opacity: 0; }
+    &.is-click::after { animation: FramioGhostClick .45s ease-out; }
+}
+.FramioGhost-label {
+    position: absolute; left: 24px; top: 18px; white-space: nowrap; padding: 3px 8px; border-radius: 10px; font-size: 11px; font-weight: 700;
+    background: var(--primary-color); color: #fff; &:empty { display: none; }
+}
+@keyframes FramioGhostClick { 0% { opacity: .9; transform: scale(.4); } 100% { opacity: 0; transform: scale(1.8); } }
+@media (max-width: 600px) { .FramioAssistant-fab { bottom: 76px; width: 50px; height: 50px; font-size: 20px; } }
+@media (prefers-reduced-motion: reduce) { .FramioGhost { transition: none; } .FramioGhost.is-click::after { animation: none; } }
