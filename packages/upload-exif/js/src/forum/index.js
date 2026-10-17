@@ -15,6 +15,9 @@ import SettingsPage from 'flarum/forum/components/SettingsPage';
 
 import Page from 'flarum/common/components/Page';
 import crosspostOnPublish from './crosspostOnPublish';
+import assistant, { assistantName } from './assistant/AssistantPanel';
+import { canListen, wakeListener } from './assistant/speech';
+import folder from './assistant/folder';
 
 // Mesaj görselleri inince yumuşakça belirsin (yer önceden ayrılır: bkz. AddImageDimensions)
 if (typeof document !== 'undefined') {
@@ -87,6 +90,30 @@ app.initializers.add('framio/upload-exif', () => {
   extend(TextEditor.prototype, 'toolbarItems', function(items) {
     items.add('framio-media-upload', <UploadButton editor={this} />, 102);
     items.add('framio-media-gallery', <GalleryButton editor={this} />, 101);
+    // Framio Asistan: yükleme ve galeri düğmelerinden hemen sonra
+    if (app.session.user && app.forum.attribute('framioAssistantEnabled') !== false) {
+      items.add(
+        'framio-assistant',
+        <Button className="Button Button--icon Button--link FramioAssistant-toolbar" icon="fas fa-magic" title={assistantName()} aria-label={assistantName()} onclick={() => assistant.toggle()} />,
+        100
+      );
+    }
+  });
+
+  // Framio Asistan: uyandırma sözü (sitenin gizli sözü + kişinin kendi sözü), sayfa açıkken dinler
+  const startWake = () => {
+    if (assistant.wake || !app.session.user || app.forum.attribute('framioAssistantEnabled') === false || !canListen()) return;
+    const prefs = app.session.user.preferences() || {};
+    if (!prefs.framio_assistant_listen) return;
+    const phrases = [app.forum.attribute('framioAssistantWake'), prefs.framio_assistant_wake, prefs.framio_assistant_name ? 'hey ' + prefs.framio_assistant_name : ''].filter(Boolean);
+    if (!phrases.length) return;
+    assistant.wake = wakeListener(phrases, (rest) => assistant.open(rest || null));
+  };
+  extend(Page.prototype, 'oncreate', startWake);
+
+  // PWA kısayolu ya da bağlantı: /?asistan=1 asistanı açar
+  extend(Page.prototype, 'oncreate', function () {
+    if (/[?&]asistan=1\b/.test(window.location.search) && !assistant.el) assistant.open();
   });
 
   // 3. PROFİL SAYFASI MENÜSÜNE EKLE
@@ -120,6 +147,105 @@ app.initializers.add('framio/upload-exif', () => {
           Gönderilerde birden fazla fotoğrafı kaydırmalı (carousel) olarak göster
         </Switch>,
         10
+      );
+    }
+
+    // Kişisel asistan: adı, uyandırma sözü, sesli yanıt, öğrenip otomatik paylaşma, varsayılan imza
+    if (app.forum.attribute('framioAssistantEnabled') !== false) {
+      const prefs = this.user.preferences();
+      const save = (data) => this.user.savePreferences(data).then(() => m.redraw());
+      const label = { fontSize: '12px', fontWeight: 600, marginBottom: '4px', display: 'block' };
+      if (!this.framioFolderLoaded) {
+        this.framioFolderLoaded = true;
+        folder.load().then(() => m.redraw());
+      }
+      if (!this.framioWatermarks) {
+        this.framioWatermarks = [];
+        app.request({ method: 'GET', url: app.forum.attribute('apiUrl') + '/framio-media/watermarks' })
+          .then((res) => {
+            this.framioWatermarks = res.watermarks || [];
+            m.redraw();
+          })
+          .catch(() => {});
+      }
+
+      items.add(
+        'framio-assistant-settings',
+        <div className="Form-group FramioAssistant-settings">
+          <h4>
+            <i className="fas fa-magic"></i> Kişisel asistanım
+          </h4>
+          <p className="helpText">
+            Sesli ya da yazılı komutla bağlı klasörünüzdeki fotoğrafı bulur, künyesini çıkarır ve uygun başlığa paylaşır. Paylaşmadan önce onay ister; aynı modeli aynı başlığa birkaç kez
+            onayladığınızda o başlığı öğrenir.
+          </p>
+          <div className="FramioAssistant-settingsGrid">
+            <div>
+              <label style={label}>Asistanın adı</label>
+              <input className="FormControl" placeholder="ör. Jarvis" value={prefs.framio_assistant_name || ''} onchange={(e) => save({ framio_assistant_name: e.target.value.trim() })} />
+            </div>
+            <div>
+              <label style={label}>Uyandırma sözü</label>
+              <input
+                className="FormControl"
+                placeholder={prefs.framio_assistant_name ? 'Hey ' + prefs.framio_assistant_name : 'ör. Hey Jarvis'}
+                value={prefs.framio_assistant_wake || ''}
+                onchange={(e) => save({ framio_assistant_wake: e.target.value.trim() })}
+              />
+            </div>
+            <div>
+              <label style={label}>Paylaşırken kullanılacak imza</label>
+              <select className="FormControl" value={prefs.framio_assistant_watermark || 'none'} onchange={(e) => save({ framio_assistant_watermark: e.target.value })}>
+                <option value="none">İmzasız</option>
+                {(this.framioWatermarks || []).map((w) => (
+                  <option value={w.id || w.filename || w.name}>{w.name || w.label || w.filename}</option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <label style={label}>Fotoğraf klasörü</label>
+              <Button className="Button" icon="far fa-folder-open" disabled={!folder.supported()} onclick={() => folder.link().then(() => m.redraw()).catch(() => {})}>
+                {folder.name() ? 'Değiştir (' + folder.name() + ')' : 'Klasör bağla'}
+              </Button>
+            </div>
+          </div>
+          {canListen() ? (
+            <Switch
+              state={!!prefs.framio_assistant_listen}
+              onchange={(v) => {
+                save({ framio_assistant_listen: v });
+                if (v) {
+                  // İlk açılışta tarayıcı mikrofon izni ister
+                  navigator.mediaDevices && navigator.mediaDevices.getUserMedia({ audio: true }).then((st) => st.getTracks().forEach((t) => t.stop())).catch(() => {});
+                } else if (assistant.wake) {
+                  assistant.wake.stop();
+                  assistant.wake = null;
+                }
+              }}
+            >
+              Sayfa açıkken uyandırma sözümü dinle
+            </Switch>
+          ) : (
+            <p className="helpText">Bu tarayıcı ses tanımayı desteklemiyor; yazılı komut kullanılabilir.</p>
+          )}
+          <Switch state={prefs.framio_assistant_speak !== false} onchange={(v) => save({ framio_assistant_speak: v })}>
+            Yanıtları sesli oku
+          </Switch>
+          <Switch state={prefs.framio_assistant_auto !== false} onchange={(v) => save({ framio_assistant_auto: v })}>
+            Öğrendiği başlıklara kısa bir geri sayımla kendisi paylaşsın
+          </Switch>
+          <Button
+            className="Button Button--link"
+            icon="fas fa-eraser"
+            onclick={() => {
+              if (!confirm('Asistanın öğrendiği tüm başlık tercihleri silinsin mi?')) return;
+              app.request({ method: 'POST', url: app.forum.attribute('apiUrl') + '/framio-assistant/forget' }).then((r) => app.alerts.show({ type: 'success' }, r.removed + ' öğrenilmiş tercih silindi.'));
+            }}
+          >
+            Öğrendiklerini sıfırla
+          </Button>
+        </div>,
+        8
       );
     }
 

@@ -85,7 +85,13 @@ return [
 
         // AI Analiz & Künye Otomatik Doldurma
         ->post('/framio-media/analyze-ai', 'framio.media.analyze_ai', AnalyzeMediaAiController::class)
-        ->get('/framio-media/ai-test', 'framio.media.ai_test', \Framio\UploadExif\Api\Controller\AiTestController::class),
+        ->get('/framio-media/ai-test', 'framio.media.ai_test', \Framio\UploadExif\Api\Controller\AiTestController::class)
+
+        // Framio Asistan (sesli / yazılı komut)
+        ->post('/framio-assistant/parse', 'framio.assistant.parse', \Framio\UploadExif\Assistant\AssistantController::class)
+        ->post('/framio-assistant/route', 'framio.assistant.route', \Framio\UploadExif\Assistant\AssistantController::class)
+        ->post('/framio-assistant/learn', 'framio.assistant.learn', \Framio\UploadExif\Assistant\AssistantController::class)
+        ->post('/framio-assistant/forget', 'framio.assistant.forget', \Framio\UploadExif\Assistant\AssistantController::class),
 
     // Admin Ayarlarının Frontend Forum Context'ine Aktarımı
     (new Extend\Settings())
@@ -103,13 +109,24 @@ return [
         ->serializeToForum('framio-upload-exif.exif_theme', 'framio-upload-exif.exif_theme')
         ->serializeToForum('framio-upload-exif.download_format_mode', 'framio-upload-exif.download_format_mode')
         ->serializeToForum('framio-upload-exif.active_bbcode_tag', 'framio-upload-exif.active_bbcode_tag')
-        ->serializeToForum('framio-upload-exif.recognized_bbcode_tags', 'framio-upload-exif.recognized_bbcode_tags'),
+        ->serializeToForum('framio-upload-exif.recognized_bbcode_tags', 'framio-upload-exif.recognized_bbcode_tags')
+        // Framio Asistan: açık/kapalı ve sitenin uyandırma sözü (arayüzde gösterilmez; yalnızca admin ayarlar)
+        ->serializeToForum('framioAssistantEnabled', 'framio-upload-exif.assistant_enabled', fn ($v) => $v !== '0', true)
+        ->serializeToForum('framioAssistantWake', 'framio-upload-exif.assistant_wake', 'strval', '')
+        ->serializeToForum('framioAssistantAutoAfter', 'framio-upload-exif.assistant_auto_after', 'intval', 3),
 
     (new Extend\User())
         ->registerPreference('framio_carousel_enabled', 'boolval', true)
         ->registerPreference('framio_personal_ai_provider', 'strval', 'default')
         ->registerPreference('framio_personal_ai_key', 'strval', '')
-        ->registerPreference('framio_personal_ai_model', 'strval', ''),
+        ->registerPreference('framio_personal_ai_model', 'strval', '')
+        // Kişisel asistan
+        ->registerPreference('framio_assistant_name', 'strval', '')
+        ->registerPreference('framio_assistant_wake', 'strval', '')
+        ->registerPreference('framio_assistant_listen', 'boolval', false)
+        ->registerPreference('framio_assistant_speak', 'boolval', true)
+        ->registerPreference('framio_assistant_auto', 'boolval', true)
+        ->registerPreference('framio_assistant_watermark', 'strval', 'none'),
 
     // BBCode Formatlayıcı (Çoklu Etiket & Geriye Dönük Tam Uyumluluk)
     (new Extend\Formatter)

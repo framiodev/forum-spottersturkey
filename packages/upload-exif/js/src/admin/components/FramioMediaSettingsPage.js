@@ -2656,6 +2656,33 @@ export default class FramioMediaSettingsPage extends ExtensionPage {
           </div>
         </div>
 
+        {/* Framio Asistan */}
+        <div style={{ background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '8px', padding: '16px', marginBottom: '20px' }}>
+          <h4 style={{ margin: '0 0 10px 0', fontSize: '14px', fontWeight: 'bold', color: '#334155' }}>
+            <i className="fas fa-magic" style={{ marginRight: '6px', color: 'var(--primary-color)' }}></i>
+            Framio Asistan (sesli / yazılı komut)
+          </h4>
+          <Switch state={this.setting('framio-upload-exif.assistant_enabled', '1')() !== '0'} onchange={(val) => this.setting('framio-upload-exif.assistant_enabled')(val ? '1' : '0')}>
+            Üyeler düzenleyicideki asistan düğmesini ve kişisel asistanlarını kullanabilsin
+          </Switch>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginTop: '12px' }}>
+            <div className="Form-group">
+              <label style={{ fontWeight: 'bold', fontSize: '13px' }}>Sitenin uyandırma sözü (gizli)</label>
+              <input className="FormControl" type="password" autocomplete="off" placeholder="ör. Hey Arşiv" bidi={this.setting('framio-upload-exif.assistant_wake', '')} />
+              <div className="helpText" style={{ fontSize: '11px', color: '#888' }}>
+                Arayüzde hiçbir yerde gösterilmez. Uyandırma dinlemesini açmış her üyede asistanı uyandırır; üyeler ayrıca kendi sözlerini profillerinden belirler.
+              </div>
+            </div>
+            <div className="Form-group">
+              <label style={{ fontWeight: 'bold', fontSize: '13px' }}>Kaç onaydan sonra kendisi paylaşsın</label>
+              <input className="FormControl" type="number" min="2" max="20" bidi={this.setting('framio-upload-exif.assistant_auto_after', '3')} />
+              <div className="helpText" style={{ fontSize: '11px', color: '#888' }}>
+                Bir model aynı başlığa bu kadar kez onaylanınca asistan o başlığı öğrenir ve 5 saniyelik iptal edilebilir geri sayımla paylaşır. Farklı bir başlık seçilirse sayım sıfırlanır.
+              </div>
+            </div>
+          </div>
+        </div>
+
         {/* 3. Kullanıcı Yetkisi & Kendi API Kotası */}
         <div style={{ background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '8px', padding: '16px', marginBottom: '20px' }}>
           <h4 style={{ margin: '0 0 10px 0', fontSize: '14px', fontWeight: 'bold', color: '#334155' }}>
