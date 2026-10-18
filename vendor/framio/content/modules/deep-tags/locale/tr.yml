@@ -1,9 +1,0 @@
-framio-content:
-  admin:
-    deep_tags:
-      title: 'Çok Seviyeli Kategori / Etiket Hiyerarşisi'
-      description: 'Sınırsız derinlikte alt etiket ve kategori ağacı oluşturma ve yönetme desteği.'
-      parent_tag_label: 'Üst Kategori / Etiket'
-      no_parent: '(Yok - Ana Kategori)'
-      parent_help: 'Bu etiketi istediğiniz herhangi bir ana veya alt kategorinin altına bağlayabilirsiniz.'
-      saved_order: 'Kategori hiyerarşisi başarıyla güncellendi.'

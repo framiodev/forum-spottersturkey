@@ -1,7 +1,0 @@
-fof-news-widget:
-  admin:
-    settings:
-      add_line: Haber Satırı Ekle
-      remove_line: Satırı kaldır
-      lines: Haber ve Duyuru Satırları
-      html_warning: Lütfen dikkatli olun, girdiğiniz tüm HTML kodları doğrudan render edilecektir.

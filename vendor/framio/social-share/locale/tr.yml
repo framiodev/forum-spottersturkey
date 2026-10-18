@@ -1,5 +1,0 @@
-framio-social-share:
-  admin:
-    permissions:
-      share_posts_label: "Sosyal Medyada Paylaş (Meta Business Suite)"
-      create_stories_label: "Hikaye Tasarla & İndir (Story Oluşturucu)"

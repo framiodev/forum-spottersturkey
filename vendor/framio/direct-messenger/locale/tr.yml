@@ -1,7 +1,0 @@
-framio-direct-messenger:
-  admin:
-    permissions:
-      send: Özel Mesaj Gönderebilir
-  forum:
-    messages: Mesajlar
-    send: Gönder
