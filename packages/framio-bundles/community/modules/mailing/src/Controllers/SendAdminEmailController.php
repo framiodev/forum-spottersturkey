@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 
 /*
  * This file is part of framio/community (mailing module).
@@ -24,87 +24,87 @@ use Psr\Http\Server\RequestHandlerInterface;
 class SendAdminEmailController implements RequestHandlerInterface
 {
     public function __construct(
-        protected UserRepository ,
-        protected Queue 
+        protected UserRepository $users,
+        protected Queue $queue
     ) {
     }
 
-    public function handle(ServerRequestInterface ): ResponseInterface
+    public function handle(ServerRequestInterface $request): ResponseInterface
     {
-         = RequestUtil::getActor();
+        $actor = RequestUtil::getActor($request);
 
-         = (array) Arr::get(->getParsedBody(), 'data');
-         = collect((array) Arr::get(, 'recipients'));
+        $data = (array) Arr::get($request->getParsedBody(), 'data');
+        $recipients = collect((array) Arr::get($data, 'recipients'));
 
-         = ->filter(function () {
-            return Arr::get(, 'type') === 'users';
-        })->map(function () {
-            return Arr::get(, 'id');
+        $userIds = $recipients->filter(function ($model) {
+            return Arr::get($model, 'type') === 'users';
+        })->map(function ($model) {
+            return Arr::get($model, 'id');
         })->toArray();
 
-         = ->filter(function () {
-            return in_array(Arr::get(, 'type'), ['fof-mailing-emails', 'framio-mailing-emails']);
-        })->map(function () {
-            return Arr::get(, 'attributes.email');
+        $emails = $recipients->filter(function ($model) {
+            return in_array(Arr::get($model, 'type'), ['fof-mailing-emails', 'framio-mailing-emails']);
+        })->map(function ($model) {
+            return Arr::get($model, 'attributes.email');
         })->toArray();
 
-         = ->filter(function () {
-            return Arr::get(, 'type') === 'groups';
-        })->map(function () {
-            return Arr::get(, 'id');
+        $groupIds = $recipients->filter(function ($model) {
+            return Arr::get($model, 'type') === 'groups';
+        })->map(function ($model) {
+            return Arr::get($model, 'id');
         })->toArray();
 
-        if (count()) {
-            if (!->can('framio-mailing.mail-all') && !->can('fof-mailing.mail-all')) {
-                ->assertCan('fof-mailing.mail-all');
+        if (count($groupIds)) {
+            if (!$actor->can('framio-mailing.mail-all') && !$actor->can('fof-mailing.mail-all')) {
+                $actor->assertCan('fof-mailing.mail-all');
             }
         } else {
-            if (!->can('framio-mailing.mail-individual') && !->can('fof-mailing.mail-individual')) {
-                ->assertCan('fof-mailing.mail-individual');
+            if (!$actor->can('framio-mailing.mail-individual') && !$actor->can('fof-mailing.mail-individual')) {
+                $actor->assertCan('fof-mailing.mail-individual');
             }
         }
 
-         = ->users->query();
+        $userQuery = $this->users->query();
 
-        if (!in_array(Group::MEMBER_ID, )) {
-            ->whereIn('id', )
-                ->orWhereHas('groups', function (Builder ) use () {
-                    ->whereIn('groups.id', );
+        if (!in_array(Group::MEMBER_ID, $groupIds)) {
+            $userQuery->whereIn('id', $userIds)
+                ->orWhereHas('groups', function (Builder $query) use ($groupIds) {
+                    $query->whereIn('groups.id', $groupIds);
                 });
         }
 
-         = (string) Arr::get(, 'subject');
-         = (string) Arr::get(, 'text');
+        $subject = (string) Arr::get($data, 'subject');
+        $text = (string) Arr::get($data, 'text');
 
-         = 0;
+        $recipientCount = 0;
 
-        ->chunk(50, function () use (, , &) {
-            foreach ( as ) {
-                if (!empty(->email) && filter_var(->email, FILTER_VALIDATE_EMAIL)) {
-                    ->queue->push(new SendMail(->email, ->display_name ?? ->username, , ));
-                    ++;
+        $userQuery->chunk(50, function ($users) use ($subject, $text, &$recipientCount) {
+            foreach ($users as $user) {
+                if (!empty($user->email) && filter_var($user->email, FILTER_VALIDATE_EMAIL)) {
+                    $this->queue->push(new SendMail($user->email, $user->display_name ?? $user->username, $subject, $text));
+                    $recipientCount++;
                 }
             }
         });
 
-        foreach ( as ) {
-            if (filter_var(, FILTER_VALIDATE_EMAIL)) {
-                ->queue->push(new SendMail(, , , ));
-                ++;
+        foreach ($emails as $email) {
+            if (filter_var($email, FILTER_VALIDATE_EMAIL)) {
+                $this->queue->push(new SendMail($email, $email, $subject, $text));
+                $recipientCount++;
             }
         }
 
-        if ( === 0) {
-            /** @var Translator  */
-             = resolve(Translator::class);
+        if ($recipientCount === 0) {
+            /** @var Translator $translator */
+            $translator = resolve(Translator::class);
 
             throw new ValidationException([
-                'recipients' => ->trans('framio-mailing.api.no_recipients'),
+                'recipients' => $translator->trans('framio-mailing.api.no_recipients'),
             ]);
         }
 
         return new JsonResponse([
-            'recipientCount' => ,
+            'recipientCount' => $recipientCount,
         ]);
     }
 }

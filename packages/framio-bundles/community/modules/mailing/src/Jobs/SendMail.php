@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 
 /*
  * This file is part of framio/community (mailing module).
@@ -17,40 +17,40 @@ use Illuminate\Mail\Message;
 class SendMail extends AbstractJob
 {
     public function __construct(
-        protected string ,
-        protected string ,
-        protected string ,
-        protected string 
+        protected string $email,
+        protected string $displayName,
+        protected string $subject,
+        protected string $text
     ) {
         parent::__construct();
     }
 
-    public function handle(SettingsRepositoryInterface , Mailer , Translator , Factory ): void
+    public function handle(SettingsRepositoryInterface $settings, Mailer $mailer, Translator $translator, Factory $view): void
     {
-         = ->get('forum_title');
-         = ->email;
-         = ->displayName;
+        $forumTitle = $settings->get('forum_title');
+        $userEmail = $this->email;
+        $username = $this->displayName;
 
-        ->share(compact('forumTitle', 'userEmail', 'username'));
+        $view->share(compact('forumTitle', 'userEmail', 'username'));
 
-         = ->text;
+        $infoContent = $this->text;
 
-         = ->trans('framio-mailing.email.default_subject');
-        if ( === 'framio-mailing.email.default_subject') {
-             = ->trans('fof-mailing.email.default_subject');
+        $defaultSubject = $translator->trans('framio-mailing.email.default_subject');
+        if ($defaultSubject === 'framio-mailing.email.default_subject') {
+            $defaultSubject = $translator->trans('fof-mailing.email.default_subject');
         }
 
-         = '[' .  . '] ' . (->subject !== '' ? ->subject : );
+        $subject = '[' . $forumTitle . '] ' . ($this->subject !== '' ? $this->subject : $defaultSubject);
 
-        ->send(
+        $mailer->send(
             [
                 'text' => 'framio-mailing::emails.plain.adminMail',
                 'html' => 'framio-mailing::emails.html.adminMail',
             ],
             compact('infoContent'),
-            function (Message ) use () {
-                ->to(->email);
-                ->subject();
+            function (Message $message) use ($subject) {
+                $message->to($this->email);
+                $message->subject($subject);
             }
         );
     }
