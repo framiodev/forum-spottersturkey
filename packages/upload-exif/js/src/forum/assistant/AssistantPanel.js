@@ -2137,6 +2137,7 @@ class Panel extends Component {
           try {
             this.step(`"${c.name}" ayrıntılı inceleniyor…`);
             const fd = new FormData();
+            fd.append('deep', '1');
             fd.append('image', await shrink(await this.img(c)), 'ai.jpg');
             if (c.file) fd.append('exif_head', c.file.slice(0, 256 * 1024), 'head.jpg');
             fd.append('file_name', c.name);

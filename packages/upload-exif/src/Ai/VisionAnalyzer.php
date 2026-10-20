@@ -100,6 +100,9 @@ class VisionAnalyzer
         return $candidates;
     }
 
+    /** Bu istek için en uzun bekleme (sn); künye penceresinde 6 */
+    public ?float $cap = null;
+
     /** true: bu istek için hızlı kip (çok fotoğraf taranırken) */
     public bool $fast = false;
 
@@ -243,6 +246,7 @@ class VisionAnalyzer
             $candidates = $this->withDeep($candidates);
             $timeout = max($timeout, 30);
         }
+        if ($this->cap) $timeout = min($timeout, $this->cap);
         $client = new Client(['timeout' => $timeout, 'connect_timeout' => 3]);
 
         // Yan işler (görsel benzerlik, konum sorusu, ters adres) aynı istemcide, yapay zeka isteğiyle

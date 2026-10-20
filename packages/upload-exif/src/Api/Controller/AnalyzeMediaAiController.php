@@ -238,7 +238,7 @@ class AnalyzeMediaAiController implements RequestHandlerInterface
                 $jobs['vehicle'] = $this->vision->askAsync($client, ['deep' => $this->vision->accurate()] + $geoCandidate, $b64, $mime,
                     "Bu fotoğraftaki ana aracın markasını ve TAM modelini belirle. Ön/arka maske, far biçimi, ızgara, tavan çizgisi ve yan pencere dizilimine dikkatle bak.\n"
                     . self::MODEL_CUES . $modelList
-                    . "Yalnızca şu JSON'u döndür: {\"brand\": \"\", \"model\": \"marka adı olmadan\", \"confidence\": \"high|medium|low\"}. SADECE JSON.", $this->vision->accurate() ? 30.0 : 7.0);
+                    . "Yalnızca şu JSON'u döndür: {\"brand\": \"\", \"model\": \"marka adı olmadan\", \"confidence\": \"high|medium|low\"}. SADECE JSON.", $this->vision->accurate() ? 30.0 : 4.5);
             }
 
             return $jobs;
@@ -248,7 +248,10 @@ class AnalyzeMediaAiController implements RequestHandlerInterface
             // quick=1: asistanın toplu taraması — yalnızca hızlı yanıt (plaka, firma, marka, model, konu); yan işler yapılmaz
             $quick = (bool) Arr::get($body, 'quick');
             $this->vision->pick = ((string) Arr::get($body, 'ai_pick', '')) ?: null;
-            $this->vision->fast = $quick;
+            // Künye penceresi (elle yükleme): en hızlı yanıt + en çok 6 sn. Asistanın seçilen fotoğrafı (deep=1): doğruluk kipi.
+            $deep = (bool) Arr::get($body, 'deep');
+            $this->vision->fast = $quick || !$deep;
+            $this->vision->cap = ($quick || $deep) ? null : 6.0;
             $result = $this->vision->analyze($candidates, $bytes, $mimeType, $promptText, $quick ? null : $parallel);
         } catch (\Throwable $e) {
             return new JsonResponse(['success' => false, 'error' => 'Yapay zeka yanıt veremedi: ' . $e->getMessage()]);
