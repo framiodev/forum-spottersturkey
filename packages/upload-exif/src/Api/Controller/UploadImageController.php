@@ -224,6 +224,11 @@ class UploadImageController implements RequestHandlerInterface
             $imageModel->thumb_path = $finalThumbUrl; // Mesaj alanlarında hızlı yüklenen 1024px Thumbnail
             $imageModel->original_path = $finalOrigUrl;
             $imageModel->mime_type = $mimeType;
+            // Seçilen imza hatırlanır (sosyal medyada orijinal üzerine aynı imza basılır)
+            if ($watermarkFilename && $watermarkFilename !== 'none' && \Illuminate\Support\Facades\Schema::hasColumn('framio_media_images', 'watermark')) {
+                $imageModel->watermark = $watermarkFilename;
+                $imageModel->watermark_owner = ($actor->isAdmin() && !empty($targetUsername)) ? trim($targetUsername) : $actor->username;
+            }
             $imageModel->exif_data = json_encode($cleanExif);
             $imageModel->width = $mainWidth ?? null;
             $imageModel->height = $mainHeight ?? null;

@@ -35,6 +35,16 @@ protected $baseUrl = 'https://graph.facebook.com/v19.0';
         }
 
         $this->log("--- ANLIK PAYLAŞIM BAŞLADI ---");
+
+        // Mesajdaki küçük görsel yerine: imzasız orijinal + kayıtlı imza, tam boy JPEG (1 saat sonra silinir)
+        try {
+            $map = resolve(SocialImagePreparer::class)->prepareMap($images, time() + 3600);
+            $images = array_map(fn ($u) => $map[$u] ?? $u, $images);
+            $fbImages = array_map(fn ($i) => is_array($i) ? (['url' => $map[$i['url'] ?? ''] ?? ($i['url'] ?? null)] + $i) : ($map[$i] ?? $i), $fbImages);
+            $this->log('Görseller tam kaliteye hazırlandı: ' . count(array_filter($map, fn ($v, $k) => $v !== $k, ARRAY_FILTER_USE_BOTH)) . '/' . count($map));
+        } catch (\Throwable $e) {
+            $this->log('Görsel hazırlama atlandı: ' . $e->getMessage());
+        }
         
         $errors = [];
         $successData = [];

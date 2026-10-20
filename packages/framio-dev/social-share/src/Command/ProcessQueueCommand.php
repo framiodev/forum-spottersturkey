@@ -28,6 +28,11 @@ class ProcessQueueCommand extends Command
     public function handle(): int
     {
         $now = Carbon::now('Europe/Istanbul')->toDateTimeString();
+        // Paylaşımdan 1 saat sonra hazırlanmış tam boy görseller silinir
+        try {
+            resolve(\Framio\SocialShare\Services\SocialImagePreparer::class)->clean();
+        } catch (\Throwable $e) {
+        }
 
         $posts = $this->db->table('framio_social_queue')
             ->where('status', 'pending')
