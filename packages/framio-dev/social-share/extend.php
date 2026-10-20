@@ -22,6 +22,8 @@ $extenders = [
     (new Extend\Routes('api'))
         // 1. Paylaşım (Forum Modalı)
         ->post('/framio/social-share', 'framio.social-share.post', SharePostController::class)
+        // Görsel seçilince tam kalite imzalı kopya (Firebase, geçici)
+        ->post('/framio/social-share/prepare-images', 'framio.social-share.prepare-images', Api\Controller\PrepareImagesController::class)
         
         // 2. Cron Tetikleyici (Sunucu)
         ->get('/framio/social-share/trigger-cron', 'framio.social-share.trigger-cron', TriggerScheduleController::class)

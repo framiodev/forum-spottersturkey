@@ -195,6 +195,8 @@ export default class ShareModal extends Modal {
         
         this.images = this.attrs.images || [];
         this.selectedImages = this.images.map(() => Stream(true));
+        // Görseller seçilir seçilmez tam kalite kopyalar hazırlanmaya başlar
+        setTimeout(() => this.prepareImages(this.images), 0);
         this.activeImageIndex = Stream(0);
         this.previewLightboxIndex = Stream(null);
 
@@ -1694,6 +1696,22 @@ export default class ShareModal extends Modal {
     );
   }
 
+  /**
+   * Seçilen görsellerin tam kalite, imzalı kopyaları sunucuda (Firebase) arka planda hazırlanır.
+   * Pencerede gösterilen adresler değişmez; yalnızca gönderirken hazırlanmış adresler kullanılır.
+   */
+  prepareImages(list) {
+    this.prepared = this.prepared || {};
+    const todo = (list || []).filter((u) => typeof u === 'string' && !this.prepared[u] && !/\/social-temp\//.test(u));
+    if (!todo.length) return this.preparing || Promise.resolve();
+    const p = app
+      .request({ method: 'POST', url: app.forum.attribute('apiUrl') + '/framio/social-share/prepare-images', body: { urls: todo } })
+      .then((res) => Object.assign(this.prepared, (res && res.map) || {}))
+      .catch(() => {});
+    this.preparing = Promise.all([this.preparing, p]);
+    return this.preparing;
+  }
+
   onsubmit(e) {
     e.preventDefault();
     this.loading = true;
@@ -1706,7 +1724,10 @@ export default class ShareModal extends Modal {
     if (finalImages.length === 0) { alert('En az bir görsel seçmelisiniz!'); this.loading = false; return; }
     if (!this.postToFb() && !this.postToIg() && !this.postToThreads()) { alert('Lütfen gönderiyi paylaşmak için en az bir platform seçin.'); this.loading = false; return; }
 
-    app.request({
+    // Tam kalite kopyalar hazır olana kadar beklenir; adresler onlarla değiştirilir
+    const swap = (u) => (this.prepared && this.prepared[u]) || u;
+    const swapItem = (it) => (it && typeof it === 'object' ? Object.assign({}, it, { url: swap(it.url) }) : swap(it));
+    this.prepareImages(finalImages).then(() => app.request({
       method: 'POST',
       url: app.forum.attribute('apiUrl') + '/framio/social-share',
       body: {
@@ -1715,14 +1736,14 @@ export default class ShareModal extends Modal {
         messageThreads: this.postToThreads() ? this.messageThreads() : '',
         // Facebook fotoğraf başına açıklamaları görsel öğesinde taşınır; sunucu
         // Instagram/Threads için yalnızca adresleri kullanır
-        images: this.postToFb() ? this.facebookImages(finalImages) : finalImages,
+        images: (this.postToFb() ? this.facebookImages(finalImages) : finalImages).map(swapItem),
         pageId: account.page_id,
         igId: account.ig_id,
         threadsId: account.threads_id,
         // jeton sunucuda kimliğe göre bulunur
         scheduleTime: this.scheduleTime()
       }
-    }).then((res) => {
+    })).then((res) => {
       this.loading = false;
       app.modal.close();
       if(res.errors && res.errors.length > 0) {
