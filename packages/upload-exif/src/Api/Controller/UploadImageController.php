@@ -225,7 +225,7 @@ class UploadImageController implements RequestHandlerInterface
             $imageModel->original_path = $finalOrigUrl;
             $imageModel->mime_type = $mimeType;
             // Seçilen imza hatırlanır (sosyal medyada orijinal üzerine aynı imza basılır)
-            if ($watermarkFilename && $watermarkFilename !== 'none' && \Illuminate\Support\Facades\Schema::hasColumn('framio_media_images', 'watermark')) {
+            if ($watermarkFilename && $watermarkFilename !== 'none' && $imageModel->getConnection()->getSchemaBuilder()->hasColumn('framio_media_images', 'watermark')) {
                 $imageModel->watermark = $watermarkFilename;
                 $imageModel->watermark_owner = ($actor->isAdmin() && !empty($targetUsername)) ? trim($targetUsername) : $actor->username;
             }
