@@ -45,7 +45,7 @@ class ForumFeedPostsController implements RequestHandlerInterface
                 ->whereNull('posts.hidden_at')
                 ->where(function ($q) {
                     $q->where('posts.content', 'like', '%<img%')
-                      ->orWhere('posts.content', 'like', '%[ulasimarsiv-image%')
+                      ->orWhere('posts.content', 'like', '%[framio-image%')->orWhere('posts.content', 'like', '%-image id=%')
                       ->orWhere('posts.content', 'like', '%http%');
                 })
                 ->orderBy('posts.id', 'desc');

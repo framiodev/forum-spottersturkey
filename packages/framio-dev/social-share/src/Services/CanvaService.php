@@ -22,7 +22,7 @@ class CanvaService
             'timeout' => 30,
             'verify' => false,
             'headers' => [
-                'User-Agent' => 'UlasimArsiv-CanvaApp/1.0'
+                'User-Agent' => \Framio\SocialShare\Services\Brand::get()['hashtag'] . '-CanvaApp/1.0'
             ]
         ]);
     }
@@ -31,7 +31,7 @@ class CanvaService
     {
         if (!$user || $user->isGuest()) return false;
         
-        $teamUsersStr = (string)$this->settings->get('framio-social-share.canva_team_users', 'alikaankaya, ulasimarsiv, spottersturkey');
+        $teamUsersStr = (string)$this->settings->get('framio-social-share.canva_team_users', '');
         $teamUsers = array_filter(array_map('trim', explode(',', strtolower($teamUsersStr))));
         
         $username = strtolower($user->username ?? '');
@@ -186,7 +186,7 @@ class CanvaService
     /**
      * Canva'ya Görsel Yükle (Asset Upload)
      */
-    public function uploadAsset(string $accessToken, string $imageUrl, string $title = 'UlasimArsiv Story Image'): ?array
+    public function uploadAsset(string $accessToken, string $imageUrl, string $title = 'Story Image'): ?array
     {
         try {
             $imgBody = null;
@@ -234,7 +234,7 @@ class CanvaService
                     'timeout' => 20,
                     'verify' => false,
                     'headers' => [
-                        'User-Agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) UlasimArsiv/1.0',
+                        'User-Agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) ' . \Framio\SocialShare\Services\Brand::get()['hashtag'] . '/1.0',
                         'Accept' => 'image/avif,image/webp,image/apng,image/svg+xml,image/*,*/*;q=0.8'
                     ]
                 ]);
@@ -246,7 +246,7 @@ class CanvaService
             }
 
             // Temiz ASCII başlık veya base64
-            $cleanTitle = preg_replace('/[^\x20-\x7E]/', '', $title) ?: 'UlasimArsiv Image';
+            $cleanTitle = preg_replace('/[^\x20-\x7E]/', '', $title) ?: 'Story Image';
             $cleanTitle = mb_substr($cleanTitle, 0, 45) . '.jpg';
             $metadata = [
                 'name_base64' => base64_encode($cleanTitle)
@@ -294,7 +294,7 @@ class CanvaService
     /**
      * Canva'da Fotoğrafı İçeren 9:16 Hikaye Tasarımı Oluştur (1080x1920)
      */
-    public function createStoryDesign(string $accessToken, ?string $assetId = null, string $title = 'Ulaşım Arşiv Hikayesi'): ?array
+    public function createStoryDesign(string $accessToken, ?string $assetId = null, string $title = 'Forum Hikayesi'): ?array
     {
         // 1. Her zaman 1080x1920 (9:16 Dikey Hikaye) Özel Boyut + Asset ID ile oluştur
         try {
@@ -413,7 +413,7 @@ class CanvaService
     /**
      * Canva'da 'Ulaşım Arşiv Forum Hikaye Paylaşımları' klasörünü bul veya oluştur
      */
-    public function getOrCreateStoryFolder(string $accessToken, string $folderName = 'Ulaşım Arşiv Forum Hikaye Paylaşımları'): ?string
+    public function getOrCreateStoryFolder(string $accessToken, string $folderName = 'Forum Hikaye Paylaşımları'): ?string
     {
         try {
             // 1. Önce Root içindeki klasörleri tara

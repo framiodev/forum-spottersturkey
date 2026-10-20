@@ -64,7 +64,7 @@ class CanvaDesignController implements RequestHandlerInterface
         if (!$tokenData || empty($tokenData['access_token'])) {
             return new JsonResponse([
                 'error' => ($accountType === 'brand') 
-                    ? 'Ulaşım Arşiv Marka Canva Pro hesabı henüz bağlanmamış. Lütfen yöneticinizle iletişime geçin.'
+                    ? \Framio\SocialShare\Services\Brand::get()['name'] . ' Marka Canva Pro hesabı henüz bağlanmamış. Lütfen yöneticinizle iletişime geçin.'
                     : 'Şahsi Canva Pro oturumu bulunamadı. Lütfen önce Canva ile Bağlan butonuna tıklayın.'
             ], 401);
         }
@@ -105,7 +105,7 @@ class CanvaDesignController implements RequestHandlerInterface
         // 1. Yeni Hikaye Tasarımı Başlat (Asset Yükle + Tasarım Aç)
         if ($action === 'create') {
             $imageUrl = trim($body['image_url'] ?? '');
-            $title = trim($body['title'] ?? 'Ulaşım Arşiv Hikayesi');
+            $title = trim($body['title'] ?? (\Framio\SocialShare\Services\Brand::get()['name'] . ' Hikayesi'));
 
             if (empty($imageUrl)) {
                 return new JsonResponse(['error' => 'Görsel URL gereklidir.'], 400);
@@ -128,7 +128,7 @@ class CanvaDesignController implements RequestHandlerInterface
 
                 // 3. Tasarımı 'Ulaşım Arşiv Forum Hikaye Paylaşımları' klasörüne taşı
                 try {
-                    $folderId = $this->canva->getOrCreateStoryFolder($accessToken, 'Ulaşım Arşiv Forum Hikaye Paylaşımları');
+                    $folderId = $this->canva->getOrCreateStoryFolder($accessToken, \Framio\SocialShare\Services\Brand::get()['name'] . ' Forum Hikaye Paylaşımları');
                     if ($folderId) {
                         $this->canva->moveDesignToFolder($accessToken, $design['id'], $folderId);
                     }

@@ -32,7 +32,7 @@ class ProxyImageController implements RequestHandlerInterface
                 'timeout' => 15,
                 'verify' => false,
                 'headers' => [
-                    'User-Agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) UlasimArsiv/1.0',
+                    'User-Agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) ' . \Framio\SocialShare\Services\Brand::get()['hashtag'] . '/1.0',
                     'Accept' => 'image/avif,image/webp,image/apng,image/svg+xml,image/*,*/*;q=0.8'
                 ]
             ]);

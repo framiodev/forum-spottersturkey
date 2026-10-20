@@ -154,7 +154,7 @@ class CanvaAuthController implements RequestHandlerInterface
                         }
                     }
 
-                    $displayName = $profile['display_name'] ?? ($authType === 'brand' ? 'Ulaşım Arşiv Marka Hesabı' : 'Canva Kullanıcısı');
+                    $displayName = $profile['display_name'] ?? ($authType === 'brand' ? \Framio\SocialShare\Services\Brand::get()['name'] . ' Marka Hesabı' : 'Canva Kullanıcısı');
 
                     $html = "
                     <!DOCTYPE html>
@@ -285,7 +285,7 @@ class CanvaAuthController implements RequestHandlerInterface
                 'user_connected' => $userConnected,
                 'user_profile' => $userProfile,
                 'brand_connected' => $brandConnected,
-                'brand_profile' => $brandProfile ?: ($brandConnected ? ['display_name' => 'Ulaşım Arşiv (ulasimarsivcom@gmail.com)'] : null),
+                'brand_profile' => $brandProfile ?: ($brandConnected ? ['display_name' => trim(\Framio\SocialShare\Services\Brand::get()['name'] . (\Framio\SocialShare\Services\Brand::get()['email'] ? ' (' . \Framio\SocialShare\Services\Brand::get()['email'] . ')' : ''))] : null),
                 'team_has_keys' => $hasTeamKeys,
                 'brand_has_keys' => $hasBrandKeys,
                 'connected' => $userConnected || $brandConnected

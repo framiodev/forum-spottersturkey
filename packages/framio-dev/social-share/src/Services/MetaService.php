@@ -627,8 +627,8 @@ public function queueStory($userId, $targetId, $imageUrl, $token, $scheduleTime,
         $firebaseKey = base_path('firebase-key.json');
         if ($foundLocalPath && file_exists($firebaseKey) && class_exists('\Google\Cloud\Storage\StorageClient')) {
             try {
-                $storage = new \Google\Cloud\Storage\StorageClient(['keyFilePath' => $firebaseKey]);
-                $bucket = $storage->bucket('ulasim-arsiv-forum-storage.firebasestorage.app');
+                $cloud = resolve(\Framio\UploadExif\Storage\CloudStorage::class);
+                $bucket = $cloud->bucket();
                 $cloudPath = 'assets/stories/' . $filename;
                 
                 $bucket->upload(fopen($foundLocalPath, 'r'), [
@@ -640,7 +640,7 @@ public function queueStory($userId, $targetId, $imageUrl, $token, $scheduleTime,
                     ]
                 ]);
 
-                $publicUrl = 'https://images.ulasimarsiv.com/' . $cloudPath;
+                $publicUrl = $cloud->baseUrl() . '/' . $cloudPath;
                 $this->log("Story görseli Firebase üzerinden public yapıldı: " . $publicUrl);
                 return $publicUrl;
             } catch (\Throwable $e) {
@@ -648,7 +648,7 @@ public function queueStory($userId, $targetId, $imageUrl, $token, $scheduleTime,
             }
         }
 
-        return 'https://forum.ulasimarsiv.com' . $pathOnly;
+        return rtrim(app()->url(), '/') . $pathOnly;
     }
 
     // 7. Doğrudan Instagram Hikaye (Story) Paylaşımı

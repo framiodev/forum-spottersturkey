@@ -4,6 +4,7 @@ import Stream from 'flarum/common/utils/Stream';
 import app from 'flarum/forum/app';
 import WatermarkModal from '../../../../../../upload-exif/js/src/forum/components/WatermarkModal';
 import ForumFeedPickerModal from './ForumFeedPickerModal';
+import { brand, renderCaption } from '../brand';
 import SocialActionChooserModal from './SocialActionChooserModal';
 
 const icon = (iconName, attrs = {}) => {
@@ -13,7 +14,7 @@ const icon = (iconName, attrs = {}) => {
 
 // Türkçe karakter duyarlı akıllı yazar / üye adı biçimlendirici
 const formatAuthorName = (user) => {
-  if (!user) return 'Ulaşım Arşiv';
+  if (!user) return brand().name;
 
   let raw = '';
   // 1. Varsa Flarum Nickname veya displayName kontrolü
@@ -26,10 +27,10 @@ const formatAuthorName = (user) => {
       raw = user.username();
     }
   } catch (e) {
-    raw = 'Ulaşım Arşiv';
+    raw = brand().name;
   }
 
-  if (!raw) return 'Ulaşım Arşiv';
+  if (!raw) return brand().name;
 
   const username = (user.username && typeof user.username === 'function' ? user.username() : raw).toLowerCase().trim();
 
@@ -63,10 +64,10 @@ const formatAuthorName = (user) => {
     'mertefeozmen': 'Mert Efe ÖZMEN',
     'emircandadas': 'Emircan DADAŞ',
     'emircan_dadas': 'Emircan DADAŞ',
-    'ulasimarsiv': 'Ulaşım Arşiv'
   };
 
   const normalized = username.replace(/[^a-z0-9çğıöşü]/g, '');
+  if (normalized === brand().handle) return brand().name;
   if (knownMap[normalized]) {
     return knownMap[normalized];
   }
@@ -316,7 +317,7 @@ export default class ShareModal extends Modal {
             if (cleanModelTag) customTags.push(cleanModelTag);
         }
 
-        customTags.push("UlasimArsiv");
+        customTags.push(brand().hashtag);
 
         // Benzersiz (unique) ve geçerli tagleri filtrele
         let uniqueTags = [];
@@ -332,30 +333,16 @@ export default class ShareModal extends Modal {
             ? `${madde_1} & ${madde_2}`
             : (`${sirket}` + (madde_2 ? ` & ${madde_2}` : ''));
             
-        const moreInfo = 'Daha fazlası için: forum.ulasimarsiv.com | @ulasimarsiv';
+        const moreInfo = brand().more_info;
         
-        const kunye = isFourLineFormat
-            ? `> ${madde_1}\n`
-            + `> ${madde_2}\n`
-            + (guzergah ? `> ${guzergah}\n` : '')
-            + `📌 ${sehirKunye}\n\n`
-            + `📸: ${yazarKunye}\n\n`
-            + `${smartTags}`
-            : `> ${sirket}` + (plaka ? ` | ${plaka}` : '') + `\n`
-            + (madde_2 ? `> ${madde_2}\n` : '')
-            + (guzergah ? `> ${guzergah}\n` : '')
-            + `📌 ${sehirKunye}\n\n`
-            + `📸: ${yazarKunye}\n\n`
-            + `${smartTags}`;
+        // Künye satırları ("> Firma | Plaka", "> Marka Model", "> Güzergâh")
+        const kunye = (isFourLineFormat
+            ? [`> ${madde_1}`, `> ${madde_2}`, guzergah ? `> ${guzergah}` : '']
+            : [`> ${sirket}` + (plaka ? ` | ${plaka}` : ''), madde_2 ? `> ${madde_2}` : '', guzergah ? `> ${guzergah}` : '']
+        ).filter(Boolean).join('\n');
 
-        let messageParts = [header];
-        if (triviaText) {
-            messageParts.push(triviaText);
-        }
-        messageParts.push(moreInfo);
-        messageParts.push(kunye);
-
-        let safeMessage = messageParts.join('\n\n').trim();
+        // Gönderi metni admin'deki şablondan (Sosyal Medya → Marka ve Gönderi Metni)
+        let safeMessage = renderCaption({ header, text: '', trivia: triviaText, more_info: moreInfo, kunye, location: sehirKunye, author: yazarKunye, tags: smartTags });
         
         if (isMertefeozmen) {
             safeMessage = '';
@@ -664,7 +651,7 @@ export default class ShareModal extends Modal {
       const numLabel = groups.length > 1 ? `📷 ${g.nums.join(', ')}\n` : '';
       return numLabel + lines.map((l) => '> ' + l).join('\n') + (last ? `\n📌 ${last}` : '');
     });
-    tags.push('UlasimArsiv');
+    tags.push(brand().hashtag);
     const smartTags = tags.filter((t, i) => t && t.length > 1 && tags.indexOf(t) === i).map((t) => '#' + t).join(' ');
 
     const parts = [heads.join(' • ')];
@@ -1617,7 +1604,7 @@ export default class ShareModal extends Modal {
                         </div>
                     ))}
                     <div style="display: flex; flex-direction: column;">
-                        <span style="font-weight: 700; font-size: 13px; color: #0f172a; line-height: 1.2;">ulasimarsiv</span>
+                        <span style="font-weight: 700; font-size: 13px; color: #0f172a; line-height: 1.2;">{brand().handle}</span>
                         <span style="font-size: 11px; color: #94a3b8;">
                             {this.activePlatformTab() === 'facebook' ? 'Şimdi • 🌐' : (this.activePlatformTab() === 'threads' ? 'Threads' : 'Instagram')}
                         </span>
@@ -1684,7 +1671,7 @@ export default class ShareModal extends Modal {
 
                 {/* Caption Preview */}
                 <div style="padding: 0 14px 14px; font-size: 13px; color: #334155; line-height: 1.45; max-height: 180px; overflow-y: auto; scrollbar-width: thin;">
-                    <span style="font-weight: 700; color: #0f172a; margin-right: 6px;">ulasimarsiv</span>
+                    <span style="font-weight: 700; color: #0f172a; margin-right: 6px;">{brand().handle}</span>
                     <span style="white-space: pre-wrap; word-break: break-word;">
                         {!this.postToFb() && !this.postToIg() && !this.postToThreads() ? "Gövde metni kapalı." : (this.activePlatformTab() === 'facebook' ? this.messageFb() : (this.activePlatformTab() === 'threads' ? this.messageThreads() : this.messageIg()))}
                     </span>

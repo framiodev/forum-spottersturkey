@@ -143,8 +143,8 @@ class StoryArchiveController implements RequestHandlerInterface
         $firebaseKey = $this->paths->base . DIRECTORY_SEPARATOR . 'firebase-key.json';
         if (file_exists($firebaseKey) && class_exists(\Google\Cloud\Storage\StorageClient::class)) {
             try {
-                $storage = new \Google\Cloud\Storage\StorageClient(['keyFilePath' => $firebaseKey]);
-                $bucket = $storage->bucket('ulasim-arsiv-forum-storage.firebasestorage.app');
+                $cloud = resolve(\Framio\UploadExif\Storage\CloudStorage::class);
+                $bucket = $cloud->bucket();
                 $cloudPath = 'assets/stories/' . $filename;
                 $bucket->upload(fopen($localPath, 'r'), [
                     'name' => $cloudPath,
@@ -154,7 +154,7 @@ class StoryArchiveController implements RequestHandlerInterface
                         'contentDisposition' => 'inline; filename="' . $filename . '"'
                     ]
                 ]);
-                return 'https://images.ulasimarsiv.com/' . $cloudPath;
+                return $cloud->baseUrl() . '/' . $cloudPath;
             } catch (\Throwable $e) {
                 // GCS upload failure fallback
             }

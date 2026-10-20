@@ -84,6 +84,12 @@ $extenders = [
         }),
 
     // Ayarlar
+    // Foruma özel marka (ad, @kullanıcı adı, site, etiket, gönderi metni şablonu) — gizli bilgi içermez
+    (new Extend\ApiResource(\Flarum\Api\Resource\ForumResource::class))
+        ->fields(fn () => [
+            \Flarum\Api\Schema\Arr::make('framioSocialBrand')->get(fn () => \Framio\SocialShare\Services\Brand::get()),
+        ]),
+
     (new Extend\Settings())
         ->serializeToForum('framio-social-share.accounts_json', 'framio-social-share.accounts_json', [\Framio\SocialShare\Services\AccountTokens::class, 'publicJson'])
         ->serializeToForum('framio-social-share.default_account_index', 'framio-social-share.default_account_index', 'strval', '0')
@@ -92,7 +98,7 @@ $extenders = [
         ->serializeToForum('framio-social-share.allowed_share_users', 'framio-social-share.allowed_share_users', 'strval', '')
         ->serializeToForum('framio-social-share.allowed_story_users', 'framio-social-share.allowed_story_users', 'strval', '')
         ->serializeToForum('framio-social-share.allowed_story_publish_users', 'framio-social-share.allowed_story_publish_users', 'strval', '')
-        ->serializeToForum('framio-social-share.canva_team_users', 'framio-social-share.canva_team_users', 'strval', 'alikaankaya, ulasimarsiv, spottersturkey')
+        ->serializeToForum('framio-social-share.canva_team_users', 'framio-social-share.canva_team_users', 'strval', '')
         ->serializeToForum('framio-social-share.canva_brand_users', 'framio-social-share.canva_brand_users', 'strval', '*')
         ->serializeToForum('framio-social-share.canva_brand_profile', 'framio-social-share.canva_brand_profile', 'strval', '')
         ->serializeToForum('framio-social-share.canva_template_links', 'framio-social-share.canva_template_links', 'strval', '')

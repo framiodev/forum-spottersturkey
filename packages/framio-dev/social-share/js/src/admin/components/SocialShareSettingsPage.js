@@ -1,4 +1,5 @@
 import ExtensionPage from 'flarum/admin/components/ExtensionPage';
+import { brand, DEFAULT_TEMPLATE } from '../../forum/brand';
 import Button from 'flarum/common/components/Button';
 import saveSettings from 'flarum/admin/utils/saveSettings';
 import app from 'flarum/admin/app';
@@ -73,7 +74,15 @@ export default class SocialShareSettingsPage extends ExtensionPage {
         }
 
         this.defaultAccountIndex = this.setting('framio-social-share.default_account_index')() || "0";
-        this.postTemplate = this.setting('framio-social-share.post_template')() || "📸 {title}\n\n{text}\n\n{smart_tags}";
+        this.postTemplate = this.setting('framio-social-share.post_template')() || "";
+        // Marka ve gönderi metni (boş alanlar forumun başlığı ve adresinden türetilir)
+        this.brandName = this.setting('framio-social-share.brand_name')() || '';
+        this.brandHandle = this.setting('framio-social-share.brand_handle')() || '';
+        this.brandSite = this.setting('framio-social-share.brand_site')() || '';
+        this.brandHashtag = this.setting('framio-social-share.brand_hashtag')() || '';
+        this.brandEmail = this.setting('framio-social-share.brand_email')() || '';
+        this.moreInfo = this.setting('framio-social-share.more_info')() || '';
+        this.captionTemplate = this.setting('framio-social-share.caption_template')() || '';
         this.geminiApiKey = this.setting('framio-social-share.gemini_api_key')() || '';
         this.groqApiKey = this.setting('framio-social-share.groq_api_key')() || '';
         this.openrouterApiKey = this.setting('framio-social-share.openrouter_api_key')() || '';
@@ -87,7 +96,7 @@ export default class SocialShareSettingsPage extends ExtensionPage {
         
         this.canvaClientId = this.setting('framio-social-share.canva_client_id')() || '';
         this.canvaClientSecret = this.setting('framio-social-share.canva_client_secret')() || '';
-        this.canvaTeamUsers = this.setting('framio-social-share.canva_team_users')() || 'alikaankaya, ulasimarsiv, spottersturkey';
+        this.canvaTeamUsers = this.setting('framio-social-share.canva_team_users')() || '';
         
         this.canvaBrandClientId = this.setting('framio-social-share.canva_brand_client_id')() || '';
         this.canvaBrandClientSecret = this.setting('framio-social-share.canva_brand_client_secret')() || '';
@@ -97,9 +106,9 @@ export default class SocialShareSettingsPage extends ExtensionPage {
         this.canvaTemplateLinks = this.setting('framio-social-share.canva_template_links')() || '';
 
         const defaultBgs = [
-            { id: "bg1", name: "Ulaşım Arşiv Koyu Yeşil (Statik)", type: "image", url: "/assets/backgrounds/ua_green.png", textColor: "#ffffff" },
-            { id: "bg2", name: "Ulaşım Arşiv Beyaz (Statik)", type: "image", url: "/assets/backgrounds/ua_white.png", textColor: "#111111" },
-            { id: "bg3", name: "Ulaşım Arşiv Hareketli Yeşil (Video)", type: "video", url: "/assets/backgrounds/ua_video_green.mp4", textColor: "#ffffff" }
+            { id: "bg1", name: (brand().name + " Koyu Yeşil (Statik)"), type: "image", url: "/assets/backgrounds/ua_green.png", textColor: "#ffffff" },
+            { id: "bg2", name: (brand().name + " Beyaz (Statik)"), type: "image", url: "/assets/backgrounds/ua_white.png", textColor: "#111111" },
+            { id: "bg3", name: (brand().name + " Hareketli Yeşil (Video)"), type: "video", url: "/assets/backgrounds/ua_video_green.mp4", textColor: "#ffffff" }
         ];
         const storyBgJson = this.setting('framio-social-share.story_backgrounds_json')();
         try {
@@ -127,7 +136,7 @@ export default class SocialShareSettingsPage extends ExtensionPage {
         this.userNameMap = "";
         this.canvaClientId = "";
         this.canvaClientSecret = "";
-        this.canvaTeamUsers = "alikaankaya, ulasimarsiv, spottersturkey";
+        this.canvaTeamUsers = "";
         this.canvaBrandClientId = "";
         this.canvaBrandClientSecret = "";
         this.canvaBrandUsers = "*";
@@ -567,19 +576,36 @@ export default class SocialShareSettingsPage extends ExtensionPage {
   renderFormatAndAi() {
       return (
           <div className="Framio-Format-Ai-Settings">
-            {/* Şablon Bölümü */}
+            {/* Marka ve Gönderi Metni */}
             <div style={{ background: '#ffffff', border: '1.5px solid #e2e8f0', borderRadius: '12px', padding: '20px', marginBottom: '25px', boxShadow: '0 2px 4px rgba(0,0,0,0.02)' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '12px' }}>
                     <div style={{ width: '36px', height: '36px', borderRadius: '8px', background: '#e0e7ff', color: '#4338ca', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '18px' }}>
                         <i className="fas fa-palette"></i>
                     </div>
                     <div>
-                        <h2 style={{ margin: 0, fontSize: '16px', color: '#0f172a', fontWeight: 'bold' }}>Otomatik Gönderi Şablonu</h2>
-                        <p style={{ margin: '2px 0 0 0', fontSize: '12px', color: '#64748b' }}>Gönderiler paylaşılırken otomatik olarak kullanılacak şablon. Desteklenen değişkenler: <code>{"{title}"}</code>, <code>{"{text}"}</code>, <code>{"{smart_tags}"}</code></p>
+                        <h2 style={{ margin: 0, fontSize: '16px', color: '#0f172a', fontWeight: 'bold' }}>Marka ve Gönderi Metni</h2>
+                        <p style={{ margin: '2px 0 0 0', fontSize: '12px', color: '#64748b' }}>Bu foruma özel ad, kullanıcı adı ve paylaşım metni. Boş bırakılan alanlar forumun başlığı ve adresinden alınır (şu an: <strong>{brand().name}</strong> · @{brand().handle} · {brand().site}).</p>
                     </div>
                 </div>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '10px', marginBottom: '12px' }}>
+                    <input className="FormControl" placeholder={'Marka adı (' + brand().name + ')'} value={this.brandName} oninput={e => { this.brandName = e.target.value; }} />
+                    <input className="FormControl" placeholder={'Instagram kullanıcı adı (' + brand().handle + ')'} value={this.brandHandle} oninput={e => { this.brandHandle = e.target.value; }} />
+                    <input className="FormControl" placeholder={'Site adresi (' + brand().site + ')'} value={this.brandSite} oninput={e => { this.brandSite = e.target.value; }} />
+                    <input className="FormControl" placeholder={'Marka etiketi (#' + brand().hashtag + ')'} value={this.brandHashtag} oninput={e => { this.brandHashtag = e.target.value; }} />
+                    <input className="FormControl" placeholder="Marka Canva hesabı e-postası" value={this.brandEmail} oninput={e => { this.brandEmail = e.target.value; }} />
+                </div>
+                <div className="Form-group">
+                    <label style={{ fontWeight: 'bold', fontSize: '13px' }}>"Daha fazlası için" satırı</label>
+                    <input className="FormControl" placeholder={brand().more_info} value={this.moreInfo} oninput={e => { this.moreInfo = e.target.value; }} />
+                    <div className="helpText" style={{ fontSize: '11px', color: '#64748b' }}>Değişkenler: <code>{'{site}'}</code> <code>{'{handle}'}</code> <code>{'{brand}'}</code>. Boşsa: <code>Daha fazlası için: {'{site}'} | @{'{handle}'}</code></div>
+                </div>
                 <div className="Form-group" style={{ margin: 0 }}>
-                    <textarea className="FormControl" rows="5" value={this.postTemplate} oninput={e => { this.postTemplate = e.target.value; m.redraw(); }} style={{ fontSize: '13px', lineHeight: '1.5' }}></textarea>
+                    <label style={{ fontWeight: 'bold', fontSize: '13px' }}>Gönderi metni şablonu</label>
+                    <textarea className="FormControl" rows="10" placeholder={DEFAULT_TEMPLATE} value={this.captionTemplate} oninput={e => { this.captionTemplate = e.target.value; m.redraw(); }} style={{ fontSize: '13px', lineHeight: '1.5', fontFamily: 'monospace' }}></textarea>
+                    <div className="helpText" style={{ fontSize: '11px', color: '#64748b', lineHeight: '1.6' }}>
+                        Paylaşım penceresindeki "Gönderi Metni" ve yapay zeka metinleri bu şablonla oluşur; boş bırakırsanız varsayılan şablon kullanılır. Değeri boş kalan değişkenin satırı atlanır.<br />
+                        Değişkenler: <code>{'{header}'}</code> başlık (Firma & Model) · <code>{'{text}'}</code> yapay zeka cümlesi · <code>{'{trivia}'}</code> · <code>{'{more_info}'}</code> · <code>{'{kunye}'}</code> künye satırları · <code>{'{location}'}</code> Şehir / 'Yıl · <code>{'{author}'}</code> fotoğrafçı · <code>{'{tags}'}</code> etiketler · <code>{'{brand}'}</code> <code>{'{handle}'}</code> <code>{'{site}'}</code>
+                    </div>
                 </div>
             </div>
 
@@ -715,7 +741,7 @@ export default class SocialShareSettingsPage extends ExtensionPage {
 
                         <div className="Form-group" style={{ margin: 0 }}>
                             <label style={{ fontSize: '12px', fontWeight: '600', color: '#4b5563', marginBottom: '4px', display: 'block' }}>Şablon Başlığı</label>
-                            <input className="FormControl" value={bg.name} oninput={e => { bg.name = e.target.value; m.redraw(); }} placeholder="Örn: Ulaşım Arşiv Otobüs Teması" />
+                            <input className="FormControl" value={bg.name} oninput={e => { bg.name = e.target.value; m.redraw(); }} placeholder={'Örn: ' + brand().name + ' Otobüs Teması'} />
                         </div>
 
                         <div style={{ display: 'flex', gap: '10px' }}>
@@ -1156,8 +1182,8 @@ export default class SocialShareSettingsPage extends ExtensionPage {
                   </div>
                   Sistem iki farklı Canva hesabını bağımsız olarak destekler:
                   <ul style={{ margin: '6px 0 10px 20px', padding: 0 }}>
-                      <li><strong>1. Özel Ekip Hesabı:</strong> Sizin ve eklediğiniz özel kullanıcıların (Siz, ulasimarsiv, spottersturkey) şahsi Canva Pro hesaplarına bağlanır.</li>
-                      <li><strong>2. Markanın Ortak Hesabı (ulasimarsivcom@gmail.com):</strong> Kalan tüm forum üyelerinin paylaşımları için arka planda çalışan ortak kurumsal Canva Pro hesabıdır.</li>
+                      <li><strong>1. Özel Ekip Hesabı:</strong> Sizin ve eklediğiniz özel kullanıcıların (siz ve listedeki kullanıcılar) şahsi Canva Pro hesaplarına bağlanır.</li>
+                      <li><strong>2. Markanın Ortak Hesabı {brand().email ? '(' + brand().email + ')' : ''}:</strong> Kalan tüm forum üyelerinin paylaşımları için arka planda çalışan ortak kurumsal Canva Pro hesabıdır.</li>
                   </ul>
                   <strong>📌 Ortak Redirect URI (Her iki Canva App için de bunu girin):</strong><br />
                   <code style={{ background: '#ffffff', padding: '4px 10px', borderRadius: '6px', border: '1px solid #c4b5fd', display: 'inline-block', marginTop: '5px', fontWeight: '700', color: '#6d28d9' }}>{redirectUri}</code>
@@ -1217,11 +1243,11 @@ export default class SocialShareSettingsPage extends ExtensionPage {
                           className="FormControl" 
                           value={this.canvaTeamUsers} 
                           oninput={e => { this.canvaTeamUsers = e.target.value; m.redraw(); }} 
-                          placeholder="alikaankaya, ulasimarsiv, spottersturkey" 
+                          placeholder="kullaniciadi1, kullaniciadi2" 
                           style={{ fontSize: '13px', borderRadius: '8px', fontWeight: '600' }}
                       />
                       <small style={{ color: '#6b7280', fontSize: '12px', marginTop: '4px', display: 'block' }}>
-                          Kullanıcı adlarını aralarına virgül koyarak yazın (Örn: <code>alikaankaya, ulasimarsiv, spottersturkey</code>). Bu kullanıcılar kendi şahsi Canva Pro hesaplarına bağlanır.
+                          Kullanıcı adlarını aralarına virgül koyarak yazın (Örn: <code>kullaniciadi1, kullaniciadi2</code>). Bu kullanıcılar kendi şahsi Canva Pro hesaplarına bağlanır.
                       </small>
                   </div>
               </div>
@@ -1234,7 +1260,7 @@ export default class SocialShareSettingsPage extends ExtensionPage {
                               <i className="fas fa-building"></i>
                           </div>
                           <div>
-                              <h3 style={{ margin: 0, fontSize: '16px', color: '#111827', fontWeight: '700' }}>2. Hesap: Markanın Ortak Canva Pro Hesabı (ulasimarsivcom@gmail.com)</h3>
+                              <h3 style={{ margin: 0, fontSize: '16px', color: '#111827', fontWeight: '700' }}>2. Hesap: Markanın Ortak Canva Pro Hesabı {brand().email ? '(' + brand().email + ')' : ''}</h3>
                               <span style={{ fontSize: '13px', color: '#6b7280' }}>Kalan tüm forum üyelerinin paylaşımları için otomatik çalışan kurumsal hesap</span>
                           </div>
                       </div>
@@ -1245,7 +1271,7 @@ export default class SocialShareSettingsPage extends ExtensionPage {
 
                   <div className="Form-group" style={{ marginBottom: '14px' }}>
                       <label style={{ fontSize: '13px', fontWeight: '600', color: '#374151', marginBottom: '4px', display: 'block' }}>
-                          Marka Canva Client ID (ulasimarsivcom@gmail.com)
+                          Marka Canva Client ID {brand().email ? '(' + brand().email + ')' : ''}
                       </label>
                       <input 
                           type="text" 
@@ -1306,7 +1332,7 @@ export default class SocialShareSettingsPage extends ExtensionPage {
                               onclick={this.connectBrandCanva.bind(this)}
                               style={{ background: '#10b981', border: 'none', borderRadius: '6px', fontWeight: '700', fontSize: '12px', padding: '8px 14px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '6px' }}
                           >
-                              <i className="fas fa-link"></i> Marka Hesabını Bağla (ulasimarsivcom@gmail.com)
+                              <i className="fas fa-link"></i> Marka Hesabını Bağla {brand().email ? '(' + brand().email + ')' : ''}
                           </button>
                       </div>
                   </div>
@@ -1320,7 +1346,7 @@ export default class SocialShareSettingsPage extends ExtensionPage {
                       </div>
                       <div>
                           <h3 style={{ margin: 0, fontSize: '16px', color: '#111827', fontWeight: '700' }}>Özel Canva Şablon Linkleri (Hızlı Köprü)</h3>
-                          <span style={{ fontSize: '13px', color: '#6b7280' }}>Canva'da önceden hazırladığınız kurumsal Ulaşım Arşiv hikaye şablon linklerini tanımlayın</span>
+                          <span style={{ fontSize: '13px', color: '#6b7280' }}>Canva'da önceden hazırladığınız kurumsal {brand().name} hikaye şablon linklerini tanımlayın</span>
                       </div>
                   </div>
 
@@ -1333,7 +1359,7 @@ export default class SocialShareSettingsPage extends ExtensionPage {
                           rows="4" 
                           value={this.canvaTemplateLinks} 
                           oninput={e => { this.canvaTemplateLinks = e.target.value; m.redraw(); }} 
-                          placeholder="Ulaşım Arşiv Yeşil Hikaye Şablonu | https://www.canva.com/design/...&#10;Minimalist Beyaz Hikaye Şablonu | https://www.canva.com/design/..." 
+                          placeholder="Yeşil Hikaye Şablonu | https://www.canva.com/design/...&#10;Minimalist Beyaz Hikaye Şablonu | https://www.canva.com/design/..." 
                           style={{ fontFamily: 'monospace', fontSize: '13px', borderRadius: '8px' }}
                       ></textarea>
                       <small style={{ color: '#6b7280', fontSize: '12px', marginTop: '6px', display: 'block' }}>
@@ -1353,7 +1379,7 @@ export default class SocialShareSettingsPage extends ExtensionPage {
       const win = window.open('about:blank', 'canva_brand_oauth', `width=${w},height=${h},top=${top},left=${left},scrollbars=yes`);
       if (win && win.document) {
           try {
-              win.document.write('<div style="font-family:system-ui,sans-serif;text-align:center;padding:50px 20px;color:#1e293b;"><div style="font-size:36px;margin-bottom:12px;">🏢</div><h3 style="margin:0 0 8px 0;color:#10b981;">Marka Canva Pro Bağlantısı</h3><p style="font-size:13px;color:#64748b;">ulasimarsivcom@gmail.com bağlantısı başlatılıyor...</p></div>');
+              win.document.write('<div style="font-family:system-ui,sans-serif;text-align:center;padding:50px 20px;color:#1e293b;"><div style="font-size:36px;margin-bottom:12px;">🏢</div><h3 style="margin:0 0 8px 0;color:#10b981;">Marka Canva Pro Bağlantısı</h3><p style="font-size:13px;color:#64748b;">' + (brand().email || 'Marka hesabı') + ' bağlantısı başlatılıyor...</p></div>');
           } catch(de) {}
       }
 
@@ -1749,7 +1775,7 @@ export default class SocialShareSettingsPage extends ExtensionPage {
                               <span style={{ fontSize: '11px', background: '#dbeafe', color: '#1e40af', padding: '2px 8px', borderRadius: '12px', fontWeight: '700' }}>Facebook Page</span>
                           </div>
                           <p style={{ margin: '4px 0 0 0', fontSize: '12px', color: '#64748b', maxWidth: '450px' }}>
-                              {(prof && prof.about) || 'Ulaşım Arşiv Resmi Facebook Sayfası'}
+                              {(prof && prof.about) || (brand().name + ' Resmi Facebook Sayfası')}
                           </p>
                       </div>
                   </div>
@@ -2119,7 +2145,7 @@ export default class SocialShareSettingsPage extends ExtensionPage {
                           <div style={{ display: 'flex', gap: '8px' }}>
                               <input 
                                   className="FormControl" 
-                                  placeholder="https://forum.ulasimarsiv.com/assets/..." 
+                                  placeholder={window.location.origin + '/assets/...'} 
                                   value={this.fbStoryPublishUrl} 
                                   oninput={e => this.fbStoryPublishUrl = e.target.value} 
                                   style={{ height: '38px', borderRadius: '8px', fontSize: '13px', flex: 1 }} 
@@ -2282,7 +2308,7 @@ export default class SocialShareSettingsPage extends ExtensionPage {
                       </div>
                       <div>
                           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                              <h4 style={{ margin: 0, fontSize: '18px', fontWeight: '800', color: '#ffffff' }}>@{(prof && (prof.username || prof.name)) || 'ulasimarsiv'}</h4>
+                              <h4 style={{ margin: 0, fontSize: '18px', fontWeight: '800', color: '#ffffff' }}>@{(prof && (prof.username || prof.name)) || brand().handle}</h4>
                               <span style={{ fontSize: '11px', background: 'rgba(255,255,255,0.2)', color: '#fff', padding: '2px 8px', borderRadius: '12px', fontWeight: '700' }}>Threads Profile</span>
                           </div>
                           <p style={{ margin: '4px 0 0 0', fontSize: '12px', color: '#cbd5e1', maxWidth: '450px' }}>
@@ -2976,7 +3002,7 @@ export default class SocialShareSettingsPage extends ExtensionPage {
                                   <div style={{ display: 'flex', gap: '8px' }}>
                                       <input 
                                           className="FormControl" 
-                                          placeholder="https://forum.ulasimarsiv.com/assets/..." 
+                                          placeholder={window.location.origin + '/assets/...'} 
                                           value={this.storyPublishUrl} 
                                           oninput={e => this.storyPublishUrl = e.target.value} 
                                           style={{ height: '38px', borderRadius: '8px', fontSize: '13px', flex: 1 }} 
@@ -3382,6 +3408,13 @@ export default class SocialShareSettingsPage extends ExtensionPage {
           'framio-social-share.accounts_json': JSON.stringify(this.accounts),
           'framio-social-share.default_account_index': String(this.defaultAccountIndex),
           'framio-social-share.post_template': this.postTemplate,
+          'framio-social-share.brand_name': this.brandName,
+          'framio-social-share.brand_handle': this.brandHandle,
+          'framio-social-share.brand_site': this.brandSite,
+          'framio-social-share.brand_hashtag': this.brandHashtag,
+          'framio-social-share.brand_email': this.brandEmail,
+          'framio-social-share.more_info': this.moreInfo,
+          'framio-social-share.caption_template': this.captionTemplate,
           'framio-social-share.story_backgrounds_json': JSON.stringify(this.storyBackgrounds),
           'framio-social-share.allowed_share_users': this.allowedShareUsers,
           'framio-social-share.allowed_story_users': this.allowedStoryUsers,

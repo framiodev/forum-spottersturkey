@@ -1,97 +1,99 @@
-﻿<?php
+<?php
 
 namespace Framio\SocialShare\Api\Controller;
 
+use Flarum\Http\RequestUtil;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 use Laminas\Diactoros\Response\JsonResponse;
 use GuzzleHttp\Client;
 
+/** Admin: Meta erişim jetonunun geçerliliği ve kalan süresi */
 class CheckTokenHealthController implements RequestHandlerInterface
 {
-    public function handle(ServerRequestInterface ): ResponseInterface
+    public function handle(ServerRequestInterface $request): ResponseInterface
     {
-         = ->getAttribute('actor');
-        if (! || !->isAdmin()) {
+        $actor = RequestUtil::getActor($request);
+        if (!$actor || !$actor->isAdmin()) {
             return new JsonResponse(['error' => 'Yetkisiz erişim.'], 403);
         }
 
-         = ->getParsedBody();
-         = ['token'] ?? '';
+        $body = (array) $request->getParsedBody();
+        $token = $body['token'] ?? '';
 
-        if (empty()) {
+        if (empty($token)) {
             return new JsonResponse(['valid' => false, 'error' => 'Token bulunamadı.'], 400);
         }
 
         try {
-             = new Client(['timeout' => 10]);
+            $client = new Client(['timeout' => 10]);
 
-             = ->get('https://graph.facebook.com/v19.0/debug_token', [
+            $response = $client->get('https://graph.facebook.com/v19.0/debug_token', [
                 'query' => [
-                    'input_token' => ,
-                    'access_token' => ,
-                ]
+                    'input_token' => $token,
+                    'access_token' => $token,
+                ],
             ]);
 
-             = json_decode(->getBody()->getContents(), true);
-             = ['data'] ?? [];
+            $json = json_decode($response->getBody()->getContents(), true);
+            $data = $json['data'] ?? [];
 
-             = ['is_valid'] ?? false;
-             = ['expires_at'] ?? 0;
-             = ['type'] ?? 'PAGE';
-             = ['scopes'] ?? [];
+            $isValid = $data['is_valid'] ?? false;
+            $expiresAt = $data['expires_at'] ?? 0;
+            $type = $data['type'] ?? 'PAGE';
+            $scopes = $data['scopes'] ?? [];
 
-             = ( === 0);
-             = null;
-             = null;
+            $neverExpires = ($expiresAt === 0);
+            $daysLeft = null;
+            $expiryDate = null;
 
-            if (! &&  > 0) {
-                 =  - time();
-                 = max(0, round( / 86400));
-                 = date('d.m.Y H:i', );
+            if (!$neverExpires && $expiresAt > 0) {
+                $secondsLeft = $expiresAt - time();
+                $daysLeft = max(0, round($secondsLeft / 86400));
+                $expiryDate = date('d.m.Y H:i', $expiresAt);
             }
 
             return new JsonResponse([
-                'valid' => ,
-                'type' => ,
-                'is_never_expire' => ,
-                'expires_at' => ,
-                'days_left' => ,
-                'expiry_date' => ,
-                'scopes' => ,
+                'valid' => $isValid,
+                'type' => $type,
+                'is_never_expire' => $neverExpires,
+                'expires_at' => $expiresAt,
+                'days_left' => $daysLeft,
+                'expiry_date' => $expiryDate,
+                'scopes' => $scopes,
             ]);
-        } catch (\Exception ) {
+        } catch (\Exception $e) {
             try {
-                 = new Client(['timeout' => 10]);
-                 = ->get('https://graph.facebook.com/v19.0/me', [
+                $client = new Client(['timeout' => 10]);
+                $response = $client->get('https://graph.facebook.com/v19.0/me', [
                     'query' => [
-                        'access_token' => ,
-                        'fields' => 'id,name'
-                    ]
+                        'access_token' => $token,
+                        'fields' => 'id,name',
+                    ],
                 ]);
-                 = json_decode(->getBody()->getContents(), true);
+                $me = json_decode($response->getBody()->getContents(), true);
 
-                if (!empty(['id'])) {
+                if (!empty($me['id'])) {
                     return new JsonResponse([
                         'valid' => true,
                         'type' => 'PAGE',
                         'is_never_expire' => true,
-                        'account_name' => ['name'] ?? '',
+                        'account_name' => $me['name'] ?? '',
                         'days_left' => null,
-                        'note' => 'Token aktif ve çalışıyor.'
+                        'note' => 'Token aktif ve çalışıyor.',
                     ]);
                 }
-            } catch (\Exception ) {
+            } catch (\Exception $e2) {
                 return new JsonResponse([
                     'valid' => false,
-                    'error' => 'Geçersiz veya süresi dolmuş token: ' . ->getMessage()
+                    'error' => 'Geçersiz veya süresi dolmuş token: ' . $e2->getMessage(),
                 ]);
             }
 
             return new JsonResponse([
                 'valid' => false,
-                'error' => 'Token doğrulanamadı: ' . ->getMessage()
+                'error' => 'Token doğrulanamadı: ' . $e->getMessage(),
             ]);
         }
     }

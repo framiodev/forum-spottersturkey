@@ -132,7 +132,7 @@ class AiCaptionService
         $queries = [];
         if (!empty($cleanPlaka)) {
             $queries[] = "\"{$cleanPlaka}\" otobüs filo geçmişi teslimat";
-            $queries[] = "\"{$cleanPlaka}\" instagram ulasimarsiv spottersturkey busarchive";
+            $queries[] = "\"{$cleanPlaka}\" instagram " . Brand::get()['handle'] . " busarchive";
             if (!empty($sirket)) {
                 $queries[] = "\"{$cleanPlaka}\" \"{$sirket}\" {$model}";
             }
@@ -140,7 +140,7 @@ class AiCaptionService
 
         if (!empty($sirket) && !empty($model)) {
             $queries[] = "\"{$sirket}\" \"{$model}\" teslimat satıldı devir filo yatırımı";
-            $queries[] = "\"{$sirket}\" \"{$model}\" site:ulasimarsiv.com OR site:ulasimplatformu.com OR site:magazinulasim.com";
+            $queries[] = "\"{$sirket}\" \"{$model}\" site:" . Brand::get()['site'] . " OR site:ulasimplatformu.com OR site:magazinulasim.com";
         }
 
         // Vision'dan özel renk veya detay çıktıysa (örn: şampanya, siyah, özel kaplama) sorgulara ekle
@@ -341,7 +341,7 @@ class AiCaptionService
         string $customPrompt,
         string $webContext = ''
     ): array {
-        $systemPrompt = "Sen Türkiye'nin en seçkin otobüs spotter ve arşiv topluluklarının (@ulasimarsiv, @ulasiminfo, @spottersturkey, @spottersturkeycom, @busarchivetr, @busspotter_tr, @guncelulasim, @tr_truckspotter, @_tr.busarchive, @tr.busarchive, @tr.vehiclespotter) üslubuyla profesyonel gönderi metni yazan kıdemli bir arşiv editörüsün.\n\n"
+        $systemPrompt = "Sen Türkiye'nin en seçkin otobüs spotter ve arşiv topluluklarının (@" . Brand::get()['handle'] . ", @ulasiminfo, @spottersturkey, @spottersturkeycom, @busarchivetr, @busspotter_tr, @guncelulasim, @tr_truckspotter, @_tr.busarchive, @tr.busarchive, @tr.vehiclespotter) üslubuyla profesyonel gönderi metni yazan kıdemli bir arşiv editörüsün.\n\n"
             . "ARAŞTIRMA VE BİLGİ DOĞRULUĞU KURALLARI (ÇOK KRİTİK):\n"
             . "1. KESİNLİKLE BİLGİ UYDURMA (HALLUCINATION YASAKTIR): Yalnızca verilen bilgilerde veya 'İnternet ve Filo/Sektör/Hat Bilgileri' bölümünde geçen GERÇEK doğrulanmış bilgileri kullan.\n"
             . "2. Eğer bir aracın geçmişi (örneğin İtalya sipariş iptali veya önceki firma geçişleri) internet araştırmasında ÇIKMAMIŞSA, ASLA böyle bir geçmiş uydurma!\n"
@@ -359,7 +359,7 @@ class AiCaptionService
             . "{Şirket} & {Model}\n\n"
             . "{Yukarıdaki mantıkla oluşturduğun tek parçalı, zengin spotter haber cümlesi}\n\n"
             . "{Eğer Trivia bilgisi verilmişse aynen buraya koy, yoksa bu satırı atla}\n\n"
-            . "Daha fazlası için: forum.ulasimarsiv.com | @ulasimarsiv\n\n"
+            . Brand::get()['more_info'] . "\n\n"
             . "> {Şirket} | {Plaka}\n"
             . "> {Model}\n"
             . "📌 " . ($cleanCity ?: 'Bilinmiyor') . " / {$cleanYear}\n\n"
@@ -494,8 +494,8 @@ class AiCaptionService
             'json' => $payload,
             'headers' => [
                 'Authorization' => 'Bearer ' . $apiKey,
-                'HTTP-Referer' => 'https://forum.ulasimarsiv.com',
-                'X-Title' => 'UlasimArsiv Social Share',
+                'HTTP-Referer' => Brand::get()['url'],
+                'X-Title' => Brand::get()['hashtag'] . ' Social Share',
                 'Content-Type' => 'application/json'
             ]
         ]);
@@ -571,7 +571,7 @@ class AiCaptionService
         if ($tagModel && !in_array("#{$tagModel}", $tags, true)) {
             $tags[] = "#{$tagModel}";
         }
-        $tags[] = '#UlasimArsiv';
+        $tags[] = '#' . Brand::get()['hashtag'];
         $tagString = implode(' ', array_unique($tags));
 
         // Şehir ekini düzgün Türkçe ses uyumuna göre oluştur
@@ -597,12 +597,12 @@ class AiCaptionService
         }
 
         $header = "{$sirket}" . ($model ? " & {$model}" : "");
-        $moreInfo = "Daha fazlası için: forum.ulasimarsiv.com | @ulasimarsiv";
+        $moreInfo = Brand::get()['more_info'];
         
         $kunye = "> " . $sirket . ($plaka ? " | {$plaka}" : "") . "\n"
                . ($model ? "> {$model}\n" : "")
                . "📌 " . ($cleanCity ?: 'Bilinmiyor') . " / {$cleanYear}\n\n"
-               . "📸: " . ($yazar ?: 'Ulaşım Arşiv') . "\n\n"
+               . "📸: " . ($yazar ?: Brand::get()['name']) . "\n\n"
                . $tagString;
 
         $parts = [$header, $aiText];

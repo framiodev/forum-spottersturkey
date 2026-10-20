@@ -93,7 +93,7 @@ class UploadWatermarkedController implements RequestHandlerInterface
                     }
                 } elseif ($watermarkFilename !== 'none') {
                     $userWmPath = $baseWmDir . '/' . $actor->username . '/' . $watermarkFilename;
-                    $defaultWmPath = $baseWmDir . '/ulasimarsiv/' . $watermarkFilename;
+                    $defaultWmPath = $baseWmDir . '/global/' . $watermarkFilename;
                     if (file_exists($userWmPath)) {
                         $validWmPath = $userWmPath;
                     } elseif (file_exists($defaultWmPath)) {

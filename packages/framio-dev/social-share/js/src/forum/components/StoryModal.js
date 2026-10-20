@@ -1,4 +1,5 @@
 import Modal from 'flarum/common/components/Modal';
+import { brand } from '../brand';
 import Button from 'flarum/common/components/Button';
 import app from 'flarum/forum/app';
 import ForumFeedPickerModal from './ForumFeedPickerModal';
@@ -60,7 +61,7 @@ export default class StoryModal extends Modal {
     // Instagram Güvenli Alan Kılavuzu
     this.showSafeZoneGuide = false;
     
-    this.creditsText = "📸 " + (details.authorName || "Ulaşım Arşiv");
+    this.creditsText = "📸 " + (details.authorName || brand().name);
     this.creditsIsBold = false;
     this.creditsIsItalic = false;
     this.creditsSize = 21; // 4. satır ayrı düzenleme için bağımsız punto (varsayılan ortakla eşit)
@@ -98,9 +99,9 @@ export default class StoryModal extends Modal {
     
     this.logos = [
         {id:"none", name:"Logo Ekleme", file:null},
-        {id:"logo1", name:"Ulaşım Arşiv Siyah Logo", file:"ua_black_logo.png"},
-        {id:"logo2", name:"Ulaşım Arşiv Beyaz Logo", file:"ua_white_logo.png"},
-        {id:"logo3", name:"Ulaşım Arşiv Yeşil Logo", file:"ua_green_logo.png"}
+        {id:"logo1", name:(brand().name + " Siyah Logo"), file:"ua_black_logo.png"},
+        {id:"logo2", name:(brand().name + " Beyaz Logo"), file:"ua_white_logo.png"},
+        {id:"logo3", name:(brand().name + " Yeşil Logo"), file:"ua_green_logo.png"}
     ];
     this.selectedLogoId = "none";
     this.logoXOffset = 0;
@@ -444,7 +445,7 @@ export default class StoryModal extends Modal {
 
     // Yazar adı (formatlı)
     const user = post.user();
-    let authorName = "Ulaşım Arşiv";
+    let authorName = brand().name;
     if (user) {
       if (typeof user.displayName === 'function' && user.displayName()) {
         authorName = user.displayName();
@@ -693,7 +694,7 @@ export default class StoryModal extends Modal {
           action: 'create',
           account_type: this.selectedCanvaAccount,
           image_url: finalImageUrl,
-          title: this.customTitle || this.topicTitle || 'Ulaşım Arşiv Hikayesi'
+          title: this.customTitle || this.topicTitle || (brand().name + ' Hikayesi')
         }
       });
 
@@ -856,7 +857,7 @@ export default class StoryModal extends Modal {
 
             {this.activeModeTab === 'canva' && (this.canvaStatus.brand_connected || this.canvaStatus.connected) ? (
                 <div style="display: flex; align-items: center; gap: 6px; font-size: 11px; color: #059669; font-weight: 700; background: #ecfdf5; padding: 4px 10px; border-radius: 20px; border: 1px solid #a7f3d0;">
-                    <span>✨ Canva Pro: <strong>{this.canvaStatus.brand_profile ? this.canvaStatus.brand_profile.display_name : 'Ulaşım Arşiv'}</strong></span>
+                    <span>✨ Canva Pro: <strong>{this.canvaStatus.brand_profile ? this.canvaStatus.brand_profile.display_name : brand().name}</strong></span>
                 </div>
             ) : null}
         </div>
@@ -1094,7 +1095,7 @@ export default class StoryModal extends Modal {
                 <div style="position: absolute; left: -9999px; top: -9999px; width: 1px; height: 1px; overflow: hidden; opacity: 0; pointer-events: none;" aria-hidden="true">
                     {this.availableFonts ? this.availableFonts.map(f => (
                         <span style={`font-family: "${f.name}", sans-serif; font-weight: ${f.hasBold === false ? '400' : '700'};`}>
-                            Ulaşım Arşiv 1234567890
+                            {brand().name} 1234567890
                         </span>
                     )) : null}
                 </div>
@@ -1524,7 +1525,7 @@ export default class StoryModal extends Modal {
                                         style="height: 30px; font-size: 11px; margin-bottom: 4px;" 
                                         value={this.creditsText} 
                                         oninput={e => { this.creditsText = e.target.value; this.updateCanvasSync(); }} 
-                                        placeholder="Örn: 📸 Ulaşım Arşiv" 
+                                        placeholder={'Örn: 📸 ' + brand().name} 
                                     />
                                     {this.photographerPlacement === 'separate_line' ? (
                                         <div>
@@ -1860,7 +1861,7 @@ export default class StoryModal extends Modal {
                                 <div style="width: 26px; height: 26px; border-radius: 50%; background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%); display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
                                     <i className="fab fa-instagram" style="color: #ffffff; font-size: 14px; line-height: 1;"></i>
                                 </div>
-                                <span style="font-weight: 700; font-size: 12px; letter-spacing: -0.1px;">ulasimarsiv</span>
+                                <span style="font-weight: 700; font-size: 12px; letter-spacing: -0.1px;">{brand().handle}</span>
                                 <span style="color: rgba(255,255,255,0.7); font-size: 11px;">2s</span>
                             </div>
                             <div style="color: #fff; display: flex; gap: 12px; font-size: 14px; opacity: 0.9;">
@@ -1923,7 +1924,7 @@ export default class StoryModal extends Modal {
             <div style="background: linear-gradient(135deg, #7d2ae8 0%, #00c4cc 100%); border-radius: 12px; padding: 16px 18px; color: #ffffff; margin-bottom: 18px; box-shadow: 0 4px 14px rgba(125, 42, 232, 0.25);">
                 <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
                     <span style="font-weight: 800; font-size: 14px; display: flex; align-items: center; gap: 6px;">
-                        <i className="fas fa-palette"></i> Ulaşım Arşiv Canva Pro
+                        <i className="fas fa-palette"></i> {brand().name} Canva Pro
                     </span>
                     {this.canvaStatus.brand_connected || this.canvaStatus.connected ? (
                         <span style="background: rgba(255,255,255,0.25); font-size: 11px; font-weight: 700; padding: 3px 8px; border-radius: 20px;">
@@ -1934,19 +1935,19 @@ export default class StoryModal extends Modal {
 
                 {this.canvaStatus.brand_connected || this.canvaStatus.connected ? (
                     <p style="font-size: 12px; margin: 0; opacity: 0.95; line-height: 1.4;">
-                        ✨ Giriş yapmanıza gerek yoktur. Tasarımınız doğrudan <strong>Ulaşım Arşiv</strong> kurumsal Canva hesabında 9:16 dikey formatta açılacaktır.
+                        ✨ Giriş yapmanıza gerek yoktur. Tasarımınız doğrudan <strong>{brand().name}</strong> kurumsal Canva hesabında 9:16 dikey formatta açılacaktır.
                     </p>
                 ) : (
                     <div>
                         <p style="font-size: 12px; margin: 0 0 10px 0; opacity: 0.95; line-height: 1.4;">
-                            Marka hesabı (ulasimarsivcom@gmail.com) henüz foruma bağlanmamış. Lütfen yetkilendirin:
+                            Marka hesabı {brand().email ? '(' + brand().email + ')' : ''} henüz foruma bağlanmamış. Lütfen yetkilendirin:
                         </p>
                         <button 
                             type="button" 
                             onclick={() => this.connectCanva('brand')}
                             style="width: 100%; padding: 8px 14px; background: #ffffff; color: #7d2ae8; border: none; border-radius: 6px; font-weight: 800; font-size: 12px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px;"
                         >
-                            <i className="fas fa-link"></i> Marka Hesabını Bağla (ulasimarsivcom@gmail.com)
+                            <i className="fas fa-link"></i> Marka Hesabını Bağla {brand().email ? '(' + brand().email + ')' : ''}
                         </button>
                     </div>
                 )}
@@ -2120,7 +2121,7 @@ export default class StoryModal extends Modal {
                             <div style="width: 30px; height: 30px; border-radius: 50%; background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%); display: flex; align-items: center; justify-content: center; flex-shrink: 0; box-shadow: 0 2px 6px rgba(0,0,0,0.3);">
                                 <i className="fab fa-instagram" style="color: #ffffff; font-size: 16px; line-height: 1; display: flex; align-items: center; justify-content: center;"></i>
                             </div>
-                            <span style="font-weight: 700; font-size: 13px; letter-spacing: -0.2px;">ulasimarsiv</span>
+                            <span style="font-weight: 700; font-size: 13px; letter-spacing: -0.2px;">{brand().handle}</span>
                             <span style="color: rgba(255,255,255,0.7); font-size: 13px;">2s</span>
                         </div>
                         <div style="color: #fff; display: flex; gap: 15px; font-size: 16px;">
@@ -2166,7 +2167,7 @@ export default class StoryModal extends Modal {
                 <div style="margin-top: 14px; display: flex; flex-wrap: wrap; gap: 10px; z-index: 20; align-items: center;">
                     <a 
                         href={this.canvaExportedImage} 
-                        download={this.canvaExportedFormat === 'mp4' ? "ulasimarsiv_canva_story.mp4" : "ulasimarsiv_canva_story.png"}
+                        download={this.canvaExportedFormat === 'mp4' ? brand().handle + "_canva_story.mp4" : brand().handle + "_canva_story.png"}
                         target="_blank"
                         style={`padding: 8px 16px; background: ${this.canvaExportedFormat === 'mp4' ? 'linear-gradient(135deg, #7d2ae8 0%, #2563eb 100%)' : '#10b981'}; color: #fff; font-weight: 700; font-size: 12px; border-radius: 8px; text-decoration: none; display: flex; align-items: center; gap: 6px; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);`}
                     >
@@ -3338,7 +3339,7 @@ export default class StoryModal extends Modal {
                 const blob = new Blob(recordedChunks, { type: mimeType });
                 const url = URL.createObjectURL(blob);
                 const a = document.createElement("a");
-                a.download = "ulasimarsiv_hikaye_video_" + Date.now() + "." + ext;
+                a.download = brand().handle + "_hikaye_video_" + Date.now() + "." + ext;
                 a.href = url;
                 document.body.appendChild(a);
                 a.click();
@@ -3374,7 +3375,7 @@ export default class StoryModal extends Modal {
         try {
             const dataUrl = canvas.toDataURL("image/jpeg", 0.95);
             const a = document.createElement("a");
-            a.download = "ulasimarsiv_hikaye_" + Date.now() + ".jpg";
+            a.download = brand().handle + "_hikaye_" + Date.now() + ".jpg";
             a.href = dataUrl;
             document.body.appendChild(a);
             a.click();
