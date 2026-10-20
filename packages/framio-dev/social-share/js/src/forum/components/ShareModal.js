@@ -2,7 +2,7 @@ import Modal from 'flarum/common/components/Modal';
 import Button from 'flarum/common/components/Button';
 import Stream from 'flarum/common/utils/Stream';
 import app from 'flarum/forum/app';
-import WatermarkModal from '../../../../../../spottersturkey/upload-exif/js/src/forum/components/WatermarkModal';
+import WatermarkModal from '../../../../../../upload-exif/js/src/forum/components/WatermarkModal';
 import ForumFeedPickerModal from './ForumFeedPickerModal';
 import SocialActionChooserModal from './SocialActionChooserModal';
 
@@ -1719,8 +1719,7 @@ export default class ShareModal extends Modal {
         pageId: account.page_id,
         igId: account.ig_id,
         threadsId: account.threads_id,
-        token: account.token,
-        threadsToken: account.threads_token || account.token,
+        // jeton sunucuda kimliğe göre bulunur
         scheduleTime: this.scheduleTime()
       }
     }).then((res) => {

@@ -3507,7 +3507,6 @@ export default class StoryModal extends Modal {
             const igBody = {
                 action: 'post_story',
                 ig_id: acc.ig_id,
-                token: acc.token,
                 image_url: finalImageUrl
             };
             if (scheduledAt) igBody.scheduled_at = scheduledAt;
@@ -3531,7 +3530,6 @@ export default class StoryModal extends Modal {
             const fbBody = {
                 action: 'fb_post_story',
                 page_id: pageId,
-                token: acc.token,
                 image_url: finalImageUrl
             };
             if (scheduledAt) fbBody.scheduled_at = scheduledAt;

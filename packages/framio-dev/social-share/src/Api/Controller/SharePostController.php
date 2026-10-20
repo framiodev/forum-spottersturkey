@@ -53,8 +53,10 @@ class SharePostController implements RequestHandlerInterface
         $pageId = $data['pageId'] ?? null;
         $igId = $data['igId'] ?? null;
         $threadsId = $data['threadsId'] ?? null;
-        $token = $data['token'] ?? null;
-        $threadsToken = $data['threadsToken'] ?? $token;
+        // Jetonlar artık foruma gönderilmiyor; kimliklere göre sunucuda bulunur
+        $account = \Framio\SocialShare\Services\AccountTokens::find($this->settings, $pageId, $igId, $threadsId);
+        $token = $account['token'] ?? ($actor->isAdmin() ? ($data['token'] ?? null) : null);
+        $threadsToken = ($account['threads_token'] ?? null) ?: ($account ? $token : ($actor->isAdmin() ? ($data['threadsToken'] ?? $token) : $token));
         $scheduleTime = $data['scheduleTime'] ?? null;
 
         // 3. Doğrulama

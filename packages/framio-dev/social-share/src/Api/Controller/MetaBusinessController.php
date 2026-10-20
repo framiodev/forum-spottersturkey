@@ -59,6 +59,20 @@ class MetaBusinessController implements RequestHandlerInterface
         $threadsToken = $params['threads_token'] ?? $body['threads_token'] ?? null;
         $token = $params['token'] ?? $body['token'] ?? null;
 
+        // Forumdan gelen isteklerde jeton yok; kimliğe göre ayarlardan bulunur.
+        // Admin dışı kullanıcıların gönderdiği jetonlar dikkate alınmaz.
+        if (!$actor->isAdmin()) {
+            $token = null;
+            $threadsToken = null;
+        }
+        if (!$token || !$threadsToken) {
+            $account = \Framio\SocialShare\Services\AccountTokens::find($this->settings, $pageId, $igId, $threadsId);
+            if ($account) {
+                $token = $token ?: ($account['token'] ?? null);
+                $threadsToken = $threadsToken ?: ($account['threads_token'] ?? null);
+            }
+        }
+
         if (!$token && !$threadsToken) {
             return new JsonResponse([
                 'success' => false,
