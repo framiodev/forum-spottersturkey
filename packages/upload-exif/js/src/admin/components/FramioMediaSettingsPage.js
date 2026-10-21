@@ -6,6 +6,7 @@ import Switch from 'flarum/common/components/Switch';
 import app from 'flarum/admin/app';
 import Stream from 'flarum/common/utils/Stream';
 import ModelRefsManager from './ModelRefsManager';
+import AutoCollectManager from './AutoCollectManager';
 
 export const AI_PROVIDERS = {
   gemini: {
@@ -2894,6 +2895,18 @@ export default class FramioMediaSettingsPage extends ExtensionPage {
               {this.canonPlan.count > this.canonPlan.items.length ? <div className="helpText">… ve {this.canonPlan.count - this.canonPlan.items.length} gönderi daha.</div> : null}
             </div>
           ) : null}
+        </div>
+
+        {/* 5c. Otomatik koleksiyon başlıkları */}
+        <div style={{ background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '8px', padding: '16px', marginBottom: '20px' }}>
+          <h4 style={{ margin: '0 0 6px 0', fontSize: '14px', fontWeight: 'bold', color: '#334155' }}>
+            <i className="fas fa-object-group" style={{ marginRight: '6px', color: 'var(--primary-color)' }}></i>
+            Otomatik Koleksiyon Başlıkları
+          </h4>
+          <div className="helpText" style={{ fontSize: '11px', color: '#888', marginBottom: '10px' }}>
+            Fotoğraflı gönderiler yapay zekâya kuralın sorusuyla sorulur; "evet" (yüksek/orta güven) alanlar hedef başlığa da eklenir (gönderi sahibi adına, kaynak bağlantısıyla). Yeni gönderiler kural kaydedildikten sonra otomatik işlenir; geçmiş gönderiler "Geçmişi tara" ile önizlenip onayla eklenir. Her soru bir yapay zekâ çağrısıdır.
+          </div>
+          <AutoCollectManager setting={this.setting('framio-upload-exif.auto_collect_rules', '[]')} />
         </div>
 
         {/* 6. Model referans görselleri */}

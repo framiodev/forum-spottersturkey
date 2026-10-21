@@ -101,6 +101,8 @@ return [
         // Yazım standardını eski gönderilere uygulama (admin)
         ->get('/framio-media/canon', 'framio.media.canon', \Framio\UploadExif\Api\Controller\CanonRulesController::class)
         ->post('/framio-media/canon', 'framio.media.canon.apply', \Framio\UploadExif\Api\Controller\CanonRulesController::class)
+        // Otomatik koleksiyon başlıkları: geçmiş gönderileri tara / ekle (admin)
+        ->post('/framio-media/auto-collect', 'framio.media.auto_collect', \Framio\UploadExif\Api\Controller\AutoCollectController::class)
         // Framio AI model referans görselleri (admin)
         ->get('/framio-media/ai-refs', 'framio.media.ai_refs', \Framio\UploadExif\Api\Controller\ModelRefsController::class)
         ->post('/framio-media/ai-refs', 'framio.media.ai_refs.save', \Framio\UploadExif\Api\Controller\ModelRefsController::class)
@@ -292,6 +294,9 @@ return [
         // Yeni görsellerin küçültülmüş boyutları ziyaretçiden önce üretilir
         ->command(\Framio\UploadExif\Console\WarmSizesCommand::class)
         ->schedule(\Framio\UploadExif\Console\WarmSizesCommand::class, fn ($e) => $e->everyTenMinutes()->withoutOverlapping())
+        // Otomatik koleksiyon başlıkları: yeni fotoğraflı gönderiler
+        ->command(\Framio\UploadExif\Console\AutoCollectCommand::class)
+        ->schedule(\Framio\UploadExif\Console\AutoCollectCommand::class, fn ($e) => $e->everyTenMinutes()->withoutOverlapping())
         ->command(\Framio\UploadExif\Console\FillDimensionsCommand::class)
         ->command(\Framio\UploadExif\Console\VisionIndexCommand::class)
         ->command(\Framio\UploadExif\Console\AssistantRunCommand::class)
