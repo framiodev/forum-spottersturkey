@@ -45,7 +45,7 @@ export default class PostInsightsModal extends Modal {
     const d = this.data;
     if (!d) return <div className="Modal-body"><LoadingIndicator /></div>;
     if (d.error) return <div className="Modal-body">İstatistikler alınamadı.</div>;
-    if (!d.unique) return <div className="Modal-body PI-empty"><i className="fas fa-chart-line"></i><p>Bu gönderi için henüz veri yok. Sayım bu özellik açıldıktan sonra başlar.</p></div>;
+    if (!d.unique) return <div className="Modal-body PI-empty"><i className="fas fa-chart-line"></i><p>Bu gönderi için henüz veri yok. Sayım 21 Ekim 2026 güncellemesiyle başladı; daha önceki ziyaretler kayıtlı değil.</p></div>;
 
     const dayMax = Math.max(1, ...d.daily.map((x) => x.n));
     const imgMax = Math.max(1, ...d.images.map((x) => x.ms));
@@ -104,7 +104,7 @@ export default class PostInsightsModal extends Modal {
         <h4>Konum</h4>
         {d.locations.some((l) => l.country)
           ? this.bars(d.locations.map((l) => ({ label: l.country ? (l.city ? l.city + ', ' : '') + l.country : 'Bilinmiyor', value: l.n, text: l.n + ' kişi' })), locMax)
-          : <div className="PI-sub">Konum bilgisi gelmiyor (Cloudflare konum başlıkları kapalı olabilir).</div>}
+          : <div className="PI-sub">Konum bilgisi yok: sunucuya ziyaretçi konumu iletilmiyor.</div>}
 
         {d.since ? <div className="PI-foot">Veri başlangıcı: {new Date(d.since.replace(' ', 'T')).toLocaleDateString('tr-TR')} · Yöneticilerin gezintisi ve botlar sayılmaz.</div> : null}
       </div>
