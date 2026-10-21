@@ -170,6 +170,8 @@ class AnalyzeMediaAiController implements RequestHandlerInterface
                 . "}\n"
             );
         }
+        // Kategoriye özel model ipuçları (admin): otobüs, şehir içi, kamyon/çekici için ayrı ayırt edici özellikler
+        $cues = $this->modelCues($tagSlug ?: null);
         $detailed = $this->location->detailed($discussionId ? (int) $discussionId : null, $tagSlug ?: null);
         $knownPlaces = $this->location->knownPlaces();
         $locationRule = $this->locationRule($detailed, $knownPlaces);
@@ -177,7 +179,7 @@ class AnalyzeMediaAiController implements RequestHandlerInterface
         $promptText .= "\nKURALLAR:\n"
             . "- Firma: en büyük logo/kelimeyi değil, gövdede yazan resmî adın tamamını yaz (ör. logoda 'Anka' yazsa da yan yüzde 'Adıyaman Anka Turizm' yazıyorsa onu yaz). Şehir ön eki, 'Turizm', 'Seyahat', 'Taşımacılık' gibi kelimeleri atma.\n"
             . "- Model: ön/arka maske, far, cam ve yan pencere dizilimine bakarak tam modeli belirle (ör. Mercedes-Benz Travego 15 SHD, Tourismo 16 RHD, Setra S 516 HD, MAN Lion's Coach, Temsa Maraton). Aşağıdaki forum listesinde uygun bir ad varsa birebir o yazımı kullan.\n"
-            . self::MODEL_CUES
+            . $cues
             . $locationRule
             . "- JSON'a ayrıca \"subject\" ekle: fotoğrafın ANA konusu araçsa \"vehicle\"; ön planda insan/portre varsa \"person\"; araç içi \"interior\"; yakın detay (logo, far, jant) \"detail\"; diğer \"other\".\n"
             . "- Okuyamadığın ya da emin olmadığın her alanı boş string bırak; uydurma.\n"
@@ -237,7 +239,7 @@ class AnalyzeMediaAiController implements RequestHandlerInterface
             if ($geoCandidate) {
                 $jobs['vehicle'] = $this->vision->askAsync($client, ['deep' => $this->vision->accurate()] + $geoCandidate, $b64, $mime,
                     "Bu fotoğraftaki ana aracın markasını ve TAM modelini belirle. Ön/arka maske, far biçimi, ızgara, tavan çizgisi ve yan pencere dizilimine dikkatle bak.\n"
-                    . self::MODEL_CUES . $modelList
+                    . $cues . $modelList
                     . "Yalnızca şu JSON'u döndür: {\"brand\": \"\", \"model\": \"marka adı olmadan\", \"confidence\": \"high|medium|low\"}. SADECE JSON.", $this->vision->accurate() ? 30.0 : 4.5);
             }
 
@@ -401,6 +403,43 @@ class AnalyzeMediaAiController implements RequestHandlerInterface
     public const MODEL_CUES = "- Sık karıştırılanlar: Mercedes-Benz Tourismo (2017 sonrası, ör. Tourismo 16 RHD): köşeli, ince uzun farlar; siyah, geniş ön panelde büyük yıldız; düz tavan çizgisi; ön camın üstü düz. "
         . "Mercedes-Benz Travego (ör. Travego 15 SHD): yuvarlak hatlı, oval/damla farlar; krom çerçeveli ızgara; SHD'de arka bölüm belirgin yüksek (yükseltilmiş tavan); yan camların alt çizgisi arkaya doğru yükselir. "
         . "Emin değilsen modeli boş bırak.\n";
+
+    /**
+     * Admin ayarı "framio-upload-exif.ai_model_cues": bölümler halinde ipuçları.
+     *   [*]                         → tüm kategoriler (ayrı bölümü olmayanlar)
+     *   [sehirici-otobusler, ...]   → bu etiketler ve alt etiketleri
+     * Ayar boşsa yerleşik (otobüs) ipuçları kullanılır.
+     */
+    protected function modelCues(?string $tagSlug): string
+    {
+        $raw = trim((string) $this->settings->get('framio-upload-exif.ai_model_cues'));
+        if ($raw === '') return self::MODEL_CUES;
+
+        $slugs = [];
+        if ($tagSlug) {
+            $slugs[] = $tagSlug;
+            $tag = \Flarum\Tags\Tag::where('slug', $tagSlug)->first();
+            if ($tag && $tag->parent_id && ($p = \Flarum\Tags\Tag::find($tag->parent_id))) $slugs[] = $p->slug;
+        }
+        $sections = [];
+        $current = null;
+        foreach (preg_split('/\r?\n/', $raw) as $line) {
+            if (preg_match('/^\s*\[(.+)\]\s*$/', $line, $m)) {
+                $current = array_map('trim', explode(',', $m[1]));
+                $sections[] = ['keys' => $current, 'text' => ''];
+                continue;
+            }
+            if (!$sections) $sections[] = ['keys' => ['*'], 'text' => ''];
+            $sections[count($sections) - 1]['text'] .= $line . "\n";
+        }
+        $default = '';
+        foreach ($sections as $s) {
+            if (array_intersect($s['keys'], $slugs)) return '- ' . trim($s['text']) . "\nEmin değilsen modeli boş bırak.\n";
+            if (in_array('*', $s['keys'], true)) $default = trim($s['text']);
+        }
+
+        return $default !== '' ? '- ' . $default . "\nEmin değilsen modeli boş bırak.\n" : "- Emin değilsen modeli boş bırak.\n";
+    }
 
     protected function geoCandidate(array $candidates): ?array
     {

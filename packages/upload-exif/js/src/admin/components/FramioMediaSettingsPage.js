@@ -2809,6 +2809,26 @@ export default class FramioMediaSettingsPage extends ExtensionPage {
           </div>
         </div>
 
+        {/* 5. Kategoriye özel model ipuçları */}
+        <div style={{ background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '8px', padding: '16px', marginBottom: '20px' }}>
+          <h4 style={{ margin: '0 0 10px 0', fontSize: '14px', fontWeight: 'bold', color: '#334155' }}>
+            <i className="fas fa-bus" style={{ marginRight: '6px', color: 'var(--primary-color)' }}></i>
+            Marka / Model Ayırt Etme İpuçları (kategoriye göre)
+          </h4>
+          <div className="Form-group">
+            <textarea
+              className="FormControl"
+              rows="10"
+              placeholder={'[*]\nSetra S 415 HD (12 m, 3 aks değil) ile S 416 HDH (13 m, yüksek tavan) ...\n\n[sehirici-otobusler]\nMercedes-Benz Conecto ile Citaro: ...\n\n[cekici-tir-ve-kamyonlar]\nScania R ile S serisi: ...'}
+              bidi={this.setting('framio-upload-exif.ai_model_cues', '')}
+              style={{ fontFamily: 'monospace', fontSize: '12px' }}
+            ></textarea>
+            <div className="helpText" style={{ fontSize: '11px', color: '#888' }}>
+              Framio AI'nın sık karıştırdığı modelleri nasıl ayırt edeceğini yazın. [etiket-adresi] satırıyla bölüm açılır (virgülle birden çok etiket; alt etiketler üst etiketin bölümünü kullanır), [*] diğer tüm kategoriler içindir. Boş bırakılırsa yerleşik otobüs ipuçları kullanılır.
+            </div>
+          </div>
+        </div>
+
         <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '20px' }}>
           <Button
             type="button"

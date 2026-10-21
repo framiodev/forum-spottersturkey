@@ -131,10 +131,13 @@ function shrinkForAi(file, max = 768) {
  * süren/biten istek paylaşılır. Böylece künye penceresi açıldığında sonuç çoğunlukla hazırdır.
  */
 const aiRequests = new WeakMap();
-export function prefetchAi(file) {
+const aiDeep = new WeakMap();
+export function prefetchAi(file, deep = false) {
+  const store = deep ? aiDeep : aiRequests;
   if (!file || app.forum.attribute('framio-upload-exif.ai_enabled') === '0') return null;
-  if (aiRequests.has(file)) return aiRequests.get(file);
+  if (store.has(file)) return store.get(file);
   const formData = new FormData();
+  if (deep) formData.append('deep', '1');
   const discussion = app.current && typeof app.current.get === 'function' ? app.current.get('discussion') : null;
   if (discussion && discussion.id) {
     formData.append('discussion_id', discussion.id());
@@ -149,8 +152,10 @@ export function prefetchAi(file) {
     if (file.name) formData.append('file_name', file.name);
     return app.request({ method: 'POST', url: app.forum.attribute('apiUrl') + '/framio-media/analyze-ai', body: formData });
   });
-  p.catch(() => aiRequests.delete(file));
-  aiRequests.set(file, p);
+  p.catch(() => store.delete(file));
+  store.set(file, p);
+  // Hızlı okuma ile birlikte doğruluk kipi de başlar (güçlü model marka/modeli doğrular)
+  if (!deep) prefetchAi(file, true);
   return p;
 }
 
@@ -583,6 +588,7 @@ export default class AttributeModal extends Modal {
               Object.keys(this.dynamicFields).forEach((k) => { const v = String(this.dynamicFields[k] || '').trim(); if (v && dynBefore[k] !== this.dynamicFields[k]) this.aiFilledVals.add(v); });
 
               this.aiStatus(filledCount ? 'success' : 'idle');
+              this.refineWithDeep(this.files[0]);
               const hist = res.history || [];
               const locLabel = { gps: 'çekim yeri fotoğrafın GPS bilgisinden', session: 'çekim yeri aynı çekim oturumundaki fotoğraflarınızdan', similar: 'çekim yeri forumdaki %' + Math.round(((res.similar && res.similar.score) || 0) * 100) + ' benzeyen fotoğraftan', ai_guess: 'çekim yeri tahmin, lütfen kontrol edin' }[res.location_source];
               const source = (locLabel ? ' · ' + locLabel : '') + (hist.includes('plate') ? ' (plaka forumda kayıtlı, bilgiler o künyeden)' : '');
@@ -597,6 +603,33 @@ export default class AttributeModal extends Modal {
           this.aiMessage('');
           m.redraw();
       });
+  }
+
+  /**
+   * Doğruluk kipindeki yanıt gelince marka/model (kullanıcı değiştirmediyse) düzeltilir; kutu yine
+   * Framio AI işaretiyle kalır ve sonuç çubuğunda belirtilir.
+   */
+  refineWithDeep(file) {
+      const p = prefetchAi(file, true);
+      if (!p) return;
+      const before = { brand: this.brand(), model: this.model() };
+      p.then((res) => {
+          const ai = res && res.data;
+          if (!ai || !ai.model || this.files[0] !== file) return;
+          if (this.brand() !== before.brand || this.model() !== before.model) return; // kullanıcı elle değiştirdi
+          const brands = this.getSortedBrands ? this.getSortedBrands() : [];
+          const brand = ai.brand ? (brands.length ? bestMatch(ai.brand, brands) : ai.brand) : this.brand();
+          if (brand && brand !== this.brand()) { this.brand(brand); this.updateModels(brand); }
+          const options = (this.availableModels || []).map((x) => x.model);
+          const model = options.length ? bestMatch(String(ai.model).replace(new RegExp('^' + escapeRe(this.brand()) + '\\s+', 'i'), ''), options) : ai.model;
+          if (!model || (model === before.model && brand === before.brand)) return;
+          this.model(model);
+          (this.aiFilledVals = this.aiFilledVals || new Set()).add(String(model).trim());
+          if (brand) this.aiFilledVals.add(String(brand).trim());
+          this.aiMessage('Marka/model doğrulama modeliyle düzeltildi: ' + (brand ? brand + ' ' : '') + model + '. Kontrol etmeyi unutmayın.');
+          this.aiBarVisible = true;
+          m.redraw();
+      }).catch(() => {});
   }
 
   // === ÇOKLU AÇIKLAMA YARDIMCILARI ===
