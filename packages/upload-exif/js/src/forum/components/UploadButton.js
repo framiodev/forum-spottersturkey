@@ -94,7 +94,7 @@ export default class UploadButton extends Component {
 
     app.modal.show(WatermarkModal, {
         files: fileList,
-        onconfirm: (result) => this.startUpload(fileList, result)
+        onconfirm: (result) => this.startUpload(result.files || fileList, result)
     });
     e.target.value = '';
   }
@@ -206,7 +206,7 @@ export default class UploadButton extends Component {
           if (goBack) {
               app.modal.show(WatermarkModal, {
                   files: session.fileList,
-                  onconfirm: (res) => this.startUpload(session.fileList, res)
+                  onconfirm: (res) => this.startUpload(res.files || session.fileList, res)
               });
           }
       });

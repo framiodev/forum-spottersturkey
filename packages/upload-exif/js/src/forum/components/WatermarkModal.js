@@ -5,6 +5,55 @@ import Avatar from 'flarum/common/components/Avatar';
 import app from 'flarum/forum/app';
 import { fileUrl, fileDims, warm, drawThumb, drawPreview } from '../utils/previewCache';
 
+// --- Otomatik imza seçimi: imzanın görselde kapladığı alanla arka planın kontrastı ---
+const imgCache = {};
+function loadImg(src) {
+    if (!imgCache[src]) {
+        imgCache[src] = new Promise((resolve, reject) => {
+            const im = new Image();
+            im.onload = () => resolve(im);
+            im.onerror = reject;
+            im.src = src;
+        });
+    }
+    return imgCache[src];
+}
+const lum = (r, g, b) => 0.2126 * r + 0.7152 * g + 0.0722 * b;
+
+/**
+ * Sunucudaki gibi imza görselin genişliğine ölçeklenip alta yerleştirilir; imzanın dolu pikselleri altındaki
+ * arka plan ile karşılaştırılır. Puan = ortalama parlaklık farkı / (1 + arka plan dokusu): düz ve zıt renkli
+ * zeminde yüksek, kalabalık (araç detayı, yazı) ve benzer renkli zeminde düşük.
+ */
+async function legibility(photoUrl, wmUrl) {
+    const [ph, wm] = await Promise.all([loadImg(photoUrl), loadImg(wmUrl)]);
+    const Wd = 360;
+    const Hd = Math.max(1, Math.round((ph.naturalHeight * Wd) / ph.naturalWidth));
+    const wh = Math.max(1, Math.min(Hd, Math.round((wm.naturalHeight * Wd) / wm.naturalWidth)));
+    const c1 = document.createElement('canvas');
+    c1.width = Wd; c1.height = wh;
+    const x1 = c1.getContext('2d', { willReadFrequently: true });
+    // Fotoğrafın imzanın düşeceği alt şeridi
+    x1.drawImage(ph, 0, ((Hd - wh) / Hd) * ph.naturalHeight, ph.naturalWidth, (wh / Hd) * ph.naturalHeight, 0, 0, Wd, wh);
+    const bg = x1.getImageData(0, 0, Wd, wh).data;
+    const c2 = document.createElement('canvas');
+    c2.width = Wd; c2.height = wh;
+    const x2 = c2.getContext('2d', { willReadFrequently: true });
+    x2.drawImage(wm, 0, 0, Wd, wh);
+    const fg = x2.getImageData(0, 0, Wd, wh).data;
+    let n = 0, diff = 0, sum = 0, sum2 = 0;
+    for (let i = 0; i < fg.length; i += 4) {
+        if (fg[i + 3] < 110) continue;
+        const lb = lum(bg[i], bg[i + 1], bg[i + 2]);
+        diff += Math.abs(lum(fg[i], fg[i + 1], fg[i + 2]) - lb);
+        sum += lb; sum2 += lb * lb; n++;
+    }
+    if (!n) return 0;
+    const mean = sum / n;
+    const sd = Math.sqrt(Math.max(0, sum2 / n - mean * mean));
+    return (diff / n) / (1 + sd / 40);
+}
+
 // --- CSS STİLLERİ (Image 2 Birebir Tasarımı) ---
 const CUSTOM_CSS = `
     /* Modal Genel ve Başlık */
@@ -331,6 +380,21 @@ const CUSTOM_CSS = `
         background: rgba(0,0,0,.6);
     }
     .WmPick-thumbBadge.is-signed { background: var(--primary-color); }
+    /* Sıralama: numara, oklar, sürükle-bırak (animasyonlu) */
+    .WmPick-orderHint { display: flex; align-items: center; gap: 6px; margin: 2px 0 6px; font-size: 12px; font-weight: 600; color: var(--muted-color); }
+    .WmPick-orderHint i { color: var(--primary-color); }
+    .WatermarkModal .WmPick-thumb { width: 96px; height: 72px; cursor: grab; transition: transform .25s ease, box-shadow .2s, opacity .2s; }
+    .WatermarkModal .WmPick-thumb:active { cursor: grabbing; }
+    .WatermarkModal .WmPick-thumb.is-dragging { opacity: .35; transform: scale(.94); }
+    .WatermarkModal .WmPick-thumb.is-over { box-shadow: -4px 0 0 0 var(--primary-color); }
+    .WmPick-num { position: absolute; top: 3px; left: 3px; min-width: 20px; height: 20px; padding: 0 5px; border-radius: 10px; background: rgba(0,0,0,.65); color: #fff; font-size: 11px; font-weight: 800; line-height: 20px; text-align: center; }
+    .WmPick-thumb.is-active .WmPick-num { background: var(--primary-color); }
+    .WmPick-move { position: absolute; top: 50%; transform: translateY(-50%); width: 22px; height: 22px; border: 0; border-radius: 50%; background: rgba(0,0,0,.6); color: #fff; font-size: 10px; display: flex; align-items: center; justify-content: center; cursor: pointer; opacity: 0; transition: opacity .15s, background .15s; }
+    .WmPick-move.is-left { left: 3px; } .WmPick-move.is-right { right: 3px; }
+    .WmPick-thumb:hover .WmPick-move, .WmPick-thumb:focus-within .WmPick-move, .WmPick-thumb.is-active .WmPick-move { opacity: 1; }
+    .WmPick-move:hover { background: var(--primary-color); }
+    @media (hover: none) { .WmPick-move { opacity: 1; } }
+    .WmPick-auto { display: flex; align-items: center; gap: 6px; margin-bottom: 8px; padding: 7px 10px; border-radius: 8px; font-size: 12px; font-weight: 600; color: var(--primary-color); background: color-mix(in srgb, var(--primary-color) 8%, transparent); }
 
     /* ===== Arşiv düzeni (sade) ===== */
     .WmA-file { width: 100%; margin-bottom: 18px; }
@@ -529,6 +593,9 @@ export default class WatermarkModal extends Modal {
     this.onconfirm = this.attrs.onconfirm; 
     
     this.selections = new Array(this.files.length).fill('none');
+    this.touched = new Array(this.files.length).fill(false); // kullanıcı kendisi seçtiyse otomatik seçim dokunmaz
+    this.autoPicked = new Array(this.files.length).fill(false);
+    this.files.forEach((f) => { if (!f.__wmKey) f.__wmKey = 'f' + Math.random().toString(36).slice(2); });
     
     // Dosya adları
     this.customFileNames = this.files.map(f => {
@@ -687,9 +754,13 @@ export default class WatermarkModal extends Modal {
           return lastDotIndex !== -1 ? name.substring(0, lastDotIndex) : name;
       });
 
-      this.files = this.files.concat(newFiles);
-      this.selections = this.selections.concat(newSelections);
-      this.customFileNames = this.customFileNames.concat(newCustomFileNames);
+      newFiles.forEach((f) => { f.__wmKey = 'f' + Math.random().toString(36).slice(2); });
+      this.files.push(...newFiles);
+      this.selections.push(...newSelections);
+      this.customFileNames.push(...newCustomFileNames);
+      this.touched.push(...newFiles.map(() => this.applyAll));
+      this.autoPicked.push(...newFiles.map(() => false));
+      if (!this.applyAll) this.autoSelectAll();
       
       e.target.value = '';
       m.redraw();
@@ -703,6 +774,8 @@ export default class WatermarkModal extends Modal {
       this.files.splice(this.activeIndex, 1);
       this.selections.splice(this.activeIndex, 1);
       this.customFileNames.splice(this.activeIndex, 1);
+      this.touched.splice(this.activeIndex, 1);
+      this.autoPicked.splice(this.activeIndex, 1);
       
       if (this.activeIndex >= this.files.length) {
           this.activeIndex = this.files.length - 1;
@@ -857,16 +930,28 @@ export default class WatermarkModal extends Modal {
             {this.renderMetaStrip()}
 
             {/* KÜÇÜK RESİM ŞERİDİ: her fotoğrafın imza durumu + fotoğraf ekleme */}
+            {this.files.length > 1 ? (
+                <div className="WmPick-orderHint"><i className="fas fa-arrows-alt-h"></i> Fotoğrafları sürükleyerek ya da oklarla sıralayın; mesajda bu sırayla yer alırlar.</div>
+            ) : null}
             <div className="WmPick-strip">
                     <div className="WmPick-thumbs">{this.files.map((f, i) => {
                         const sel = this.selections[i];
                         const signed = sel && sel !== 'none';
+                        if (!f.__wmKey) f.__wmKey = 'f' + Math.random().toString(36).slice(2);
                         return (
-                            <button
-                                key={'thumb-' + i}
-                                type="button"
-                                className={'WmPick-thumb' + (i === this.activeIndex ? ' is-active' : '')}
-                                title={f.name}
+                            <div
+                                key={f.__wmKey}
+                                data-key={f.__wmKey}
+                                role="button"
+                                tabindex="0"
+                                draggable="true"
+                                className={'WmPick-thumb' + (i === this.activeIndex ? ' is-active' : '') + (this.dragFrom === i ? ' is-dragging' : '') + (this.dragOver === i && this.dragFrom !== i ? ' is-over' : '')}
+                                title={f.name + ' — sürükleyerek sıralayın'}
+                                ondragstart={(e) => { this.dragFrom = i; try { e.dataTransfer.effectAllowed = 'move'; e.dataTransfer.setData('text/plain', String(i)); } catch (x) {} }}
+                                ondragover={(e) => { e.preventDefault(); if (this.dragOver !== i) { this.dragOver = i; m.redraw(); } else e.redraw = false; }}
+                                ondragleave={(e) => { e.redraw = false; }}
+                                ondrop={(e) => { e.preventDefault(); const from = this.dragFrom; this.dragFrom = null; this.dragOver = null; if (from != null) this.moveFile(from, i); }}
+                                ondragend={() => { this.dragFrom = null; this.dragOver = null; }}
                                 onclick={() => {
                                     if (i === this.activeIndex) return;
                                     this.slideDirection(i > this.activeIndex ? 'slide-in-right' : 'slide-in-left');
@@ -875,10 +960,17 @@ export default class WatermarkModal extends Modal {
                                 }}
                             >
                                 <canvas className="WmPick-thumbCanvas" oncreate={(v) => drawThumb(v.dom, f)} onupdate={(v) => drawThumb(v.dom, f)}></canvas>
+                                <span className="WmPick-num">{i + 1}</span>
+                                {i > 0 ? (
+                                    <button type="button" className="WmPick-move is-left" title="Sola taşı" aria-label="Sola taşı" onclick={(e) => { e.stopPropagation(); this.moveFile(i, i - 1); }}><i className="fas fa-chevron-left"></i></button>
+                                ) : null}
+                                {i < this.files.length - 1 ? (
+                                    <button type="button" className="WmPick-move is-right" title="Sağa taşı" aria-label="Sağa taşı" onclick={(e) => { e.stopPropagation(); this.moveFile(i, i + 1); }}><i className="fas fa-chevron-right"></i></button>
+                                ) : null}
                                 <span className={'WmPick-thumbBadge' + (signed ? ' is-signed' : '')}>
                                     <i className={signed ? 'fas fa-signature' : 'fas fa-ban'}></i>
                                 </span>
-                            </button>
+                            </div>
                         );
                     })}</div>
                     <label className="WmPick-addTile" title="Fotoğraf ekle">
@@ -966,8 +1058,14 @@ export default class WatermarkModal extends Modal {
       const personalId = personal ? (personal.id || personal.filename) : null;
       const canUpload = allowPersonal && !personal && this.allowPersonalUpload && !this.postAsUser;
 
+      const autoNote = this.autoBusy && !this.autoPicked[this.activeIndex] && !this.touched[this.activeIndex]
+          ? <div className="WmPick-auto"><i className="fas fa-circle-notch fa-spin"></i> Bu fotoğrafa en uygun imza seçiliyor…</div>
+          : this.autoPicked[this.activeIndex]
+          ? <div className="WmPick-auto"><i className="fas fa-magic"></i> {personal ? 'İmzanız otomatik seçildi.' : 'Bu fotoğrafta en iyi görünen imza (renk ve konum) otomatik seçildi.'} Değiştirebilirsiniz.</div>
+          : null;
       return (
         <div className="WmA-options">
+            {autoNote}
             {personal ? this.renderBigOption(personalId, 'fas fa-signature', this.postAsUser ? '@' + this.postAsUser.username() + ' imzası' : 'Kişisel İmza', current === personalId, 'is-primary') : null}
 
             {canUpload ? (
@@ -1282,6 +1380,7 @@ export default class WatermarkModal extends Modal {
             if (last !== 'none') this.selections = this.selections.map((sel) => (sel === 'none' ? last : sel));
         }
         this.normalizeSelection(this.activeIndex);
+        this.autoSelectAll();
         m.redraw();
     }).catch(err => {
         console.error(err);
@@ -1304,9 +1403,88 @@ export default class WatermarkModal extends Modal {
   }
 
   selectWatermark(id) {
-      if (this.applyAll) this.selections.fill(id);
-      else this.selections[this.activeIndex] = id;
+      if (this.applyAll) { this.selections.fill(id); this.touched.fill(true); this.autoPicked.fill(false); }
+      else { this.selections[this.activeIndex] = id; this.touched[this.activeIndex] = true; this.autoPicked[this.activeIndex] = false; }
       m.redraw();
+  }
+
+  /** Dosyanın yönü (yatay / dikey / kare) */
+  async orientationOf(file) {
+      const { width: w, height: h } = await fileDims(file);
+      if (!w || !h) return 'landscape';
+      const ratioDiff = Math.abs(w - h) / Math.max(w, h);
+      if (ratioDiff < 0.04 || w === h) return 'square';
+      return w < h ? 'portrait' : 'landscape';
+  }
+
+  /**
+   * Otomatik imza:
+   *  - Kişisel imzası olan kullanıcı (Ulaşım Arşiv mantığı): fotoğrafın yönüne uygun kişisel imza seçili gelir.
+   *  - Site şablonları (Spotters: renk × konum): her fotoğraf için imzanın düşeceği alanda en okunaklı olan seçilir.
+   * Kullanıcının elle seçtiği fotoğraflara dokunulmaz.
+   */
+  async autoSelectAll() {
+      const mode = this.watermarkMode();
+      const personalAll = mode !== 'templates' ? (this.postAsUser ? this.targetPersonal || [] : this.watermarksList.filter((w) => w.is_personal)) : [];
+      const templatesAll = mode !== 'personal' ? this.watermarksList.filter((w) => !w.is_personal) : [];
+      if (!personalAll.length && !templatesAll.length) return;
+      this.autoBusy = true;
+      m.redraw();
+      for (let i = 0; i < this.files.length; i++) {
+          const file = this.files[i];
+          if (this.touched[i] || (this.selections[i] && this.selections[i] !== 'none')) continue;
+          try {
+              const o = await this.orientationOf(file);
+              let pick = null;
+              if (personalAll.length) {
+                  pick = personalAll.find((w) => {
+                      const wo = (w.orientation || w.type || '').toLowerCase();
+                      const fn = (w.filename || '').toLowerCase();
+                      return o === 'portrait' ? wo === 'portrait' || fn.includes('dikey') : wo === 'landscape' || !fn.includes('dikey');
+                  }) || personalAll[0];
+              } else {
+                  const cands = templatesAll.filter((w) => { const wo = (w.orientation || w.type || 'landscape').toLowerCase(); return wo === 'all' || wo === o; });
+                  let best = -1;
+                  for (const w of cands) {
+                      const url = this.watermarkUrlFor(w.id || w.filename);
+                      if (!url) continue;
+                      const score = await legibility(fileUrl(file), url).catch(() => -1);
+                      if (score > best) { best = score; pick = w; }
+                  }
+              }
+              if (pick && !this.touched[i] && this.files[i] === file) {
+                  this.selections[i] = pick.id || pick.filename;
+                  this.autoPicked[i] = true;
+                  m.redraw();
+              }
+          } catch (e) {}
+      }
+      this.autoBusy = false;
+      m.redraw();
+  }
+
+  /** Sıralama: fotoğrafı ve ona bağlı imza, ad, durum bilgilerini birlikte taşır (animasyonlu) */
+  moveFile(from, to) {
+      if (from === to || to < 0 || to >= this.files.length) return;
+      const strip = document.querySelector('.WatermarkModal .WmPick-thumbs');
+      const before = {};
+      if (strip) strip.querySelectorAll('[data-key]').forEach((el) => (before[el.dataset.key] = el.getBoundingClientRect().left));
+      const activeFile = this.files[this.activeIndex];
+      [this.files, this.selections, this.customFileNames, this.touched, this.autoPicked].forEach((arr) => {
+          const [x] = arr.splice(from, 1);
+          arr.splice(to, 0, x);
+      });
+      this.activeIndex = Math.max(0, this.files.indexOf(activeFile));
+      m.redraw.sync();
+      if (strip) {
+          strip.querySelectorAll('[data-key]').forEach((el) => {
+              const dx = (before[el.dataset.key] || 0) - el.getBoundingClientRect().left;
+              if (!dx) return;
+              el.style.transition = 'none';
+              el.style.transform = `translateX(${dx}px)`;
+              requestAnimationFrame(() => { el.style.transition = ''; el.style.transform = ''; });
+          });
+      }
   }
 
   /** Son seçilen imza (bu tarayıcıda hatırlanır); artık yoksa imzasız */
@@ -1323,6 +1501,8 @@ export default class WatermarkModal extends Modal {
   confirmUpload() {
     this.isConfirmed = true;
     if (this.onconfirm) this.onconfirm({
+        // Bu pencerede sıralanan / eklenen fotoğraflar yükleme sırasını belirler
+        files: this.files,
         selections: this.selections,
         // Künye önizlemesi imzayı aynı adresten gösterir (imza listesindeki gerçek adres)
         watermarkUrls: this.selections.map((id) => this.watermarkUrlFor(id)),

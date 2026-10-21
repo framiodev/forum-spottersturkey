@@ -238,7 +238,34 @@ export default class AttributeModal extends Modal {
     this.loadTaxonomy();
 
     // Otomatik Framio AI Analizi (Anlık Doldurma)
-    this.aiStatus = Stream('idle'); // 'idle' | 'analyzing' | 'success' | 'error'
+    // Framio AI durumu + yükleme çubuğu gibi ilerleyen yüzde (yanıt akışı olmadığından süreye göre; yanıt gelince %100)
+    const aiState = Stream('idle'); // 'idle' | 'analyzing' | 'success' | 'error'
+    this.aiPct = 0;
+    this.aiBarVisible = false;
+    this.aiStatus = (v) => {
+        if (v === undefined) return aiState();
+        const prev = aiState();
+        aiState(v);
+        if (v === 'analyzing') {
+            clearInterval(this.aiTimer);
+            clearTimeout(this.aiHide);
+            this.aiPct = 0;
+            this.aiBarVisible = true;
+            const t0 = Date.now();
+            this.aiTimer = setInterval(() => {
+                this.aiPct = Math.min(95, Math.round(95 * (1 - Math.exp(-(Date.now() - t0) / 2200))));
+                m.redraw();
+            }, 120);
+        } else if (prev === 'analyzing') {
+            clearInterval(this.aiTimer);
+            this.aiPct = 100;
+            // Sonuç kısa süre çubukta kalır; doldurulan alan yoksa kendiliğinden kapanır
+            this.aiHide = setTimeout(() => { if (aiState() !== 'analyzing') { this.aiBarVisible = v === 'success' || v === 'error'; m.redraw(); } }, v === 'idle' ? 1200 : 0);
+        } else if (v === 'idle') {
+            this.aiBarVisible = false;
+        }
+        return v;
+    };
     this.aiMessage = Stream('');
     if (app.forum.attribute('framio-upload-exif.ai_enabled') !== '0' && this.files.length > 0) {
         this.autoAnalyzeWithAi();
@@ -1110,13 +1137,16 @@ export default class AttributeModal extends Modal {
             <div className={'Attribute-Right' + (this.aiStatus() === 'analyzing' ? ' is-ai-checking' : '')} style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
 
                 {/* ANLIK AI ANALİZ DURUMU */}
-                {this.aiStatus() === 'success' && (
-                    <div className="FramioAI-Status">
-                        <span className="FramioAI-Badge"><i className="fas fa-magic"></i> Framio AI</span>
-                        <span className="FramioAI-Text">{this.aiMessage()}</span>
-                        <i className="fas fa-times FramioAI-Close" onclick={() => this.aiStatus('idle')}></i>
+                {this.aiBarVisible ? (
+                    <div className={'FramioAI-Bar is-' + this.aiStatus()} role="status" aria-live="polite">
+                        <div className="FramioAI-BarFill" style={{ width: this.aiPct + '%' }}></div>
+                        <span className="FramioAI-BarText">
+                            <i className="fas fa-magic"></i> Framio AI %{this.aiPct}
+                            {this.aiStatus() === 'analyzing' ? ' · künye bilgileri dolduruluyor…' : this.aiMessage() ? ' · ' + this.aiMessage() : ''}
+                        </span>
+                        {this.aiStatus() !== 'analyzing' ? <i className="fas fa-times FramioAI-Close" onclick={() => { this.aiBarVisible = false; }}></i> : null}
                     </div>
-                )}
+                ) : null}
 
                 {/* DİNAMİK KATEGORİ ŞEMASI FORMU */}
                 {this.categorySchema && this.categorySchema.fields_config ? (
