@@ -2843,6 +2843,59 @@ export default class FramioMediaSettingsPage extends ExtensionPage {
         </div>
 
 
+        {/* 5b. Yazım standardı */}
+        <div style={{ background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '8px', padding: '16px', marginBottom: '20px' }}>
+          <h4 style={{ margin: '0 0 10px 0', fontSize: '14px', fontWeight: 'bold', color: '#334155' }}>
+            <i className="fas fa-spell-check" style={{ marginRight: '6px', color: 'var(--primary-color)' }}></i>
+            Yazım Standardı (firma / marka / model / yer)
+          </h4>
+          <textarea
+            className="FormControl"
+            rows="8"
+            placeholder={'firma: Varan Turizm, Varan Tur => Varan\nfirma: İzmir => İzmir Turizm\nmarka: Mercedes, Mercedes Benz => Mercedes-Benz\nyer: AŞTİ, Ankara Otogarı => Ankara AŞTİ'}
+            bidi={this.setting('framio-upload-exif.canon_rules', '')}
+            style={{ fontFamily: 'monospace', fontSize: '12px' }}
+          ></textarea>
+          <div className="helpText" style={{ fontSize: '11px', color: '#888', margin: '4px 0 10px' }}>
+            Her satır: alan: yanlış yazım, yanlış yazım =&gt; doğru yazım. Değerin tamamı eşleşir (büyük/küçük harf, Türkçe karakter ve noktalama farkı yok sayılır). Framio AI'nın bulduğu ve kullanıcının yazdığı künye onayda bu hâle getirilir. Önce kaydedin, sonra eski gönderilere uygulayabilirsiniz.
+          </div>
+          <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+            <Button className="Button" icon="fas fa-search" loading={this.canonBusy} onclick={() => {
+              this.canonBusy = true;
+              app.request({ method: 'GET', url: app.forum.attribute('apiUrl') + '/framio-media/canon' })
+                .then((r) => { this.canonPlan = r; }).finally(() => { this.canonBusy = false; m.redraw(); });
+            }}>Eski gönderileri önizle</Button>
+            {this.canonPlan && this.canonPlan.count ? (
+              <Button className="Button Button--primary" icon="fas fa-check" loading={this.canonBusy} onclick={() => {
+                if (!confirm(this.canonPlan.count + ' gönderinin künyesi düzeltilecek. Eski hâlleri yedeklenir, geri alınabilir. Devam edilsin mi?')) return;
+                this.canonBusy = true;
+                app.request({ method: 'POST', url: app.forum.attribute('apiUrl') + '/framio-media/canon' })
+                  .then((r) => { app.alerts.show({ type: 'success' }, r.applied + ' gönderi düzeltildi.'); this.canonPlan = null; })
+                  .finally(() => { this.canonBusy = false; m.redraw(); });
+              }}>Uygula ({this.canonPlan.count})</Button>
+            ) : null}
+            <Button className="Button" icon="fas fa-undo" loading={this.canonBusy} onclick={() => {
+              if (!confirm('Son uygulama geri alınsın mı?')) return;
+              this.canonBusy = true;
+              app.request({ method: 'POST', url: app.forum.attribute('apiUrl') + '/framio-media/canon', params: { undo: 1 } })
+                .then((r) => app.alerts.show({ type: 'success' }, r.undone + ' gönderi eski hâline döndü.'))
+                .finally(() => { this.canonBusy = false; m.redraw(); });
+            }}>Son uygulamayı geri al</Button>
+          </div>
+          {this.canonPlan ? (
+            <div style={{ marginTop: '10px', maxHeight: '260px', overflow: 'auto', fontSize: '12px' }}>
+              {this.canonPlan.count === 0 ? <div className="helpText">Değişecek gönderi yok (kuralları kaydettiğinizden emin olun).</div> : null}
+              {this.canonPlan.items.map((it) => (
+                <div style={{ padding: '6px 0', borderBottom: '1px solid #e2e8f0' }}>
+                  <b>#{it.post_id}</b> {it.discussion}<br />
+                  <span style={{ color: '#b91c1c', textDecoration: 'line-through' }}>{it.before}</span> → <span style={{ color: '#15803d' }}>{it.after}</span>
+                </div>
+              ))}
+              {this.canonPlan.count > this.canonPlan.items.length ? <div className="helpText">… ve {this.canonPlan.count - this.canonPlan.items.length} gönderi daha.</div> : null}
+            </div>
+          ) : null}
+        </div>
+
         {/* 6. Model referans görselleri */}
         <div style={{ background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '8px', padding: '16px', marginBottom: '20px' }}>
           <h4 style={{ margin: '0 0 6px 0', fontSize: '14px', fontWeight: 'bold', color: '#334155' }}>

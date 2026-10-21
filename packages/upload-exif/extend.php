@@ -98,6 +98,9 @@ return [
         ->post('/framio-media/analyze-ai', 'framio.media.analyze_ai', AnalyzeMediaAiController::class)
         // Framio AI marka/model yazım eşlemesi: künye onayında düzeltme öğrenilir
         ->post('/framio-media/ai-alias', 'framio.media.ai_alias', \Framio\UploadExif\Api\Controller\AiAliasController::class)
+        // Yazım standardını eski gönderilere uygulama (admin)
+        ->get('/framio-media/canon', 'framio.media.canon', \Framio\UploadExif\Api\Controller\CanonRulesController::class)
+        ->post('/framio-media/canon', 'framio.media.canon.apply', \Framio\UploadExif\Api\Controller\CanonRulesController::class)
         // Framio AI model referans görselleri (admin)
         ->get('/framio-media/ai-refs', 'framio.media.ai_refs', \Framio\UploadExif\Api\Controller\ModelRefsController::class)
         ->post('/framio-media/ai-refs', 'framio.media.ai_refs.save', \Framio\UploadExif\Api\Controller\ModelRefsController::class)
@@ -130,6 +133,8 @@ return [
         ->serializeToForum('framio-upload-exif.enable_carousel_mode', 'framio-upload-exif.enable_carousel_mode')
         ->serializeToForum('framio-upload-exif.watermark_mode', 'framio-upload-exif.watermark_mode') // 'templates' | 'personal' | 'hybrid'
         ->serializeToForum('framio-upload-exif.ai_enabled', 'framio-upload-exif.ai_enabled')
+        // Yazım standardı: künye onaylanırken kullanıcının yazdığı da tek tip hale gelir
+        ->serializeToForum('framio-upload-exif.canon_rules', 'framio-upload-exif.canon_rules')
         ->serializeToForum('framio-upload-exif.ai_provider', 'framio-upload-exif.ai_provider')
         ->serializeToForum('framio-upload-exif.ai_model', 'framio-upload-exif.ai_model')
         ->serializeToForum('framio-upload-exif.allow_user_ai_keys', 'framio-upload-exif.allow_user_ai_keys')

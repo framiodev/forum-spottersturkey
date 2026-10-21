@@ -385,6 +385,9 @@ class AnalyzeMediaAiController implements RequestHandlerInterface
             return new JsonResponse(['success' => false, 'error' => 'Yapay zeka yanıt veremedi: ' . $result['error']]);
         }
 
+        // Yazım standardı (admin): "Varan Turizm" → "Varan", "İzmir" → "İzmir Turizm" gibi
+        $data = resolve(\Framio\UploadExif\Ai\CanonRules::class)->applyData($data);
+
         return new JsonResponse([
             'success' => true,
             'history' => $notes,

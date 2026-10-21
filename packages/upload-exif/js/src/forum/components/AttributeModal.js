@@ -159,6 +159,31 @@ export function prefetchAi(file, deep = false) {
   return p;
 }
 
+/** Yazım standardı (admin): alan → (katlanmış varyant → doğru yazım); sunucudaki CanonRules ile aynı kurallar */
+const FOLD_MAP = { 'ç': 'c', 'ğ': 'g', 'ı': 'i', 'ö': 'o', 'ş': 's', 'ü': 'u', 'i̇': 'i' };
+const foldName = (s) => String(s || '').toLocaleLowerCase('tr').replace(/i̇|[çğıöşü]/g, (c) => FOLD_MAP[c] || c).replace(/[^a-z0-9]+/g, ' ').trim();
+let canonCache = null;
+function canonRules() {
+  const raw = app.forum.attribute('framio-upload-exif.canon_rules') || '';
+  if (canonCache && canonCache.raw === raw) return canonCache.map;
+  const fields = { firma: 'company', marka: 'brand', model: 'model', yer: 'location' };
+  const map = {};
+  raw.split(/\r?\n/).forEach((line) => {
+    const m = line.match(/^\s*(firma|marka|model|yer)\s*:\s*(.+?)\s*=>\s*(.+?)\s*$/i);
+    if (!m) return;
+    const f = fields[m[1].toLowerCase()];
+    m[2].split(',').forEach((v) => { const k = foldName(v); if (k && k !== foldName(m[3])) (map[f] = map[f] || {})[k] = m[3].trim(); });
+  });
+  canonCache = { raw, map };
+  return map;
+}
+export function canonValue(field, value) {
+  const v = String(value || '').trim();
+  if (!v) return value;
+  const r = canonRules()[field];
+  return (r && r[foldName(v)]) || value;
+}
+
 export default class AttributeModal extends Modal {
   oninit(vnode) {
     super.oninit(vnode);
@@ -1948,13 +1973,22 @@ export default class AttributeModal extends Modal {
       return lines.length > 0 ? lines.join('\n') : null;
   }
 
+  /** Onayda yazım standardı: kullanıcının yazdığı "Varan Turizm" de "Varan" olur (çoklu açıklamada her fotoğraf) */
+  applyCanon() {
+      const fix = (s) => { ['company', 'brand', 'model', 'location'].forEach((f) => { if (s[f]) s[f] = canonValue(f, s[f]); }); return s; };
+      (this.photoData || []).forEach((s) => s && fix(s));
+      const cur = fix(this.snapshot());
+      this.company(cur.company || ''); this.brand(cur.brand || ''); this.model(cur.model || ''); this.location(cur.location || '');
+  }
+
   submit(e) {
     e.preventDefault();
     this.isConfirmed = true;
+    this.learnAlias();
+    this.applyCanon();
     // Birden Çok Açıklama: fotoğraf sırasıyla künye dizisi; Tek: tek künye metni
     const resultText = this.isMulti() ? this.buildPerPhotoTexts(true) : this.wrapKunye(this.prepareData(), true);
     const customData = this.customPayload();
-    this.learnAlias();
     if (this.onsubmitCallback) this.onsubmitCallback(resultText, customData);
     app.modal.close();
   }
