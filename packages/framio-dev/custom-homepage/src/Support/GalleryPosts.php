@@ -44,11 +44,14 @@ class GalleryPosts
     {
         $build = fn () => $this->build($actor, $request, $tag, $popular);
 
-        if (!$actor->isGuest() || $this->cacheMinutes() === 0) {
+        if ($this->cacheMinutes() === 0) {
             return $build();
         }
 
-        $key = self::CACHE_PREFIX . md5(json_encode([$tag, $popular, $this->limit()]));
+        // Oturum açmış kullanıcılar da önbellekten: aynı gruplardaki herkes aynı mesajları görür
+        // (görünürlük grup izinlerine bağlıdır), bu yüzden anahtar grup kümesine göre ayrılır.
+        $audience = $actor->isGuest() ? 'guest' : ($actor->isAdmin() ? 'admin' : 'g' . implode('.', $actor->groups->pluck('id')->sort()->values()->all()));
+        $key = self::CACHE_PREFIX . md5(json_encode([$tag, $popular, $this->limit(), $audience]));
         $keys = (array) $this->cache->get(self::CACHE_INDEX, []);
         if (!in_array($key, $keys, true)) {
             $keys[] = $key;
