@@ -303,7 +303,7 @@ class UploadImageController implements RequestHandlerInterface
         if ($validWmPath) {
             $wm = $manager->read($validWmPath);
             $targetWidth = $image->width();
-            $wm->scaleDown(width: $targetWidth);
+            $wm->scale(width: $targetWidth); // Her zaman tam genişlik: imza fotoğraftan darsa büyütülür, genişse küçültülür
             $image->place($wm, 'bottom');
             unset($wm);
         }

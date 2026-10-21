@@ -73,7 +73,7 @@ class SocialImagePreparer
             // İmzasız orijinal (tam boyut) + o fotoğrafa eklenmiş imza
             $img = $manager->read($this->fetch($rec->original_path));
             $wm = $manager->read($watermark);
-            $wm->scaleDown(width: $img->width());
+            $wm->scale(width: $img->width()); // tam genişlik (büyütme dahil)
             $img->place($wm, 'bottom');
             unset($wm);
         } else {

@@ -104,7 +104,7 @@ class UploadWatermarkedController implements RequestHandlerInterface
                 if ($validWmPath && file_exists($validWmPath)) {
                     $wm = $manager->read($validWmPath);
                     $targetWidth = $img->width();
-                    $wm->scaleDown(width: $targetWidth);
+                    $wm->scale(width: $targetWidth); // Her zaman tam genişlik: imza fotoğraftan darsa büyütülür, genişse küçültülür
                     $img->place($wm, 'bottom');
                     unset($wm);
                 }

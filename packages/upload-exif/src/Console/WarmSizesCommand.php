@@ -40,8 +40,17 @@ class WarmSizesCommand extends Command
                     $raw = preg_replace('/\?.*$/', '', $r->path);
                     $u = parse_url($raw);
                     $path = implode('/', array_map(fn ($seg) => rawurlencode(rawurldecode($seg)), explode('/', $u['path'] ?? '')));
-                    $base = ($u['scheme'] ?? 'https') . '://' . ($u['host'] ?? '') . $path;
-                    foreach ($widths as $w) yield new Request('GET', $base . '?w=' . $w);
+                    // Göreli yol (/assets/...): sitenin kendi diskindeki eski görsel, görsel sunucusundan geçmez; atlanır
+                    if (!is_array($u) || empty($u['host'])) continue;
+                    $base = ($u['scheme'] ?? 'https') . '://' . $u['host'] . $path;
+                    foreach ($widths as $w) {
+                        try {
+                            $req = new Request('GET', $base . '?w=' . $w);
+                        } catch (\Throwable $e) {
+                            continue 2; // bozuk adres: bu kayıt atlanır, komut durmaz
+                        }
+                        yield $req;
+                    }
                 }
             };
             (new Pool($client, $reqs(), ['concurrency' => 4]))->promise()->wait();
