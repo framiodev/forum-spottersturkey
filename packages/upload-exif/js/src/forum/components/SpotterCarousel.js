@@ -1,5 +1,6 @@
 import Component from 'flarum/common/Component';
 import app from 'flarum/forum/app';
+import { track } from '../insights/tracker';
 
 // SpotterCarousel component wraps the actual images into a slider.
 // It will render the EXIF card (SpotterImageCard) for the currently visible image.
@@ -78,6 +79,13 @@ export default class SpotterCarousel extends Component {
 
   onupdate(vnode) {
     super.onupdate(vnode);
+    // Gönderi istatistikleri: kaydırma (ulaşılan fotoğraf sırası, geri dönüş)
+    if (this.lastIndex !== undefined && this.lastIndex !== this.currentIndex) {
+      const post = this.element && this.element.closest('.Post[data-id]');
+      const img = this.images[this.currentIndex];
+      if (post) track('slide', post.getAttribute('data-id'), { n: this.currentIndex, l: this.currentIndex < this.lastIndex ? 'back' : 'next', i: img && img.id });
+    }
+    this.lastIndex = this.currentIndex;
     this.renderDots();
     this.updateContainerHeight();
     this.syncKunye();

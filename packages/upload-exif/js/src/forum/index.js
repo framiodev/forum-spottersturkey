@@ -21,6 +21,8 @@ import { canListen, wakeListener } from './assistant/speech';
 import folder from './assistant/folder';
 import drive from './assistant/drive';
 import HeaderSecondary from 'flarum/forum/components/HeaderSecondary';
+import { startTracker } from './insights/tracker';
+import PostInsightsModal from './insights/PostInsightsModal';
 
 // Mesaj görselleri inince yumuşakça belirsin (yer önceden ayrılır: bkz. AddImageDimensions)
 if (typeof document !== 'undefined') {
@@ -46,6 +48,12 @@ if (typeof document !== 'undefined') {
 }
 
 app.initializers.add('framio/upload-exif', () => {
+  // Gönderi istatistikleri: ziyaretçi davranışı toplanır, 3 nokta menüsünden yalnızca yöneticiler görür
+  setTimeout(startTracker, 0);
+  extend(PostControls, 'moderationControls', function (items, post) {
+    if (!app.session.user || !app.session.user.isAdmin() || !post || post.contentType() !== 'comment') return;
+    items.add('framio-insights', <Button icon="fas fa-chart-bar" onclick={() => app.modal.show(PostInsightsModal, { post })}>Gönderi İstatistikleri</Button>, 90);
+  });
   crosspostOnPublish();
   // Canlı güncelleme: yeni sürümde sekme yenilenir, yeni mesajlar akışa eklenir / bildirilir
   setTimeout(live, 1500);

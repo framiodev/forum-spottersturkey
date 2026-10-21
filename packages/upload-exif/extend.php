@@ -52,6 +52,9 @@ return [
     (new Extend\Routes('api'))
         // Medya Yükleme & Görüntüleme & İndirme
         ->post('/framio-media/upload', 'framio.media.upload', UploadImageController::class)
+        // Gönderi istatistikleri (toplama herkese açık, görüntüleme yalnızca yönetici)
+        ->post('/framio-insights/track', 'framio.insights.track', \Framio\UploadExif\Insights\TrackInsightsController::class)
+        ->get('/framio-insights', 'framio.insights.show', \Framio\UploadExif\Insights\ShowInsightsController::class)
         ->get('/framio-media/image/{id}', 'framio.media.show', ShowImageController::class)
         ->get('/framio-media/download/{id}', 'framio.media.download', DownloadImageController::class)
         ->get('/framio-media/images', 'framio.media.images.list', ListImagesController::class)

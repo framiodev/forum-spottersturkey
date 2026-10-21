@@ -1,6 +1,7 @@
 import Modal from 'flarum/common/components/Modal';
 import app from 'flarum/forum/app';
 import DownloadChoice from './DownloadChoice';
+import { lightboxOpened, lightboxClosed } from '../insights/tracker';
 
 export default class ExifLightboxModal extends Modal {
   oninit(vnode) {
@@ -45,11 +46,14 @@ export default class ExifLightboxModal extends Modal {
     super.oncreate(vnode);
     window.addEventListener('keydown', this.keyHandler);
     this.processCurrentItem();
+    const it = this.items[this.currentIndex] || {};
+    lightboxOpened(it.post && it.post.id ? it.post.id() : (it.containerEl && it.containerEl.closest('.Post[data-id]') || { getAttribute: () => null }).getAttribute('data-id'), it.photoId);
   }
 
   onremove(vnode) {
     super.onremove(vnode);
     window.removeEventListener('keydown', this.keyHandler);
+    lightboxClosed();
   }
 
   className() {

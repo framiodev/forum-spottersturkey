@@ -2166,3 +2166,26 @@ body.framio-assistant-open .modal-backdrop { z-index: 2090; }
 .FramioAI-Bar.is-error .FramioAI-BarFill { background: ~"color-mix(in srgb, #f59e0b 22%, transparent)"; }
 .FramioAI-BarText { position: relative; flex: 1 1 auto; font-variant-numeric: tabular-nums; i { color: var(--primary-color); margin-right: 3px; } }
 .FramioAI-Bar .FramioAI-Close { position: relative; }
+
+/* Gönderi istatistikleri (yönetici) */
+.PI h4 { margin: 18px 0 8px; font-size: 13px; text-transform: uppercase; letter-spacing: .04em; color: var(--muted-color); }
+.PI-stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+@media (max-width: 600px) { .PI-stats { grid-template-columns: repeat(2, 1fr); } }
+.PI-stat { background: var(--control-bg); border-radius: 12px; padding: 12px; text-align: center; }
+.PI-stat b { display: block; font-size: 20px; color: var(--text-color); }
+.PI-stat span, .PI-sub, .PI-foot { font-size: 12px; color: var(--muted-color); }
+.PI-sub { margin-top: 8px; }
+.PI-foot { margin-top: 18px; }
+.PI-days { display: flex; gap: 4px; align-items: flex-end; height: 70px; }
+.PI-day { flex: 1; height: 100%; display: flex; align-items: flex-end; background: var(--control-bg); border-radius: 4px; overflow: hidden; }
+.PI-day span { width: 100%; background: var(--primary-color); min-height: 2px; }
+.PI-bar { display: grid; grid-template-columns: minmax(0, 40%) 1fr auto; gap: 8px; align-items: center; font-size: 13px; margin: 5px 0; }
+.PI-barLabel { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.PI-barTrack { display: block; height: 8px; background: var(--control-bg); border-radius: 4px; overflow: hidden; }
+.PI-barFill { display: block; height: 100%; background: var(--primary-color); border-radius: 4px; }
+.PI-barVal { font-size: 12px; color: var(--muted-color); white-space: nowrap; }
+.PI-images { display: flex; flex-direction: column; gap: 8px; }
+.PI-image { display: grid; grid-template-columns: 64px 1fr; gap: 10px; align-items: center; }
+.PI-image img, .PI-noThumb { width: 64px; height: 44px; object-fit: cover; border-radius: 6px; background: var(--control-bg); display: flex; align-items: center; justify-content: center; font-size: 12px; }
+.PI-image b { display: block; } .PI-image span { font-size: 12px; color: var(--muted-color); display: block; margin-bottom: 4px; }
+.PI-empty { text-align: center; color: var(--muted-color); padding: 30px 0; } .PI-empty i { font-size: 32px; }
