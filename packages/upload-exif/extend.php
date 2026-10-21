@@ -96,6 +96,9 @@ return [
 
         // AI Analiz & Künye Otomatik Doldurma
         ->post('/framio-media/analyze-ai', 'framio.media.analyze_ai', AnalyzeMediaAiController::class)
+        // Framio AI model referans görselleri (admin)
+        ->get('/framio-media/ai-refs', 'framio.media.ai_refs', \Framio\UploadExif\Api\Controller\ModelRefsController::class)
+        ->post('/framio-media/ai-refs', 'framio.media.ai_refs.save', \Framio\UploadExif\Api\Controller\ModelRefsController::class)
         ->get('/framio-media/ai-test', 'framio.media.ai_test', \Framio\UploadExif\Api\Controller\AiTestController::class)
 
         // Framio Asistan (sesli / yazılı komut)

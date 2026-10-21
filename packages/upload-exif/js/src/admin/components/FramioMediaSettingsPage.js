@@ -5,6 +5,7 @@ import LoadingIndicator from 'flarum/common/components/LoadingIndicator';
 import Switch from 'flarum/common/components/Switch';
 import app from 'flarum/admin/app';
 import Stream from 'flarum/common/utils/Stream';
+import ModelRefsManager from './ModelRefsManager';
 
 export const AI_PROVIDERS = {
   gemini: {
@@ -2637,7 +2638,19 @@ export default class FramioMediaSettingsPage extends ExtensionPage {
             </div>
             <label style={{ fontWeight: 'bold', fontSize: '13px' }}>Yer + il yazılan bölümler</label>
             <input className="FormControl" placeholder="ör. sehirici-ulasim-araclari-fotograflari (etiket kısa adları, virgülle)" bidi={this.setting('framio-upload-exif.ai_location_detail_tags', '')} />
-            <div className="helpText" style={{ fontSize: '11px', color: '#888', marginBottom: '10px' }}>Bu bölümlerde çekim yeri şehir içindeki konumla birlikte yazılır (ör. Kızılay - Ankara).</div>
+            <div className="helpText" style={{ fontSize: '11px', color: '#888', marginBottom: '10px' }}>Bu bölümlerde çekim yeri şehir içindeki konumla birlikte yazılır (ör. Kızılay - Ankara). Şehir içi bölümlerde bu her zaman açıktır.</div>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '10px' }}>
+              <div>
+                <label style={{ fontWeight: 'bold', fontSize: '13px' }}>Şehir içi bölümleri</label>
+                <input className="FormControl" placeholder="etiket kısa adları, virgülle" bidi={this.setting('framio-upload-exif.city_tag_slug', '')} />
+                <div className="helpText" style={{ fontSize: '11px', color: '#888' }}>Hat ve filo (kapı) kodu okunur, çekim yeri şehir içindeki yerle yazılır. Adında "sehirici" geçenler kendiliğinden sayılır.</div>
+              </div>
+              <div>
+                <label style={{ fontWeight: 'bold', fontSize: '13px' }}>Kamyon / çekici bölümleri</label>
+                <input className="FormControl" placeholder="etiket kısa adları, virgülle" bidi={this.setting('framio-upload-exif.truck_tag_slugs', '')} />
+                <div className="helpText" style={{ fontSize: '11px', color: '#888' }}>Model seri + beygir/tonaj + kabin olarak ayrıntılı okunur (ör. Actros 1845 LS). Adında "kamyon", "cekici", "tir" geçenler kendiliğinden sayılır.</div>
+              </div>
+            </div>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
               <div>
                 <label style={{ fontWeight: 'bold', fontSize: '13px' }}>Forum geçmişi benzerlik eşiği (en az 0.95)</label>
@@ -2829,6 +2842,29 @@ export default class FramioMediaSettingsPage extends ExtensionPage {
           </div>
         </div>
 
+
+        {/* 6. Model referans görselleri */}
+        <div style={{ background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '8px', padding: '16px', marginBottom: '20px' }}>
+          <h4 style={{ margin: '0 0 6px 0', fontSize: '14px', fontWeight: 'bold', color: '#334155' }}>
+            <i className="fas fa-images" style={{ marginRight: '6px', color: 'var(--primary-color)' }}></i>
+            Model Referans Görselleri
+          </h4>
+          <div className="helpText" style={{ fontSize: '11px', color: '#888', marginBottom: '10px' }}>
+            Sık karıştırılan her model için 1–2 net fotoğraf ekleyin (önden/yandan, rozet görünür). Model doğrulamasında yapay zekâya örnek olarak gider; kategoriye göre en fazla 10 örnek kullanılır.
+          </div>
+          <ModelRefsManager />
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginTop: '12px' }}>
+            <div>
+              <label style={{ fontWeight: 'bold', fontSize: '13px' }}>Google Programlanabilir Arama API anahtarı</label>
+              <input className="FormControl" type="password" autocomplete="off" bidi={this.setting('framio-upload-exif.ai_cse_key', '')} />
+            </div>
+            <div>
+              <label style={{ fontWeight: 'bold', fontSize: '13px' }}>Arama motoru kimliği (cx)</label>
+              <input className="FormControl" bidi={this.setting('framio-upload-exif.ai_cse_cx', '')} />
+            </div>
+          </div>
+          <div className="helpText" style={{ fontSize: '11px', color: '#888' }}>"Web'de ara" için gerekir (programmablesearchengine.google.com'da "Görsel arama" açık bir arama motoru; günde 100 sorgu ücretsiz).</div>
+        </div>
         <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '20px' }}>
           <Button
             type="button"

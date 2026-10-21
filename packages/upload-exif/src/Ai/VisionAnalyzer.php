@@ -321,6 +321,10 @@ class VisionAnalyzer
 
     protected function request(Client $client, array $c, string $b64, string $mime, string $prompt, array $options = []): PromiseInterface
     {
+        // Model referans görselleri (varsa): "Örnek: <model>" etiketiyle, en sonda asıl fotoğraf
+        $refs = $options['refs'] ?? [];
+        unset($options['refs']);
+        if ($refs) $prompt = "Önce karşılaştırma için bilinen modellerin ÖRNEK fotoğrafları geliyor; her örneğin adı üstünde yazıyor. EN SONDAKİ fotoğraf incelenecek fotoğraftır.\n" . $prompt;
         switch ($c['provider']) {
             case 'claude':
                 $body = [
@@ -328,10 +332,11 @@ class VisionAnalyzer
                     'max_tokens' => empty($c['deep']) ? 500 : 6000,
                     // Hız için düşünme kapalı (güçlü çağrıda açık); model kabul etmezse ayarsız tekrar denenir
                     'thinking' => empty($c['deep']) ? ['type' => 'disabled'] : ['type' => 'enabled', 'budget_tokens' => 3000],
-                    'messages' => [['role' => 'user', 'content' => [
-                        ['type' => 'image', 'source' => ['type' => 'base64', 'media_type' => $mime, 'data' => $b64]],
-                        ['type' => 'text', 'text' => $prompt],
-                    ]]],
+                    'messages' => [['role' => 'user', 'content' => array_merge(
+                        $refs ? array_merge(...array_map(fn ($r) => [['type' => 'text', 'text' => 'Örnek: ' . $r['label']], ['type' => 'image', 'source' => ['type' => 'base64', 'media_type' => $r['mime'], 'data' => $r['b64']]]], $refs)) : [],
+                        $refs ? [['type' => 'text', 'text' => 'İncelenecek fotoğraf:']] : [],
+                        [['type' => 'image', 'source' => ['type' => 'base64', 'media_type' => $mime, 'data' => $b64]], ['type' => 'text', 'text' => $prompt]]
+                    )]],
                 ];
 
                 return $this->send($client, 'https://api.anthropic.com/v1/messages', ['x-api-key' => $c['key'], 'anthropic-version' => '2023-06-01'], $body, ['thinking' => ['thinking']], $options);
@@ -341,7 +346,12 @@ class VisionAnalyzer
                 // Hızlı kipte düşünme en aza indirilir; güçlü (deep) çağrıda model düşünerek yanıtlar
                 $config['thinkingConfig'] = str_starts_with($c['model'], 'gemini-2.5') ? ['thinkingBudget' => empty($c['deep']) ? 0 : 2048] : ['thinkingLevel' => empty($c['deep']) ? 'minimal' : 'high'];
                 $body = [
-                    'contents' => [['parts' => [['text' => $prompt], ['inline_data' => ['mime_type' => $mime, 'data' => $b64]]]]],
+                    'contents' => [['parts' => array_merge(
+                        [['text' => $prompt]],
+                        $refs ? array_merge(...array_map(fn ($r) => [['text' => 'Örnek: ' . $r['label']], ['inline_data' => ['mime_type' => $r['mime'], 'data' => $r['b64']]]], $refs)) : [],
+                        $refs ? [['text' => 'İncelenecek fotoğraf:']] : [],
+                        [['inline_data' => ['mime_type' => $mime, 'data' => $b64]]]
+                    )]],
                     'generationConfig' => $config,
                 ];
 
@@ -351,10 +361,12 @@ class VisionAnalyzer
                 $p = $c['provider'];
                 $body = [
                     'model' => $c['model'],
-                    'messages' => [['role' => 'user', 'content' => [
-                        ['type' => 'text', 'text' => $prompt],
-                        ['type' => 'image_url', 'image_url' => ['url' => "data:{$mime};base64,{$b64}"] + ($p === 'openai' ? ['detail' => 'low'] : [])],
-                    ]]],
+                    'messages' => [['role' => 'user', 'content' => array_merge(
+                        [['type' => 'text', 'text' => $prompt]],
+                        $refs ? array_merge(...array_map(fn ($r) => [['type' => 'text', 'text' => 'Örnek: ' . $r['label']], ['type' => 'image_url', 'image_url' => ['url' => "data:{$r['mime']};base64,{$r['b64']}"] + ($p === 'openai' ? ['detail' => 'low'] : [])]], $refs)) : [],
+                        $refs ? [['type' => 'text', 'text' => 'İncelenecek fotoğraf:']] : [],
+                        [['type' => 'image_url', 'image_url' => ['url' => "data:{$mime};base64,{$b64}"] + ($p === 'openai' ? ['detail' => 'low'] : [])]]
+                    )]],
                     'response_format' => ['type' => 'json_object'],
                 ];
                 if ($p === 'openai') {
@@ -537,10 +549,10 @@ class VisionAnalyzer
     }
 
     /** Tek sağlayıcıya ayrı bir soru (ör. yalnızca konum); ayrıştırılmış JSON döner */
-    public function askAsync(Client $client, array $c, string $b64, string $mime, string $prompt, float $timeout = 2.5): PromiseInterface
+    public function askAsync(Client $client, array $c, string $b64, string $mime, string $prompt, float $timeout = 2.5, array $refs = []): PromiseInterface
     {
         // Yan soru ana yanıtı bekletmesin: kısa süre sınırı
-        return $this->request($client, $c, $b64, $mime, $prompt, ['timeout' => $timeout])
+        return $this->request($client, $c, $b64, $mime, $prompt, ['timeout' => $timeout, 'refs' => $refs])
             ->then(fn ($res) => $this->parse($c['provider'], (string) $res->getBody()));
     }
 

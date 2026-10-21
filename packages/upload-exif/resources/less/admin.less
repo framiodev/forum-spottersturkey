@@ -81,3 +81,17 @@
   .helpText { flex: 1 1 300px; margin: 0; }
   .FramioConvert-report { flex-basis: 100%; margin-top: 4px; }
 }
+
+/* Framio AI model referans görselleri */
+.FramioRefs-form { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 8px; }
+.FramioRefs-actions { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.FramioRefs-grid { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
+.FramioRefs-pick { padding: 0; border: 2px solid transparent; border-radius: 6px; background: none; cursor: pointer; }
+.FramioRefs-pick:hover { border-color: var(--primary-color); } .FramioRefs-pick:disabled { opacity: .35; cursor: default; }
+.FramioRefs-pick img, .FramioRefs-item img { width: 110px; height: 74px; object-fit: cover; border-radius: 5px; display: block; }
+.FramioRefs-results { margin: 10px 0; padding: 10px; background: #fff; border: 1px dashed #cbd5e1; border-radius: 8px; }
+.FramioRefs-list { margin-top: 12px; }
+.FramioRefs-group { margin-bottom: 10px; }
+.FramioRefs-item { position: relative; }
+.FramioRefs-src { position: absolute; left: 4px; bottom: 4px; font-size: 10px; background: rgba(0,0,0,.6); color: #fff; padding: 1px 5px; border-radius: 4px; }
+.FramioRefs-del { position: absolute; top: 3px; right: 3px; border: 0; border-radius: 50%; width: 20px; height: 20px; background: rgba(0,0,0,.6); color: #fff; cursor: pointer; font-size: 11px; }

@@ -15,7 +15,7 @@ use Framio\UploadExif\Ai\VisionHistory;
 
 class AnalyzeMediaAiController implements RequestHandlerInterface
 {
-    public function __construct(protected SettingsRepositoryInterface $settings, protected VisionAnalyzer $vision, protected VisionHistory $history, protected \Framio\UploadExif\Ai\VisionSimilarity $similarity, protected \Framio\UploadExif\Ai\VisionLocation $location)
+    public function __construct(protected SettingsRepositoryInterface $settings, protected VisionAnalyzer $vision, protected VisionHistory $history, protected \Framio\UploadExif\Ai\VisionSimilarity $similarity, protected \Framio\UploadExif\Ai\VisionLocation $location, protected \Framio\UploadExif\Ai\ModelRefs $refs)
     {
     }
 
@@ -170,9 +170,14 @@ class AnalyzeMediaAiController implements RequestHandlerInterface
                 . "}\n"
             );
         }
+        // Kategori türü: şehir içi (hat, filo kodu, şehir içi konum) ve kamyon/çekici (ayrıntılı model)
+        $slugs = $this->categorySlugs($discussionId ? (int) $discussionId : null, $tagSlug ?: null);
+        $isCity = $this->matchesKind($slugs, 'city');
+        $isTruck = !$isCity && $this->matchesKind($slugs, 'truck');
         // Kategoriye özel model ipuçları (admin): otobüs, şehir içi, kamyon/çekici için ayrı ayırt edici özellikler
-        $cues = $this->modelCues($tagSlug ?: null);
-        $detailed = $this->location->detailed($discussionId ? (int) $discussionId : null, $tagSlug ?: null);
+        $cues = $this->modelCues($tagSlug ?: null, $isCity || $isTruck);
+        // Şehir içi başlıklarında çekim yeri şehrin içindeki yerle birlikte (semt, durak, garaj, cadde); diğerlerinde admin ayarı
+        $detailed = $isCity || $this->location->detailed($discussionId ? (int) $discussionId : null, $tagSlug ?: null);
         $knownPlaces = $this->location->knownPlaces();
         $locationRule = $this->locationRule($detailed, $knownPlaces);
 
@@ -180,6 +185,8 @@ class AnalyzeMediaAiController implements RequestHandlerInterface
             . "- Firma: en büyük logo/kelimeyi değil, gövdede yazan resmî adın tamamını yaz (ör. logoda 'Anka' yazsa da yan yüzde 'Adıyaman Anka Turizm' yazıyorsa onu yaz). Şehir ön eki, 'Turizm', 'Seyahat', 'Taşımacılık' gibi kelimeleri atma.\n"
             . "- Model: ön/arka maske, far, cam ve yan pencere dizilimine bakarak tam modeli belirle (ör. Mercedes-Benz Travego 15 SHD, Tourismo 16 RHD, Setra S 516 HD, MAN Lion's Coach, Temsa Maraton). Aşağıdaki forum listesinde uygun bir ad varsa birebir o yazımı kullan.\n"
             . $cues
+            . ($isTruck ? self::TRUCK_RULE : '')
+            . ($isCity ? self::CITY_RULE : '')
             . $locationRule
             . "- JSON'a ayrıca \"subject\" ekle: fotoğrafın ANA konusu araçsa \"vehicle\"; ön planda insan/portre varsa \"person\"; araç içi \"interior\"; yakın detay (logo, far, jant) \"detail\"; diğer \"other\".\n"
             . "- Okuyamadığın ya da emin olmadığın her alanı boş string bırak; uydurma.\n"
@@ -211,8 +218,10 @@ class AnalyzeMediaAiController implements RequestHandlerInterface
         $geoCandidate = $this->geoCandidate($candidates);
         // Kullanıcının son 2 saatteki künyeli fotoğrafları: dizine girmemiş olsalar da aynı yerde art arda çekimler yakalanır
         $recent = $similarityOn ? $this->location->recentUserImages((int) $actor->id) : [];
+        // Model referans görselleri (admin): doğrulama sorusunda örnek olarak gider
+        $refs = $this->refs->forCategory($slugs);
         $modelList = !empty($lines) ? "Forumda kullanılan model adları (uygunsa birebir bu yazımı kullan):\n" . mb_substr(implode("\n", $lines), 0, 2500) . "\n" : '';
-        $parallel = function ($client, $original, $b64, $mime) use ($similarityOn, $geoCandidate, $exif, $locationRule, $recent, $modelList) {
+        $parallel = function ($client, $original, $b64, $mime) use ($similarityOn, $geoCandidate, $exif, $locationRule, $recent, $modelList, $cues, $isTruck, $refs) {
             $jobs = [];
             if ($similarityOn) {
                 // Sahne (arka plan şeridi) parmak izi: araçtan bağımsız, çekim yeri hafızası
@@ -239,8 +248,10 @@ class AnalyzeMediaAiController implements RequestHandlerInterface
             if ($geoCandidate) {
                 $jobs['vehicle'] = $this->vision->askAsync($client, ['deep' => $this->vision->accurate()] + $geoCandidate, $b64, $mime,
                     "Bu fotoğraftaki ana aracın markasını ve TAM modelini belirle. Ön/arka maske, far biçimi, ızgara, tavan çizgisi ve yan pencere dizilimine dikkatle bak.\n"
-                    . $cues . $modelList
-                    . "Yalnızca şu JSON'u döndür: {\"brand\": \"\", \"model\": \"marka adı olmadan\", \"confidence\": \"high|medium|low\"}. SADECE JSON.", $this->vision->accurate() ? 30.0 : 4.5);
+                    . $cues . ($isTruck ? self::TRUCK_RULE : '') . $modelList
+                    . ($refs ? "Örnek fotoğraflarla karşılaştır; en çok benzeyen örneğin modelini seç, ama ayırt edici ayrıntılar uymuyorsa örneğe zorlama.\n" : '')
+                    . "Yalnızca şu JSON'u döndür: {\"brand\": \"\", \"model\": \"marka adı olmadan\", \"confidence\": \"high|medium|low\"}. SADECE JSON.",
+                    ($this->vision->accurate() || !$this->vision->fast) ? 30.0 : 4.5, $refs);
             }
 
             return $jobs;
@@ -398,6 +409,43 @@ class AnalyzeMediaAiController implements RequestHandlerInterface
         return $rule;
     }
 
+    /** Şehir içi: hat ve filo (kapı/garaj) kodu da okunur */
+    public const CITY_RULE = "- Şehir içi araç: JSON'a ayrıca \"route\" (hat numarası/kodu ve varsa güzergâh; ön/yan LED tabelada ya da camdaki levhada yazan, ör. \"504\", \"104-1\", \"M12 Kadıköy - Tavşantepe\") ve \"fleetCode\" (kapı/filo/garaj numarası; genelde ön, yan ya da arkada küçük harf-rakam, ör. \"A-1234\", \"06-1234\", \"M-105\", \"C-1453\"; plakayla karıştırma) ekle. Okunmuyorsa boş bırak.\n";
+
+    /**
+     * Kamyon/çekici: aynı kasada farklı beygir/tonaj ve kabin seçenekleri olduğu için model ayrıntılı istenir.
+     */
+    public const TRUCK_RULE = "- Kamyon/çekici modeli AYRINTILI yazılır: seri + tonaj/beygir kodu + kabin (varsa), ör. Mercedes-Benz \"Actros 1845 LS\", \"Actros L 1851 LS\", Scania \"R 450\", \"S 500\", Volvo \"FH 500\", \"FH16 750\", DAF \"XF 480\", MAN \"TGX 18.510\", Ford Trucks \"F-MAX 500\", Iveco \"S-Way 490\", Renault Trucks \"T 480\", BMC \"Tuğra 1845\".\n"
+        . "  Beygir/tonaj kodunu kabinin yanındaki, kapıdaki ya da ızgaradaki rozetten OKU; okunmuyorsa yalnızca seriyi ve kabin nesli/tipini yaz (ör. \"Actros MP4\", \"Actros L (aynasız kamera)\", \"FH (5. nesil)\"); sayı UYDURMA.\n"
+        . "  Kabin nesli ipuçları: far biçimi, ızgara çıtaları, ayna yerine kamera, güneşlik, kabin yüksekliği (StreamSpace/GigaSpace/BigSpace, Highline/Topline, XL/XXL). JSON'a ayrıca \"axle\" (aks düzeni, ör. 4x2, 6x2) ekle; emin değilsen boş.\n";
+
+    protected function categorySlugs(?int $discussionId, ?string $tagSlug): array
+    {
+        $slugs = $tagSlug ? [$tagSlug] : [];
+        $db = resolve(\Illuminate\Database\ConnectionInterface::class);
+        if ($discussionId) {
+            $slugs = array_merge($slugs, $db->table('discussion_tag')->join('tags', 'tags.id', '=', 'discussion_tag.tag_id')
+                ->where('discussion_tag.discussion_id', $discussionId)->pluck('tags.slug')->all());
+        }
+        if ($slugs) {
+            $slugs = array_merge($slugs, $db->table('tags as t')->join('tags as p', 'p.id', '=', 't.parent_id')->whereIn('t.slug', $slugs)->pluck('p.slug')->all());
+        }
+
+        return array_values(array_unique($slugs));
+    }
+
+    /** Admin ayarındaki etiketler (virgülle) ya da adresinde türü belli eden kelimeler */
+    protected function matchesKind(array $slugs, string $kind): bool
+    {
+        $setting = $kind === 'city' ? 'framio-upload-exif.city_tag_slug' : 'framio-upload-exif.truck_tag_slugs';
+        $list = array_filter(array_map('trim', explode(',', (string) $this->settings->get($setting, ''))));
+        if (array_intersect($list, $slugs)) return true;
+        $words = $kind === 'city' ? '/sehirici|sehir-ici/' : '/kamyon|cekici|(^|-)tir(-|$)/';
+        foreach ($slugs as $s) if (preg_match($words, $s)) return true;
+
+        return false;
+    }
+
     /** Konum sorusu için yer tanımada güçlü bir Gemini sağlayıcısı (varsa) */
     /** Sık karıştırılan modelleri ayırt etme ipuçları (ana istem ve model doğrulama sorusunda) */
     public const MODEL_CUES = "- Sık karıştırılanlar: Mercedes-Benz Tourismo (2017 sonrası, ör. Tourismo 16 RHD): köşeli, ince uzun farlar; siyah, geniş ön panelde büyük yıldız; düz tavan çizgisi; ön camın üstü düz. "
@@ -410,10 +458,11 @@ class AnalyzeMediaAiController implements RequestHandlerInterface
      *   [sehirici-otobusler, ...]   → bu etiketler ve alt etiketleri
      * Ayar boşsa yerleşik (otobüs) ipuçları kullanılır.
      */
-    protected function modelCues(?string $tagSlug): string
+    protected function modelCues(?string $tagSlug, bool $special = false): string
     {
         $raw = trim((string) $this->settings->get('framio-upload-exif.ai_model_cues'));
-        if ($raw === '') return self::MODEL_CUES;
+        // Yerleşik ipuçları şehirlerarası otobüs içindir; şehir içi ve kamyon başlıklarına gönderilmez
+        if ($raw === '') return $special ? '' : self::MODEL_CUES;
 
         $slugs = [];
         if ($tagSlug) {
