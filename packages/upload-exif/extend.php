@@ -33,7 +33,15 @@ return [
     (new Extend\Frontend('forum'))
         ->js(__DIR__.'/js/dist/forum.js')
         ->css(__DIR__.'/resources/less/forum.less')
-        ->css(__DIR__.'/resources/less/framio-user-gallery.less'),
+        ->css(__DIR__.'/resources/less/framio-user-gallery.less')
+        // Görsel sunucusuyla bağlantı sayfa açılırken kurulur (ilk görsel DNS/TLS beklemez)
+        ->content(function (\Flarum\Frontend\Document $document) {
+            $domain = rtrim(trim((string) resolve(\Flarum\Settings\SettingsRepositoryInterface::class)->get('framio-upload-exif.custom_domain')), '/');
+            if ($domain !== '' && preg_match('#^https?://[^/]+#', $domain, $m)) {
+                $document->head[] = '<link rel="preconnect" href="' . e($m[0]) . '" crossorigin>';
+                $document->head[] = '<link rel="dns-prefetch" href="' . e($m[0]) . '">';
+            }
+        }),
 
     (new Extend\Frontend('admin'))
         ->js(__DIR__.'/js/dist/admin.js')
@@ -268,6 +276,9 @@ return [
         ->listen(\Flarum\Post\Event\Saving::class, PostAsHandler::class.'@post'),
 
     (new Extend\Console())
+        // Yeni görsellerin küçültülmüş boyutları ziyaretçiden önce üretilir
+        ->command(\Framio\UploadExif\Console\WarmSizesCommand::class)
+        ->schedule(\Framio\UploadExif\Console\WarmSizesCommand::class, fn ($e) => $e->everyTenMinutes()->withoutOverlapping())
         ->command(\Framio\UploadExif\Console\FillDimensionsCommand::class)
         ->command(\Framio\UploadExif\Console\VisionIndexCommand::class)
         ->command(\Framio\UploadExif\Console\AssistantRunCommand::class)

@@ -542,7 +542,10 @@ export default class CategoryGallery extends Component {
      */
     getSizedUrl(item, width) {
         const url = this.getDisplayUrl(item);
-        return /[?&]w=d+/.test(url) ? url.replace(/([?&]w=)d+/, '$1' + width) : url;
+        if (/[?&]w=\d+/.test(url)) return url.replace(/([?&]w=)\d+/, '$1' + width);
+        // Boyut parametresi olmayan bulut görseli (eski kayıt): görsel sunucusu ?w= ile küçültür (desteklemiyorsa yok sayar)
+        if (/^https?:\/\//.test(url) && /\.(webp|jpe?g|png)$/i.test(url.split('?')[0])) return url + (url.includes('?') ? '&' : '?') + 'w=' + width;
+        return url;
     }
 
     getDisplayUrl(item) {
