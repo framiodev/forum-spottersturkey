@@ -11,85 +11,42 @@ const icon = (iconName, attrs = {}) => {
   return m('i', attrs);
 };
 
+const CACHE_KEY = 'framio_latest_activity';
+
 export default class LatestActivity extends Component {
     oninit(vnode) {
         super.oninit(vnode);
         this.groupedPosts = [];
         this.loading = true;
 
+        // Son bilinen tablo anında gösterilir (tarayıcıda saklı), arka planda tazelenir
+        try {
+            const saved = JSON.parse(localStorage.getItem(CACHE_KEY) || 'null');
+            if (saved && Array.isArray(saved)) { this.groupedPosts = this.toGroups(saved); this.loading = false; }
+        } catch (e) {}
+
         this.fetchData();
     }
 
-    fetchData() {
-        app.store.find('posts', { 
-            filter: { type: 'comment' },
-            sort: '-createdAt',
-            page: { limit: 40 },
-            include: 'user,discussion'
-        }).then(posts => {
-            const groups = [];
-            const discMap = new Map();
-
-            for (const post of posts) {
-                const discussion = post.discussion();
-                const user = post.user();
-                
-                if (!discussion || !user) continue;
-
-                const discId = discussion.id();
-
-                if (!discMap.has(discId)) {
-                    if (groups.length >= 5) continue;
-
-                    const newGroup = {
-                        discussion: discussion,
-                        latestPost: post,
-                        mainUser: user, 
-                        recentUsers: [user] 
-                    };
-                    groups.push(newGroup);
-                    discMap.set(discId, newGroup);
-                } else {
-                    const group = discMap.get(discId);
-                    if (group.recentUsers.length < 3 && !group.recentUsers.some(u => u.id() === user.id())) {
-                        group.recentUsers.push(user);
-                    }
-                }
-            }
-
-            this.groupedPosts = groups;
-            this.loading = false;
-            m.redraw();
-
-            // GİZLİ KAHRAMAN: Flarum önbelleğindeki (cache) "Cevap Sayısı 0/Boş" hatasını bulan ve onaran sistem.
-            const missingDiscussions = groups.map(g => g.discussion).filter(d => d.replyCount() === undefined || d.replyCount() === null);
-            if (missingDiscussions.length > 0) {
-                Promise.all(missingDiscussions.map(d => app.store.find('discussions', d.id()))).then(() => {
-                    m.redraw(); // Veriler tamamlanınca tabloyu sessizce günceller
-                });
-            }
-        });
+    /** Hafif özet: kullanıcılar mağazaya eklenir (avatar/kullanıcı adı bileşenleri model bekler) */
+    toGroups(rows) {
+        return rows.map((r) => {
+            const users = r.users.map((u) => app.store.getById('users', u.id) || app.store.pushObject({
+                type: 'users', id: u.id,
+                attributes: { username: u.username, displayName: u.displayName, avatarUrl: u.avatarUrl, color: u.color, slug: u.slug },
+            }));
+            return { discussion: r.discussion, latestPost: r.post, snippet: r.snippet, mainUser: users[0], recentUsers: users };
+        }).filter((g) => g.mainUser);
     }
 
-    getPostSnippet(post) {
-        if (!post) return 'Yeni mesaj';
-        const html = post.contentHtml();
-        if (!html) return 'Yeni mesaj';
-        
-        const temp = document.createElement('div');
-        temp.innerHTML = html;
-        const lis = temp.querySelectorAll('li');
-        
-        if (lis.length >= 2) {
-            let company = lis[0].textContent.trim();
-            if (company.includes('|')) company = company.split('|')[0].trim();
-            else if (company.includes(' - ')) company = company.split(' - ')[0].trim();
-            return `${company} & ${lis[1].textContent.trim()}`;
-        } else if (lis.length === 1) {
-            return lis[0].textContent.trim();
-        }
-        
-        return 'Fotoğraf eklendi';
+    fetchData() {
+        app.request({ method: 'GET', url: app.forum.attribute('apiUrl') + '/framio/latest-activity' }).then((res) => {
+            const rows = (res && res.data) || [];
+            this.groupedPosts = this.toGroups(rows);
+            this.loading = false;
+            try { localStorage.setItem(CACHE_KEY, JSON.stringify(rows)); } catch (e) {}
+            m.redraw();
+        }).catch(() => { this.loading = false; m.redraw(); });
     }
 
     view() {
@@ -158,18 +115,15 @@ export default class LatestActivity extends Component {
                             const discussion = group.discussion;
                             const latestPost = group.latestPost;
                             const mainUser = group.mainUser;
-                            const snippet = this.getPostSnippet(latestPost);
+                            const snippet = group.snippet;
                             
                             // Olimpiyat Dizilimi: En eski en sola, en yeni en sağa.
                             const overlapUsers = [...group.recentUsers].reverse();
                             
-                            let replies = discussion.replyCount();
-                            if (replies === undefined || replies === null) {
-                                replies = '...'; // Yüklenirken sırıtmasın diye ... koyuyoruz, salise sonra sayı gelecek.
-                            }
+                            const replies = Math.max(0, discussion.replies);
 
                             return (
-                                <div className="TableRow" style={{ cursor: 'pointer' }} onclick={() => m.route.set(app.route.post(latestPost))}>
+                                <div className="TableRow" style={{ cursor: 'pointer' }} onclick={() => m.route.set(app.route('discussion.near', { id: discussion.id + (discussion.slug ? '-' + discussion.slug : ''), near: latestPost.number }))}>
                                     
                                     <div className="Col-User">
                                         <Link href={app.route.user(mainUser)} className="AvatarWrapper" title={mainUser.displayName()} onclick={(e) => e.stopPropagation()}>
@@ -185,7 +139,7 @@ export default class LatestActivity extends Component {
                                     </div>
 
                                     <div className="Col-Subject">
-                                        <span className="SubjectTitle" title={discussion.title()}>{discussion.title()}</span>
+                                        <span className="SubjectTitle" title={discussion.title}>{discussion.title}</span>
                                     </div>
 
                                     <div className="Col-Posters">

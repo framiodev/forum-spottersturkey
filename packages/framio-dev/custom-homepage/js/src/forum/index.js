@@ -85,6 +85,24 @@ app.initializers.add('framio-custom-homepage', () => {
         return path === '/' || path === '' || path === '/tags' || routeName === 'tags' || (routeName === 'index' && !m.route.param('sort'));
     };
 
+    // Galeri/akış görünümü kategoriye taşınmaz: Flarum sıralama parametresini (sort=gallery) bağlantılara
+    // yapışık taşıdığı için başka sayfadan bir kategoriye girilince ?sort kaldırılır ve kategori kendi
+    // varsayılan düzeniyle açılır. Kategorinin içinde galeriye geçmek serbesttir.
+    let lastTag = null;
+    extend(IndexPage.prototype, 'oninit', function () {
+        const route = app.current.get('routeName');
+        const tag = route === 'tag' ? m.route.param('tags') : null;
+        const sort = m.route.param('sort');
+        if (tag && lastTag !== tag && (sort === 'gallery' || sort === 'feed')) {
+            const params = Object.assign({}, m.route.param());
+            delete params.sort;
+            lastTag = tag;
+            setTimeout(() => m.route.set(app.route('tag', params), null, { replace: true }), 0);
+            return;
+        }
+        lastTag = tag;
+    });
+
     extend(IndexPage.prototype, 'oncreate', function () {
         if (app.forum.attribute('framioCategoryGalleryActive') !== '0') {
             const isCarouselMode = app.forum.attribute('framioTagLayoutMode') === 'carousel';

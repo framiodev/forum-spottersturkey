@@ -61,6 +61,65 @@ class GalleryPosts
         return $this->cache->remember($key, $this->cacheMinutes() * 60, $build);
     }
 
+    /**
+     * "Son Gönderilen Mesajlar" tablosu için hafif özet: son 5 tartışma, son mesajın künye özeti ve son 3 yazar.
+     * Tam mesaj içerikleri (40 mesaj ~150 KB) yerine birkaç KB; galeriyle aynı önbellek (mesaj eklenince temizlenir).
+     */
+    public function latest(User $actor): array
+    {
+        $audience = $actor->isGuest() ? 'guest' : ($actor->isAdmin() ? 'admin' : 'g' . implode('.', $actor->groups->pluck('id')->sort()->values()->all()));
+        $key = self::CACHE_PREFIX . 'latest_' . $audience;
+        $keys = (array) $this->cache->get(self::CACHE_INDEX, []);
+        if (!in_array($key, $keys, true)) {
+            $keys[] = $key;
+            $this->cache->forever(self::CACHE_INDEX, $keys);
+        }
+
+        return $this->cache->remember($key, max(1, $this->cacheMinutes()) * 60, function () use ($actor) {
+            $posts = \Flarum\Post\Post::whereVisibleTo($actor)->where('type', 'comment')->whereNull('hidden_at')
+                ->orderByDesc('created_at')->limit(60)->with(['user', 'discussion'])->get();
+            $groups = [];
+            foreach ($posts as $post) {
+                $d = $post->discussion;
+                $u = $post->user;
+                if (!$d || !$u) continue;
+                if (!isset($groups[$d->id])) {
+                    if (count($groups) >= 5) continue;
+                    $groups[$d->id] = [
+                        'discussion' => ['id' => (string) $d->id, 'title' => $d->title, 'slug' => $this->slugs->forResource(\Flarum\Discussion\Discussion::class)->toSlug($d), 'replies' => (int) $d->comment_count - 1],
+                        'post' => ['id' => (string) $post->id, 'number' => (int) $post->number],
+                        'snippet' => $this->snippet((string) $post->content),
+                        'users' => [],
+                    ];
+                }
+                $g = &$groups[$d->id];
+                if (count($g['users']) < 3 && !in_array((string) $u->id, array_column($g['users'], 'id'), true)) {
+                    $g['users'][] = ['id' => (string) $u->id, 'username' => $u->username, 'displayName' => $u->display_name, 'avatarUrl' => $u->avatar_url, 'color' => $u->color ?? null,
+                        'slug' => $this->slugs->forResource(User::class)->toSlug($u)];
+                }
+                unset($g);
+            }
+
+            return array_values($groups);
+        });
+    }
+
+    /** Künye listesinin ilk iki maddesi ("Firma & Plaka"); yoksa "Fotoğraf eklendi" */
+    private function snippet(string $xml): string
+    {
+        preg_match_all('#<LI>(.*?)</LI>#si', $xml, $m);
+        $lis = array_values(array_filter(array_map(fn ($x) => trim(html_entity_decode(strip_tags(preg_replace('#<[se]>.*?</[se]>#s', '', $x)))), $m[1])));
+        if (count($lis) >= 2) {
+            $company = $lis[0];
+            if (str_contains($company, '|')) $company = trim(explode('|', $company)[0]);
+            elseif (str_contains($company, ' - ')) $company = trim(explode(' - ', $company)[0]);
+
+            return $company . ' & ' . $lis[1];
+        }
+
+        return $lis[0] ?? 'Fotoğraf eklendi';
+    }
+
     /** Mesaj eklenince/düzenlenince ve admin "önbelleği temizle" ile çağrılır */
     public function flush(): void
     {

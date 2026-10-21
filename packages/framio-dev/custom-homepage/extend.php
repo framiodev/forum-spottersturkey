@@ -31,6 +31,7 @@ return [
 
     (new Extend\Routes('api'))
         ->get('/framio/homepage-posts', 'framio.homepage-posts', GalleryPostsController::class)
+        ->get('/framio/latest-activity', 'framio.latest-activity', \Framio\CustomHomepage\Api\Controller\LatestActivityController::class)
         ->get('/framio/category-posts', 'framio.category-posts', GalleryPostsController::class)
         ->post('/framio/homepage-cache/flush', 'framio.homepage-cache.flush', FlushCacheController::class)
         ->get('/framio/explore', 'framio.explore.data', ExploreController::class)
