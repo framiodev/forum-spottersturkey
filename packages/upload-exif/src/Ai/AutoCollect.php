@@ -49,6 +49,8 @@ class AutoCollect
                 'question' => trim((string) $r['question']),
                 'tags' => array_values(array_filter(array_map('trim', explode(',', (string) ($r['tags'] ?? ''))))),
                 'active' => ($r['active'] ?? true) !== false && ($r['active'] ?? '1') !== '0',
+                // Geçmiş gönderiler de taranıp uygun olanlar kendiliğinden eklenir (bildirim gönderilmeden)
+                'backfill' => !empty($r['backfill']) && $r['backfill'] !== '0',
             ];
         }
 
@@ -120,11 +122,11 @@ class AutoCollect
     }
 
     /** Kararı kaydeder; kabul edildiyse ve $publish ise hedef başlığa ekler */
-    public function decide(CommentPost $post, array $rule, array $j, bool $publish): ?int
+    public function decide(CommentPost $post, array $rule, array $j, bool $publish, bool $silent = false): ?int
     {
         if ($j['error'] && $j['confidence'] === 'none' && $j['error'] !== 'görsel yok') return null; // geçici hata: sonra yeniden denenir
         $targetPostId = null;
-        if ($publish && self::accepted($j)) $targetPostId = $this->publish($post, $rule);
+        if ($publish && self::accepted($j)) $targetPostId = $this->publish($post, $rule, $silent);
         $this->db->table(self::LOG)->updateOrInsert(
             ['rule_key' => $rule['key'], 'source_post_id' => $post->id],
             ['decision' => $j['answer'] ? 'yes' : 'no', 'confidence' => $j['confidence'], 'target_post_id' => $targetPostId, 'created_at' => Carbon::now()]
@@ -134,7 +136,8 @@ class AutoCollect
     }
 
     /** Gönderinin içeriği + kaynak bağlantısı, gönderi sahibi adına hedef başlığa */
-    public function publish(CommentPost $post, array $rule): ?int
+    /** $silent: geçmiş taraması — takipçilere bildirim/olay gönderilmez */
+    public function publish(CommentPost $post, array $rule, bool $silent = false): ?int
     {
         $target = Discussion::find($rule['target']);
         $author = $post->user ?: User::where('is_email_confirmed', 1)->orderBy('id')->first();
@@ -156,7 +159,9 @@ class AutoCollect
             $target->comment_count = $target->posts()->where('type', 'comment')->count();
             $target->participant_count = $target->posts()->select('user_id')->distinct()->count('user_id');
             $target->save();
-            try { resolve(Dispatcher::class)->dispatch(new Posted($reply, $author)); } catch (Throwable $e) {}
+            if (!$silent) {
+                try { resolve(Dispatcher::class)->dispatch(new Posted($reply, $author)); } catch (Throwable $e) {}
+            }
 
             return (int) $reply->id;
         } catch (Throwable $e) {

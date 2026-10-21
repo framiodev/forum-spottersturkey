@@ -82,6 +82,7 @@ export default class AutoCollectManager extends Component {
                 <input className="FormControl" placeholder="Kural adı (ör. Renkli otobüsler)" value={r.name} oninput={(e) => this.update(i, 'name', e.target.value)} />
                 <input className="FormControl" placeholder="Hedef başlık adresi ya da numarası (ör. /d/245)" value={r.target} oninput={(e) => this.update(i, 'target', e.target.value)} />
                 <Switch state={r.active !== false} onchange={(v) => this.update(i, 'active', v)}>Etkin</Switch>
+                <Switch state={!!r.backfill} onchange={(v) => this.update(i, 'backfill', v)}>Geçmişi de tara</Switch>
                 <Button className="Button Button--icon" icon="fas fa-trash" title="Kuralı sil" onclick={() => this.remove(i)} />
               </div>
               <textarea className="FormControl" rows="2" placeholder="Yapay zekâya sorulacak evet/hayır sorusu (ör. Aracın gövdesi ağırlıklı olarak beyaz DIŞINDA bir renkte mi? Firma logoları ve yazılar sayılmaz.)"
@@ -90,7 +91,7 @@ export default class AutoCollectManager extends Component {
               <div className="FramioAuto-row">
                 <Button className="Button" icon="fas fa-search" loading={st && st.busy} onclick={() => this.runScan(r)}>Geçmişi tara (20 gönderi)</Button>
                 {st && st.items.length ? <Button className="Button Button--primary" icon="fas fa-plus" loading={st.busy} onclick={() => this.addPicked(r)}>Seçilenleri ekle ({st.picked.size})</Button> : null}
-                <span className="helpText">Yeni gönderiler 10 dakikada bir kendiliğinden sorulur.</span>
+                <span className="helpText">Yeni gönderiler 10 dakikada bir kendiliğinden sorulur. "Geçmişi de tara" açıksa eski gönderiler de 10 dakikada 30'ar taranıp uygun olanlar bildirim gönderilmeden kopyalanır.</span>
               </div>
               {st && st.error ? <div className="Alert Alert--error">{st.error}</div> : null}
               {st && st.items.length ? (

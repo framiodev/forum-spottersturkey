@@ -16,7 +16,10 @@ export default function crosspostOnPublish() {
     return original.apply(this, args).then((record) => {
       try {
         const type = record && record.data && record.data.type;
-        if (isNew && (type === 'posts' || type === 'discussions')) apply(record, type);
+        if (isNew && (type === 'posts' || type === 'discussions')) {
+          window.dispatchEvent(new CustomEvent('framio:posted', { detail: { type, id: record.id() } }));
+          apply(record, type);
+        }
       } catch (e) {
         // Aktarım hatası gönderiyi etkilemesin
       }

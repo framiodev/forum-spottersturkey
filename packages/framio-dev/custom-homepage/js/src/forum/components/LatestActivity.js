@@ -30,6 +30,25 @@ export default class LatestActivity extends Component {
         this.fetchData();
     }
 
+    oncreate(vnode) {
+        super.oncreate(vnode);
+        // Yeni mesaj (canlı yoklama) ya da sekmeye geri dönüş: tablo arka planda tazelenir
+        this.onNewPosts = () => this.fetchData();
+        this.onVisible = () => { if (!document.hidden) this.fetchData(); };
+        window.addEventListener('framio:new-posts', this.onNewPosts);
+        document.addEventListener('visibilitychange', this.onVisible);
+        // Kullanıcının kendi gönderisi: yayımlanınca hemen
+        this.onOwnPost = () => setTimeout(() => this.fetchData(), 800);
+        window.addEventListener('framio:posted', this.onOwnPost);
+    }
+
+    onremove(vnode) {
+        super.onremove(vnode);
+        window.removeEventListener('framio:new-posts', this.onNewPosts);
+        document.removeEventListener('visibilitychange', this.onVisible);
+        window.removeEventListener('framio:posted', this.onOwnPost);
+    }
+
     /** Hafif özet: kullanıcılar mağazaya eklenir (avatar/kullanıcı adı bileşenleri model bekler) */
     toGroups(rows) {
         return rows.map((r) => {

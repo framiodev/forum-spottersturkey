@@ -101,6 +101,8 @@ export default function live() {
         else toast(p);
       });
       refreshHere.forEach((id) => refreshStream(id));
+      // Sayfadaki diğer bileşenler (ör. Son Gönderilen Mesajlar) kendini tazelesin
+      if ((res.posts || []).length) window.dispatchEvent(new CustomEvent('framio:new-posts', { detail: res.posts }));
       since = Math.max(since, res.latest || 0);
     } catch (e) {
       // sessiz: bir sonraki yoklamada yeniden denenir
