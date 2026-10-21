@@ -71,6 +71,9 @@ export default class CategoryGallery extends Component {
         }
 
         if (needsReload) {
+            // Önceki kategorinin görselleri yeni kategori yüklenirken gösterilmez
+            this.galleryPosts = [];
+            this.visibleLimit = this.initialLimit;
             this.loadingGallery = true;
             this.initGalleryLoad();
         }
@@ -108,6 +111,10 @@ export default class CategoryGallery extends Component {
     }
 
     loadGalleryImagesParallel() {
+        // Yarış koruması: kategori hızlı değiştirilince geç gelen eski kategori yanıtı yenisinin üzerine yazmaz
+        const token = (this.loadToken = (this.loadToken || 0) + 1);
+        const forTag = this.currentTag;
+        const forSort = this.currentSort;
         Promise.all([
             app.request({
                 method: 'GET',
@@ -122,6 +129,7 @@ export default class CategoryGallery extends Component {
             // category-posts yanıtındaki meta.spotterExifMap'ten gelir.
             Promise.resolve({ data: [] })
         ]).then(([postsResponse, imagesResponse]) => {
+            if (token !== this.loadToken || forTag !== this.currentTag || forSort !== this.currentSort) return;
             const rawPosts = postsResponse.data || [];
             const rawImages = imagesResponse.data || [];
             
@@ -313,6 +321,7 @@ export default class CategoryGallery extends Component {
             m.redraw();
         }).catch((e) => {
             console.error(e);
+            if (token !== this.loadToken) return;
             this.loadingGallery = false;
             m.redraw();
         });
