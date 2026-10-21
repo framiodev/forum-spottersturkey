@@ -107,8 +107,9 @@ class GalleryPosts
     /** Künye listesinin ilk iki maddesi ("Firma & Plaka"); yoksa "Fotoğraf eklendi" */
     private function snippet(string $xml): string
     {
-        preg_match_all('#<LI>(.*?)</LI>#si', $xml, $m);
-        $lis = array_values(array_filter(array_map(fn ($x) => trim(html_entity_decode(strip_tags(preg_replace('#<[se]>.*?</[se]>#s', '', $x)))), $m[1])));
+        // $post->content Flarum'da işlenmemiş metindir (Markdown): "- **Firma**" satırları künyedir
+        preg_match_all('/^\s*[-*+]\s+(.+)$/m', $xml, $m);
+        $lis = array_values(array_filter(array_map(fn ($x) => trim(html_entity_decode(strip_tags(str_replace(['**', '__'], '', $x)))), $m[1])));
         if (count($lis) >= 2) {
             $company = $lis[0];
             if (str_contains($company, '|')) $company = trim(explode('|', $company)[0]);
