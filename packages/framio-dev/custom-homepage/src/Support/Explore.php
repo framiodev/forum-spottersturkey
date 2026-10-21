@@ -294,7 +294,8 @@ class Explore
                 'slug' => (string) $r->slug,
                 'path' => '/arac/' . self::HUB_PATH[$type] . '/' . $r->slug,
                 'count' => (int) $r->n,
-                'image' => $r->image ?: null,
+                // Kart küçük görünür: tam boy (~1 MB) yerine görsel sunucusunun 480 px sürümü (~25 KB, önceden üretilmiş)
+                'image' => $r->image ? (str_contains($r->image, '?') || !preg_match('#^https?://#', $r->image) ? $r->image : $r->image . '?w=480') : null,
             ])->all();
         });
     }
