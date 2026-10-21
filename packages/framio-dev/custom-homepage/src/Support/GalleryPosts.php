@@ -106,7 +106,9 @@ class GalleryPosts
     {
         $data = [];
         $included = [];
+        $refs = ['ids' => [], 'urls' => []];
         foreach ($posts as $post) {
+            $this->collectImageRefs((string) $post->content, $refs);
             $html = '';
             if ($post instanceof CommentPost) {
                 try {
@@ -160,7 +162,7 @@ class GalleryPosts
         return [
             'data' => $data,
             'included' => array_values($included),
-            'meta' => ['spotterExifMap' => $this->exifMap()] + $extraMeta,
+            'meta' => ['spotterExifMap' => $this->exifMap($refs)] + $extraMeta,
         ];
     }
 
@@ -197,47 +199,76 @@ class GalleryPosts
         return array_values(array_unique($patterns));
     }
 
+    /** Mesaj içeriğindeki görsel kimlikleri (id=123) ve adresleri */
+    private function collectImageRefs(string $content, array &$refs): void
+    {
+        if (preg_match_all('/\bid=["\']?(\d+)/', $content, $m)) {
+            foreach ($m[1] as $id) $refs['ids'][(int) $id] = true;
+        }
+        if (preg_match_all('#https?://[^\s"\'<>\]\[]+?\.(?:webp|jpe?g|png)(?:\?[^\s"\'<>\]\[]*)?#i', $content, $m)) {
+            foreach ($m[0] as $u) {
+                $u = html_entity_decode($u);
+                $refs['urls'][$u] = true;
+                $refs['urls'][preg_replace('/\?.*$/', '', $u)] = true;
+            }
+        }
+    }
+
     /**
-     * Görsel → EXIF eşlemesi (Upload & EXIF medya tablosu).
+     * Görsel → EXIF eşlemesi, YALNIZCA yanıttaki mesajların görselleri için (eskiden son 3000 görselin tamamı
+     * gönderiliyordu: 13–37 MB). Galerinin kullanmadığı ağır alanlar (renk profili / ham meta) atılır.
      * Anahtarlar: id_{id}, file_{dosya}, path_{yol}; boyutlar dim_{dosya}.
      */
-    private function exifMap(): array
+    private function exifMap(array $refs): array
     {
-        return $this->cache->remember('framio_spotters_exif_map', 3600, function () {
-            $table = preg_replace('/[^A-Za-z0-9_]/', '', (string) $this->settings->get('framio-seo.media_table', 'framio_media_images')) ?: 'framio_media_images';
-            $schema = $this->db->getSchemaBuilder();
-            if (!$schema->hasTable($table)) {
-                $table = $schema->hasTable('spotter_images') ? 'spotter_images' : null;
-            }
-            if (!$table) {
-                return [];
-            }
+        $table = preg_replace('/[^A-Za-z0-9_]/', '', (string) $this->settings->get('framio-seo.media_table', 'framio_media_images')) ?: 'framio_media_images';
+        $schema = $this->db->getSchemaBuilder();
+        if (!$schema->hasTable($table)) {
+            $table = $schema->hasTable('spotter_images') ? 'spotter_images' : null;
+        }
+        $ids = array_keys($refs['ids'] ?? []);
+        $urls = array_keys($refs['urls'] ?? []);
+        if (!$table || (!$ids && !$urls)) {
+            return [];
+        }
 
-            $cols = ['id', 'exif_data', 'thumb_path', 'path'];
-            $hasDims = $schema->hasColumn($table, 'width');
-            if ($hasDims) {
-                $cols = array_merge($cols, ['width', 'height']);
-            }
+        $cols = ['id', 'exif_data', 'thumb_path', 'path'];
+        $hasDims = $schema->hasColumn($table, 'width');
+        if ($hasDims) {
+            $cols = array_merge($cols, ['width', 'height']);
+        }
 
-            $map = [];
-            foreach ($this->db->table($table)->orderByDesc('id')->limit(3000)->get($cols) as $img) {
-                if (!empty($img->exif_data)) {
-                    $map['id_' . $img->id] = $img->exif_data;
-                    foreach ([$img->thumb_path, $img->path] as $p) {
-                        if ($p) {
-                            $map['file_' . basename($p)] = $img->exif_data;
-                        }
-                    }
-                    if ($img->thumb_path) {
-                        $map['path_' . $img->thumb_path] = $img->exif_data;
+        $rows = [];
+        foreach (array_chunk($ids, 500) as $chunk) {
+            foreach ($this->db->table($table)->whereIn('id', $chunk)->get($cols) as $r) $rows[$r->id] = $r;
+        }
+        foreach (array_chunk($urls, 300) as $chunk) {
+            foreach ($this->db->table($table)->whereIn('path', $chunk)->orWhereIn('thumb_path', $chunk)->get($cols) as $r) $rows[$r->id] = $r;
+        }
+
+        // Lightbox'ın gösterdiği alanlar
+        $keep = ['make', 'model', 'lens', 'aperture', 'exposure', 'iso', 'focal', 'focal_35mm', 'date', 'lat', 'lon', 'artist', 'copyright', 'description', 'software', 'width', 'height'];
+        $map = [];
+        foreach ($rows as $img) {
+            if (!empty($img->exif_data)) {
+                $exif = json_decode((string) $img->exif_data, true);
+                $slim = is_array($exif) ? json_encode(array_intersect_key($exif, array_flip($keep)), JSON_UNESCAPED_UNICODE) : $img->exif_data;
+                $map['id_' . $img->id] = $slim;
+                foreach ([$img->thumb_path, $img->path] as $p) {
+                    if ($p) {
+                        $map['file_' . basename(preg_replace('/\?.*$/', '', $p))] = $slim;
+                        $map['file_' . basename($p)] = $slim;
                     }
                 }
-                if ($hasDims && $img->width && $img->path) {
-                    $map['dim_' . basename($img->path)] = [(int) $img->width, (int) $img->height];
+                if ($img->thumb_path) {
+                    $map['path_' . $img->thumb_path] = $slim;
                 }
             }
+            if ($hasDims && $img->width && $img->path) {
+                $map['dim_' . basename($img->path)] = [(int) $img->width, (int) $img->height];
+            }
+        }
 
-            return $map;
-        });
+        return $map;
     }
 }
