@@ -36,7 +36,11 @@ class WarmSizesCommand extends Command
         $q->select('id', 'path')->chunkById(200, function ($rows) use ($client, $widths, &$total) {
             $reqs = function () use ($rows, $widths) {
                 foreach ($rows as $r) {
-                    $base = preg_replace('/\?.*$/', '', $r->path);
+                    // Forumdaki adresle birebir aynı kodlama (boşluk → %20, ( → %28): CDN önbelleği aynı adresi tutar
+                    $raw = preg_replace('/\?.*$/', '', $r->path);
+                    $u = parse_url($raw);
+                    $path = implode('/', array_map(fn ($seg) => rawurlencode(rawurldecode($seg)), explode('/', $u['path'] ?? '')));
+                    $base = ($u['scheme'] ?? 'https') . '://' . ($u['host'] ?? '') . $path;
                     foreach ($widths as $w) yield new Request('GET', $base . '?w=' . $w);
                 }
             };
