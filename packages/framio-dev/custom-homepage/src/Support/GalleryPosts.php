@@ -79,29 +79,59 @@ class GalleryPosts
             $posts = \Flarum\Post\Post::whereVisibleTo($actor)->where('type', 'comment')->whereNull('hidden_at')
                 ->orderByDesc('created_at')->limit(60)->with(['user', 'discussion'])->get();
             $groups = [];
+            $recent = []; // tartışma → son 24 saatteki mesaj sayısı
+            $streak = []; // tartışma → en yeni mesajlardan başlayarak kesintisiz art arda mesaj sayısı
+            $prevD = null;
+            $runOpen = true;
+            $dayAgo = \Carbon\Carbon::now()->subDay();
             foreach ($posts as $post) {
                 $d = $post->discussion;
                 $u = $post->user;
                 if (!$d || !$u) continue;
+                if ($post->created_at >= $dayAgo) $recent[$d->id] = ($recent[$d->id] ?? 0) + 1;
+                if ($runOpen) {
+                    if ($prevD === null || $prevD === $d->id) $streak[$d->id] = ($streak[$d->id] ?? 0) + 1;
+                    else $runOpen = false;
+                    $prevD = $d->id;
+                }
                 if (!isset($groups[$d->id])) {
                     if (count($groups) >= 5) continue;
                     $groups[$d->id] = [
                         'discussion' => ['id' => (string) $d->id, 'title' => $d->title, 'slug' => $this->slugs->forResource(\Flarum\Discussion\Discussion::class)->toSlug($d), 'replies' => (int) $d->comment_count - 1],
                         'post' => ['id' => (string) $post->id, 'number' => (int) $post->number],
                         'snippet' => $this->snippet((string) $post->content),
+                        'kind' => $this->kind((string) $post->content),
                         'users' => [],
                     ];
                 }
                 $g = &$groups[$d->id];
-                if (count($g['users']) < 3 && !in_array((string) $u->id, array_column($g['users'], 'id'), true)) {
+                // Son 3 mesajın yazarı (aynı kişi art arda yazdıysa her biri ayrı görünür)
+                if (count($g['users']) < 3) {
                     $g['users'][] = ['id' => (string) $u->id, 'username' => $u->username, 'displayName' => $u->display_name, 'avatarUrl' => $u->avatar_url, 'color' => $u->color ?? null,
                         'slug' => $this->slugs->forResource(User::class)->toSlug($u)];
                 }
                 unset($g);
             }
 
+            // Hareketli konu: son 24 saatte 4+ mesaj ya da en son 3+ mesaj art arda bu konuya
+            foreach ($groups as $id => &$g) {
+                $g['hot'] = ($recent[$id] ?? 0) >= 4 || ($streak[$id] ?? 0) >= 3;
+            }
+            unset($g);
+
             return array_values($groups);
         });
+    }
+
+    /** İçerik türü: fotoğraf / video / bağlantı / alıntı / metin */
+    private function kind(string $md): string
+    {
+        if (preg_match('/\[(framio|spotter|ulasimarsiv)[-_]?image|\[upl-image|!\[[^\]]*\]\(|\.(webp|jpe?g|png)\b/i', $md)) return 'photo';
+        if (preg_match('#youtube\.com|youtu\.be|vimeo\.com|\.mp4\b|\[video#i', $md)) return 'video';
+        if (preg_match('/^>|\[quote|@"/m', $md)) return 'quote';
+        if (preg_match('#https?://#i', $md)) return 'link';
+
+        return 'text';
     }
 
     /** Künye listesinin ilk iki maddesi ("Firma & Plaka"); yoksa "Fotoğraf eklendi" */

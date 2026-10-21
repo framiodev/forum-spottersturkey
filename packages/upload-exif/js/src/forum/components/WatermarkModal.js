@@ -19,33 +19,64 @@ function loadImg(src) {
     return imgCache[src];
 }
 const lum = (r, g, b) => 0.2126 * r + 0.7152 * g + 0.0722 * b;
+const SW = 240; // puanlama genişliği: okunurluk için yeterli, milisaniyeler içinde biter
+
+/** Fotoğrafın SW genişliğindeki parlaklık haritası (dosya başına bir kez; createImageBitmap ana iş parçacığını kilitlemez) */
+const photoCache = new WeakMap();
+function photoLum(file) {
+    if (!photoCache.has(file)) {
+        photoCache.set(file, (async () => {
+            let src;
+            try { src = await createImageBitmap(file, { resizeWidth: SW, resizeQuality: 'low' }); }
+            catch (e) { src = await loadImg(fileUrl(file)); }
+            const w0 = src.width || src.naturalWidth, h0 = src.height || src.naturalHeight;
+            const H = Math.max(1, Math.round((h0 * SW) / w0));
+            const c = document.createElement('canvas'); c.width = SW; c.height = H;
+            const x = c.getContext('2d', { willReadFrequently: true });
+            x.drawImage(src, 0, 0, SW, H);
+            if (src.close) src.close();
+            const d = x.getImageData(0, 0, SW, H).data;
+            const L = new Float32Array(SW * H);
+            for (let p = 0, q = 0; q < L.length; p += 4, q++) L[q] = lum(d[p], d[p + 1], d[p + 2]);
+            return { L, H, ratio: h0 / w0 };
+        })());
+    }
+    return photoCache.get(file);
+}
+
+/** İmzanın SW genişliğindeki dolu pikselleri (adres başına bir kez) */
+const wmCache = {};
+function wmPixels(url) {
+    if (!wmCache[url]) {
+        wmCache[url] = loadImg(url).then((wm) => {
+            const H = Math.max(1, Math.round((wm.naturalHeight * SW) / wm.naturalWidth));
+            const c = document.createElement('canvas'); c.width = SW; c.height = H;
+            const x = c.getContext('2d', { willReadFrequently: true });
+            x.drawImage(wm, 0, 0, SW, H);
+            const d = x.getImageData(0, 0, SW, H).data;
+            const idx = [], L = [];
+            for (let p = 0, q = 0; p < d.length; p += 4, q++) if (d[p + 3] >= 110) { idx.push(q); L.push(lum(d[p], d[p + 1], d[p + 2])); }
+            return { H, idx, L };
+        });
+    }
+    return wmCache[url];
+}
 
 /**
  * Sunucudaki gibi imza görselin genişliğine ölçeklenip alta yerleştirilir; imzanın dolu pikselleri altındaki
  * arka plan ile karşılaştırılır. Puan = ortalama parlaklık farkı / (1 + arka plan dokusu): düz ve zıt renkli
  * zeminde yüksek, kalabalık (araç detayı, yazı) ve benzer renkli zeminde düşük.
  */
-async function legibility(photoUrl, wmUrl) {
-    const [ph, wm] = await Promise.all([loadImg(photoUrl), loadImg(wmUrl)]);
-    const Wd = 360;
-    const Hd = Math.max(1, Math.round((ph.naturalHeight * Wd) / ph.naturalWidth));
-    const wh = Math.max(1, Math.min(Hd, Math.round((wm.naturalHeight * Wd) / wm.naturalWidth)));
-    const c1 = document.createElement('canvas');
-    c1.width = Wd; c1.height = wh;
-    const x1 = c1.getContext('2d', { willReadFrequently: true });
-    // Fotoğrafın imzanın düşeceği alt şeridi
-    x1.drawImage(ph, 0, ((Hd - wh) / Hd) * ph.naturalHeight, ph.naturalWidth, (wh / Hd) * ph.naturalHeight, 0, 0, Wd, wh);
-    const bg = x1.getImageData(0, 0, Wd, wh).data;
-    const c2 = document.createElement('canvas');
-    c2.width = Wd; c2.height = wh;
-    const x2 = c2.getContext('2d', { willReadFrequently: true });
-    x2.drawImage(wm, 0, 0, Wd, wh);
-    const fg = x2.getImageData(0, 0, Wd, wh).data;
+async function legibility(file, wmUrl) {
+    const [ph, wm] = await Promise.all([photoLum(file), wmPixels(wmUrl)]);
+    const wh = Math.min(ph.H, wm.H);
+    const off = (ph.H - wh) * SW; // alt şerit
     let n = 0, diff = 0, sum = 0, sum2 = 0;
-    for (let i = 0; i < fg.length; i += 4) {
-        if (fg[i + 3] < 110) continue;
-        const lb = lum(bg[i], bg[i + 1], bg[i + 2]);
-        diff += Math.abs(lum(fg[i], fg[i + 1], fg[i + 2]) - lb);
+    for (let k = 0; k < wm.idx.length; k++) {
+        const q = wm.idx[k];
+        if (q >= wh * SW) break;
+        const lb = ph.L[off + q];
+        diff += Math.abs(wm.L[k] - lb);
         sum += lb; sum2 += lb * lb; n++;
     }
     if (!n) return 0;
@@ -1439,9 +1470,9 @@ export default class WatermarkModal extends Modal {
       if (!personalAll.length && !templatesAll.length) return;
       this.autoBusy = true;
       m.redraw();
-      for (let i = 0; i < this.files.length; i++) {
-          const file = this.files[i];
-          if (this.touched[i] || (this.selections[i] && this.selections[i] !== 'none')) continue;
+      // Tüm fotoğraflar aynı anda puanlanır (sırayla beklemez)
+      await Promise.all(this.files.map(async (file, i) => {
+          if (this.touched[i] || (this.selections[i] && this.selections[i] !== 'none')) return;
           try {
               const o = await this.orientationOf(file);
               let pick = null;
@@ -1454,13 +1485,12 @@ export default class WatermarkModal extends Modal {
                   }) || personalAll[0];
               } else {
                   const cands = templatesAll.filter((w) => { const wo = (w.orientation || w.type || 'landscape').toLowerCase(); return wo === 'all' || wo === o; });
-                  let best = -1;
-                  for (const w of cands) {
+                  const scores = await Promise.all(cands.map((w) => {
                       const url = this.watermarkUrlFor(w.id || w.filename);
-                      if (!url) continue;
-                      const score = await legibility(fileUrl(file), url).catch(() => -1);
-                      if (score > best) { best = score; pick = w; }
-                  }
+                      return url ? legibility(file, url).catch(() => -1) : -1;
+                  }));
+                  let best = -1;
+                  scores.forEach((s, k) => { if (s > best) { best = s; pick = cands[k]; } });
               }
               if (pick && !this.touched[i] && this.files[i] === file) {
                   this.selections[i] = pick.id || pick.filename;
@@ -1468,7 +1498,7 @@ export default class WatermarkModal extends Modal {
                   m.redraw();
               }
           } catch (e) {}
-      }
+      }));
       this.autoBusy = false;
       // Şablonlar fotoğraf başına farklı seçildiyse anahtar kapanır; hepsi aynıysa açık kalır
       if (this.files.length > 1) {

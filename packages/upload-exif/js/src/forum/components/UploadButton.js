@@ -3,7 +3,7 @@ import Icon from 'flarum/common/components/Icon';
 import app from 'flarum/forum/app';
 import Tooltip from 'flarum/common/components/Tooltip';
 import WatermarkModal from './WatermarkModal';
-import AttributeModal from './AttributeModal';
+import AttributeModal, { prefetchAi } from './AttributeModal';
 import InfoModal from './InfoModal';
 
 export default class UploadButton extends Component {
@@ -91,6 +91,8 @@ export default class UploadButton extends Component {
     fileList.sort((a, b) => a.name.localeCompare(b.name, undefined, { numeric: true, sensitivity: 'base' }));
     
     this.prefetchTaxonomy();
+    // Framio AI künyeyi kullanıcı imza seçerken okumaya başlar (ilk fotoğraf)
+    prefetchAi(fileList[0]);
 
     app.modal.show(WatermarkModal, {
         files: fileList,

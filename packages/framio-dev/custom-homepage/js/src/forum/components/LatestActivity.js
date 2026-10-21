@@ -12,6 +12,8 @@ const icon = (iconName, attrs = {}) => {
 };
 
 const CACHE_KEY = 'framio_latest_activity';
+const KIND_ICONS = { photo: 'fas fa-camera', video: 'fas fa-video', link: 'fas fa-link', quote: 'fas fa-quote-right', text: 'fas fa-comment-alt' };
+const KIND_TITLES = { photo: 'Fotoğraf', video: 'Video', link: 'Bağlantı', quote: 'Alıntı', text: 'Metin' };
 
 export default class LatestActivity extends Component {
     oninit(vnode) {
@@ -35,7 +37,7 @@ export default class LatestActivity extends Component {
                 type: 'users', id: u.id,
                 attributes: { username: u.username, displayName: u.displayName, avatarUrl: u.avatarUrl, color: u.color, slug: u.slug },
             }));
-            return { discussion: r.discussion, latestPost: r.post, snippet: r.snippet, mainUser: users[0], recentUsers: users };
+            return { discussion: r.discussion, latestPost: r.post, snippet: r.snippet, kind: r.kind || 'text', hot: !!r.hot, mainUser: users[0], recentUsers: users };
         }).filter((g) => g.mainUser);
     }
 
@@ -135,11 +137,11 @@ export default class LatestActivity extends Component {
                                     </div>
                                     
                                     <div className="Col-Snippet">
-                                        <span className="SnippetText" title={snippet}>{snippet}</span>
+                                        <span className="SnippetText" title={snippet}>{icon(KIND_ICONS[group.kind] || KIND_ICONS.text, { className: 'Snippet-Kind', title: KIND_TITLES[group.kind] || '', style: { color: 'var(--muted-color)', marginRight: '4px' } })} {snippet}</span>
                                     </div>
 
                                     <div className="Col-Subject">
-                                        <span className="SubjectTitle" title={discussion.title}>{discussion.title}</span>
+                                        <span className="SubjectTitle" title={discussion.title}>{group.hot ? icon('fas fa-fire', { className: 'Subject-Hot', title: 'Hareketli konu', style: { color: '#ef4444', marginRight: '4px' } }) : null} {discussion.title}</span>
                                     </div>
 
                                     <div className="Col-Posters">

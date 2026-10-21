@@ -126,6 +126,34 @@ function shrinkForAi(file, max = 768) {
     .catch(() => file);
 }
 
+/**
+ * Framio AI isteği: dosya seçilince (imza ekranı açılırken) başlatılır, aynı dosya için tekrar istenirse
+ * süren/biten istek paylaşılır. Böylece künye penceresi açıldığında sonuç çoğunlukla hazırdır.
+ */
+const aiRequests = new WeakMap();
+export function prefetchAi(file) {
+  if (!file || app.forum.attribute('framio-upload-exif.ai_enabled') === '0') return null;
+  if (aiRequests.has(file)) return aiRequests.get(file);
+  const formData = new FormData();
+  const discussion = app.current && typeof app.current.get === 'function' ? app.current.get('discussion') : null;
+  if (discussion && discussion.id) {
+    formData.append('discussion_id', discussion.id());
+    const tags = discussion.tags && discussion.tags();
+    const slug = Array.isArray(tags) && tags[0] && tags[0].slug ? tags[0].slug() : '';
+    if (slug) formData.append('tag_slug', slug);
+  }
+  const p = shrinkForAi(file).then((small) => {
+    formData.append('image', small, 'ai.jpg');
+    // Küçültülen görselde EXIF kalmaz: GPS ve çekim zamanı için dosyanın başı ayrıca gider
+    if (file.slice) formData.append('exif_head', file.slice(0, 256 * 1024), 'head.jpg');
+    if (file.name) formData.append('file_name', file.name);
+    return app.request({ method: 'POST', url: app.forum.attribute('apiUrl') + '/framio-media/analyze-ai', body: formData });
+  });
+  p.catch(() => aiRequests.delete(file));
+  aiRequests.set(file, p);
+  return p;
+}
+
 export default class AttributeModal extends Modal {
   oninit(vnode) {
     super.oninit(vnode);
@@ -471,30 +499,8 @@ export default class AttributeModal extends Modal {
       this.aiMessage('Yapay zeka görseli analiz ediyor ve künye bilgilerini dolduruyor...');
       m.redraw();
 
-      // Kişisel anahtar/sağlayıcı sunucuda kullanıcı tercihlerinden okunur; tarayıcıdan gönderilmez.
-      // Görsel 768 px'e küçültülüp gönderilir: yükleme ve yapay zeka süresi belirgin kısalır.
-      const formData = new FormData();
-      // Konu ve etiket bağlamını AI analizine ilet
-      if (this._currentTagSlugs && this._currentTagSlugs.length > 0) {
-          formData.append('tag_slug', this._currentTagSlugs[0]);
-      }
-      if (app.current && typeof app.current.get === 'function') {
-          const discussion = app.current.get('discussion');
-          if (discussion && discussion.id) {
-              formData.append('discussion_id', discussion.id());
-          }
-      }
-
-      shrinkForAi(this.files[0]).then((small) => {
-      formData.append('image', small, 'ai.jpg');
-      // Küçültülen görselde EXIF kalmaz: GPS ve çekim zamanı için dosyanın başı ayrıca gider
-      if (this.files[0] && this.files[0].slice) formData.append('exif_head', this.files[0].slice(0, 256 * 1024), 'head.jpg'); if (this.files[0] && this.files[0].name) formData.append('file_name', this.files[0].name);
-      return app.request({
-          method: 'POST',
-          url: app.forum.attribute('apiUrl') + '/framio-media/analyze-ai',
-          body: formData
-      });
-      }).then(res => {
+      // Analiz genelde imza ekranında başlamış olur (prefetchAi); burada hazır sonuç alınır
+      (prefetchAi(this.files[0]) || Promise.reject()).then(res => {
           this.isAnalyzingAi = false;
           if (res && res.success === false) {
               // Yapılandırılmamış / kapalı: kullanıcıya hiçbir şey gösterme
