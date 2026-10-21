@@ -612,7 +612,8 @@ export default class WatermarkModal extends Modal {
     this.isZoomed = Stream(false);
     this.slideDirection = Stream('fade-in');
     this.isDropdownOpen = false;
-    this.applyAll = false;
+    // Çoklu fotoğrafta seçim varsayılan olarak tümüne uygulanır (Spotters şablonlarında otomatik seçim fotoğraf başına yapılır)
+    this.applyAll = this.files.length > 1;
     this.isUploadingPersonal = false;
     this.thumbUrls = [];
 
@@ -1405,7 +1406,15 @@ export default class WatermarkModal extends Modal {
   selectWatermark(id) {
       if (this.applyAll) { this.selections.fill(id); this.touched.fill(true); this.autoPicked.fill(false); }
       else { this.selections[this.activeIndex] = id; this.touched[this.activeIndex] = true; this.autoPicked[this.activeIndex] = false; }
+      this.syncApplyAll();
       m.redraw();
+  }
+
+  /** Tüm fotoğraflarda aynı imza varsa "Tümüne" anahtarı açık görünür */
+  syncApplyAll() {
+      if (this.files.length < 2) return;
+      const first = this.selections[0];
+      if (first && this.selections.every((s) => s === first)) this.applyAll = true;
   }
 
   /** Dosyanın yönü (yatay / dikey / kare) */
@@ -1437,6 +1446,7 @@ export default class WatermarkModal extends Modal {
               const o = await this.orientationOf(file);
               let pick = null;
               if (personalAll.length) {
+                  // Kişisel imza (iki sitede de): tüm fotoğraflara uygulanır, yalnızca yönüne uygun sürümü seçilir
                   pick = personalAll.find((w) => {
                       const wo = (w.orientation || w.type || '').toLowerCase();
                       const fn = (w.filename || '').toLowerCase();
@@ -1460,6 +1470,11 @@ export default class WatermarkModal extends Modal {
           } catch (e) {}
       }
       this.autoBusy = false;
+      // Şablonlar fotoğraf başına farklı seçildiyse anahtar kapanır; hepsi aynıysa açık kalır
+      if (this.files.length > 1) {
+          const first = this.selections[0];
+          this.applyAll = !!first && this.selections.every((x) => x === first);
+      }
       m.redraw();
   }
 
