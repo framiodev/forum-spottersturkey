@@ -288,13 +288,22 @@ return [
         ]),
     (new Extend\Event())
         ->listen(\Flarum\Discussion\Event\Saving::class, PostAsHandler::class.'@discussion')
-        ->listen(\Flarum\Post\Event\Saving::class, PostAsHandler::class.'@post'),
+        ->listen(\Flarum\Post\Event\Saving::class, PostAsHandler::class.'@post')
+        // Künye düzenlenince görsel alt metinleri de güncellenir (SEO)
+        ->listen(\Flarum\Post\Event\Revised::class, function (\Flarum\Post\Event\Revised $event) {
+            try {
+                if ($event->post instanceof \Flarum\Post\CommentPost) \Framio\UploadExif\Helpers\AltSync::sync($event->post);
+            } catch (\Throwable $e) {
+                resolve('log')->warning('[upload-exif] Alt metni güncellenemedi: ' . $e->getMessage());
+            }
+        }),
 
     (new Extend\Console())
         // Yeni görsellerin küçültülmüş boyutları ziyaretçiden önce üretilir
         ->command(\Framio\UploadExif\Console\WarmSizesCommand::class)
         ->schedule(\Framio\UploadExif\Console\WarmSizesCommand::class, fn ($e) => $e->everyTenMinutes()->withoutOverlapping())
         // Otomatik koleksiyon başlıkları: yeni fotoğraflı gönderiler
+        ->command(\Framio\UploadExif\Console\SyncAltCommand::class)
         ->command(\Framio\UploadExif\Console\AutoCollectCommand::class)
         ->schedule(\Framio\UploadExif\Console\AutoCollectCommand::class, fn ($e) => $e->everyTenMinutes()->withoutOverlapping())
         ->command(\Framio\UploadExif\Console\FillDimensionsCommand::class)
