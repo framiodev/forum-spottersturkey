@@ -517,6 +517,8 @@ export default class AttributeModal extends Modal {
           }
           if (res && res.data) {
               const ai = res.data;
+              // AI'nın ham marka/modeli: kullanıcı onayda değiştirirse yazım eşlemesi öğrenilir
+              this.aiRaw = { brand: ai.brand || '', model: ai.model || '' };
               let filledCount = 0;
               const aiKeys = ['company', 'plate', 'brand', 'model', 'location', 'year', 'city', 'route', 'fleetCode'];
               const before = aiKeys.map((k) => String(this[k]() || ''));
@@ -616,6 +618,7 @@ export default class AttributeModal extends Modal {
       p.then((res) => {
           const ai = res && res.data;
           if (!ai || !ai.model || this.files[0] !== file) return;
+          this.aiRaw = { brand: ai.brand || '', model: ai.model };
           if (this.brand() !== before.brand || this.model() !== before.model) return; // kullanıcı elle değiştirdi
           const brands = this.getSortedBrands ? this.getSortedBrands() : [];
           const brand = ai.brand ? (brands.length ? bestMatch(ai.brand, brands) : ai.brand) : this.brand();
@@ -1951,8 +1954,23 @@ export default class AttributeModal extends Modal {
     // Birden Çok Açıklama: fotoğraf sırasıyla künye dizisi; Tek: tek künye metni
     const resultText = this.isMulti() ? this.buildPerPhotoTexts(true) : this.wrapKunye(this.prepareData(), true);
     const customData = this.customPayload();
+    this.learnAlias();
     if (this.onsubmitCallback) this.onsubmitCallback(resultText, customData);
     app.modal.close();
+  }
+
+  /** AI'nın marka/modeli onayda farklı yazıldıysa sunucuya bildirilir (şehir içi ve kamyon başlıklarında öğrenilir) */
+  learnAlias() {
+      const raw = this.aiRaw;
+      if (!raw || !raw.model || !this.model()) return;
+      const fold = (s) => String(s || '').toLowerCase().replace(/[^a-z0-9çğıöşü]+/g, ' ').trim();
+      if (fold(raw.brand + ' ' + raw.model) === fold(this.brand() + ' ' + this.model())) return;
+      const discussion = app.current && typeof app.current.get === 'function' ? app.current.get('discussion') : null;
+      app.request({
+          method: 'POST',
+          url: app.forum.attribute('apiUrl') + '/framio-media/ai-alias',
+          body: { ai_brand: raw.brand, ai_model: raw.model, brand: this.brand(), model: this.model(), tag_slug: (this._currentTagSlugs || [])[0] || '', discussion_id: discussion ? discussion.id() : '' },
+      }).catch(() => {});
   }
 
   goToInfo(e) {

@@ -312,6 +312,8 @@ class AnalyzeMediaAiController implements RequestHandlerInterface
             $data['model_source'] = 'similar';
             $data['model_similarity'] = round($v['best'] * 100);
         }
+        // Şehir içi / kamyon: kullanıcı düzeltmelerinden öğrenilen yazım (AI'nın yazımı → forumdaki yazım)
+        if ($isCity || $isTruck) resolve(\Framio\UploadExif\Ai\ModelAliases::class)->apply($isCity ? 'city' : 'truck', $data);
         $seenModel = (string) ($data['model'] ?? '');
         if ($useHistory) {
             // Plaka forumda birebir kayıtlıysa (ve firma çelişmiyorsa) araç bilgisi o künyelerden
