@@ -507,6 +507,9 @@ export default class AttributeModal extends Modal {
           if (res && res.data) {
               const ai = res.data;
               let filledCount = 0;
+              const aiKeys = ['company', 'plate', 'brand', 'model', 'location', 'year', 'city', 'route', 'fleetCode'];
+              const before = aiKeys.map((k) => String(this[k]() || ''));
+              const dynBefore = Object.assign({}, this.dynamicFields);
 
               // 1. Standart alanları doldur
               if (ai.company && (!this.company() || (res.history || []).includes('plate'))) {
@@ -567,6 +570,11 @@ export default class AttributeModal extends Modal {
                       this.dynamicFields[key] = String(ai[key]).trim();
                   }
               });
+
+              // Yapay zekânın doldurduğu değerler: bu değeri taşıyan kutular kalın kenarlıkla işaretlenir
+              this.aiFilledVals = new Set();
+              aiKeys.forEach((k, i) => { const v = String(this[k]() || '').trim(); if (v && v !== before[i].trim()) this.aiFilledVals.add(v); });
+              Object.keys(this.dynamicFields).forEach((k) => { const v = String(this.dynamicFields[k] || '').trim(); if (v && dynBefore[k] !== this.dynamicFields[k]) this.aiFilledVals.add(v); });
 
               this.aiStatus(filledCount ? 'success' : 'idle');
               const hist = res.history || [];
@@ -1026,10 +1034,15 @@ export default class AttributeModal extends Modal {
       const box = root && root.querySelector('.Attribute-Right');
       if (!box) return;
       const checking = this.aiStatus() === 'analyzing';
-      box.querySelectorAll('input.FormControl:not([type=number]):not([type=hidden]), textarea.FormControl').forEach((el) => {
+      const filled = this.aiFilledVals || new Set();
+      box.querySelectorAll('input.FormControl:not([type=hidden]), textarea.FormControl, select.FormControl').forEach((el) => {
+          // Kullanıcı değeri değiştirince işaret kendiliğinden kalkar
+          el.classList.toggle('is-ai-filled', !checking && !!el.value && filled.has(String(el.value).trim()));
+          el.classList.toggle('is-ai-pending', checking && !el.value);
+          if (el.tagName === 'SELECT') return;
           if (checking) {
               if (!el.hasAttribute('data-ph')) el.setAttribute('data-ph', el.getAttribute('placeholder') || '');
-              el.setAttribute('placeholder', 'Framio AI kontrol ediliyor…');
+              el.setAttribute('placeholder', 'Framio AI %' + this.aiPct + ' · dolduruluyor…');
           } else if (el.hasAttribute('data-ph')) {
               el.setAttribute('placeholder', el.getAttribute('data-ph'));
               el.removeAttribute('data-ph');
@@ -1137,7 +1150,8 @@ export default class AttributeModal extends Modal {
             <div className={'Attribute-Right' + (this.aiStatus() === 'analyzing' ? ' is-ai-checking' : '')} style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
 
                 {/* ANLIK AI ANALİZ DURUMU */}
-                {this.aiBarVisible ? (
+                {/* Çalışırken durum alanların içinde gösterilir; burada yalnızca sonuç özeti kalır */}
+                {this.aiBarVisible && this.aiStatus() !== 'analyzing' ? (
                     <div className={'FramioAI-Bar is-' + this.aiStatus()} role="status" aria-live="polite">
                         <div className="FramioAI-BarFill" style={{ width: this.aiPct + '%' }}></div>
                         <span className="FramioAI-BarText">

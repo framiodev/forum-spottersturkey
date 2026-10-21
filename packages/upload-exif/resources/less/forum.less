@@ -1823,7 +1823,9 @@ img.spotter-lazy:not([width]):not(.is-loaded) {
     background-image: linear-gradient(100deg, transparent 20%, ~"color-mix(in srgb, var(--primary-color) 12%, transparent)" 50%, transparent 80%);
     background-size: 200% 100%; animation: FramioAIShimmer 1.4s ease-in-out infinite;
 }
-.is-ai-checking .FormControl:placeholder-shown::placeholder { color: var(--primary-color); opacity: .85; }
+.is-ai-checking .FormControl:placeholder-shown::placeholder { color: var(--muted-color); opacity: .6; font-style: italic; }
+.is-ai-checking select.FormControl.is-ai-pending { color: var(--muted-color); opacity: .7; }
+.Attribute-Right .FormControl.is-ai-filled { border: 2px solid var(--primary-color) !important; }
 @keyframes FramioAIShimmer { from { background-position: 150% 0; } to { background-position: -50% 0; } }
 @media (prefers-reduced-motion: reduce) { .is-ai-checking .FormControl:placeholder-shown { animation: none; } }
 
