@@ -27,4 +27,36 @@
   // Uzun kelimeler/adresler sayfayı yatayda kaydırmasın
   .Post-body, .DiscussionListItem-title, .Hero-title { overflow-wrap: anywhere; }
   html, body { overflow-x: hidden; }
+
+  // Alt sekme çubuğu (Instagram tarzı): içerik çubuğun altında kalmasın
+  body { padding-bottom: calc(56px + env(safe-area-inset-bottom, 0px)); }
+  .MobileTabBar {
+    position: fixed; left: 0; right: 0; bottom: 0; z-index: 260;
+    display: flex; justify-content: space-around; align-items: center;
+    height: calc(56px + env(safe-area-inset-bottom, 0px)); padding-bottom: env(safe-area-inset-bottom, 0px);
+    background: var(--body-bg); border-top: 1px solid var(--control-bg);
+  }
+  .MobileTabBar-tab {
+    position: relative; flex: 1; height: 56px; border: 0; background: none; padding: 0;
+    color: var(--muted-color); font-size: 21px; display: grid; place-items: center; cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    &.active { color: var(--text-color); }
+    &:active .icon { transform: scale(.88); }
+  }
+  .MobileTabBar-upload .icon {
+    width: 42px; height: 32px; border-radius: 10px; display: grid; place-items: center;
+    background: var(--primary-color); color: #fff; font-size: 17px;
+  }
+  .MobileTabBar-badge {
+    position: absolute; top: 9px; left: 50%; margin-left: 5px; min-width: 17px; height: 17px; padding: 0 4px;
+    border-radius: 9px; background: var(--primary-color); color: #fff; font: 700 10px/17px sans-serif; text-align: center;
+  }
+  // Çubukta karşılığı olan yüzen "Yeni başlık" düğmesi ve sağ alttaki yukarı çık düğmeleri çubuğun üstüne çıkar
+  .App-backControl ~ .App-primaryControl, .IndexPage .App-primaryControl { display: none; }
+  .scroll-to-top, .back-to-top, #back-to-top { bottom: calc(68px + env(safe-area-inset-bottom, 0px)) !important; }
+}
+
+// Masaüstünde alt çubuk yok
+@media (min-width: 768px) {
+  .MobileTabBar-mount { display: none; }
 }

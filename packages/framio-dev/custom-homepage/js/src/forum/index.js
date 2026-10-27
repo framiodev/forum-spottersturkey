@@ -16,6 +16,7 @@ import CategoryFeed from './components/CategoryFeed';
 import registerNavMenu from './navMenu';
 import ExplorePage from './components/ExplorePage';
 import Component from 'flarum/common/Component';
+import MobileTabBar from './components/MobileTabBar';
 
 /** /gallery → galeri görünümü (yönlendirme) */
 class GalleryRedirect extends Component {
@@ -35,6 +36,14 @@ registerNavMenu();
 app.initializers.add('framio-custom-homepage', () => {
     // Keşfet sayfası (/kesfet). Ana sayfa yapmak için Yönetim → Temel → Varsayılan Rota = /kesfet
     app.routes['framio.explore'] = { path: '/kesfet', component: ExplorePage };
+
+    // Telefon alt sekme çubuğu: uygulama kökünün dışında kendi bağlama noktasında yaşar
+    try {
+        const tabBarEl = document.createElement('div');
+        tabBarEl.className = 'MobileTabBar-mount';
+        document.body.appendChild(tabBarEl);
+        m.mount(tabBarEl, MobileTabBar);
+    } catch (e) {}
 
     // Lightbox açıkken konan yenileme çerezi, yeni sekmede açılan bağlantılarla
     // (Konuya Git vb.) sunucuya gidip o sekmeyi ana sayfaya yönlendiriyordu.
