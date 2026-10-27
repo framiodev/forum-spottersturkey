@@ -82,6 +82,9 @@ class InjectSeoTags
 
     private function injectGlobalTags(Document $document): void
     {
+        // Son paylaşımlar akışı (WebSub ile hızlı keşif)
+        $document->head[] = '<link rel="alternate" type="application/atom+xml" title="' . htmlspecialchars($this->seo->siteName(), ENT_QUOTES) . ' – Son paylaşımlar" href="' . $this->seo->baseUrl() . '/feed.xml">';
+
         if ($code = $this->seo->get('gsc_code')) {
             $document->head[] = '<meta name="google-site-verification" content="' . e($code) . '">';
         }
@@ -179,6 +182,7 @@ class InjectSeoTags
             ],
         ]);
         $this->jsonLd($document, ['@context' => 'https://schema.org'] + $this->organization());
+        $this->homeLatestBlock($document);
 
         // Öne çıkan bölümler: Google'a ana gezinme yapısını açıkça bildirir (alt bağlantı adaylarını güçlendirir)
         if ($nav = $this->featuredNavigation()) {
@@ -195,6 +199,29 @@ class InjectSeoTags
                 ], $nav, array_keys($nav)),
             ]);
         }
+    }
+
+    /**
+     * Ana sayfanın botlara görünen "Son paylaşımlar" bloğu. Ana sayfadaki "Son Gönderilen Mesajlar" ve galeri
+     * tarayıcıda JavaScript ile oluştuğu için Googlebot ilk taramada hiçbir paylaşım bağlantısı görmüyordu;
+     * yeni mesaj sayfaları bu blokla ana sayfanın her taramasında keşfedilir.
+     */
+    private function homeLatestBlock(Document $document): void
+    {
+        $items = resolve(\Framio\SeoPack\Support\LatestPosts::class)->get(max(1, $this->seo->int('home_latest_count') ?: 30));
+        if (!$items) return;
+        $e = fn ($v) => htmlspecialchars((string) $v, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
+        $html = '<section class="container"><h2>Son paylaşımlar</h2><ul>';
+        foreach ($items as $it) {
+            $html .= '<li><a href="' . $e($it['url']) . '">'
+                . ($it['image'] ? '<img src="' . $e($it['image']) . '" alt="' . $e($it['title']) . '" loading="lazy" width="480"><br>' : '')
+                . $e($it['title']) . '</a>'
+                . ($it['lines'] ? ' — ' . $e(implode(' · ', array_slice($it['lines'], 1))) : '')
+                . ' <small>' . $e($it['discussion']) . ($it['date'] ? ' · ' . $e($it['date']->format('d.m.Y')) : '') . '</small></li>';
+        }
+        $html .= '</ul></section>';
+        $core = $document->content;
+        $document->content = $html . ($core instanceof \Illuminate\Contracts\Support\Renderable ? $core->render() : (string) $core);
     }
 
     /** @return array<int, array{name: string, description: string, url: string}> */
@@ -412,6 +439,11 @@ class InjectSeoTags
         if ($page > 1 && $posts->isEmpty()) {
             $document->meta['robots'] = 'noindex, follow';
         }
+        // Henüz içeriği olmayan başlık (yalnızca açıklama mesajı): ince sayfa dizine girmez, bağlantıları izlenir.
+        // İlk paylaşım gelince kendiliğinden dizinlenebilir olur (ayar: discussion_min_posts, varsayılan 2).
+        if ((int) $discussion->comment_count < max(1, $this->seo->int('discussion_min_posts'))) {
+            $document->meta['robots'] = 'noindex, follow';
+        }
         $firstPost = $discussion->first_post_id ? CommentPost::find($discussion->first_post_id) : null;
 
         // /d/X/N: bu mesaj künyeli / fotoğraflıysa kendi sayfası olarak sunulur
@@ -527,6 +559,26 @@ class InjectSeoTags
 
         $this->jsonLd($document, $this->discussionSchema($discussion, $posts, $firstPost, $page, $pageUrl, $canonical, $pageTitle, $description, $images, $postUrls));
         $this->jsonLd($document, $this->discussionBreadcrumb($discussion, $canonical));
+
+        // Her fotoğrafın asıl sayfası kendi mesajıdır: JS'siz içerikte fotoğraf → mesaj sayfası bağlantıları
+        // (Google Görseller'den gelen ziyaretçi başlığın başına değil, o fotoğrafın mesajına insin)
+        $pages = resolve(PostPages::class);
+        $links = [];
+        foreach ($posts as $post) {
+            if ($post->number > 1 && $pages->qualifies($post) && ($caption = collect($images)->firstWhere('post_url', $postUrls[$post->id])['caption'] ?? null)) {
+                $links[$postUrls[$post->id]] = $caption;
+            }
+        }
+        if ($links) {
+            $e = fn ($v) => htmlspecialchars((string) $v, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
+            $nav = '<nav class="container"><p>Bu sayfadaki fotoğraflar:</p><ul>';
+            foreach ($links as $href => $label) {
+                $nav .= '<li><a href="' . $e($href) . '">' . $e($label) . '</a></li>';
+            }
+            $nav .= '</ul></nav>';
+            $core = $document->content;
+            $document->content = $nav . ($core instanceof \Illuminate\Contracts\Support\Renderable ? $core->render() : (string) $core);
+        }
     }
 
     /**
@@ -655,7 +707,8 @@ class InjectSeoTags
             'datePublished' => $date?->toIso8601String(),
             'dateModified' => ($post->edited_at ?: $date)?->toIso8601String(),
             'inLanguage' => $this->lang,
-            'isPartOf' => ['@type' => 'DiscussionForumPosting', '@id' => $threadUrl . '#discussion', 'url' => $threadUrl, 'headline' => $this->cleanText($discussion->title)],
+            // Üst başlık WebPage olarak (DiscussionForumPosting yazılırsa Google yazar/tarih ister ve geçersiz öğe sayar)
+            'isPartOf' => ['@type' => 'WebPage', '@id' => $threadUrl, 'url' => $threadUrl, 'name' => $this->cleanText($discussion->title)],
             'publisher' => $this->organization(),
         ];
         if ($imageObjects) {
@@ -730,11 +783,21 @@ class InjectSeoTags
         }
         $html .= '</div></article><hr>';
 
-        $core = $document->content;
-        $coreHtml = $core instanceof \Illuminate\Contracts\Support\Renderable ? $core->render() : (string) $core;
-        // Sayfanın tek ana başlığı gönderinin künyesidir; çekirdeğin konu başlığı alt başlığa iner (çift <h1> olmaz)
-        $coreHtml = preg_replace('~<h1(\s[^>]*)?>(.*?)</h1>~s', '<h2$1>$2</h2>', $coreHtml, 1);
-        $document->content = $html . $coreHtml;
+        // Konunun diğer mesajları yalnızca METİN bağlantısı olarak (görselsiz, içeriksiz). Eskiden çekirdeğin konu
+        // sayfası içeriği olduğu gibi eklenirdi; mesaj sayfası konu sayfasıyla büyük ölçüde aynı göründüğü için Google
+        // bunları "kopya" sayıp konu sayfasını standart seçiyordu. Artık her mesaj sayfası kendine özgü.
+        $others = CommentPost::where('discussion_id', $discussion->id)->where('number', '!=', $post->number)
+            ->whereNull('hidden_at')->orderByDesc('number')->limit(40)->get()
+            ->filter(fn ($p) => $pages->qualifies($p))->take(12);
+        $html .= '<nav class="container"><p>' . $e($discussion->title) . ' başlığındaki diğer paylaşımlar:</p><ul>';
+        foreach ($others as $o) {
+            $k = $pages->kunye($o);
+            $label = $this->cleanText($k['title'] ?? '') ?: ('#' . $o->number);
+            $html .= '<li><a href="' . $e($pages->url($o)) . '">' . $e($label) . '</a></li>';
+        }
+        $html .= '</ul><p><a href="' . $e($threadUrl) . '">Tüm başlığı gör: ' . $e($discussion->title) . '</a></p></nav>';
+
+        $document->content = $html;
     }
 
     private function exifProperties(array $exif): array
@@ -902,10 +965,10 @@ class InjectSeoTags
         ];
         [$type, $class, $idLabel] = $niches[$this->seo->get('niche_mode')] ?? $niches['general'];
 
-        $entity = ['@type' => $type, 'name' => trim($brand . ' ' . $model) ?: $plate];
-        if ($class) {
-            $entity['additionalType'] = $class;
-        }
+        // Vehicle/BusOrCoach schema.org'da Product alt türüdür; Google bunları "Ürün snippet'i" sayıp fiyat/yorum ister
+        // ve geçersiz öğe hatası verir. Araç bu yüzden Thing olarak, türü additionalType ile bildirilir.
+        $entity = ['@type' => 'Thing', 'name' => trim($brand . ' ' . $model) ?: $plate];
+        $entity['additionalType'] = array_values(array_filter(['https://schema.org/' . $type, $class]));
         if ($brand !== '') {
             $entity['brand'] = ['@type' => 'Brand', 'name' => $brand];
         }

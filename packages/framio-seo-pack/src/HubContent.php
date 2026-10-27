@@ -111,6 +111,9 @@ class HubContent
                         'creditText' => $it['author'] ? $it['author'] . ' / ' . $site : $site,
                         'copyrightNotice' => $site,
                         'datePublished' => $it['date'],
+                        // Mesaj sayfalarıyla aynı lisans bilgisi (Google Görseller "Lisans ayrıntıları")
+                        'license' => $this->seo->get('license_url') ?: null,
+                        'acquireLicensePage' => $this->seo->get('acquire_license_url') ?: null,
                     ]),
                 ], $data['items'], array_keys($data['items'])),
             ],
@@ -128,9 +131,13 @@ class HubContent
         $html = '<div class="container"><p><a href="' . $e($base . '/arac') . '">Araçlar</a> › ' . $e($data['typeLabel']) . '</p>'
             . '<h1>' . $e($data['title']) . '</h1><p>' . $e($description) . '</p><ul>';
         foreach ($data['items'] as $it) {
-            $html .= '<li><a href="' . $e($it['url']) . '">'
-                . ($it['image'] ? '<img src="' . $e($it['image']) . '" alt="' . $e($it['alt'] ?: $it['title']) . '" loading="lazy"><br>' : '')
-                . $e($it['title']) . '</a> — ' . $e($it['discussion']) . '</li>';
+            // Mesajdaki bütün fotoğraflar gerçek görsel olarak (yalnızca ilki değil): görsel aramada her biri bulunur
+            $imgs = array_values(array_unique(array_filter(array_column($it['photos'] ?? [], 'url')) ?: array_filter([$it['image']])));
+            $html .= '<li><a href="' . $e($it['url']) . '">';
+            foreach ($imgs as $src) {
+                $html .= '<img src="' . $e($src) . '" alt="' . $e($it['alt'] ?: $it['title']) . '" loading="lazy">';
+            }
+            $html .= ($imgs ? '<br>' : '') . $e($it['title']) . '</a> — ' . $e($it['discussion']) . '</li>';
         }
         $html .= '</ul>';
         if ($data['page'] > 1) {

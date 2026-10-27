@@ -470,7 +470,8 @@ class EntityIndex
                         'exif' => is_array($exif) ? $exif : null,
                     ];
                 }, $row->photos),
-                'imageOriginal' => $imageUrl ? $proxy($imageUrl, 'original') : null,
+                // Arama motorlarına (JSON-LD contentUrl, og:image) tek görsel adresi; tam boy yalnızca ziyaretçinin büyük görünümünde
+                'imageOriginal' => $imageUrl ? $proxy($imageUrl, 'page') : null,
                 'alt' => $caption,
                 'discussion' => $post->discussion->title,
                 'author' => $post->user ? ($post->user->display_name ?: $post->user->username) : null,

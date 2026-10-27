@@ -57,16 +57,14 @@ class ImageSitemapController implements RequestHandlerInterface
                         continue;
                     }
 
-                    // Mesaj sayfası olarak sitemap-posts.xml'de zaten bildirilen
-                    // mesajların görselleri burada tekrarlanmaz
+                    // Mesaj sayfası olan mesajların görselleri o sayfaya (/d/x/N), diğerleri tartışma sayfasına bağlanır.
+                    // (Eskiden mesaj sayfası olanlar atlanıyordu; dosya boş kalıyor ve Search Console hata veriyordu.)
                     if ($post->number > 1 && $postPages->qualifies($post)) {
-                        continue;
+                        $loc = $postPages->url($post);
+                    } else {
+                        $page = 1 + intdiv(max(0, (int) $post->number - 1), self::POSTS_PER_PAGE);
+                        $loc = $baseUrl . '/d/' . $d->id . ($d->slug ? '-' . $d->slug : '') . ($page > 1 ? '?page=' . $page : '');
                     }
-
-                    // İlk mesajın görselleri (ve mesaj sayfası kapalıysa hepsi)
-                    // tartışma sayfasına bağlanır
-                    $page = 1 + intdiv(max(0, (int) $post->number - 1), self::POSTS_PER_PAGE);
-                    $loc = $baseUrl . '/d/' . $d->id . ($d->slug ? '-' . $d->slug : '') . ($page > 1 ? '?page=' . $page : '');
 
                     // Ham XML doğrudan taranır (unparse etmekten çok daha hızlı);
                     // parser hem <ETIKET url=…> hem <IMG src=…> biçimini tanır.

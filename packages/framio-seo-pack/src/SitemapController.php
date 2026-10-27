@@ -51,7 +51,8 @@ class SitemapController implements RequestHandlerInterface
 
         // Misafir yetkisiyle: kısıtlı etiketlerdeki konular sitemap'e girmez
         $discussions = Discussion::whereVisibleTo(new \Flarum\User\Guest())
-            ->where('discussions.comment_count', '>', 0)
+            // Yalnızca açıklama mesajı olan (henüz paylaşım gelmemiş) başlıklar bildirilmez: sayfada noindex alırlar
+            ->where('discussions.comment_count', '>=', max(1, $this->seo->int('discussion_min_posts')))
             ->orderBy('discussions.last_posted_at', 'desc')
             ->limit(45000)
             ->get(['discussions.id', 'discussions.slug', 'discussions.created_at', 'discussions.last_posted_at']);

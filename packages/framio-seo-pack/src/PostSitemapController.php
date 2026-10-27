@@ -54,7 +54,8 @@ class PostSitemapController implements RequestHandlerInterface
                     $xml .= '<lastmod>' . $modified->toAtomString() . '</lastmod>';
                 }
                 foreach (array_slice($this->posts->images($post), 0, 20) as $img) {
-                    $loc = MediaTagParser::toProxyUrl($img['url'], $base, 'original', $rules, $proxyPath);
+                    // Mesaj sayfasındaki ile aynı adres (tam boy değil): tek görsel adresi
+                    $loc = MediaTagParser::toProxyUrl($img['url'], $base, 'page', $rules, $proxyPath);
                     $xml .= '<image:image><image:loc>' . htmlspecialchars($loc, ENT_XML1, 'UTF-8') . '</image:loc></image:image>';
                 }
                 $xml .= "</url>\n";

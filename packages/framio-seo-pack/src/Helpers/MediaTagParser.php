@@ -289,9 +289,39 @@ class MediaTagParser
     {
         return str_replace([' ', '"', '<', '>'], ['%20', '%22', '%3C', '%3E'], $url);
     }
+    /** @var array{0:?string,1:int}|null boyutlandıran görsel sunucusu ve sayfa genişliği (istek içi önbellek) */
+    private static ?array $pageConf = null;
+
+    /**
+     * Arama motorlarına bildirilen TEK görsel adresi: görsel sunucusunda (upload-exif özel alan adı, ?w= destekli)
+     * mesaj içiyle aynı "…/ad.webp?w=1024". thumb_/mini_ önekleri ve farklı ?w= değerleri bu adrese tekleşir;
+     * böylece site haritası, yapılandırılmış veri, araç sayfaları ve mesaj aynı görsel adresini gösterir.
+     * Görsel sunucusu dışındaki (yerel /assets/files gibi) adresler olduğu gibi kalır.
+     */
+    public static function pageImage(string $url): string
+    {
+        if (self::$pageConf === null) {
+            $settings = resolve(\Flarum\Settings\SettingsRepositoryInterface::class);
+            $domain = trim((string) $settings->get('framio-upload-exif.custom_domain'));
+            $host = $domain !== '' && $settings->get('framio-upload-exif.cdn_dynamic_resize') ? strtolower((string) parse_url((str_contains($domain, '://') ? '' : 'https://') . $domain, PHP_URL_HOST)) : null;
+            self::$pageConf = [$host ?: null, max(250, (int) ($settings->get('framio-seo.page_image_width') ?: 1024))];
+        }
+        [$host, $width] = self::$pageConf;
+        if (!$host || strtolower((string) parse_url($url, PHP_URL_HOST)) !== $host) return $url;
+        $url = preg_replace('/(\/)(?:thumb_|mini_)/i', '$1', $url);
+        $url = preg_replace('/\?.*$/', '', $url);
+
+        return $url . '?w=' . $width;
+    }
+
     public static function formatImageQuality(string $url, string $quality = 'thumb'): string
     {
         $url = trim($url);
+
+        // "Mesajdaki adres" (varsayılan) ve "page": görsel sunucusundaki görseller tek adrese (…?w=1024)
+        if ($quality === 'thumb' || $quality === 'page') {
+            return self::pageImage($url);
+        }
 
         if ($quality === 'original') {
             // thumb_/mini_ kopyaları ve görsel sunucusunun ?w= boyut parametresi yerine tam boyutlu görsel
@@ -520,6 +550,14 @@ class MediaTagParser
             }
         }
 
+        // Şehir içi künyede plaka satırı "Filo kodu | Plaka" düzenindedir ("A-1873 | 34 HO 2109", "07-589 | 06 BF 6444"):
+        // baştaki kısım firma değil kapı/filo kodudur; firma sayılırsa "/arac/firma/a-1873" gibi sayfalar oluşur.
+        $fleet = '';
+        if ($company !== '' && preg_match('/^(?:[A-ZÇĞİÖŞÜ]{1,3}\s?-?\s?\d{1,5}[A-Z]?|\d{1,3}\s?-\s?\d{2,5}|\d{1,5}[A-Z]?)$/u', $company)) {
+            $fleet = $company;
+            $company = '';
+        }
+
         $title = !empty($lines) ? implode(' - ', array_slice($lines, 0, 2)) : '';
         $full = implode("\n", $lines);
 
@@ -531,6 +569,7 @@ class MediaTagParser
             'registration' => $plate,
             'company' => $company,
             'operator' => $company,
+            'fleet' => $fleet,
             'brand' => $brand,
             'model' => $model,
             'location' => $location,

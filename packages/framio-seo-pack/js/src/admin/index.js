@@ -1476,7 +1476,7 @@ export default class SeoAdminPage extends ExtensionPage {
                         value: this.setting('framio-seo.sitemap_image_quality', 'thumb')(),
                         onchange: e => this.setting('framio-seo.sitemap_image_quality')(e.target.value)
                     }, [
-                        m('option', { value: 'thumb' }, 'Mesajdaki adres olduğu gibi (önerilen)'),
+                        m('option', { value: 'thumb' }, 'Tek adres: mesajdaki görsel boyutu (?w=1024; önerilen)'),
                         m('option', { value: 'original' }, 'Tam boyutlu ana görsel (?w= ve thumb_/mini_ ekleri kaldırılır)')
                     ]),
                     m('div.helpText', { style: 'font-size:11px; color:#888; margin-top:4px;' }, 'Site haritası, JSON-LD ve paylaşım kartlarında kullanılacak görsel adresi. Filigranlı WebP ana görsel kullanılır; filigransız orijinal JPG hiçbir zaman arama motorlarına bildirilmez.')
@@ -1589,6 +1589,7 @@ export default class SeoAdminPage extends ExtensionPage {
                 this.seoField('post_title_format', 'Mesaj Sayfası Başlık Şablonu', { placeholder: '{kunye}', help: 'Etiketler: {kunye} {plate} {brand} {model} {company} {location} {title} {number}. Sonuç boşsa "{konu başlığı} #{no}" kullanılır.' }),
                 this.seoToggle('post_show_exif', 'EXIF bilgisini (kamera, lens, ayarlar) mesaj sayfalarında ve şemada göster'),
                 this.seoToggle('post_show_location', 'EXIF GPS konumunu şemada göster', '0', 'Gizlilik nedeniyle varsayılan kapalı.'),
+                this.seoField('discussion_min_posts', 'Başlığın dizine girmesi için en az mesaj sayısı', { type: 'number', placeholder: '2', help: 'Bu sayının altındaki başlıklar (ör. yalnızca açıklama mesajı olan, henüz fotoğraf paylaşılmamış başlıklar) noindex alır ve sitemap’e girmez; ilk paylaşım gelince kendiliğinden dizinlenebilir olur.' }),
                 this.seoField('profile_min_posts', 'Profil sayfasının dizine girmesi için en az mesaj sayısı', { type: 'number', placeholder: '1', help: 'Bu sayının altındaki üye profilleri noindex alır ve sitemap\'e girmez (boş/ince profil sayfaları sitenin kalite puanını düşürür).' })
             ]),
 

@@ -2,6 +2,7 @@
 
 namespace Framio\UploadExif\Formatter;
 
+use Flarum\Settings\SettingsRepositoryInterface;
 use Illuminate\Database\ConnectionInterface;
 use s9e\TextFormatter\Renderer;
 
@@ -15,8 +16,32 @@ class AddImageDimensions
     /** @var array<int, array{0:int,1:int}|null> İstek boyunca önbellek */
     protected static array $cache = [];
 
-    public function __construct(protected ConnectionInterface $db)
+    public function __construct(protected ConnectionInterface $db, protected SettingsRepositoryInterface $settings)
     {
+    }
+
+    /**
+     * Eski mesajlardaki "…/thumb_ad.webp" (ya da farklı ?w=) adresleri, görsel sunucusundaki tek adrese
+     * ("…/ad.webp?w=1024") çevrilir: ziyaretçi ve arama motoru aynı görseli tek adresle görür, yönlendirme olmaz.
+     * İçerik veritabanında değişmez; yalnızca HTML'e çevrilirken uygulanır.
+     */
+    protected function pageUrl(string $url): string
+    {
+        static $conf = null;
+        if ($conf === null) {
+            $domain = trim((string) $this->settings->get('framio-upload-exif.custom_domain'));
+            $host = $domain !== '' && $this->settings->get('framio-upload-exif.cdn_dynamic_resize')
+                ? strtolower((string) parse_url((str_contains($domain, '://') ? '' : 'https://') . $domain, PHP_URL_HOST)) : '';
+            $conf = [$host, max(250, (int) ($this->settings->get('framio-seo.page_image_width') ?: 1024))];
+        }
+        [$host, $width] = $conf;
+        $raw = html_entity_decode($url, ENT_QUOTES | ENT_XML1);
+        if ($host === '' || strtolower((string) parse_url($raw, PHP_URL_HOST)) !== $host) {
+            return $url;
+        }
+        $raw = preg_replace('/\?.*$/', '', preg_replace('#/(?:thumb_|mini_)([^/]+)$#i', '/$1', $raw));
+
+        return htmlspecialchars($raw . '?w=' . $width, ENT_QUOTES | ENT_XML1);
     }
 
     public function __invoke(Renderer $renderer, $context, string $xml): string
@@ -48,6 +73,9 @@ class AddImageDimensions
         return preg_replace_callback(
             '/<(FRAMIO-IMAGE|SPOTTER-IMAGE|ULASIMARSIV-IMAGE|UPL-IMAGE-PREVIEW)\b([^>]*)>/',
             function ($tag) {
+                // Görsel adresi tek adrese (thumb_ / farklı ?w= → ?w=1024)
+                $tag[2] = preg_replace_callback('/\b(url|src)="([^"]*)"/', fn ($u) => $u[1] . '="' . $this->pageUrl($u[2]) . '"', $tag[2]);
+                $tag[0] = '<' . $tag[1] . $tag[2] . '>';
                 if (str_contains($tag[2], ' w="') || !preg_match('/\bid="(\d+)"/', $tag[2], $id)) {
                     return $tag[0];
                 }

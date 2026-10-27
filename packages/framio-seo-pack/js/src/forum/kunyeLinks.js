@@ -1,6 +1,5 @@
 import app from 'flarum/forum/app';
 import { extend } from 'flarum/common/extend';
-import CommentPost from 'flarum/forum/components/CommentPost';
 
 /**
  * Künye alanındaki marka / model / firma / plaka / şehir / yıl adlarını derleme
@@ -110,8 +109,9 @@ function scanLightbox() {
 }
 
 export default function kunyeLinks() {
-  extend(CommentPost.prototype, 'oncreate', apply);
-  extend(CommentPost.prototype, 'onupdate', apply);
+  // CommentPost Flarum 2'de gerektiğinde yüklenir (ana sayfadan girişte henüz yok): adla, yüklenince bağlanır
+  extend('flarum/forum/components/CommentPost', 'oncreate', apply);
+  extend('flarum/forum/components/CommentPost', 'onupdate', apply);
 
   let queued = false;
   new MutationObserver(() => {

@@ -5,6 +5,7 @@ import analytics from './analytics';
 import ads from './ads';
 import searchTracker from './searchTracker';
 import kunyeLinks from './kunyeLinks';
+import postTitle from './postTitle';
 import HubPage from './components/HubPage';
 import HubIndexPage from './components/HubIndexPage';
 
@@ -18,8 +19,12 @@ export const extend = [
 ];
 
 app.initializers.add('framio-seo-pack', () => {
-  analytics();
-  ads();
-  searchTracker();
-  kunyeLinks();
+  // Biri hata verse de diğerleri çalışsın ve forumda "başlatılamadı" uyarısı çıkmasın
+  [analytics, ads, searchTracker, kunyeLinks, postTitle].forEach((fn) => {
+    try {
+      fn();
+    } catch (e) {
+      console.warn('[framio-seo-pack]', fn.name, e);
+    }
+  });
 });

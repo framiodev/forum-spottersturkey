@@ -1,5 +1,4 @@
 import { extend } from 'flarum/common/extend';
-import Search from 'flarum/forum/components/Search';
 import app from 'flarum/forum/app';
 
 let lastTrackedQuery = '';
@@ -23,7 +22,8 @@ function trackSearchQuery(query) {
 
 export default function () {
     // Intercept search input/submit in Flarum search component
-    extend(Search.prototype, 'oncreate', function (vnode) {
+    // Arama bileşeni gerektiğinde yüklenir: adla bağlanır
+    extend('flarum/forum/components/Search', 'oncreate', function (vnode) {
         const input = vnode.dom.querySelector('input');
         if (input) {
             input.addEventListener('keydown', (e) => {

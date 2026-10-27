@@ -67,6 +67,8 @@ return [
         ->get('/sitemap_index.xml', 'framio.seo.sitemap.alt', SitemapController::class)
         ->get('/sitemap-images.xml', 'framio.seo.sitemap.images', ImageSitemapController::class)
         ->get('/robots.txt', 'framio.seo.robots', RobotsController::class)
+        ->get('/feed.xml', 'framio.seo.feed', \Framio\SeoPack\FeedController::class)
+        ->get('/llms.txt', 'framio.seo.llms', \Framio\SeoPack\LlmsTxtController::class)
         ->get('/ads.txt', 'framio.seo.adstxt', \Framio\SeoPack\AdsTxtController::class)
         ->get('/sitemap-posts.xml', 'framio.seo.sitemap.posts', PostSitemapController::class)
         ->get('/sitemap-hubs.xml', 'framio.seo.sitemap.hubs', \Framio\SeoPack\HubSitemapController::class)
@@ -128,6 +130,7 @@ return [
             resolve(SendToGoogleConsole::class)->whenPostCreated($event);
             resolve(PingIndexNow::class)->whenPostCreated($event);
             resolve(AutoAltTags::class)->whenPostCreated($event);
+            resolve(\Framio\SeoPack\Listener\PingWebSub::class)->whenPostCreated($event);
         })
         ->listen(Revised::class, function (Revised $event) {
             resolve(SendToGoogleConsole::class)->whenPostRevised($event);
