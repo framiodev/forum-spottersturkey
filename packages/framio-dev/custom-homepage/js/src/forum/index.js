@@ -289,7 +289,7 @@ app.initializers.add('framio-custom-homepage', () => {
             const tag = slug && app.store.all('tags').find((t) => t.slug().toLowerCase() === slug);
             if (tag && window.matchMedia('(max-width: 767px)').matches) {
                 document.documentElement.classList.add('MobileTagPage');
-                return <MobileTagHeader tag={tag} />;
+                return <MobileTagHeader category={tag} />;
             }
         } catch (e) {}
         document.documentElement.classList.remove('MobileTagPage');

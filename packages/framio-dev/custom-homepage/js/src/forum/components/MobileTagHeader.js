@@ -7,7 +7,9 @@ import Component from 'flarum/common/Component';
  */
 export default class MobileTagHeader extends Component {
   view() {
-    const tag = this.attrs.tag;
+    // "tag" adı Mithril vnode alanıyla çakıştığı için özellik adı "category"
+    const tag = this.attrs.category;
+    if (!tag) return <header className="MobileTagHeader-empty" />;
     const covers = (() => { try { return JSON.parse(app.forum.attribute('framioTagCovers') || '{}'); } catch (e) { return {}; } })();
     const coverOf = (t) => covers[t.id()] || (t.backgroundUrl && t.backgroundUrl()) || null;
     const children = app.store.all('tags')
