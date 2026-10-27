@@ -15,6 +15,8 @@ use Illuminate\Support\Str;
 class EntityIndex
 {
     public const TABLE = 'framio_seo_entities';
+    /** Künye ayrıştırma kuralları değişince artırılır: seo:maintenance varlık dizinini kendiliğinden yeniler */
+    public const PARSER_VERSION = 2;
 
     /** tür => [adres parçası, tekil etiket, sayfa başlığı şablonu] */
     public const TYPES = [

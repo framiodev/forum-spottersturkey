@@ -46,9 +46,16 @@ export function renderHealthPanel(page) {
     const cronTone = !d.web_cron.enabled ? 'muted' : (cronAge !== null && cronAge < 600 ? 'ok' : 'bad');
     const pct = d.indexing.backfill_total ? Math.round(100 * d.indexing.backfill_cursor / d.indexing.backfill_total) : 0;
 
+    const audit = d.audit || {};
+    const statics = d.static_files || [];
+    const lic = d.license || {};
+    const licOk = !!(lic.license_url && lic.acquire_url);
+    const ent = d.entities || {};
+    const entOk = ent.version === ent.current;
+    // Google Indexing API puana katılmaz: Google yalnızca iş ilanı / canlı yayın sayfaları için izin veriyor
     const checks = [
         d.sitemaps.post_pages_enabled, d.indexing.indexnow, d.bot_cache.enabled, d.sitemaps.legacy_redirects,
-        cronTone === 'ok', d.indexing.service_account
+        cronTone === 'ok', statics.length === 0, licOk, entOk, !!audit.at && audit.bad_count === 0
     ];
     const score = Math.round(100 * checks.filter(Boolean).length / checks.length);
 
@@ -79,7 +86,35 @@ export function renderHealthPanel(page) {
                             .then(res => { app.alerts.show({ type: 'success' }, res.message); loadHealth(page); });
                     }
                 }, 'Temizle') : null),
-            item(d.sitemaps.legacy_redirects ? 'ok' : 'muted', 'directions', 'Eski adres yönlendirmesi', d.sitemaps.legacy_redirects ? 'Açık' : 'Kapalı', 'Yanlış kısa adlı konu adresleri 301 ile düzeltilir')
-        ])
+            item(d.sitemaps.legacy_redirects ? 'ok' : 'muted', 'directions', 'Eski adres yönlendirmesi', d.sitemaps.legacy_redirects ? 'Açık' : 'Kapalı', 'Yanlış kısa adlı konu adresleri 301 ile düzeltilir'),
+            item(statics.length ? 'bad' : 'ok', 'file-alt', 'Kök klasördeki statik dosyalar', statics.length ? statics.join(', ') : 'Yok',
+                statics.length ? 'Bu dosyalar eklentinin otomatik robots.txt / site haritasının önüne geçiyor; sunucuda yeniden adlandırın.' : 'robots.txt ve site haritaları eklentiden üretiliyor'),
+            item(licOk ? 'ok' : 'warn', 'balance-scale', 'Görsel lisans bilgisi', licOk ? 'Tanımlı' : 'Eksik',
+                licOk ? 'Google Görseller "Lisans ayrıntıları" gösterebilir' : 'SEO & Google Ayarları → Lisans / Lisans edinme sayfası adreslerini girin'),
+            item(entOk ? 'ok' : 'warn', 'tags', 'Künye dizini', entOk ? 'Güncel' : 'Yenilenecek',
+                entOk ? 'Marka, model, firma, plaka sayfaları güncel kurallarla' : 'Ayrıştırma kuralları değişti; gece bakımında kendiliğinden yenilenir'),
+            item(!audit.at ? 'muted' : audit.bad_count ? 'bad' : 'ok', 'image', 'Görsel ve sayfa erişilebilirliği',
+                !audit.at ? 'Henüz denetlenmedi' : audit.bad_count ? audit.bad_count + ' sorunlu adres' : 'Sorun yok',
+                audit.at ? (audit.checked_images + ' görsel · ' + audit.checked_pages + ' sayfa · ' + ago(Math.round(Date.now() / 1000) - audit.at)) : 'Haftada bir kendiliğinden denetlenir',
+                m('button.Button.Button--small', {
+                    onclick: (e) => {
+                        e.target.disabled = true;
+                        e.target.textContent = 'Denetleniyor…';
+                        app.request({ method: 'POST', url: api() + '/seo/health', body: { action: 'run_audit' } })
+                            .then(res => { app.alerts.show({ type: 'success' }, res.message); loadHealth(page); })
+                            .catch(() => loadHealth(page));
+                    }
+                }, 'Şimdi denetle'))
+        ]),
+        audit.bad_count ? m('div.FramioHealth-issues', [
+            m('h5', 'Sorunlu adresler (Google bunlara ulaşamıyor ya da yönlendiriliyor)'),
+            m('ul', audit.bad.slice(0, 50).map(b => m('li', [
+                m('code', b.code || 'bağlantı yok'), ' ',
+                m('a', { href: b.url, target: '_blank', rel: 'noopener' }, b.url),
+                b.type === 'image' ? [' — ', m('a', { href: b.page, target: '_blank', rel: 'noopener' }, 'sayfası')] : null,
+                b.location ? [' → ', m('span', b.location)] : null
+            ]))),
+            audit.bad_count > 50 ? m('p', '… ve ' + (audit.bad_count - 50) + ' adres daha') : null
+        ]) : null
     ]);
 }

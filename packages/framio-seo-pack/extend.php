@@ -165,5 +165,8 @@ return [
         ->command(AutoIndexCommand::class)
         ->command(\Framio\SeoPack\Console\BackfillIndexCommand::class)
         ->command(FixOldAltTagsCommand::class)
-        ->command(\Framio\SeoPack\Console\IndexEntitiesCommand::class),
+        ->command(\Framio\SeoPack\Console\IndexEntitiesCommand::class)
+        // Günlük: künye dizini sürüm kontrolü + haftalık görsel/sayfa erişilebilirlik denetimi (Sistem Sağlığı)
+        ->command(\Framio\SeoPack\Console\MaintenanceCommand::class)
+        ->schedule(\Framio\SeoPack\Console\MaintenanceCommand::class, fn ($e) => $e->dailyAt('04:30')->withoutOverlapping()),
 ];

@@ -36,6 +36,12 @@ class SeoHealthController implements RequestHandlerInterface
             if ($action === 'flush_bot_cache') {
                 return new JsonResponse(['message' => $this->botCache->flush() . ' önbellek dosyası temizlendi.']);
             }
+            if ($action === 'run_audit') {
+                @set_time_limit(900);
+                $r = resolve(\Framio\SeoPack\Console\MaintenanceCommand::class)->audit();
+
+                return new JsonResponse(['message' => $r['checked_images'] . ' görsel ve ' . $r['checked_pages'] . ' sayfa denetlendi; sorunlu: ' . $r['bad_count'] . '.']);
+            }
 
             return new JsonResponse(['error' => 'Geçersiz işlem.'], 400);
         }
@@ -80,6 +86,18 @@ class SeoHealthController implements RequestHandlerInterface
             'sitemaps' => $counts + [
                 'post_pages_enabled' => $this->seo->bool('enable_post_pages'),
                 'legacy_redirects' => $this->seo->bool('enable_legacy_redirects'),
+            ],
+            // Sitenin kök klasöründeki elle konmuş dosyalar eklentinin dinamik robots.txt / site haritasının önüne geçer
+            'static_files' => array_values(array_filter(['robots.txt', 'sitemap.xml', 'sitemap_index.xml', 'sitemap-images.xml'],
+                fn ($f) => is_file(public_path($f)))),
+            'license' => [
+                'license_url' => $this->seo->get('license_url'),
+                'acquire_url' => $this->seo->get('acquire_license_url'),
+            ],
+            'audit' => (array) $this->cache->get(\Framio\SeoPack\Console\MaintenanceCommand::AUDIT_KEY, []),
+            'entities' => [
+                'version' => (string) $this->settings->get('framio-seo.entity_parser_version'),
+                'current' => (string) \Framio\SeoPack\Support\EntityIndex::PARSER_VERSION,
             ],
         ]);
     }
