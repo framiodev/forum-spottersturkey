@@ -66,7 +66,7 @@ export default class MobileTabBar extends Component {
   rootLogo(route) {
     const root = ['index', 'tags', 'tag', 'framio.explore', 'framio.categories'].includes(route);
     document.documentElement.classList.toggle('MobileRoot', root);
-    if (route !== 'tag') document.documentElement.classList.remove('MobileTagPage');
+    if (route !== 'tag') document.documentElement.classList.remove('MobileTagPage', 'MobileTagPage--photos', 'MobileTagPage--list');
     const logo = app.forum.attribute('logoUrl');
     if (!root || !logo) return null;
     return (

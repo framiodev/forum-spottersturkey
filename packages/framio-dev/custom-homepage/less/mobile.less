@@ -421,3 +421,12 @@
     background: var(--control-bg) var(--fc-thumb) center / cover no-repeat; }
   html.MobileTagPage .DiscussionListItem[style*="--fc-thumb"] .DiscussionListItem-author { display: none; }
 }
+
+@media (max-width: 767px) {
+  // Sekme içerikleri: Fotoğraflar = yalnızca ızgara, Tartışmalar = yalnızca liste
+  html.MobileTagPage--list .DiscussionList-GalleryView { display: none !important; }
+  html.MobileTagPage--photos .Framio-DiscussionList-WithGallery > .DiscussionList:not(.DiscussionList-GalleryView),
+  html.MobileTagPage--photos .DiscussionList-discussions { display: none !important; }
+  // Halka görseli tekrar etmesin
+  .MobileRings-img { background-repeat: no-repeat !important; }
+}

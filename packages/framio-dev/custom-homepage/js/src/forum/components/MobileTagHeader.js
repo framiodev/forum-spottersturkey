@@ -22,6 +22,9 @@ export default class MobileTagHeader extends Component {
 
     const sort = m.route.param('sort') || tag.defaultSort() || 'gallery';
     const isPhotos = sort === 'gallery';
+    // Sekmeye göre yalnızca ilgili içerik görünsün (kategori sayfası galeri + listeyi birlikte çizer)
+    document.documentElement.classList.toggle('MobileTagPage--photos', isPhotos);
+    document.documentElement.classList.toggle('MobileTagPage--list', !isPhotos);
     const go = (s) => {
       const params = { tags: tag.slug() };
       if (s) params.sort = s;
