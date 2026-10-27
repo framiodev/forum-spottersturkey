@@ -361,3 +361,10 @@
     svg { width: 15px; height: 15px; fill: none; stroke: currentColor; stroke-width: 2; }
     &.liked { color: var(--fc-like); svg { fill: var(--fc-like); } } }
 }
+
+@media (max-width: 767px) {
+  // Yorum metnindeki başlık biçimleri yorum boyutunda (açılış mesajları büyük başlıkla yazılmış olabiliyor)
+  .FeedComment-text { h1, h2, h3, h4, h5, h6 { font-size: 14px !important; font-weight: 400 !important; line-height: 1.4; margin: 0 0 4px !important; display: inline; } }
+  // Çoklu fotoğraf noktaları simgelerin üstüne binmesin: fotoğrafın alt ortasında
+  .FeedCard-media .FeedCard-dots, .FeedCard-dots { position: static; transform: none; margin-left: auto; padding-right: 6px; }
+}
