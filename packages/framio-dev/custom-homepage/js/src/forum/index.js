@@ -18,6 +18,8 @@ import ExplorePage from './components/ExplorePage';
 import Component from 'flarum/common/Component';
 import MobileTabBar from './components/MobileTabBar';
 import MobileChips from './components/MobileChips';
+import MobileCategoriesPage from './components/MobileCategoriesPage';
+import installMobileViewer from './components/MobileViewer';
 
 /** /gallery → galeri görünümü (yönlendirme) */
 class GalleryRedirect extends Component {
@@ -40,8 +42,18 @@ app.initializers.add('framio-custom-homepage', () => {
 
     // Telefon alt sekme çubuğu: uygulama kökünün dışında kendi bağlama noktasında yaşar.
     // Uygulama ve oturum hazır olduktan sonra (ilk sayfa çizildiğinde) bir kez bağlanır.
+    app.routes['framio.categories'] = { path: '/kategoriler', component: MobileCategoriesPage };
+    installMobileViewer();
+
     extend(PageStructure.prototype, 'oncreate', function () {
         if (document.querySelector('.MobileTabBar-mount')) return;
+
+        // Telefonda site ilk açıldığında ana sayfa yerine Akış (admin'den kapatılabilir)
+        if (window.matchMedia('(max-width: 767px)').matches && app.forum.attribute('framioMobileHomeFeed') !== '0'
+            && (m.route.get() || '/').split('?')[0] === '/') {
+            setTimeout(() => m.route.set('/all?sort=feed', null, { replace: true }), 0);
+        }
+
         const tabBarEl = document.createElement('div');
         tabBarEl.className = 'MobileTabBar-mount';
         document.body.appendChild(tabBarEl);

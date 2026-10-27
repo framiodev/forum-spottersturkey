@@ -23,13 +23,21 @@ export default class MobileTabBar extends Component {
     );
 
     return (
-      <nav className="MobileTabBar" aria-label="Alt gezinme">
-        {tab('home', 'fas fa-house', 'Ana sayfa', route === 'index' || route === 'tag', () => this.go(app.route('index')))}
-        {tab('explore', 'fas fa-compass', 'Keşfet', route === 'framio.explore', () => this.go(app.route('framio.explore')))}
-        {tab('upload', 'fas fa-plus', 'Fotoğraf paylaş', false, () => this.upload())}
-        {tab('notif', 'fas fa-bell', 'Bildirimler', route === 'notifications', () => (user ? this.go(app.route('notifications')) : this.login()), unread)}
-        {tab('profile', 'fas fa-user', 'Profil', route && route.indexOf('user') === 0, () => (user ? this.go(app.route.user(user)) : this.login()))}
-      </nav>
+      <div className="MobileTabBar-wrap">
+        {/* Bildirimler Instagram'daki gibi üst başlıkta, arama düğmesinin solunda */}
+        <button type="button" className={'MobileHeaderBell' + (route === 'notifications' ? ' active' : '')} aria-label="Bildirimler"
+          onclick={() => (user ? this.go(app.route('notifications')) : this.login())}>
+          <i className="icon fas fa-bell" aria-hidden="true" />
+          {unread ? <span className="MobileTabBar-badge">{unread > 9 ? '9+' : unread}</span> : null}
+        </button>
+        <nav className="MobileTabBar" aria-label="Alt gezinme">
+          {tab('home', 'fas fa-house', 'Akış', m.route.get() === '/all?sort=feed' || route === 'tags', () => this.go('/all?sort=feed'))}
+          {tab('explore', 'fas fa-compass', 'Keşfet', route === 'framio.explore', () => this.go(app.route('framio.explore')))}
+          {tab('upload', 'fas fa-plus', 'Fotoğraf paylaş', false, () => this.upload())}
+          {tab('cats', 'fas fa-layer-group', 'Kategoriler', route === 'framio.categories' || route === 'tag', () => this.go('/kategoriler'))}
+          {tab('profile', 'fas fa-user', 'Profil', route && route.indexOf('user') === 0, () => (user ? this.go(app.route.user(user)) : this.login()))}
+        </nav>
+      </div>
     );
   }
 
