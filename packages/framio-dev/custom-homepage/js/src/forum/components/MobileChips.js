@@ -27,9 +27,22 @@ export default class MobileChips extends Component {
       <nav className="MobileChips" aria-label="Kategoriler">
         {chip('Ana Sayfa', '/', path === '/' || route === 'tags')}
         {chip('Tümü', '/all', path === '/all')}
-        {tags.map((t) => chip(t.name(), app.route('tag', { tags: t.slug() }), activeSlug === t.slug()))}
+        {tags.map((t) => chip(this.shortName(t),app.route('tag', { tags: t.slug() }), activeSlug === t.slug()))}
       </nav>
     );
+  }
+
+  // Kısa ad: admin'deki "adres = Kısa ad" satırları; yoksa adın " - " sonrası
+  shortName(tag) {
+    if (!this.names) {
+      this.names = {};
+      String(app.forum.attribute('framioChipNames') || '').split('\n').forEach((line) => {
+        const i = line.indexOf('=');
+        if (i > 0) this.names[line.slice(0, i).trim()] = line.slice(i + 1).trim();
+      });
+    }
+    const name = tag.name();
+    return this.names[tag.slug()] || (name.includes(' - ') ? name.split(' - ').pop().trim() : name);
   }
 
   onupdate(vnode) {

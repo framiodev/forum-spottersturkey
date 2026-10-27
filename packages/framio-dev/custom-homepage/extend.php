@@ -55,6 +55,7 @@ return [
         ->serializeToForum('framioHomeSiteLabel', 'framio-custom-homepage.site_label', 'strval', '')
         ->serializeToForum('framioHomeLoadingText', 'framio-custom-homepage.loading_text', 'strval', '')
         ->serializeToForum('framioHomeEmptyText', 'framio-custom-homepage.empty_text', 'strval', '')
+        ->serializeToForum('framioChipNames', 'framio-custom-homepage.chip_names', 'strval', '')
         ->serializeToForum('framioHomeShareText', 'framio-custom-homepage.share_text', 'strval', '')
         ->default('framio-custom-homepage.gallery_post_limit', '60')
         ->default('framio-custom-homepage.cache_minutes', '5')
