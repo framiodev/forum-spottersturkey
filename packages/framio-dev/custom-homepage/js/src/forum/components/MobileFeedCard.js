@@ -23,7 +23,10 @@ export default class MobileFeedCard extends Component {
     box.innerHTML = post.contentHtml() || '';
     this.images = [...box.querySelectorAll('img')]
       .filter((i) => !i.classList.contains('emoji') && !/avatar|emoji/i.test(i.className))
-      .map((i) => ({ src: i.getAttribute('src') || i.getAttribute('data-src'), alt: i.getAttribute('alt') || '', w: i.getAttribute('width'), h: i.getAttribute('height') }))
+      .map((i) => {
+        const box2 = i.closest('[data-id]');
+        return { src: i.getAttribute('src') || i.getAttribute('data-src'), alt: i.getAttribute('alt') || '', w: i.getAttribute('width'), h: i.getAttribute('height'), id: box2 ? box2.getAttribute('data-id') : null };
+      })
       .filter((i) => i.src);
     this.facts = [...box.querySelectorAll('ul li')].map((li) => li.textContent.trim()).filter(Boolean).slice(0, 4);
     box.querySelectorAll('ul, img, script, style').forEach((n) => n.remove());
@@ -62,6 +65,8 @@ export default class MobileFeedCard extends Component {
           </div>
         ) : null}
 
+        {this.exifCard()}
+
         <div className="FeedCard-actions">
           <button type="button" className={'FeedCard-act' + (isLiked ? ' liked' : '')} aria-label="Beğen"
             onclick={() => this.toggleLike(isLiked)} disabled={post.canLike && post.canLike() === false}>
@@ -81,6 +86,14 @@ export default class MobileFeedCard extends Component {
         </div>
       </article>
     );
+  }
+
+  // Açık fotoğrafın EXIF kartı: Upload & EXIF eklentisinin kendi bileşeni (mesaj sayfasındakiyle aynı)
+  exifCard() {
+    const img = this.images[this.index];
+    const Card = window.FramioImageManager && window.FramioImageManager.SpotterImageCard;
+    if (!img || !img.id || !Card) return null;
+    return <div className="FeedCard-exif" key={'exif-' + img.id}>{m(Card, { photoId: img.id, post: this.attrs.post })}</div>;
   }
 
   toggleLike(isLiked) {
