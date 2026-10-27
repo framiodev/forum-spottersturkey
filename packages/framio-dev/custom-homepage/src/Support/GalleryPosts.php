@@ -200,6 +200,16 @@ class GalleryPosts
         $data = [];
         $included = [];
         $refs = ['ids' => [], 'urls' => []];
+
+        // Mobil akış kartı için beğeni sayıları (tek sorguda)
+        $posts = is_array($posts) ? $posts : iterator_to_array($posts, false);
+        $likeCounts = [];
+        $ids = array_map(fn ($p) => $p->id, $posts);
+        if ($ids && $this->db->getSchemaBuilder()->hasTable('post_likes')) {
+            $likeCounts = $this->db->table('post_likes')->whereIn('post_id', $ids)
+                ->selectRaw('post_id, COUNT(*) as n')->groupBy('post_id')->pluck('n', 'post_id')->all();
+        }
+
         foreach ($posts as $post) {
             $this->collectImageRefs((string) $post->content, $refs);
             $html = '';
@@ -219,6 +229,7 @@ class GalleryPosts
                     'id' => (string) $d->id,
                     'attributes' => [
                         'title' => $d->title,
+                        'commentCount' => (int) $d->comment_count,
                         'slug' => $this->slugs->forResource(Discussion::class)->toSlug($d),
                     ],
                 ];
@@ -247,6 +258,8 @@ class GalleryPosts
                     'createdAt' => $post->created_at?->toIso8601String(),
                     'editedAt' => $post->edited_at?->toIso8601String(),
                     'renderFailed' => false,
+                    'isApproved' => true,
+                    'likesCount' => (int) ($likeCounts[$post->id] ?? 0),
                 ],
                 'relationships' => $rel,
             ];

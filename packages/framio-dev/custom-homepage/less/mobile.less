@@ -112,7 +112,10 @@
   .FeedCard-track { display: flex; overflow-x: auto; scroll-snap-type: x mandatory; scrollbar-width: none; padding: 0 !important; margin: 0 !important;
     &::-webkit-scrollbar { display: none; } }
   .FeedCard-slide { flex: 0 0 100%; scroll-snap-align: center;
-    img { display: block; width: 100% !important; height: auto !important; max-height: 75vh; object-fit: cover; aspect-ratio: 4 / 3; border-radius: 0 !important; margin: 0 !important; } }
+    // Instagram gibi: fotoğraf kendi oranında, kırpılmaz; dikeyde en fazla 4:5
+    img { display: block; width: 100% !important; height: auto !important; max-height: 125vw; object-fit: cover; border-radius: 0 !important; margin: 0 !important; } }
+  .FeedCard-head { min-height: 56px; }
+  .FeedCard-act { font-size: 24px; }
   .FeedCard-count { position: absolute; top: 10px; right: 10px; padding: 3px 9px; border-radius: 999px; background: rgba(0,0,0,.6); color: #fff; font-size: 12px; font-weight: 600; }
   .FeedCard-actions { position: relative; display: flex; align-items: center; gap: 4px; padding: 6px 8px 0; }
   .FeedCard-act { width: 40px; height: 40px; display: grid; place-items: center; border: 0; background: none; padding: 0;
