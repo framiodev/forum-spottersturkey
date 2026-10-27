@@ -537,3 +537,38 @@
   .MobileViewer-slide img { max-height: 100% !important; }
   .MobileViewer-exif[hidden] { display: none !important; }
 }
+
+// ═══ Görüntüleyici: maketle birebir (bilgi sayfası kompakt, EXIF kutusuz sıkı ızgara) ═══
+@media (max-width: 767px) {
+  .MobileViewer { background: #000 !important; }
+  .MobileViewer-top { padding: 6px 16px 0 !important; }
+  .MobileViewer-close, .MobileViewer-dl { width: 36px !important; height: 36px !important; font-size: 15px !important; background: rgba(255,255,255,.12) !important; }
+  .MobileViewer-dots { padding: 10px 0 !important;
+    i { width: 6px; height: 6px; border-radius: 50%; background: #444; }
+    i.on { width: 16px !important; border-radius: 3px; background: #fff; } }
+  .MobileViewer-sheet, .MobileViewer-sheet.is-open { max-height: none !important; overflow: visible !important; background: #121214 !important;
+    border-radius: 18px 18px 0 0 !important; padding: 8px 0 calc(14px + env(safe-area-inset-bottom, 0px)) !important; }
+  .MobileViewer-grip { width: 36px !important; height: 4px !important; background: #333 !important; margin: 0 auto 8px !important; }
+
+  .MobileViewer-exif { padding: 0 !important;
+    .SpotterCard-container, .SpotterCard-exif-wrapper, .SpotterCard-exif, .framio-image-container, .spotter-exif-placeholder {
+      background: transparent !important; border: 0 !important; box-shadow: none !important; border-radius: 0 !important; margin: 0 !important; padding: 0 !important; }
+    .SpotterCard-toggle { background: transparent !important; border: 0 !important; padding: 4px 16px !important; display: flex; justify-content: space-between; align-items: center;
+      font-size: 11.5px !important; font-weight: 800 !important; letter-spacing: .5px; color: #ddd !important;
+      i { font-size: 12px; } }
+    .SpotterCard-grid { display: grid !important; grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr) !important; gap: 10px 16px !important;
+      padding: 6px 18px 0 !important; margin: 0 !important; width: auto !important; max-width: 100% !important; box-sizing: border-box; }
+    .sc-left-col { display: grid !important; gap: 10px !important; padding: 0 !important; border: 0 !important; min-width: 0 !important; width: auto !important; }
+    .sc-right-col { display: grid !important; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) !important; gap: 10px !important; padding: 0 !important; border: 0 !important; min-width: 0 !important; width: auto !important; }
+    .sc-footer { display: none !important; }
+    .gear-label, .stat-box span { display: block; margin: 0 0 1px !important; font-size: 8.5px !important; font-weight: 800 !important; letter-spacing: .6px !important; color: #bdbdbd !important; text-transform: uppercase; }
+    .gear-name, .stat-box b { font-size: 12.5px !important; font-weight: 700 !important; color: #fff !important; overflow-wrap: anywhere; }
+    .lens-name { font-size: 12.5px !important; font-weight: 500 !important; color: #fff !important; overflow-wrap: anywhere; }
+    .stat-box { background: transparent !important; border: 0 !important; padding: 0 !important; margin: 0 !important; text-align: left !important; }
+  }
+  .MobileViewer-row { justify-content: space-between; align-items: center !important; padding: 12px 16px 0 !important; }
+  .MobileViewer-kunye { font-size: 13px !important; font-weight: 700; color: #e9e9ec !important;
+    ul { padding-left: 18px !important; margin: 0 !important; } li { margin: 1px 0 !important; } li::marker { color: #9a9aa3; } }
+  .MobileViewer-go, .MobileViewer-go:visited { flex: none; background-color: #f3f3f5 !important; color: #0c0c0e !important; opacity: 1 !important;
+    font-size: 12.5px !important; font-weight: 800 !important; padding: 7px 14px !important; border-radius: 999px !important; }
+}
