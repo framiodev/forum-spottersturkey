@@ -572,3 +572,36 @@
   .MobileViewer-go, .MobileViewer-go:visited { flex: none; background-color: #f3f3f5 !important; color: #0c0c0e !important; opacity: 1 !important;
     font-size: 12.5px !important; font-weight: 800 !important; padding: 7px 14px !important; border-radius: 999px !important; }
 }
+
+// ═══ Logo, ⋯ menüsü ve paylaşım pencereleri (maket düzeni) ═══
+@media (max-width: 767px) {
+  // Admin ayarındaki logo ana sekmelerde başlığın tam ortasında
+  .MobileHeaderLogo { display: none !important; }
+  html.MobileRoot .Framio-MobileLogo { display: flex !important; left: 50% !important; transform: translateX(-50%); justify-content: center; }
+  html.MobileRoot .Framio-MobileLogo img { max-height: 30px; }
+
+  // ⋯ menüsü: gruplar, ince ayırıcı, Vazgeç
+  .FeedSheet-panel { background: #121214 !important; color: #f3f3f5; padding-top: 8px !important; max-height: 85vh; overflow-y: auto; }
+  .FeedSheet-grip { background: #3a3a3e !important; }
+  .FeedSheet-group { display: flex; flex-direction: column; padding: 4px 0;
+    & + & { border-top: 1px solid rgba(255,255,255,.08); }
+    li { list-style: none; } li.Dropdown-separator, .Dropdown-separator { display: none; }
+    .Button, a { color: #f3f3f5 !important; }
+    .Button .icon, a .icon { color: #c9c9cf; } }
+  .FeedSheet-group--controls .Button[class*="delete"], .FeedSheet-group--controls .Button[class*="Delete"] { color: #ff5a5f !important; }
+  .FeedSheet-cancel { margin: 6px 8px 0; padding: 13px; border: 0; border-radius: 12px; background: rgba(255,255,255,.08); color: #f3f3f5; font-weight: 700; font-size: 15px; }
+
+  // Paylaşım pencereleri (Sosyal Medyada Paylaş, ağa aktar, hikâye, Gönder): alttan açılan sayfa
+  .SocialActionChooserModal, .FramioShareModal, .FramioForumFeedPickerModal, .FramioStoryModal, .ModalManager .Modal--share, .ModalManager [class*="ShareAsMessage"], .ModalManager [class*="shareAsMessage"] {
+    &.Modal, .Modal-dialog, &.modal-dialog { margin: 0 !important; }
+    position: fixed !important; left: 0 !important; right: 0 !important; bottom: 0 !important; top: auto !important; width: 100% !important; max-width: none !important;
+    .Modal-content { border-radius: 18px 18px 0 0 !important; background: #121214 !important; color: #f3f3f5; max-height: 88vh; overflow-y: auto;
+      padding-bottom: env(safe-area-inset-bottom, 0px); box-shadow: 0 -10px 30px rgba(0,0,0,.4) !important; }
+    .Modal-header { background: transparent !important; padding: 18px 18px 8px !important; text-align: left !important;
+      &::before { content: ""; display: block; width: 36px; height: 4px; border-radius: 2px; background: #3a3a3e; margin: -8px auto 12px; }
+      h3, .App-titleControl { font-size: 17px !important; font-weight: 800 !important; color: #f3f3f5 !important; } }
+    .Modal-body, .Modal-footer { background: transparent !important; padding-left: 18px !important; padding-right: 18px !important; }
+    .Modal-close { top: 10px !important; right: 8px !important; .Button { color: #c9c9cf !important; } }
+    .Button--primary { border-radius: 12px !important; font-weight: 800; }
+  }
+}

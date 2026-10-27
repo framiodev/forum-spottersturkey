@@ -67,19 +67,8 @@ export default class MobileTabBar extends Component {
     const root = ['index', 'tags', 'tag', 'framio.explore', 'framio.categories'].includes(route);
     document.documentElement.classList.toggle('MobileRoot', root);
     if (route !== 'tag') document.documentElement.classList.remove('MobileTagPage', 'MobileTagPage--photos', 'MobileTagPage--list');
-    const logo = app.forum.attribute('logoUrl');
-    if (!root || !logo) return null;
-    return (
-      <a href={app.forum.attribute('baseUrl')} className="MobileHeaderLogo" onclick={(e) => { e.preventDefault(); this.go('/all?sort=feed'); }}>
-        <img src={logo} alt={app.forum.attribute('title')} />
-      </a>
-    );
-  }
-
-  reply(discussion) {
-    if (!app.session.user) return this.login();
-    const r = DiscussionControls.replyAction.call(discussion, true, false);
-    if (r && r.catch) r.catch(() => {});
+    // Logo: admin ayarındaki logo (Framio-MobileLogo) ana sekmelerde ortada gösterilir (CSS)
+    return null;
   }
 
   go(url) {

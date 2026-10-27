@@ -49,6 +49,20 @@ app.initializers.add('framio-custom-homepage', () => {
     // Uygulama ve oturum hazır olduktan sonra (ilk sayfa çizildiğinde) bir kez bağlanır.
     app.routes['framio.categories'] = { path: '/kategoriler', component: MobileCategoriesPage };
 
+    // Telefonda galeri kartları (kategori, Keşfet, ana sayfa) eski lightbox yerine yeni görüntüleyiciyi açar
+    const phoneViewer = function (original, e, postIndex) {
+        const v = window.FramioMobileViewer;
+        const group = this.galleryPosts && this.galleryPosts[postIndex];
+        if (!v || !v.isPhone() || !group || !group.real_post_id) return original(e, postIndex);
+        if (e && e.preventDefault) e.preventDefault();
+        const show = (post) => { if (!v.openPost(post)) original(e, postIndex); };
+        const cached = app.store.getById('posts', String(group.real_post_id));
+        if (cached && cached.contentHtml && cached.contentHtml()) show(cached);
+        else app.store.find('posts', group.real_post_id).then(show).catch(() => original(e, postIndex));
+    };
+    override(CategoryGallery.prototype, 'handlePostClick', phoneViewer);
+    override(CustomHomepage.prototype, 'handlePostClick', phoneViewer);
+
     // Telefon profil sayfası (onaylı maket 4): Fotoğraflar / Mesajlar sekmesi; Fotoğraflar = 3 sütunlu ızgara
     override('flarum/forum/components/PostsUserPage', 'content', function (original, ...args) {
         if (!window.matchMedia('(max-width: 767px)').matches) return original(...args);

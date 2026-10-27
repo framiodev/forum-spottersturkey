@@ -4,6 +4,7 @@ import Link from 'flarum/common/components/Link';
 import Avatar from 'flarum/common/components/Avatar';
 import humanTime from 'flarum/common/utils/humanTime';
 import CommentPost from 'flarum/forum/components/CommentPost';
+import PostControls from 'flarum/forum/utils/PostControls';
 
 /**
  * Telefon akış kartı (Instagram düzeni): Flarum mesaj bileşeni yerine kendi kartımız.
@@ -155,14 +156,17 @@ export default class MobileFeedCard extends Component {
     post.save({ isLiked: !isLiked });
   }
 
-  // Paylaşım menüsü (alttan açılan sayfa): bağlantı paylaşımı + eklentilerin mesaja eklediği işlemler
-  // (Sosyal Medyada Paylaş, ağa aktar vb.) — Flarum mesaj bileşeninin işlem listesinden alınır.
+  // ⋯ / paylaşım menüsü (alttan açılan sayfa, maket düzeni):
+  //  1) paylaşım: bağlantıyı paylaş + eklentilerin mesaja eklediği işlemler (ağa aktar, sosyal medyada paylaş…)
+  //  2) mesaj seçenekleri: masaüstündeki ⋯ menüsünün aynısı (PostControls: düzenle, gizle, sil, bildir…)
   share(url) {
-    let items = [];
+    let shareItems = [];
+    let controls = [];
     try {
       const cp = new CommentPost();
       cp.attrs = { post: this.attrs.post };
-      items = cp.actionItems().toArray().filter((v) => v && !['like', 'reply', 'react', 'post-comments'].includes(v.itemName));
+      shareItems = cp.actionItems().toArray().filter((v) => v && !['like', 'reply', 'react', 'post-comments'].includes(v.itemName));
+      controls = PostControls.controls(this.attrs.post, cp).toArray().filter((v) => v && v.tag !== 'li' && !(v.attrs && v.attrs.className === 'Dropdown-separator'));
     } catch (e) {}
 
     const host = document.createElement('div');
@@ -174,10 +178,14 @@ export default class MobileFeedCard extends Component {
         <div className="FeedSheet-backdrop" onclick={(e) => { if (e.target === e.currentTarget) close(); }}>
           <div className="FeedSheet-panel" onclick={(e) => { if (e.target.closest('button, a') && !e.target.closest('.FeedSheet-link')) setTimeout(close, 0); }}>
             <span className="FeedSheet-grip" />
-            <button type="button" className="FeedSheet-link Button" onclick={() => { this.nativeShare(url); close(); }}>
-              <i className="icon fas fa-link" /> Bağlantıyı paylaş
-            </button>
-            {items}
+            <div className="FeedSheet-group">
+              <button type="button" className="FeedSheet-link Button" onclick={() => { this.nativeShare(url); close(); }}>
+                <i className="icon fas fa-link" /> Bağlantıyı paylaş
+              </button>
+              {shareItems}
+            </div>
+            {controls.length ? <div className="FeedSheet-group FeedSheet-group--controls">{controls}</div> : null}
+            <button type="button" className="FeedSheet-cancel" onclick={close}>Vazgeç</button>
           </div>
         </div>
       ),

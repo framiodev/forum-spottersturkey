@@ -23,6 +23,30 @@ export default function installMobileViewer() {
     open(imgs, imgs.indexOf(img), img.closest('.FeedCard') || body.closest('.Post') || body);
   }, true);
 
+  // Galeriler (kategori, Keşfet, ana sayfa) için giriş noktası: mesaj modelinden görüntüleyiciyi açar
+  window.FramioMobileViewer = {
+    isPhone,
+    openPost(post, start = 0) {
+      const scope = document.createElement('div');
+      scope.className = 'FeedCard';
+      scope.setAttribute('data-url', app.route.post(post));
+      const body = document.createElement('div');
+      body.className = 'Post-body';
+      body.innerHTML = post.contentHtml() || '';
+      const kunye = body.querySelector('.framio-kunye-card') || body.querySelector(':scope > ul');
+      if (kunye) {
+        const k = document.createElement('div');
+        k.className = 'FeedCard-kunye';
+        k.appendChild(kunye.cloneNode(true));
+        scope.appendChild(k);
+      }
+      const imgs = [...body.querySelectorAll('img')].filter((i) => !i.classList.contains('emoji') && (i.getAttribute('src') || i.getAttribute('data-src')));
+      if (!imgs.length) return false;
+      open(imgs, Math.min(start, imgs.length - 1), scope);
+      return true;
+    },
+  };
+
   // Orijinal dosya (indir düğmesi): ?w= küçültmesi kaldırılır
   function originalSrc(i) {
     const src = i.currentSrc || i.src || i.getAttribute('data-src') || '';
