@@ -45,8 +45,10 @@ app.initializers.add('framio-custom-homepage', () => {
     app.routes['framio.categories'] = { path: '/kategoriler', component: MobileCategoriesPage };
     installMobileViewer();
 
-    extend(PageStructure.prototype, 'oncreate', function () {
-        if (document.querySelector('.MobileTabBar-mount')) return;
+    // Başlatıcılar uygulama bağlanmadan önce çalışır; setTimeout ile bağlandıktan hemen sonra
+    // (her sayfa türünde, PageStructure kullanmayan sayfalarda da) bir kez kurulur.
+    setTimeout(() => {
+        if (document.querySelector('.MobileTabBar-mount') || !document.getElementById('content')) return;
 
         // Telefonda site ilk açıldığında ana sayfa yerine Akış (admin'den kapatılabilir)
         if (window.matchMedia('(max-width: 767px)').matches && app.forum.attribute('framioMobileHomeFeed') !== '0'
@@ -67,7 +69,7 @@ app.initializers.add('framio-custom-homepage', () => {
             content.parentNode.insertBefore(chipsEl, content);
             m.mount(chipsEl, { view: () => { try { return m(MobileChips); } catch (e) { return null; } } });
         }
-    });
+    }, 0);
 
     // Lightbox açıkken konan yenileme çerezi, yeni sekmede açılan bağlantılarla
     // (Konuya Git vb.) sunucuya gidip o sekmeyi ana sayfaya yönlendiriyordu.
