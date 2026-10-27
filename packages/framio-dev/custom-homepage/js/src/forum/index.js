@@ -19,6 +19,8 @@ import Component from 'flarum/common/Component';
 import MobileTabBar from './components/MobileTabBar';
 import MobileChips from './components/MobileChips';
 import MobileCategoriesPage from './components/MobileCategoriesPage';
+import MobileFeedCard from './components/MobileFeedCard';
+import MobileCommentRow from './components/MobileCommentRow';
 import installMobileViewer from './components/MobileViewer';
 
 /** /gallery → galeri görünümü (yönlendirme) */
@@ -43,6 +45,26 @@ app.initializers.add('framio-custom-homepage', () => {
     // Telefon alt sekme çubuğu: uygulama kökünün dışında kendi bağlama noktasında yaşar.
     // Uygulama ve oturum hazır olduktan sonra (ilk sayfa çizildiğinde) bir kez bağlanır.
     app.routes['framio.categories'] = { path: '/kategoriler', component: MobileCategoriesPage };
+
+    // Telefon mesaj sayfası (onaylı maket, A yönü): fotoğraflı mesaj = Akış kartı,
+    // fotoğrafsız cevap = Instagram yorumu. Düzenleme sırasında ve masaüstünde Flarum görünümü kalır.
+    override('flarum/forum/components/CommentPost', 'view', function (original, ...args) {
+        try {
+            const post = this.attrs.post;
+            const phone = window.matchMedia('(max-width: 767px)').matches;
+            const onDiscussion = /^discussion/.test(app.current.get('routeName') || '');
+            const editing = this.isEditing && this.isEditing();
+            if (phone && onDiscussion && !editing && !post.isHidden() && post.contentType() === 'comment') {
+                const hasPhoto = /<img\b(?![^>]*\bemoji\b)/i.test(post.contentHtml() || '');
+                return (
+                    <div className={'MobilePost' + (hasPhoto ? ' MobilePost--photo' : ' MobilePost--comment')} data-id={post.id()}>
+                        {hasPhoto ? <MobileFeedCard post={post} inDiscussion /> : <MobileCommentRow post={post} />}
+                    </div>
+                );
+            }
+        } catch (e) {}
+        return original(...args);
+    });
     installMobileViewer();
 
     // Başlatıcılar uygulama bağlanmadan önce çalışır; setTimeout ile bağlandıktan hemen sonra

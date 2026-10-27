@@ -100,12 +100,12 @@ export default class MobileFeedCard extends Component {
         {likesCount ? <div className="FeedCard-likes"><b>{likesCount}</b> beğeni</div> : null}
 
         <div className="FeedCard-text">
-          {discussion ? <Link href={url} className="FeedCard-title">{discussion.title()}</Link> : null}
+          {discussion && !this.attrs.inDiscussion ? <Link href={url} className="FeedCard-title">{discussion.title()}</Link> : null}
           {!this.kunyeHtml && this.caption ? <p>{this.caption}</p> : null}
         </div>
         {this.kunyeHtml ? <div className="FeedCard-kunye Post-body">{m.trust(this.kunyeHtml)}</div> : null}
         <div className="FeedCard-text">
-          {replies ? <Link href={url} className="FeedCard-more">{replies} yorumun tümünü gör</Link> : null}
+          {replies && !this.attrs.inDiscussion ? <Link href={url} className="FeedCard-more">{replies} yorumun tümünü gör</Link> : null}
           <span className="FeedCard-when">{humanTime(post.createdAt())}</span>
         </div>
       </article>
