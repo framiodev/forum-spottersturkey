@@ -102,7 +102,7 @@ class MaintenanceCommand extends AbstractCommand
             'bad_count' => count($bad),
         ];
         $this->cache->forever(self::AUDIT_KEY, $result);
-        $this->info("Denetim: {$result['checked_images']} görsel, {$result['checked_pages']} sayfa; sorunlu: {$result['bad_count']}");
+        if (isset($this->output)) $this->info("Denetim: {$result['checked_images']} görsel, {$result['checked_pages']} sayfa; sorunlu: {$result['bad_count']}");
 
         return $result;
     }
