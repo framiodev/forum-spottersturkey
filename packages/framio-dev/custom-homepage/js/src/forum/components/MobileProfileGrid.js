@@ -16,7 +16,8 @@ export default class MobileProfileGrid extends Component {
       const box = document.createElement('div');
       box.innerHTML = post.contentHtml() || '';
       const imgs = [...box.querySelectorAll('img')].filter((i) => !i.classList.contains('emoji') && (i.getAttribute('src') || '').length);
-      if (imgs.length) tiles.push({ post, src: imgs[0].getAttribute('src'), alt: imgs[0].getAttribute('alt') || '', multi: imgs.length > 1 });
+      // Kare küçük görsel için 480 px yeterli (görsel sunucusu ?w= ile boyutlandırır)
+      if (imgs.length) tiles.push({ post, src: imgs[0].getAttribute('src').replace(/([?&])w=\d+/, '$1w=480'), alt: imgs[0].getAttribute('alt') || '', multi: imgs.length > 1 });
     });
 
     const loading = state.isLoading && state.isLoading();
