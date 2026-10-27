@@ -1,6 +1,9 @@
+import app from 'flarum/forum/app';
+
 /**
- * Telefonda mesaj fotoğrafına dokununca açılan tam ekran görüntüleyici.
- * Aynı mesajdaki fotoğraflar arasında yana kaydırarak geçilir; altta künye bilgisi gösterilir.
+ * Telefonda mesaj fotoğrafına dokununca açılan tam ekran görüntüleyici (onaylı maket 5).
+ * Aynı mesajdaki fotoğraflar arasında yana kaydırılır; altta alttan açılan bilgi sayfası:
+ * açık fotoğrafın EXIF kartı (Upload & EXIF'in kendi bileşeni, masaüstü tasarımı), künye ve "Konuya git".
  * Flarum bileşeni değildir: kendi katmanını body'ye ekler, kapanınca kaldırır.
  */
 export default function installMobileViewer() {
@@ -9,7 +12,7 @@ export default function installMobileViewer() {
   document.addEventListener('click', (e) => {
     if (!isPhone()) return;
     const img = e.target.closest && e.target.closest('.Post-body img');
-    if (!img || img.classList.contains('emoji') || img.closest('.MobileViewer')) return;
+    if (!img || img.classList.contains('emoji') || img.closest('.MobileViewer, .FeedCard-exif, .FeedCard-kunye')) return;
 
     const body = img.closest('.Post-body');
     const imgs = [...body.querySelectorAll('img')].filter((i) => !i.classList.contains('emoji') && i.naturalWidth !== 1);
@@ -17,7 +20,7 @@ export default function installMobileViewer() {
 
     e.preventDefault();
     e.stopPropagation();
-    open(imgs, imgs.indexOf(img), body);
+    open(imgs, imgs.indexOf(img), img.closest('.FeedCard') || body.closest('.Post') || body);
   }, true);
 
   function bestSrc(i) {
@@ -26,8 +29,17 @@ export default function installMobileViewer() {
     return src.replace(/([?&])w=\d+&?/, '$1').replace(/[?&]$/, '');
   }
 
-  function open(imgs, start, body) {
-    const facts = [...body.querySelectorAll('ul li')].map((li) => li.textContent.trim()).filter(Boolean).slice(0, 8);
+  function photoIdOf(i) {
+    const own = i.getAttribute('data-photo-id');
+    if (own) return own;
+    const box = i.closest('[data-id]');
+    return box && box.classList.contains('framio-image-container') ? box.getAttribute('data-id') : '';
+  }
+
+  function open(imgs, start, scope) {
+    const kunyeSrc = scope.querySelector('.FeedCard-kunye .framio-kunye-card, .FeedCard-kunye ul, .Post-body > .framio-kunye-card, .Post-body > ul');
+    const url = scope.getAttribute && scope.getAttribute('data-url');
+    const ids = imgs.map(photoIdOf);
 
     const root = document.createElement('div');
     root.className = 'MobileViewer';
@@ -35,10 +47,12 @@ export default function installMobileViewer() {
     root.setAttribute('aria-label', 'Fotoğraf görüntüleyici');
     root.innerHTML =
       '<div class="MobileViewer-top"><button type="button" class="MobileViewer-close" aria-label="Kapat">✕</button>' +
-      '<span class="MobileViewer-count"></span><span></span></div>' +
+      '<span class="MobileViewer-count"></span><a class="MobileViewer-dl" aria-label="İndir" target="_blank" rel="noopener">⤓</a></div>' +
       '<div class="MobileViewer-track"></div>' +
       (imgs.length > 1 ? '<div class="MobileViewer-dots"></div>' : '') +
-      (facts.length ? '<ul class="MobileViewer-facts"></ul>' : '');
+      '<div class="MobileViewer-sheet"><span class="MobileViewer-grip"></span>' +
+      '<div class="MobileViewer-exif Post-body"><div class="framio-image-container SpotterCard"><div class="spotter-exif-placeholder"></div></div></div>' +
+      '<div class="MobileViewer-row"><div class="MobileViewer-kunye Post-body"></div></div></div>';
 
     const track = root.querySelector('.MobileViewer-track');
     imgs.forEach((i) => {
@@ -54,24 +68,57 @@ export default function installMobileViewer() {
 
     const dots = root.querySelector('.MobileViewer-dots');
     if (dots) imgs.forEach(() => dots.appendChild(document.createElement('i')));
-    const list = root.querySelector('.MobileViewer-facts');
-    if (list) facts.forEach((f) => { const li = document.createElement('li'); li.textContent = f; list.appendChild(li); });
+
+    // Künye: masaüstü kartının HTML'i aynen; yanında "Konuya git"
+    const row = root.querySelector('.MobileViewer-row');
+    if (kunyeSrc) root.querySelector('.MobileViewer-kunye').appendChild(kunyeSrc.cloneNode(true));
+    if (url) {
+      const go = document.createElement('a');
+      go.className = 'MobileViewer-go';
+      go.href = url;
+      go.textContent = 'Konuya git';
+      go.onclick = (ev) => { ev.preventDefault(); close(); m.route.set(url); };
+      row.appendChild(go);
+    }
+    if (!kunyeSrc && !url) row.remove();
+
+    // EXIF kartı: açık fotoğrafa göre (Upload & EXIF bileşeni)
+    const exifHost = root.querySelector('.spotter-exif-placeholder');
+    const Card = window.FramioImageManager && window.FramioImageManager.SpotterImageCard;
+    let current = -1;
+    const mountExif = (n) => {
+      if (!Card || !exifHost) return;
+      const id = ids[n];
+      root.querySelector('.MobileViewer-exif').hidden = !id;
+      if (!id) return;
+      m.mount(exifHost, { view: () => m(Card, { key: 'v-' + id, photoId: id, initialExifOpen: true }) });
+    };
 
     const count = root.querySelector('.MobileViewer-count');
+    const dl = root.querySelector('.MobileViewer-dl');
     const setIndex = (n) => {
+      if (n === current) return;
+      current = n;
       count.textContent = imgs.length > 1 ? n + 1 + ' / ' + imgs.length : '';
       if (dots) [...dots.children].forEach((d, k) => d.classList.toggle('on', k === n));
+      dl.href = bestSrc(imgs[n]);
+      mountExif(n);
     };
     track.addEventListener('scroll', () => setIndex(Math.round(track.scrollLeft / track.clientWidth)), { passive: true });
 
+    // Bilgi sayfası: dokununca açılıp kapanır (yarım / tam)
+    const sheet = root.querySelector('.MobileViewer-sheet');
+    root.querySelector('.MobileViewer-grip').onclick = () => sheet.classList.toggle('is-open');
+
     const close = () => {
+      if (exifHost) m.mount(exifHost, null);
       root.remove();
       document.documentElement.classList.remove('MobileViewer-open');
       window.removeEventListener('popstate', onPop);
     };
     const onPop = () => close();
     root.querySelector('.MobileViewer-close').onclick = () => history.back();
-    // Aşağı kaydırarak kapatma
+    // Fotoğrafı aşağı kaydırarak kapatma
     let y0 = null;
     track.addEventListener('touchstart', (ev) => { y0 = ev.touches[0].clientY; }, { passive: true });
     track.addEventListener('touchend', (ev) => {

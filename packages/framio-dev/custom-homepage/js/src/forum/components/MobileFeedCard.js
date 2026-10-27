@@ -63,7 +63,7 @@ export default class MobileFeedCard extends Component {
     const place = this.facts.length > 1 ? this.facts[this.facts.length - 1].split(' / ')[0].replace(/\s+-\s+/g, ' · ') : '';
 
     return (
-      <article className="FeedCard">
+      <article className="FeedCard" data-url={url}>
         <header className="FeedCard-head">
           {user ? <Link href={app.route.user(user)} className="FeedCard-av"><Avatar user={user} /></Link> : null}
           <div className="FeedCard-who">
@@ -78,7 +78,7 @@ export default class MobileFeedCard extends Component {
             <div className="FeedCard-track Post-body" onscroll={(e) => { const n = Math.round(e.target.scrollLeft / e.target.clientWidth); if (n !== this.index) { this.index = n; m.redraw(); } }}>
               {this.images.map((img) => (
                 <div className="FeedCard-slide">
-                  <img src={img.src} alt={img.alt} loading="lazy" decoding="async" width={img.w} height={img.h} />
+                  <img src={img.src} alt={img.alt} loading="lazy" decoding="async" width={img.w} height={img.h} data-photo-id={img.id || ''} />
                 </div>
               ))}
             </div>

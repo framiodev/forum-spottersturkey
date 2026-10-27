@@ -508,3 +508,32 @@
   .MobileProfileGrid-empty, .MobileProfileGrid-loading { text-align: center; color: var(--muted-color); padding: 30px 0; margin: 0; }
   .MobileProfileGrid-more { display: block; width: calc(100% - 28px); margin: 12px 14px; padding: 11px; border: 0; border-radius: 12px; background: var(--control-bg); color: var(--text-color); font-weight: 700; }
 }
+
+// ═══ Maket uygulaması: Görüntüleyici (5) — alttan açılan bilgi sayfası ═══
+@media (max-width: 767px) {
+  .MobileViewer-top { padding: 8px 12px; }
+  .MobileViewer-close, .MobileViewer-dl { width: 38px; height: 38px; border: 0; border-radius: 50%; background: rgba(255,255,255,.14); color: #fff !important;
+    display: grid; place-items: center; font-size: 17px; text-decoration: none !important; }
+  .MobileViewer-count { font-size: 13px; font-weight: 700; color: #cfcfd4; }
+  .MobileViewer-dots i.on { width: 16px; border-radius: 3px; }
+
+  // Bilgi sayfası: varsayılan yarım (EXIF başlığı + künye görünür), tutamağa dokununca tam açılır
+  .MobileViewer-sheet { flex: none; max-height: 42vh; overflow-y: auto; overscroll-behavior: contain; background: #121214; border-radius: 18px 18px 0 0;
+    padding: 6px 0 calc(12px + env(safe-area-inset-bottom, 0px)); transition: max-height .25s ease;
+    &.is-open { max-height: 78vh; } }
+  .MobileViewer-grip { display: block; width: 40px; height: 5px; border-radius: 3px; background: #3a3a3e; margin: 4px auto 8px; cursor: pointer; }
+  // EXIF kartı masaüstü tasarımıyla; yalnızca kenar boşluğu ve görselsiz (fotoğraf zaten üstte)
+  .MobileViewer-exif { padding: 0 12px !important; margin: 0 !important;
+    .SpotterCard-image-wrapper, .SpotterCard-topControls { display: none !important; } }
+  .MobileViewer-row { display: flex; align-items: flex-end; gap: 12px; padding: 10px 16px 0; }
+  .MobileViewer-kunye { flex: 1; min-width: 0; color: #e9e9ec; padding: 0 !important; margin: 0 !important; font-size: 13px;
+    ul { margin: 0 !important; } }
+  .MobileViewer-go { flex: none; padding: 8px 15px; border-radius: 999px; background: #f3f3f5; color: #0c0c0e !important; font-weight: 800; font-size: 13px; text-decoration: none !important; }
+}
+
+@media (max-width: 767px) {
+  // Bilgi sayfası açıkken fotoğraf kalan alana sığar
+  .MobileViewer-track { min-height: 0; }
+  .MobileViewer-slide img { max-height: 100% !important; }
+  .MobileViewer-exif[hidden] { display: none !important; }
+}
