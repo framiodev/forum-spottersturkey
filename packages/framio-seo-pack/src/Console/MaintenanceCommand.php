@@ -49,7 +49,7 @@ class MaintenanceCommand extends AbstractCommand
         }
 
         $last = (array) json_decode((string) $this->settings->get(self::AUDIT_KEY, ''), true);
-        if ($this->option('audit') || empty($last['at']) || time() - (int) $last['at'] > 7 * 86400) {
+        if ($this->input->getOption('audit') || empty($last['at']) || time() - (int) $last['at'] > 7 * 86400) {
             $this->audit();
         }
 
