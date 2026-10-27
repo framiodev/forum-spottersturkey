@@ -32,7 +32,7 @@ export default class MobileRings extends Component {
           return (
             <a href={href} className="MobileRings-item" onclick={(e) => { e.preventDefault(); m.route.set(href); }}>
               <span className={'MobileRings-ring' + (fresh ? ' fresh' : '')}>
-                <span className="MobileRings-img" style={cover ? { backgroundImage: 'url(' + cover + ')' } : { background: t.color() || 'var(--control-bg)' }}>
+                <span className="MobileRings-img" style={{ backgroundColor: t.color() || 'var(--control-bg)', backgroundImage: cover ? 'url(' + cover + ')' : 'none' }}>
                   {!cover && t.icon() ? <i className={'icon ' + t.icon()} /> : null}
                 </span>
               </span>

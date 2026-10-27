@@ -41,7 +41,7 @@ export default class MobileTagHeader extends Component {
         ) : null}
 
         <div className="MobileTagHeader-top">
-          <span className="MobileTagHeader-cover" style={cover ? { backgroundImage: 'url(' + cover + ')' } : { background: tag.color() || 'var(--control-bg)' }}>
+          <span className="MobileTagHeader-cover" style={{ backgroundColor: tag.color() || 'var(--control-bg)', backgroundImage: cover ? 'url(' + cover + ')' : 'none' }}>
             {!cover && tag.icon() ? <i className={'icon ' + tag.icon()} /> : null}
           </span>
           <div className="MobileTagHeader-text">
@@ -63,7 +63,7 @@ export default class MobileTagHeader extends Component {
               return (
                 <a href={href} className="MobileRings-item" onclick={(e) => { e.preventDefault(); m.route.set(href); }}>
                   <span className={'MobileRings-ring' + (fresh ? ' fresh' : '')}>
-                    <span className="MobileRings-img" style={c ? { backgroundImage: 'url(' + c + ')' } : { background: t.color() || tag.color() || 'var(--control-bg)' }}>
+                    <span className="MobileRings-img" style={{ backgroundColor: t.color() || tag.color() || 'var(--control-bg)', backgroundImage: c ? 'url(' + c + ')' : 'none' }}>
                       {!c && t.icon() ? <i className={'icon ' + t.icon()} /> : null}
                     </span>
                   </span>

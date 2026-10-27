@@ -15,7 +15,7 @@ use Psr\Http\Server\RequestHandlerInterface;
 /**
  * Telefon görünümü için küçük görseller:
  *  - ?tags=1,2,3        → her kategorinin en son fotoğrafı (alt kategori halkaları)
- *  - ?discussions=4,5,6 → her tartışmanın ilk fotoğrafı (tartışma satırları)
+ *  - ?discussions=4,5,6 → her tartışmanın en son fotoğrafı (tartışma satırları)
  * Yalnızca isteyenin görebildiği tartışmalara bakılır; misafir yanıtı 30 dk önbellekte tutulur.
  */
 class MobileThumbsController implements RequestHandlerInterface
@@ -52,7 +52,8 @@ class MobileThumbsController implements RequestHandlerInterface
 
             if ($discussions) {
                 foreach (Discussion::whereVisibleTo($actor)->whereIn('id', $discussions)->get() as $d) {
-                    if ($url = $this->firstImage($d, $request)) {
+                    // İlk mesaj çoğu zaman tanıtım metni: tartışmanın en son fotoğrafı, yoksa ilk mesajınki
+                    if ($url = $this->latestImage($d, $actor, $request) ?: $this->firstImage($d, $request)) {
                         $out['discussions'][$d->id] = $url;
                     }
                 }
@@ -62,7 +63,7 @@ class MobileThumbsController implements RequestHandlerInterface
         };
 
         $data = $actor->isGuest()
-            ? $this->cache->remember('framio_mobile_thumbs_' . md5(implode(',', $tags) . '|' . implode(',', $discussions)), 1800, $build)
+            ? $this->cache->remember('framio_mobile_thumbs_v2_' . md5(implode(',', $tags) . '|' . implode(',', $discussions)), 1800, $build)
             : $build();
 
         return new JsonResponse($data);

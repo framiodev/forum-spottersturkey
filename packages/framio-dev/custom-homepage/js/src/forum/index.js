@@ -22,7 +22,7 @@ import MobileCategoriesPage from './components/MobileCategoriesPage';
 import MobileFeedCard from './components/MobileFeedCard';
 import MobileCommentRow from './components/MobileCommentRow';
 import MobileTagHeader from './components/MobileTagHeader';
-import { discussionThumb } from './utils/mobileThumbs';
+import { applyDiscussionThumbs } from './utils/mobileThumbs';
 import installMobileViewer from './components/MobileViewer';
 
 /** /gallery → galeri görünümü (yönlendirme) */
@@ -282,21 +282,11 @@ app.initializers.add('framio-custom-homepage', () => {
         }
     });
 
-    // Telefon kategori sayfası, Tartışmalar sekmesi: satırın solunda tartışmanın ilk fotoğrafı.
-    // Mithril'in yönettiği DOM'a öğe eklenmez; görsel CSS değişkeniyle verilir.
-    const setThumb = function () {
-        try {
-            if (!document.documentElement.classList.contains('MobileTagPage') || !this.element) return;
-            const d = this.attrs.discussion;
-            const url = d && discussionThumb(d.id());
-            if (url) {
-                this.element.style.setProperty('--fc-thumb', 'url("' + url.replace(/"/g, '%22') + '")');
-                this.element.classList.add('has-thumb');
-            }
-        } catch (e) {}
-    };
-    extend('flarum/forum/components/DiscussionListItem', 'oncreate', setThumb);
-    extend('flarum/forum/components/DiscussionListItem', 'onupdate', setThumb);
+    // Telefon kategori sayfası, Tartışmalar sekmesi: satırın solunda tartışmanın ilk fotoğrafı
+    // (görsel stil değişkeniyle verilir; bkz. utils/mobileThumbs.applyDiscussionThumbs)
+    extend('flarum/forum/components/DiscussionListItem', 'oncreate', function () {
+        if (document.documentElement.classList.contains('MobileTagPage')) setTimeout(applyDiscussionThumbs, 0);
+    });
 
     // Telefon kategori sayfası (onaylı maket 2b): büyük başlık kutusu yerine kategori başlığı
     override(IndexPage.prototype, 'hero', function (original) {

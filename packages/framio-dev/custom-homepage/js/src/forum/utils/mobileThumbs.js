@@ -25,6 +25,7 @@ function flush() {
     // Bulunamayanlar da işaretlenir (null): tekrar sorulmaz
     tags.forEach((id) => { known.tags[id] = (r && r.tags && r.tags[id]) || null; });
     discussions.forEach((id) => { known.discussions[id] = (r && r.discussions && r.discussions[id]) || null; });
+    applyDiscussionThumbs();
     m.redraw();
   }).catch(() => {});
 }
@@ -41,3 +42,16 @@ function get(kind, id) {
 
 export const tagThumb = (id) => get('tags', id);
 export const discussionThumb = (id) => get('discussions', id);
+
+/**
+ * Tartışma satırları değişmeyen veride yeniden çizilmez (Flarum alt ağaç koruması); bu yüzden
+ * küçük görsel, satırın [data-id] kapsayıcısındaki öğeye yalnızca stil değişkeni olarak yazılır.
+ */
+export function applyDiscussionThumbs() {
+  document.querySelectorAll('[data-id] > .DiscussionListItem').forEach((el) => {
+    const id = el.parentElement.getAttribute('data-id');
+    const url = known.discussions[id];
+    if (url === undefined) get('discussions', id);
+    else if (url && !el.style.getPropertyValue('--fc-thumb')) el.style.setProperty('--fc-thumb', 'url("' + url.replace(/"/g, '%22') + '")');
+  });
+}
