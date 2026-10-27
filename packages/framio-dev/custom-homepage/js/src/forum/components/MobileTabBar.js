@@ -1,6 +1,5 @@
 import app from 'flarum/forum/app';
 import Component from 'flarum/common/Component';
-import icon from 'flarum/common/helpers/icon';
 
 /**
  * Telefonda ekranın altında sabit duran 5 sekmeli gezinme çubuğu
@@ -18,7 +17,7 @@ export default class MobileTabBar extends Component {
     const tab = (key, ic, label, active, onclick, badge) => (
       <button type="button" className={'MobileTabBar-tab' + (active ? ' active' : '') + (key === 'upload' ? ' MobileTabBar-upload' : '')}
         aria-label={label} onclick={onclick}>
-        {icon(ic)}
+        <i className={'icon ' + ic} aria-hidden="true" />
         {badge ? <span className="MobileTabBar-badge">{badge > 9 ? '9+' : badge}</span> : null}
       </button>
     );

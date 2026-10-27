@@ -37,13 +37,15 @@ app.initializers.add('framio-custom-homepage', () => {
     // Keşfet sayfası (/kesfet). Ana sayfa yapmak için Yönetim → Temel → Varsayılan Rota = /kesfet
     app.routes['framio.explore'] = { path: '/kesfet', component: ExplorePage };
 
-    // Telefon alt sekme çubuğu: uygulama kökünün dışında kendi bağlama noktasında yaşar
-    try {
+    // Telefon alt sekme çubuğu: uygulama kökünün dışında kendi bağlama noktasında yaşar.
+    // Uygulama ve oturum hazır olduktan sonra (ilk sayfa çizildiğinde) bir kez bağlanır.
+    extend(PageStructure.prototype, 'oncreate', function () {
+        if (document.querySelector('.MobileTabBar-mount')) return;
         const tabBarEl = document.createElement('div');
         tabBarEl.className = 'MobileTabBar-mount';
         document.body.appendChild(tabBarEl);
-        m.mount(tabBarEl, MobileTabBar);
-    } catch (e) {}
+        m.mount(tabBarEl, { view: () => { try { return m(MobileTabBar); } catch (e) { return null; } } });
+    });
 
     // Lightbox açıkken konan yenileme çerezi, yeni sekmede açılan bağlantılarla
     // (Konuya Git vb.) sunucuya gidip o sekmeyi ana sayfaya yönlendiriyordu.
