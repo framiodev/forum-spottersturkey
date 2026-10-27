@@ -17,6 +17,7 @@ import registerNavMenu from './navMenu';
 import ExplorePage from './components/ExplorePage';
 import Component from 'flarum/common/Component';
 import MobileTabBar from './components/MobileTabBar';
+import MobileChips from './components/MobileChips';
 
 /** /gallery → galeri görünümü (yönlendirme) */
 class GalleryRedirect extends Component {
@@ -45,6 +46,15 @@ app.initializers.add('framio-custom-homepage', () => {
         tabBarEl.className = 'MobileTabBar-mount';
         document.body.appendChild(tabBarEl);
         m.mount(tabBarEl, { view: () => { try { return m(MobileTabBar); } catch (e) { return null; } } });
+
+        // Kategori çipleri: sayfa içeriğinin hemen üstünde
+        const content = document.getElementById('content');
+        if (content && content.parentNode) {
+            const chipsEl = document.createElement('div');
+            chipsEl.className = 'MobileChips-mount';
+            content.parentNode.insertBefore(chipsEl, content);
+            m.mount(chipsEl, { view: () => { try { return m(MobileChips); } catch (e) { return null; } } });
+        }
     });
 
     // Lightbox açıkken konan yenileme çerezi, yeni sekmede açılan bağlantılarla

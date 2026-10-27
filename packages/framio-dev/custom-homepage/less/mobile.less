@@ -53,10 +53,28 @@
   }
   // Çubukta karşılığı olan yüzen "Yeni başlık" düğmesi ve sağ alttaki yukarı çık düğmeleri çubuğun üstüne çıkar
   .App-backControl ~ .App-primaryControl, .IndexPage .App-primaryControl { display: none; }
+  // Üst başlık sade: solda logo, sağda tek "ara ve ayarlar" düğmesi (çekmeceyi açar).
+  // "Ana Sayfa ⇕" seçicisi kalkar; yerini kategori çipleri alır.
+  .App-titleControl, .IndexPage-nav .item-nav { display: none !important; }
+  .App-navigation { left: auto !important; right: 4px; }
+  .Header-title { text-align: left; padding-left: 16px; }
+  .Navigation-drawer .icon::before { content: "\f002"; }
+
+  .MobileChips {
+    display: flex; gap: 8px; overflow-x: auto; scrollbar-width: none; padding: 10px 14px;
+    border-bottom: 1px solid var(--control-bg); background: var(--body-bg);
+    &::-webkit-scrollbar { display: none; }
+  }
+  .MobileChips-chip {
+    flex: none; padding: 7px 14px; border-radius: 999px; background: var(--control-bg); color: var(--text-color);
+    font-size: 13.5px; font-weight: 600; white-space: nowrap; text-decoration: none !important;
+    &.active { background: var(--text-color); color: var(--body-bg); }
+  }
+
   .scroll-to-top, .back-to-top, #back-to-top { bottom: calc(68px + env(safe-area-inset-bottom, 0px)) !important; }
 }
 
 // Masaüstünde alt çubuk yok
 @media (min-width: 768px) {
-  .MobileTabBar-mount { display: none; }
+  .MobileTabBar-mount, .MobileChips-mount { display: none; }
 }
