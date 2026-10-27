@@ -22,7 +22,8 @@ return [
         ->route('/gallery', 'spotters.gallery')
         // Keşfet (Jetphotos tarzı fotoğraf vitrini). Ana sayfa yapmak için:
         // Yönetim → Temel → Varsayılan Rota = /kesfet
-        ->route('/kesfet', 'framio.explore'),
+        ->route('/kesfet', 'framio.explore')
+        ->route('/kategoriler', 'framio.categories'),
 
     // Sitenin tasarımına uygun 404 sayfası (çekirdeğin sade sayfası yerine)
     (new Extend\View())->extendNamespace('flarum.forum', __DIR__.'/views'),
