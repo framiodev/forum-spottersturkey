@@ -56,8 +56,7 @@
   // Üst başlık sade: solda logo, sağda tek "ara ve ayarlar" düğmesi (çekmeceyi açar).
   // "Ana Sayfa ⇕" seçicisi kalkar; yerini kategori çipleri alır.
   .App-titleControl, .IndexPage-nav .item-nav { display: none !important; }
-  .App-navigation { left: auto !important; right: 4px; }
-  .Header-title { text-align: left; padding-left: 16px; }
+  .App-navigation .Navigation-drawer { position: fixed; left: auto; right: 6px; top: calc(env(safe-area-inset-top, 0px) + 4px); z-index: 2; }
   .Navigation-drawer .icon::before { content: "\f002"; }
 
   .MobileChips {

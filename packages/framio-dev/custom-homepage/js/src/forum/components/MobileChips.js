@@ -8,7 +8,8 @@ import Component from 'flarum/common/Component';
 export default class MobileChips extends Component {
   view() {
     const route = app.current.get('routeName');
-    if (route !== 'index' && route !== 'tag') return <div className="MobileChips-empty" />;
+    // Ana sayfa bu sitede "tags" rotasında (özel ana sayfa) çalışır
+    if (route !== 'index' && route !== 'tag' && route !== 'tags') return <div className="MobileChips-empty" />;
 
     const params = m.route.param() || {};
     const path = (m.route.get() || '/').split('?')[0];
@@ -24,7 +25,7 @@ export default class MobileChips extends Component {
 
     return (
       <nav className="MobileChips" aria-label="Kategoriler">
-        {chip('Ana Sayfa', '/', path === '/')}
+        {chip('Ana Sayfa', '/', path === '/' || route === 'tags')}
         {chip('Tümü', '/all', path === '/all')}
         {tags.map((t) => chip(t.name(), app.route('tag', { tags: t.slug() }), activeSlug === t.slug()))}
       </nav>
