@@ -72,7 +72,7 @@
 
   // Akış kartları (Instagram tarzı): kart çerçevesi yok, fotoğraf kenardan kenara, ince ayırıcı
   .CategoryFeed-Container {
-    margin: 0 -15px;
+    margin: 0;
     .PostStream-item { border-bottom: 1px solid var(--control-bg); padding: 0 0 14px; margin: 0; }
     .PostListItem { padding: 0; background: none; border: 0; box-shadow: none; }
     // Başlık satırı: "X tartışmasında" küçük üst satır, Konuya Git düğmesi yerine başlığın kendisi bağlantı
@@ -95,6 +95,7 @@
   }
   // Akış sayfasındaki "≡ Akış" sıralama kutusu çiplerle aynı işi görüyor
   .IndexPage-toolbar:has(+ .CategoryFeed-Container), .IndexPage-results:has(.CategoryFeed-Container) .IndexPage-toolbar { display: none; }
+  .IndexPage:has(.CategoryFeed-Container) .Framio-PageHero { display: none; }
 
   .scroll-to-top, .back-to-top, #back-to-top { bottom: calc(68px + env(safe-area-inset-bottom, 0px)) !important; }
 }
