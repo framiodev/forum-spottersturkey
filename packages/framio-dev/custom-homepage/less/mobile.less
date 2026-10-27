@@ -70,6 +70,32 @@
     &.active { background: var(--text-color); color: var(--body-bg); }
   }
 
+  // Akış kartları (Instagram tarzı): kart çerçevesi yok, fotoğraf kenardan kenara, ince ayırıcı
+  .CategoryFeed-Container {
+    margin: 0 -15px;
+    .PostStream-item { border-bottom: 1px solid var(--control-bg); padding: 0 0 14px; margin: 0; }
+    .PostListItem { padding: 0; background: none; border: 0; box-shadow: none; }
+    // Başlık satırı: "X tartışmasında" küçük üst satır, Konuya Git düğmesi yerine başlığın kendisi bağlantı
+    .PostListItem-header { order: 2; margin: 0 !important; padding: 10px 14px 0; }
+    .PostListItem-discussion { font-size: 14px !important; font-weight: 700 !important; a { font-style: normal !important; } }
+    .PostListItem-header .Button { padding: 5px 12px; font-size: 12px; border-radius: 999px; min-height: 0; }
+    .Post { padding: 0 !important; margin: 0 !important; background: none !important; border: 0 !important; box-shadow: none !important; }
+    .Post-header { padding: 10px 14px 8px; margin: 0 !important; }
+    .Post-header .PostUser-avatar, .Post-avatar { width: 32px; height: 32px; }
+    .Post-body { padding: 0 !important; margin: 0 !important; font-size: 14px; }
+    .Post-body > *:not(p):not(ul):not(ol):not(blockquote) { margin-left: 0; margin-right: 0; }
+    .Post-body img { width: 100% !important; max-width: none; border-radius: 0 !important; display: block; margin: 0 !important; }
+    .Post-body p, .Post-body blockquote { padding: 0 14px; }
+    // Künye: madde listesi yerine küçük çipler
+    .Post-body ul { display: flex; flex-wrap: wrap; gap: 6px; list-style: none; padding: 10px 14px 0; margin: 0; }
+    .Post-body ul li { margin: 0; padding: 3px 9px; border: 1px solid var(--control-bg); border-radius: 7px; font-size: 12px; font-weight: 600; }
+    .Post-body ul li::marker { content: none; }
+    .Post-footer, .Post-actions { padding: 4px 8px 0 !important; margin: 0 !important; }
+    .Post-actions .Button, .Post-footer .Button { font-size: 15px; }
+  }
+  // Akış sayfasındaki "≡ Akış" sıralama kutusu çiplerle aynı işi görüyor
+  .IndexPage-toolbar:has(+ .CategoryFeed-Container), .IndexPage-results:has(.CategoryFeed-Container) .IndexPage-toolbar { display: none; }
+
   .scroll-to-top, .back-to-top, #back-to-top { bottom: calc(68px + env(safe-area-inset-bottom, 0px)) !important; }
 }
 

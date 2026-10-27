@@ -26,7 +26,8 @@ export default class MobileChips extends Component {
     return (
       <nav className="MobileChips" aria-label="Kategoriler">
         {chip('Ana Sayfa', '/', path === '/' || route === 'tags')}
-        {chip('Tümü', '/all', path === '/all')}
+        {chip('Akış', '/all?sort=feed', path === '/all' && params.sort === 'feed')}
+        {chip('Tümü', '/all', path === '/all' && params.sort !== 'feed')}
         {tags.map((t) => chip(this.shortName(t),app.route('tag', { tags: t.slug() }), activeSlug === t.slug()))}
       </nav>
     );
