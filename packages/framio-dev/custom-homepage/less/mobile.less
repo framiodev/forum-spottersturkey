@@ -225,3 +225,15 @@
 @media (max-width: 767px) {
   .FeedCard-exif { margin: 0; > * { margin: 0 !important; border-radius: 0 !important; } }
 }
+
+// Paylaşım menüsü (alttan açılan sayfa)
+.FeedSheet-backdrop { position: fixed; inset: 0; z-index: 1035; background: rgba(0,0,0,.45); display: flex; align-items: flex-end; }
+.FeedSheet-panel {
+  width: 100%; background: var(--body-bg); border-radius: 16px 16px 0 0; padding: 8px 8px calc(12px + env(safe-area-inset-bottom, 0px));
+  display: flex; flex-direction: column;
+  .Button, > a { display: flex; align-items: center; gap: 12px; width: 100%; padding: 14px 12px !important; border: 0; border-radius: 10px;
+    background: none !important; color: var(--text-color) !important; font-size: 15px; text-align: left; justify-content: flex-start; }
+  .Button:active { background: var(--control-bg) !important; }
+  .icon { width: 22px; text-align: center; font-size: 18px; }
+}
+.FeedSheet-grip { width: 38px; height: 4px; border-radius: 2px; background: var(--control-bg); margin: 2px auto 8px; }

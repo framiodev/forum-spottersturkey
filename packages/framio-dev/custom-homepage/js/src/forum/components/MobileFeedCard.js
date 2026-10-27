@@ -3,6 +3,7 @@ import Component from 'flarum/common/Component';
 import Link from 'flarum/common/components/Link';
 import Avatar from 'flarum/common/components/Avatar';
 import humanTime from 'flarum/common/utils/humanTime';
+import CommentPost from 'flarum/forum/components/CommentPost';
 
 /**
  * Telefon akış kartı (Instagram düzeni): Flarum mesaj bileşeni yerine kendi kartımız.
@@ -110,7 +111,36 @@ export default class MobileFeedCard extends Component {
     post.save({ isLiked: !isLiked });
   }
 
+  // Paylaşım menüsü (alttan açılan sayfa): bağlantı paylaşımı + eklentilerin mesaja eklediği işlemler
+  // (Sosyal Medyada Paylaş, ağa aktar vb.) — Flarum mesaj bileşeninin işlem listesinden alınır.
   share(url) {
+    let items = [];
+    try {
+      const cp = new CommentPost();
+      cp.attrs = { post: this.attrs.post };
+      items = cp.actionItems().toArray().filter((v) => v && !['like', 'reply'].includes(v.itemName));
+    } catch (e) {}
+
+    const host = document.createElement('div');
+    host.className = 'FeedSheet';
+    const close = () => { m.mount(host, null); host.remove(); };
+    document.body.appendChild(host);
+    m.mount(host, {
+      view: () => (
+        <div className="FeedSheet-backdrop" onclick={(e) => { if (e.target === e.currentTarget) close(); }}>
+          <div className="FeedSheet-panel" onclick={(e) => { if (e.target.closest('button, a') && !e.target.closest('.FeedSheet-link')) setTimeout(close, 0); }}>
+            <span className="FeedSheet-grip" />
+            <button type="button" className="FeedSheet-link Button" onclick={() => { this.nativeShare(url); close(); }}>
+              <i className="icon fas fa-link" /> Bağlantıyı paylaş
+            </button>
+            {items}
+          </div>
+        </div>
+      ),
+    });
+  }
+
+  nativeShare(url) {
     const full = app.forum.attribute('baseUrl') + url.replace(app.forum.attribute('basePath') || '', '');
     const title = this.attrs.post.discussion() ? this.attrs.post.discussion().title() : document.title;
     if (navigator.share) navigator.share({ title, url: full }).catch(() => {});
