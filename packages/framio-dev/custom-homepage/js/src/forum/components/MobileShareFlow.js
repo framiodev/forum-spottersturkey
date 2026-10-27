@@ -155,6 +155,9 @@ function startComposer(files, target, discussion) {
   };
 
   open().then(() => {
+    // Paylaşım ekranı (3. adım) bu pencerede baştan açık olsun: masaüstü düzeni hiç görünmez
+    app.composer.mobileShare = true;
+    m.redraw();
     let tries = 0;
     const feed = () => {
       const input = document.querySelector('.Composer .spotter-upload-button input[type=file]');

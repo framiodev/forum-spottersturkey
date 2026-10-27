@@ -694,3 +694,9 @@
   .MobileCompose-placeholder { color: #8d8d96; font-size: 14px; }
   .MobileCompose-raw { display: flex; align-items: center; gap: 8px; margin: 16px 14px 0; padding: 0; border: 0; background: none; color: #8d8d96; font-size: 13px; font-weight: 600; }
 }
+
+@media (max-width: 767px) {
+  .MobileCompose-wait { margin: 0 14px; p { margin: 12px 2px 0; color: #8d8d96; font-size: 13px; } }
+  .MobileCompose-wait .MobileCompose-slide { border-radius: 14px; background: #1b1b1f; }
+  @media (prefers-reduced-motion: no-preference) { .MobileCompose-shimmer { animation: fcshim 1.3s ease-in-out infinite; } }
+}

@@ -12,9 +12,13 @@ export default class MobileComposeSheet extends Component {
     const c = app.composer;
     const phone = window.matchMedia('(max-width: 767px)').matches;
     // Pencere kapanınca "Metni düzenle" tercihi sıfırlanır: bir sonraki paylaşım yine bu ekranla açılır
-    if (c && c.isVisible && !c.isVisible() && c.mobileRaw) c.mobileRaw = undefined;
+    if (c && c.isVisible && !c.isVisible()) { c.mobileRaw = undefined; c.mobileShare = undefined; }
     const content = c && c.fields && c.fields.content ? c.fields.content() || '' : '';
-    const visible = phone && c && c.isVisible && c.isVisible() && /\[framio-image\b/i.test(content) && c.mobileRaw !== true;
+    const hasPhotos = /\[framio-image\b/i.test(content);
+    // Paylaş akışından açılan pencerede ekran baştan açıktır (masaüstü düzeni bir an bile görünmez);
+    // bir pencere (imza, künye, kategori seçimi…) açıkken geçici olarak gizlenir, o pencere üstte kalır
+    const modalOpen = !!(app.modal && app.modal.isModalOpen && app.modal.isModalOpen());
+    const visible = phone && c && c.isVisible && c.isVisible() && (hasPhotos || c.mobileShare) && c.mobileRaw !== true && !modalOpen;
     document.documentElement.classList.toggle('MobileCompose-open', !!visible);
     if (!visible) return <div className="MobileCompose-off" />;
 
@@ -31,11 +35,17 @@ export default class MobileComposeSheet extends Component {
         <div className="MobileShare-top">
           <button type="button" className="MobileShare-x" aria-label="Kapat" onclick={() => this.exit()}>✕</button>
           <b>{isDiscussion ? 'Yeni paylaşım' : 'Yanıt'}</b>
-          <button type="button" className="MobileShare-next" disabled={this.sending} onclick={() => this.submit()}>Paylaş</button>
+          <button type="button" className="MobileShare-next" disabled={!images.length} onclick={() => this.submit()}>Paylaş</button>
         </div>
         <div className="MobileShare-steps"><i className="on" /><i className="on" /><i className="on" /></div>
 
         <div className="MobileShare-scroll">
+          {!images.length ? (
+            <div className="MobileCompose-wait">
+              <div className="MobileCompose-slide MobileCompose-shimmer" />
+              <p>Fotoğraflar yükleniyor, imza ve künye hazırlanıyor…</p>
+            </div>
+          ) : null}
           {images.length ? (
             <div className="MobileCompose-media">
               <div className="MobileCompose-track" onscroll={(e) => { const n = Math.round(e.target.scrollLeft / e.target.clientWidth); if (n !== this.index) { this.index = n; m.redraw(); } }}>
