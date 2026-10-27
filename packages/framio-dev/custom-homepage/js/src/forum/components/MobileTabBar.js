@@ -55,7 +55,7 @@ export default class MobileTabBar extends Component {
           {tab('home', 'fas fa-house', 'Akış', m.route.get() === '/all?sort=feed' || route === 'tags', () => this.go('/all?sort=feed'))}
           {tab('explore', 'fas fa-compass', 'Keşfet', route === 'framio.explore', () => this.go(app.route('framio.explore')))}
           {tab('upload', 'fas fa-plus', 'Fotoğraf paylaş', false, () => this.upload())}
-          {tab('cats', 'fas fa-layer-group', 'Kategoriler', route === 'framio.categories' || route === 'tag', () => this.go('/kategoriler'))}
+          {tab('cats', 'fas fa-layer-group', 'Kategoriler', route === 'framio.categories' || route === 'tag' || !!m.route.param('topluluk'), () => this.go('/kategoriler'))}
           {tab('profile', 'fas fa-user', 'Profil', route && route.indexOf('user') === 0, () => (user ? this.go(app.route.user(user)) : this.login()))}
         </nav>
       </div>
@@ -67,6 +67,8 @@ export default class MobileTabBar extends Component {
     const root = ['index', 'tags', 'tag', 'framio.explore', 'framio.categories'].includes(route);
     document.documentElement.classList.toggle('MobileRoot', root);
     if (route !== 'tag') document.documentElement.classList.remove('MobileTagPage', 'MobileTagPage--photos', 'MobileTagPage--list');
+    // Topluluk görünümü (/all?topluluk=1): yalnızca FoF Widgets bölümü (istatistikler, yeni üyeler)
+    document.documentElement.classList.toggle('MobileCommunity', route === 'index' && !!m.route.param('topluluk'));
     // Logo: admin ayarındaki logo (Framio-MobileLogo) ana sekmelerde ortada gösterilir (CSS)
     return null;
   }

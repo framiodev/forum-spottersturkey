@@ -605,3 +605,24 @@
     .Button--primary { border-radius: 12px !important; font-weight: 800; }
   }
 }
+
+// ═══ Topluluk görünümü, sonsuz kaydırma, uzun basış ═══
+@media (max-width: 767px) {
+  // Forum istatistikleri / yeni üyeler (FoF Widgets) yalnızca Topluluk görünümünde
+  html:not(.MobileCommunity) .FofWidgets-WidgetSection { display: none !important; }
+  html.MobileCommunity {
+    .IndexPage-results, .IndexPage-toolbar, .DiscussionList, .Framio-PageHero, .IndexPage .Hero { display: none !important; }
+    .FofWidgets-WidgetSection { display: block !important; padding: 8px 14px 20px !important; margin: 0 !important; }
+    .FofWidgets-Widget { border-radius: 14px !important; margin-bottom: 12px !important; }
+  }
+  .MobileCategories-seg { margin: 6px 14px 12px !important; }
+
+  // Akış: kartlar kaydırdıkça yüklenir, düğme gerekmez
+  .CategoryFeed-Container .Button--primary:only-child { display: none; }
+  .CategoryFeed-sentinel { height: 1px; }
+
+  // Izgaralarda uzun basış: tarayıcı menüsü ve metin seçimi yok (görüntüleyici açılır)
+  .MobileProfileGrid-tile, .LayoutA-Card, .Explore-Card, .FeedCard-slide, .MobileViewer-slide {
+    -webkit-touch-callout: none; -webkit-user-select: none; user-select: none; }
+  .MobileProfileGrid-tile img, .LayoutA-Card img, .Explore-Card img { -webkit-user-drag: none; pointer-events: none; }
+}

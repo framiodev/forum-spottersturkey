@@ -34,10 +34,12 @@ export default class CategoryFeed extends Component {
         super.oncreate(vnode);
         this.initObserver();
         document.body.classList.add('Framio-Feed-Active');
+        this.watchSentinel();
     }
 
     onremove(vnode) {
         if (this.observer) this.observer.disconnect();
+        if (this.moreObserver) this.moreObserver.disconnect();
         
         if (this.refreshBehavior === 'A') {
             sessionStorage.removeItem('framioFeedContext');
@@ -78,6 +80,7 @@ export default class CategoryFeed extends Component {
 
     onupdate(vnode) {
         super.onupdate(vnode);
+        this.watchSentinel();
         let needsReload = false;
         
         if (vnode.attrs.tagSlug !== this.currentTag) {
@@ -132,6 +135,25 @@ export default class CategoryFeed extends Component {
             m.redraw();
             setTimeout(() => this.initObserver(), 200);
         });
+    }
+
+    // Telefonda "Daha Fazla Göster" yerine sonsuz kaydırma: listenin sonuna yaklaşınca sıradaki 10 kart
+    setupMore() {
+        if (this.moreObserver || !window.matchMedia('(max-width: 767px)').matches || !('IntersectionObserver' in window)) return;
+        this.moreObserver = new IntersectionObserver((list) => {
+            if (list.some((en) => en.isIntersecting) && !this.loading && this.visibleLimit < this.posts.length) this.loadMore();
+        }, { rootMargin: '900px 0px' });
+    }
+
+    watchSentinel() {
+        this.setupMore();
+        if (!this.moreObserver || !this.element) return;
+        const s = this.element.querySelector('.CategoryFeed-sentinel');
+        if (s && s !== this.sentinel) {
+            if (this.sentinel) this.moreObserver.unobserve(this.sentinel);
+            this.sentinel = s;
+            this.moreObserver.observe(s);
+        }
     }
 
     loadMore() {
@@ -213,6 +235,7 @@ export default class CategoryFeed extends Component {
                     <div className="PostStream">
                         {this.posts.slice(0, this.visibleLimit).map(post => this.renderPost(post))}
                         
+                        <div className="CategoryFeed-sentinel" />
                         {this.visibleLimit < this.posts.length && (
                             <div style={{ textAlign: 'center', padding: '20px 0' }}>
                                 <Button className="Button Button--primary" onclick={() => this.loadMore()}>

@@ -52,13 +52,17 @@ app.initializers.add('framio-custom-homepage', () => {
     // Telefonda galeri kartları (kategori, Keşfet, ana sayfa) eski lightbox yerine yeni görüntüleyiciyi açar
     const phoneViewer = function (original, e, postIndex) {
         const v = window.FramioMobileViewer;
-        const group = this.galleryPosts && this.galleryPosts[postIndex];
+        const list = this.galleryPosts || [];
+        const group = list[postIndex];
         if (!v || !v.isPhone() || !group || !group.real_post_id) return original(e, postIndex);
         if (e && e.preventDefault) e.preventDefault();
-        const show = (post) => { if (!v.openPost(post)) original(e, postIndex); };
-        const cached = app.store.getById('posts', String(group.real_post_id));
-        if (cached && cached.contentHtml && cached.contentHtml()) show(cached);
-        else app.store.find('posts', group.real_post_id).then(show).catch(() => original(e, postIndex));
+        // Dokunulan kart ve ardından gelen 15 gönderi: görüntüleyicide kaydırarak sıradakine geçilir
+        const ids = list.slice(postIndex, postIndex + 16).map((g) => g && g.real_post_id).filter(Boolean).map(String);
+        const ordered = () => ids.map((id) => app.store.getById('posts', id)).filter((p) => p && p.contentHtml && p.contentHtml());
+        const show = () => { if (!v.openPosts(ordered(), 0)) original(e, postIndex); };
+        const missing = ids.filter((id) => { const p = app.store.getById('posts', id); return !(p && p.contentHtml && p.contentHtml()); });
+        if (!missing.length) show();
+        else app.store.find('posts', { filter: { id: missing.join(',') } }).then(show).catch(() => original(e, postIndex));
     };
     override(CategoryGallery.prototype, 'handlePostClick', phoneViewer);
     override(CustomHomepage.prototype, 'handlePostClick', phoneViewer);

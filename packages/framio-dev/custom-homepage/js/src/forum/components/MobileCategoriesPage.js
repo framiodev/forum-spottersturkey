@@ -40,7 +40,10 @@ export default class MobileCategoriesPage extends Page {
 
     return (
       <div className="MobileCategories">
-        <h1 className="MobileCategories-title">Kategoriler</h1>
+        <div className="MobileTagHeader-seg MobileCategories-seg" role="tablist">
+          <button type="button" role="tab" className="on"><i className="icon fas fa-layer-group" /> Kategoriler</button>
+          <button type="button" role="tab" onclick={() => m.route.set('/all?topluluk=1')}><i className="icon fas fa-users" /> Topluluk</button>
+        </div>
         {primaries.map((p) => (
           <section className="MobileCategories-group">
             {row(p, false)}

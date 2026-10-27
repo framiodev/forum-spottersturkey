@@ -64,7 +64,7 @@ export default class MobileFeedCard extends Component {
     const place = this.facts.length > 1 ? this.facts[this.facts.length - 1].split(' / ')[0].replace(/\s+-\s+/g, ' · ') : '';
 
     return (
-      <article className="FeedCard" data-url={url}>
+      <article className="FeedCard" data-url={url} data-post-id={post.id()}>
         <header className="FeedCard-head">
           {user ? <Link href={app.route.user(user)} className="FeedCard-av"><Avatar user={user} /></Link> : null}
           <div className="FeedCard-who">

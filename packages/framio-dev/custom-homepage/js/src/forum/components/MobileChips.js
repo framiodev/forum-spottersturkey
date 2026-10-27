@@ -13,6 +13,15 @@ export default class MobileChips extends Component {
 
     const params = m.route.param() || {};
     const path = (m.route.get() || '/').split('?')[0];
+    // Topluluk görünümü: çipler yerine Kategoriler / Topluluk sekmesi
+    if (params.topluluk) {
+      return (
+        <div className="MobileTagHeader-seg MobileCategories-seg" role="tablist">
+          <button type="button" role="tab" onclick={() => m.route.set('/kategoriler')}><i className="icon fas fa-layer-group" /> Kategoriler</button>
+          <button type="button" role="tab" className="on"><i className="icon fas fa-users" /> Topluluk</button>
+        </div>
+      );
+    }
     // Akış'ta kategori halkaları aynı işi görür: çip satırı gizlenir
     if (path === '/all' && params.sort === 'feed') return <div className="MobileChips-empty" />;
     // Kategori sayfasında başlıktaki alt kategori halkaları yeterli
