@@ -52,7 +52,7 @@ app.initializers.add('framio-custom-homepage', () => {
 
         // Telefonda site ilk açıldığında ana sayfa yerine Akış (admin'den kapatılabilir)
         if (window.matchMedia('(max-width: 767px)').matches && app.forum.attribute('framioMobileHomeFeed') !== '0'
-            && (m.route.get() || '/').split('?')[0] === '/') {
+            && window.location.pathname.replace(/\/+$/, '') === (app.forum.attribute('basePath') || '')) {
             setTimeout(() => m.route.set('/all?sort=feed', null, { replace: true }), 0);
         }
 
