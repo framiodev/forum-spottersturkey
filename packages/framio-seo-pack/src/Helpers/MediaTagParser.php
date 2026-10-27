@@ -244,6 +244,10 @@ class MediaTagParser
         if (preg_match('~(https?://\S+)~i', $url, $m) && !str_starts_with($url, 'http')) {
             $url = $m[1];
         }
+        // Dış adres yanlışlıkla forum köküne eklenmişse ("https://forum…/https://live.staticflickr.com/…") dış adresi al
+        if (preg_match('~^https?://[^/]+/+((?:https?:)?//.+)$~i', $url, $m)) {
+            $url = $m[1];
+        }
         // Forum kökü dışındaki "public" klasörü adreslere sızmışsa düzelt
         $url = preg_replace('~^(https?://[^/]+)/public/assets/~i', '$1/assets/', $url);
 
