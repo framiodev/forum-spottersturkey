@@ -94,7 +94,7 @@ class SeoHealthController implements RequestHandlerInterface
                 'license_url' => $this->seo->get('license_url'),
                 'acquire_url' => $this->seo->get('acquire_license_url'),
             ],
-            'audit' => (array) $this->cache->get(\Framio\SeoPack\Console\MaintenanceCommand::AUDIT_KEY, []),
+            'audit' => (array) json_decode((string) $this->settings->get(\Framio\SeoPack\Console\MaintenanceCommand::AUDIT_KEY, ''), true),
             'entities' => [
                 'version' => (string) $this->settings->get('framio-seo.entity_parser_version'),
                 'current' => (string) \Framio\SeoPack\Support\EntityIndex::PARSER_VERSION,

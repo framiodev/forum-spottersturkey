@@ -48,7 +48,7 @@ class MaintenanceCommand extends AbstractCommand
             $this->info("Tamamlandı: {$n} mesaj.");
         }
 
-        $last = (array) $this->cache->get(self::AUDIT_KEY, []);
+        $last = (array) json_decode((string) $this->settings->get(self::AUDIT_KEY, ''), true);
         if ($this->option('audit') || empty($last['at']) || time() - (int) $last['at'] > 7 * 86400) {
             $this->audit();
         }
@@ -101,7 +101,8 @@ class MaintenanceCommand extends AbstractCommand
             'bad' => array_slice($bad, 0, 200),
             'bad_count' => count($bad),
         ];
-        $this->cache->forever(self::AUDIT_KEY, $result);
+        // Ayarlarda saklanır: güncelleme betiğindeki cache:clear sonucu silmesin
+        $this->settings->set(self::AUDIT_KEY, json_encode($result, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES));
         if (isset($this->output)) $this->info("Denetim: {$result['checked_images']} görsel, {$result['checked_pages']} sayfa; sorunlu: {$result['bad_count']}");
 
         return $result;
