@@ -643,3 +643,34 @@
   // Sağ üst: arama yerine ⋯ menü (giriş yap, kayıt ol, arama, tema seçenekleri çekmecede)
   .Navigation-drawer .icon::before { content: "\f142" !important; }
 }
+
+// ═══ Maket uygulaması: Fotoğraf paylaş (6), 1. adım ═══
+@media (max-width: 767px) {
+  html.MobileShare-open, html.MobileShare-open body { overflow: hidden; }
+  html.MobileShare-open .MobileTabBar-mount { display: none; }
+  .MobileShare { position: fixed; inset: 0; z-index: 1015; display: flex; flex-direction: column; background: #0c0c0e; color: #f3f3f5;
+    padding-top: env(safe-area-inset-top, 0px); font-family: inherit; }
+  .MobileShare-top { display: flex; align-items: center; justify-content: space-between; padding: 10px 14px;
+    b { font-size: 16px; font-weight: 800; } }
+  .MobileShare-x { width: 36px; height: 36px; border: 0; background: none; color: #f3f3f5; font-size: 18px; }
+  .MobileShare-next { border: 0; background: none; color: #d63a3a; font-weight: 800; font-size: 15px; padding: 6px 2px;
+    &:disabled { color: #55555c; } }
+  .MobileShare-steps { display: flex; gap: 6px; padding: 0 14px 12px; i { flex: 1; height: 3px; border-radius: 2px; background: #26262b; &.on { background: #d63a3a; } } }
+  .MobileShare-target { display: flex; margin: 0 14px 12px; padding: 3px; border-radius: 12px; background: #1b1b1f;
+    button { flex: 1; padding: 8px 0; border: 0; border-radius: 9px; background: none; color: #8d8d96; font-weight: 700; font-size: 13px; }
+    button.on { background: #f3f3f5; color: #0c0c0e; } }
+  .MobileShare-scroll { flex: 1; overflow-y: auto; padding-bottom: calc(20px + env(safe-area-inset-bottom, 0px)); }
+  .MobileShare-preview { position: relative; margin: 0 14px; aspect-ratio: 3 / 2; border-radius: 14px; background: #1b1b1f center / cover no-repeat;
+    span { position: absolute; left: 10px; bottom: 10px; padding: 3px 9px; border-radius: 999px; background: rgba(0,0,0,.6); font-size: 11.5px; font-weight: 700; } }
+  .MobileShare-empty { display: flex; flex-direction: column; align-items: center; gap: 6px; width: calc(100% - 28px); margin: 0 14px; padding: 48px 16px;
+    border: 1.5px dashed #26262b; border-radius: 14px; background: none; color: #f3f3f5;
+    .icon { font-size: 30px; color: #8d8d96; } b { font-size: 15px; } small { color: #8d8d96; font-size: 12.5px; } }
+  .MobileShare-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 2px; margin-top: 12px; }
+  .MobileShare-tile, .MobileShare-add { position: relative; aspect-ratio: 1; border: 0; padding: 0; background: #111 center / cover no-repeat; }
+  .MobileShare-add { display: grid; place-items: center; background: #1b1b1f; color: #8d8d96; font-size: 20px; }
+  .MobileShare-tile.sel::before { content: ""; position: absolute; inset: 0; background: rgba(255,255,255,.18); }
+  .MobileShare-tile.cur { outline: 2px solid #f3f3f5; outline-offset: -2px; }
+  .MobileShare-tile span { position: absolute; top: 6px; right: 6px; width: 21px; height: 21px; border-radius: 50%; background: #d63a3a; color: #fff;
+    font-size: 11px; font-weight: 800; display: grid; place-items: center; box-shadow: 0 0 0 2px #fff; }
+  .MobileShare-hint { margin: 14px 16px 0; color: #8d8d96; font-size: 12.5px; }
+}

@@ -1,6 +1,7 @@
 import app from 'flarum/forum/app';
 import Component from 'flarum/common/Component';
 import DiscussionControls from 'flarum/forum/utils/DiscussionControls';
+import { openShareFlow } from './MobileShareFlow';
 
 /**
  * Telefonda ekranın altında sabit duran 5 sekmeli gezinme çubuğu
@@ -82,12 +83,9 @@ export default class MobileTabBar extends Component {
     import('flarum/forum/components/LogInModal').then((mod) => app.modal.show(mod.default));
   }
 
+  // Fotoğraf paylaş akışı (maket 6): seçim ekranı → imza + künye → başlık + kategori
   upload() {
-    if (!app.session.user) return this.login();
-    // Yeni başlık düzenleyicisini açar (fotoğraf yükleme düğmesi düzenleyicinin içindedir)
-    import('flarum/forum/components/DiscussionComposer').then((mod) => {
-      app.composer.load(mod.default, { user: app.session.user });
-      app.composer.show();
-    });
+    openShareFlow();
   }
+
 }
