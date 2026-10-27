@@ -15,6 +15,8 @@ export default class MobileChips extends Component {
     const path = (m.route.get() || '/').split('?')[0];
     // Akış'ta kategori halkaları aynı işi görür: çip satırı gizlenir
     if (path === '/all' && params.sort === 'feed') return <div className="MobileChips-empty" />;
+    // Kategori sayfasında başlıktaki alt kategori halkaları yeterli
+    if (route === 'tag') return <div className="MobileChips-empty" />;
     const activeSlug = route === 'tag' ? params.tags : null;
     const tags = (app.store.all('tags') || [])
       .filter((t) => t.isPrimary && t.isPrimary() && !(t.parent && t.parent()) && t.position && t.position() !== null)

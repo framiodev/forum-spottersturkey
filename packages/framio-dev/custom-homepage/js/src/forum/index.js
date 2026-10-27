@@ -21,6 +21,7 @@ import MobileChips from './components/MobileChips';
 import MobileCategoriesPage from './components/MobileCategoriesPage';
 import MobileFeedCard from './components/MobileFeedCard';
 import MobileCommentRow from './components/MobileCommentRow';
+import MobileTagHeader from './components/MobileTagHeader';
 import installMobileViewer from './components/MobileViewer';
 
 /** /gallery → galeri görünümü (yönlendirme) */
@@ -278,6 +279,19 @@ app.initializers.add('framio-custom-homepage', () => {
                 vdom.attrs.className += ' Framio-Gallery-Active';
             }
         }
+    });
+
+    // Telefon kategori sayfası (onaylı maket 2b): büyük başlık kutusu yerine kategori başlığı
+    override(IndexPage.prototype, 'hero', function (original) {
+        try {
+            const tag = app.current.get('routeName') === 'tag' && this.currentTag && this.currentTag();
+            if (tag && window.matchMedia('(max-width: 767px)').matches) {
+                document.documentElement.classList.add('MobileTagPage');
+                return <MobileTagHeader tag={tag} />;
+            }
+        } catch (e) {}
+        document.documentElement.classList.remove('MobileTagPage');
+        return original();
     });
 
     // Akış ve Galeri sayfalarının başlık alanı (admin → Akış & Galeri Sayfaları)
