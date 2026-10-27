@@ -4,6 +4,7 @@ import Button from 'flarum/common/components/Button';
 import LoadingIndicator from 'flarum/common/components/LoadingIndicator';
 import CommentPost from 'flarum/forum/components/CommentPost';
 import Link from 'flarum/common/components/Link';
+import MobileFeedCard from './MobileFeedCard';
 
 export default class CategoryFeed extends Component {
     oninit(vnode) {
@@ -140,6 +141,11 @@ export default class CategoryFeed extends Component {
 
     renderPost(post) {
         if (!post) return null;
+
+        // Telefonda Flarum mesaj bileşeni yerine Instagram düzeninde kendi kartımız
+        if (window.matchMedia('(max-width: 767px)').matches) {
+            return <div className="PostStream-item" key={post.id()}><MobileFeedCard post={post} /></div>;
+        }
         
         const discussion = post.discussion();
         let postUrl = '';

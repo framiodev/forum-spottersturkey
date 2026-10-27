@@ -101,6 +101,32 @@
     .Post-footer, .Post-actions { padding: 4px 8px 0 !important; margin: 0 !important; }
     .Post-actions .Button, .Post-footer .Button { font-size: 15px; }
   }
+  // Akış kartı (MobileFeedCard) — Instagram düzeni
+  .FeedCard { padding: 0 0 14px; border-bottom: 1px solid var(--control-bg); font-size: 14px; line-height: 1.4; }
+  .FeedCard-head { display: flex; align-items: center; gap: 6px; padding: 10px 14px; }
+  .FeedCard-user { display: flex; align-items: center; gap: 8px; color: var(--text-color) !important; text-decoration: none !important; min-width: 0;
+    .Avatar { width: 32px; height: 32px; font-size: 14px; line-height: 32px; flex: none; }
+    b { font-size: 14px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; } }
+  .FeedCard-time { color: var(--muted-color); font-size: 13px; white-space: nowrap; }
+  .FeedCard-media { position: relative; background: var(--control-bg); }
+  .FeedCard-track { display: flex; overflow-x: auto; scroll-snap-type: x mandatory; scrollbar-width: none; padding: 0 !important; margin: 0 !important;
+    &::-webkit-scrollbar { display: none; } }
+  .FeedCard-slide { flex: 0 0 100%; scroll-snap-align: center;
+    img { display: block; width: 100% !important; height: auto !important; max-height: 75vh; object-fit: cover; aspect-ratio: 4 / 3; border-radius: 0 !important; margin: 0 !important; } }
+  .FeedCard-count { position: absolute; top: 10px; right: 10px; padding: 3px 9px; border-radius: 999px; background: rgba(0,0,0,.6); color: #fff; font-size: 12px; font-weight: 600; }
+  .FeedCard-actions { position: relative; display: flex; align-items: center; gap: 4px; padding: 6px 8px 0; }
+  .FeedCard-act { width: 40px; height: 40px; display: grid; place-items: center; border: 0; background: none; padding: 0;
+    color: var(--text-color) !important; font-size: 22px; text-decoration: none !important;
+    &.liked { color: #ed4956 !important; }
+    &:active i { transform: scale(.85); } }
+  .FeedCard-dots { position: absolute; left: 50%; transform: translateX(-50%); display: flex; gap: 4px;
+    i { width: 6px; height: 6px; border-radius: 50%; background: var(--control-bg); &.on { background: var(--primary-color); } } }
+  .FeedCard-likes { padding: 2px 14px 0; font-weight: 700; }
+  .FeedCard-text { padding: 2px 14px 0; display: grid; gap: 2px; p { margin: 0; } }
+  .FeedCard-title { font-weight: 700; color: var(--text-color) !important; }
+  .FeedCard-facts { color: var(--text-color); }
+  .FeedCard-more { color: var(--muted-color) !important; font-size: 13.5px; }
+
   // Akış sayfasındaki "≡ Akış" sıralama kutusu çiplerle aynı işi görüyor
   .IndexPage-toolbar:has(+ .CategoryFeed-Container), .IndexPage-results:has(.CategoryFeed-Container) .IndexPage-toolbar { display: none; }
   .IndexPage:has(.CategoryFeed-Container) .Framio-PageHero { display: none; }

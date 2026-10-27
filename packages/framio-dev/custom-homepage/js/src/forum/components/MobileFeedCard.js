@@ -1,0 +1,106 @@
+import app from 'flarum/forum/app';
+import Component from 'flarum/common/Component';
+import Link from 'flarum/common/components/Link';
+import Avatar from 'flarum/common/components/Avatar';
+import humanTime from 'flarum/common/utils/humanTime';
+
+/**
+ * Telefon akış kartı (Instagram düzeni): Flarum mesaj bileşeni yerine kendi kartımız.
+ * Üst satır avatar · ad · zaman, kenardan kenara fotoğraflar (birden çoksa yana kaydırma),
+ * etkileşim simgeleri, beğeni sayısı, başlık + künye ve yorumlara bağlantı.
+ */
+export default class MobileFeedCard extends Component {
+  oninit(vnode) {
+    super.oninit(vnode);
+    this.index = 0;
+    this.parse();
+  }
+
+  // Mesaj içeriğinden fotoğrafları ve künye satırlarını ayıklar
+  parse() {
+    const post = this.attrs.post;
+    const box = document.createElement('div');
+    box.innerHTML = post.contentHtml() || '';
+    this.images = [...box.querySelectorAll('img')]
+      .filter((i) => !i.classList.contains('emoji') && !/avatar|emoji/i.test(i.className))
+      .map((i) => ({ src: i.getAttribute('src') || i.getAttribute('data-src'), alt: i.getAttribute('alt') || '', w: i.getAttribute('width'), h: i.getAttribute('height') }))
+      .filter((i) => i.src);
+    this.facts = [...box.querySelectorAll('ul li')].map((li) => li.textContent.trim()).filter(Boolean).slice(0, 4);
+    box.querySelectorAll('ul, img, script, style').forEach((n) => n.remove());
+    this.caption = box.textContent.replace(/\s+/g, ' ').trim().slice(0, 160);
+  }
+
+  view() {
+    const post = this.attrs.post;
+    const user = post.user();
+    const discussion = post.discussion();
+    const url = app.route.post(post);
+    const likes = post.likes ? post.likes() || [] : [];
+    const likesCount = (post.likesCount && post.likesCount()) || likes.length;
+    const me = app.session.user;
+    const isLiked = !!(me && likes.some((u) => u === me));
+    const replies = discussion ? Math.max(0, (discussion.commentCount() || 1) - 1) : 0;
+    const multi = this.images.length > 1;
+
+    return (
+      <article className="FeedCard">
+        <header className="FeedCard-head">
+          {user ? <Link href={app.route.user(user)} className="FeedCard-user"><Avatar user={user} /><b>{user.displayName()}</b></Link> : null}
+          <span className="FeedCard-time">· {humanTime(post.createdAt())}</span>
+        </header>
+
+        {this.images.length ? (
+          <div className="FeedCard-media">
+            <div className="FeedCard-track Post-body" onscroll={(e) => { const n = Math.round(e.target.scrollLeft / e.target.clientWidth); if (n !== this.index) { this.index = n; m.redraw(); } }}>
+              {this.images.map((img) => (
+                <div className="FeedCard-slide">
+                  <img src={img.src} alt={img.alt} loading="lazy" decoding="async" width={img.w} height={img.h} />
+                </div>
+              ))}
+            </div>
+            {multi ? <span className="FeedCard-count">{this.index + 1}/{this.images.length}</span> : null}
+          </div>
+        ) : null}
+
+        <div className="FeedCard-actions">
+          <button type="button" className={'FeedCard-act' + (isLiked ? ' liked' : '')} aria-label="Beğen"
+            onclick={() => this.toggleLike(isLiked)} disabled={post.canLike && post.canLike() === false}>
+            <i className={(isLiked ? 'fas' : 'far') + ' fa-heart'} />
+          </button>
+          <Link className="FeedCard-act" href={url} aria-label="Yorumlar"><i className="far fa-comment" /></Link>
+          <button type="button" className="FeedCard-act" aria-label="Paylaş" onclick={() => this.share(url)}><i className="far fa-paper-plane" /></button>
+          {multi ? <span className="FeedCard-dots">{this.images.map((_, k) => <i className={k === this.index ? 'on' : ''} />)}</span> : null}
+        </div>
+
+        {likesCount ? <div className="FeedCard-likes">{likesCount} beğeni</div> : null}
+
+        <div className="FeedCard-text">
+          {discussion ? <Link href={url} className="FeedCard-title">{discussion.title()}</Link> : null}
+          {this.facts.length ? <div className="FeedCard-facts">{this.facts.join(' · ')}</div> : (this.caption ? <p>{this.caption}</p> : null)}
+          {replies ? <Link href={url} className="FeedCard-more">{replies} yorumun tümünü gör</Link> : null}
+        </div>
+      </article>
+    );
+  }
+
+  toggleLike(isLiked) {
+    const post = this.attrs.post;
+    if (!app.session.user) {
+      import('flarum/forum/components/LogInModal').then((mod) => app.modal.show(mod.default));
+      return;
+    }
+    const me = app.session.user;
+    const likes = ((post.likes && post.likes()) || []).filter((u) => u !== me);
+    if (!isLiked) likes.unshift(me);
+    post.pushData({ relationships: { likes } });
+    if (post.likesCount) post.pushAttributes({ likesCount: (post.likesCount() || 0) + (isLiked ? -1 : 1) });
+    post.save({ isLiked: !isLiked });
+  }
+
+  share(url) {
+    const full = app.forum.attribute('baseUrl') + url.replace(app.forum.attribute('basePath') || '', '');
+    const title = this.attrs.post.discussion() ? this.attrs.post.discussion().title() : document.title;
+    if (navigator.share) navigator.share({ title, url: full }).catch(() => {});
+    else if (navigator.clipboard) navigator.clipboard.writeText(full).then(() => app.alerts.show({ type: 'success' }, 'Bağlantı kopyalandı'));
+  }
+}
