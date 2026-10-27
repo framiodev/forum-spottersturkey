@@ -1,5 +1,6 @@
 import app from 'flarum/forum/app';
 import Component from 'flarum/common/Component';
+import { tagThumb } from '../utils/mobileThumbs';
 
 /**
  * Akışın üstündeki kategori halkaları (hikâye satırı düzeni). Kapak: Ana Sayfa ayarlarındaki
@@ -24,7 +25,7 @@ export default class MobileRings extends Component {
     return (
       <nav className="MobileRings" aria-label="Kategoriler">
         {tags.map((t) => {
-          const cover = covers[t.id()] || (t.backgroundUrl && t.backgroundUrl());
+          const cover = covers[t.id()] || (t.backgroundUrl && t.backgroundUrl()) || tagThumb(t.id());
           const fresh = t.lastPostedAt && t.lastPostedAt() && t.lastPostedAt().getTime() > dayAgo;
           const name = names[t.slug()] || (t.name().includes(' - ') ? t.name().split(' - ').pop().trim() : t.name());
           const href = app.route('tag', { tags: t.slug() });

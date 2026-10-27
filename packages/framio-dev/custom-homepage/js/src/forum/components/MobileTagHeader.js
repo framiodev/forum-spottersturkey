@@ -1,5 +1,6 @@
 import app from 'flarum/forum/app';
 import Component from 'flarum/common/Component';
+import { tagThumb } from '../utils/mobileThumbs';
 
 /**
  * Telefon kategori başlığı (onaylı maket 2b): kapak + ad + kısa açıklama + sayılar,
@@ -11,7 +12,8 @@ export default class MobileTagHeader extends Component {
     const tag = this.attrs.category;
     if (!tag) return <header className="MobileTagHeader-empty" />;
     const covers = (() => { try { return JSON.parse(app.forum.attribute('framioTagCovers') || '{}'); } catch (e) { return {}; } })();
-    const coverOf = (t) => covers[t.id()] || (t.backgroundUrl && t.backgroundUrl()) || null;
+    // Kapak sırası: admin kategori kapağı → kategori arka planı → kategorinin en son fotoğrafı
+    const coverOf = (t) => covers[t.id()] || (t.backgroundUrl && t.backgroundUrl()) || tagThumb(t.id()) || null;
     const children = app.store.all('tags')
       .filter((t) => t.parent && t.parent() === tag)
       .sort((a, b) => (a.position() ?? 999) - (b.position() ?? 999));

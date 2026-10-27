@@ -408,3 +408,16 @@
   html.MobileTagPage .DiscussionListItem .item-tags, html.MobileTagPage .DiscussionListItem-count .icon { display: none; }
   html.MobileTagPage .DiscussionListItem-info { font-size: 12px; color: var(--muted-color); }
 }
+
+@media (max-width: 767px) {
+  // Galeri kapsayıcılarının negatif kenar boşluğu ızgarayı 15 px sola kaydırıyordu: tam 0–100% genişlik
+  html.MobileTagPage .DiscussionList, html.MobileTagPage .DiscussionList-GalleryView, html.MobileTagPage .CustomHomepage-BottomArea {
+    margin-left: 0 !important; margin-right: 0 !important; padding-left: 0 !important; padding-right: 0 !important; width: 100% !important; max-width: none !important; }
+
+  // Tartışma satırı: solda 56 px yuvarlatılmış küçük fotoğraf
+  html.MobileTagPage .DiscussionListItem.has-thumb .DiscussionListItem-content { position: relative; padding-left: calc(14px + 56px + 12px) !important; min-height: 80px; }
+  html.MobileTagPage .DiscussionListItem.has-thumb .DiscussionListItem-content::before {
+    content: ""; position: absolute; left: 14px; top: 12px; width: 56px; height: 56px; border-radius: 10px;
+    background: var(--control-bg) var(--fc-thumb) center / cover no-repeat; }
+  html.MobileTagPage .DiscussionListItem.has-thumb .DiscussionListItem-author { display: none; }
+}
