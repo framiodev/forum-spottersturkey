@@ -23,10 +23,16 @@ export default function installMobileViewer() {
     open(imgs, imgs.indexOf(img), img.closest('.FeedCard') || body.closest('.Post') || body);
   }, true);
 
-  function bestSrc(i) {
+  // Orijinal dosya (indir düğmesi): ?w= küçültmesi kaldırılır
+  function originalSrc(i) {
     const src = i.currentSrc || i.src || i.getAttribute('data-src') || '';
-    // Görüntüleyicide büyük boy: ?w= küçültmesi kaldırılır
     return src.replace(/([?&])w=\d+&?/, '$1').replace(/[?&]$/, '');
+  }
+
+  // Görüntüleyicide 1600 px yeterli: orijinaller 4K olabiliyor, telefonda gereksiz yük
+  function bestSrc(i) {
+    const src = originalSrc(i);
+    return /img\.|\/assets\//.test(src) ? src + (src.includes('?') ? '&' : '?') + 'w=1600' : src;
   }
 
   function photoIdOf(i) {
@@ -101,7 +107,7 @@ export default function installMobileViewer() {
       current = n;
       count.textContent = imgs.length > 1 ? n + 1 + ' / ' + imgs.length : '';
       if (dots) [...dots.children].forEach((d, k) => d.classList.toggle('on', k === n));
-      dl.href = bestSrc(imgs[n]);
+      dl.href = originalSrc(imgs[n]);
       mountExif(n);
     };
     track.addEventListener('scroll', () => setIndex(Math.round(track.scrollLeft / track.clientWidth)), { passive: true });
