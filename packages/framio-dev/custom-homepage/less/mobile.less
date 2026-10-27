@@ -113,7 +113,9 @@
   // Üst başlıktaki bildirim zili (arama düğmesinin solunda)
   .MobileHeaderBell {
     position: fixed; top: calc(env(safe-area-inset-top, 0px) + 4px); right: 50px; z-index: 1100;
-    width: 40px; height: 38px; border: 0; background: none; color: var(--header-control-color, var(--text-color)) !important; font-size: 19px;
+    // Arama düğmesiyle aynı kutu (40×46) ve simge boyu (20px): simgeler aynı hizada
+    width: 40px; height: 46px; padding: 0; display: grid; place-items: center; border: 0; background: none;
+    color: var(--header-control-color, var(--text-color)) !important; font-size: 20px; line-height: 1;
     .icon { color: inherit; }
     &.active { color: var(--primary-color); }
     .MobileTabBar-badge { top: 2px; left: 22px; margin: 0; }
