@@ -441,8 +441,7 @@ export default class CustomHomepageSettingsPage extends ExtensionPage {
             this.row('Yükleniyor metni', 'Galeri verisi gelirken gösterilir.', this.input('loading_text', title + ' ekibinden en güncel içerikler yükleniyor...')),
             this.row('Boş galeri metni', 'Kategoride fotoğraf yokken gösterilir.', this.input('empty_text', 'Bu kategoride henüz yüklenmiş bir fotoğraf bulunmuyor.')),
             this.row('Mobil kategori çipleri', 'Telefonda üstteki kategori çiplerinde gösterilecek kısa adlar. Her satıra bir tane: kategori-kisa-adresi = Kısa ad. Boş kalanlarda adın " - " sonrası kullanılır.', (
-                <textarea className="FormControl" rows="4" placeholder={'genel = Genel
-sehirlerarasi-otobus-fotograflari-arsivi = Otobüs'}
+                <textarea className="FormControl" rows="4" placeholder={'genel = Genel\nsehirlerarasi-otobus-fotograflari-arsivi = Otobüs'}
                     value={this.setting('framio-custom-homepage.chip_names')() || ''}
                     oninput={(e) => this.setting('framio-custom-homepage.chip_names')(e.target.value)} />
             )),
