@@ -284,7 +284,9 @@ app.initializers.add('framio-custom-homepage', () => {
     // Telefon kategori sayfası (onaylı maket 2b): büyük başlık kutusu yerine kategori başlığı
     override(IndexPage.prototype, 'hero', function (original) {
         try {
-            const tag = app.current.get('routeName') === 'tag' && this.currentTag && this.currentTag();
+            // Flarum 2'de IndexPage.currentTag yok: kategori adresteki kısa addan bulunur
+            const slug = app.current.get('routeName') === 'tag' ? String(m.route.param('tags') || '').toLowerCase() : '';
+            const tag = slug && app.store.all('tags').find((t) => t.slug().toLowerCase() === slug);
             if (tag && window.matchMedia('(max-width: 767px)').matches) {
                 document.documentElement.classList.add('MobileTagPage');
                 return <MobileTagHeader tag={tag} />;
