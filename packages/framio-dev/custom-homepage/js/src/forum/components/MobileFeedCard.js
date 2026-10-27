@@ -29,6 +29,9 @@ export default class MobileFeedCard extends Component {
         return { src: i.getAttribute('src') || i.getAttribute('data-src'), alt: i.getAttribute('alt') || '', w: i.getAttribute('width'), h: i.getAttribute('height'), id: box2 ? box2.getAttribute('data-id') : null };
       })
       .filter((i) => i.src);
+    // Künye: masaüstündeki kartın kendi HTML'i aynen kullanılır (tasarım kimliği korunur)
+    const kunye = box.querySelector('.framio-kunye-card') || box.querySelector('ul');
+    this.kunyeHtml = kunye ? kunye.outerHTML : '';
     this.facts = [...box.querySelectorAll('ul li')].map((li) => li.textContent.trim()).filter(Boolean).slice(0, 4);
     box.querySelectorAll('ul, img, script, style').forEach((n) => n.remove());
     this.caption = box.textContent.replace(/\s+/g, ' ').trim().slice(0, 160);
@@ -82,7 +85,10 @@ export default class MobileFeedCard extends Component {
 
         <div className="FeedCard-text">
           {discussion ? <Link href={url} className="FeedCard-title">{discussion.title()}</Link> : null}
-          {this.facts.length ? <div className="FeedCard-facts">{this.facts.join(' · ')}</div> : (this.caption ? <p>{this.caption}</p> : null)}
+          {!this.kunyeHtml && this.caption ? <p>{this.caption}</p> : null}
+        </div>
+        {this.kunyeHtml ? <div className="FeedCard-kunye Post-body">{m.trust(this.kunyeHtml)}</div> : null}
+        <div className="FeedCard-text">
           {replies ? <Link href={url} className="FeedCard-more">{replies} yorumun tümünü gör</Link> : null}
         </div>
       </article>
@@ -95,7 +101,14 @@ export default class MobileFeedCard extends Component {
     const Card = window.FramioImageManager && window.FramioImageManager.SpotterImageCard;
     if (!img || !img.id || !Card) return null;
     // Anahtar yalnızca iç bileşende: kart içindeki diğer elemanlar anahtarsız olduğundan dış kutu anahtarsız kalmalı
-    return <div className="FeedCard-exif">{[m(Card, { key: 'exif-' + img.id, photoId: img.id, post: this.attrs.post })]}</div>;
+    // Masaüstündeki sarmalayıcılarla aynı yapı: kartın kendi stilleri bu sınıflara bağlı
+    return (
+      <div className="FeedCard-exif Post-body">
+        <div className="framio-image-container SpotterCard">
+          <div className="spotter-exif-placeholder">{[m(Card, { key: 'exif-' + img.id, photoId: img.id, post: this.attrs.post })]}</div>
+        </div>
+      </div>
+    );
   }
 
   toggleLike(isLiked) {
