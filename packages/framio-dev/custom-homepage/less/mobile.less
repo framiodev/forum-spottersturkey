@@ -262,3 +262,13 @@
   @media (prefers-reduced-motion: no-preference) { .FeedSkeleton > * { animation: fcshim 1.3s ease-in-out infinite; } }
   @keyframes fcshim { 50% { opacity: .55; } }
 }
+
+@media (max-width: 767px) {
+  // Ana sekmelerde logo (sol üst), geri oku gizli
+  .MobileHeaderLogo { position: fixed; top: calc(env(safe-area-inset-top, 0px) + 8px); left: 14px; z-index: 1001; display: block; height: 30px;
+    img { height: 30px; width: auto; display: block; } }
+  html.MobileRoot .Navigation-back { visibility: hidden; }
+  // EXIF kartı fotoğrafa yapışık (masaüstündeki gibi), kenardan kenara
+  .FeedCard-exif { padding: 0 !important; margin: 0 !important; }
+  .FeedCard-exif .framio-image-container, .FeedCard-exif .SpotterCard, .FeedCard-exif .spotter-exif-placeholder { margin: 0 !important; padding: 0 !important; max-width: none !important; }
+}

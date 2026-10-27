@@ -24,6 +24,7 @@ export default class MobileTabBar extends Component {
 
     return (
       <div className="MobileTabBar-wrap">
+        {this.rootLogo(route)}
         {/* Bildirimler Instagram'daki gibi üst başlıkta, arama düğmesinin solunda */}
         <button type="button" className={'MobileHeaderBell' + (route === 'notifications' ? ' active' : '')} aria-label="Bildirimler"
           onclick={() => (user ? this.go(app.route('notifications')) : this.login())}>
@@ -38,6 +39,19 @@ export default class MobileTabBar extends Component {
           {tab('profile', 'fas fa-user', 'Profil', route && route.indexOf('user') === 0, () => (user ? this.go(app.route.user(user)) : this.login()))}
         </nav>
       </div>
+    );
+  }
+
+  // Ana sekmelerde (Akış, Keşfet, Kategoriler, ana sayfa, kategori) başlıkta geri oku yerine logo
+  rootLogo(route) {
+    const root = ['index', 'tags', 'tag', 'framio.explore', 'framio.categories'].includes(route);
+    document.documentElement.classList.toggle('MobileRoot', root);
+    const logo = app.forum.attribute('logoUrl');
+    if (!root || !logo) return null;
+    return (
+      <a href={app.forum.attribute('baseUrl')} className="MobileHeaderLogo" onclick={(e) => { e.preventDefault(); this.go('/all?sort=feed'); }}>
+        <img src={logo} alt={app.forum.attribute('title')} />
+      </a>
     );
   }
 
