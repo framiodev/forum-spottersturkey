@@ -10,6 +10,16 @@ import CommentPost from 'flarum/forum/components/CommentPost';
  * Üst satır avatar · ad · zaman, kenardan kenara fotoğraflar (birden çoksa yana kaydırma),
  * etkileşim simgeleri, beğeni sayısı, başlık + künye ve yorumlara bağlantı.
  */
+// Maketteki çizgi simgeler (24 px, 1.8 kalınlık)
+const svg = (d, extra = {}) => m('svg', { className: 'FeedIcon', viewBox: '0 0 24 24', 'aria-hidden': 'true', ...extra }, m('path', { d }));
+const ICONS = {
+  heart: svg('M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1-1.1a5.5 5.5 0 0 0-7.8 7.8L12 21.2l8.8-8.8a5.5 5.5 0 0 0 0-7.8Z'),
+  comment: svg('M21 11.5a8.4 8.4 0 0 1-12.3 7.4L3 21l2.1-5.7A8.4 8.4 0 1 1 21 11.5Z'),
+  repost: svg('M17 2l4 4-4 4M3 11V9a3 3 0 0 1 3-3h15M7 22l-4-4 4-4M21 13v2a3 3 0 0 1-3 3H3'),
+  send: svg('m22 2-7 20-4-9-9-4 20-7ZM22 2 11 13'),
+  more: svg('M5 12h.01M12 12h.01M19 12h.01', { style: 'stroke-width:3' }),
+};
+
 export default class MobileFeedCard extends Component {
   oninit(vnode) {
     super.oninit(vnode);
@@ -49,11 +59,18 @@ export default class MobileFeedCard extends Component {
     const replies = discussion ? Math.max(0, (discussion.commentCount() || 1) - 1) : 0;
     const multi = this.images.length > 1;
 
+    // Konum: künyenin son satırı ("Küçükkuyu - Çanakkale / '26" → "Küçükkuyu · Çanakkale")
+    const place = this.facts.length > 1 ? this.facts[this.facts.length - 1].split(' / ')[0].replace(/\s+-\s+/g, ' · ') : '';
+
     return (
       <article className="FeedCard">
         <header className="FeedCard-head">
-          {user ? <Link href={app.route.user(user)} className="FeedCard-user"><Avatar user={user} /><b>{user.displayName()}</b></Link> : null}
-          <span className="FeedCard-time">· {humanTime(post.createdAt())}</span>
+          {user ? <Link href={app.route.user(user)} className="FeedCard-av"><Avatar user={user} /></Link> : null}
+          <div className="FeedCard-who">
+            {user ? <Link href={app.route.user(user)}><b>{user.displayName()}</b></Link> : null}
+            {place ? <span>{place}</span> : null}
+          </div>
+          <button type="button" className="FeedCard-menu" aria-label="Seçenekler" onclick={() => this.share(url)}>{ICONS.more}</button>
         </header>
 
         {this.images.length ? (
@@ -73,15 +90,14 @@ export default class MobileFeedCard extends Component {
 
         <div className="FeedCard-actions">
           <button type="button" className={'FeedCard-act' + (isLiked ? ' liked' : '')} aria-label="Beğen"
-            onclick={() => this.toggleLike(isLiked)} disabled={post.canLike && post.canLike() === false}>
-            <i className={(isLiked ? 'fas' : 'far') + ' fa-heart'} />
-          </button>
-          <Link className="FeedCard-act" href={url} aria-label="Yorumlar"><i className="far fa-comment" /></Link>
-          <button type="button" className="FeedCard-act" aria-label="Paylaş" onclick={() => this.share(url)}><i className="far fa-paper-plane" /></button>
+            onclick={() => this.toggleLike(isLiked)} disabled={post.canLike && post.canLike() === false}>{ICONS.heart}</button>
+          <Link className="FeedCard-act" href={url} aria-label="Yorumlar">{ICONS.comment}</Link>
+          <button type="button" className="FeedCard-act" aria-label="Ağa aktar" onclick={() => this.runAction('framio-social-hub', url)}>{ICONS.repost}</button>
+          <button type="button" className="FeedCard-act" aria-label="Gönder" onclick={() => this.runAction('shareAsMessage', url)}>{ICONS.send}</button>
           {multi ? <span className="FeedCard-dots">{this.images.map((_, k) => <i className={k === this.index ? 'on' : ''} />)}</span> : null}
         </div>
 
-        {likesCount ? <div className="FeedCard-likes">{likesCount} beğeni</div> : null}
+        {likesCount ? <div className="FeedCard-likes"><b>{likesCount}</b> beğeni</div> : null}
 
         <div className="FeedCard-text">
           {discussion ? <Link href={url} className="FeedCard-title">{discussion.title()}</Link> : null}
@@ -90,9 +106,23 @@ export default class MobileFeedCard extends Component {
         {this.kunyeHtml ? <div className="FeedCard-kunye Post-body">{m.trust(this.kunyeHtml)}</div> : null}
         <div className="FeedCard-text">
           {replies ? <Link href={url} className="FeedCard-more">{replies} yorumun tümünü gör</Link> : null}
+          <span className="FeedCard-when">{humanTime(post.createdAt())}</span>
         </div>
       </article>
     );
+  }
+
+  // Eklenti işlemini adıyla çalıştırır (Gönder = shareAsMessage, ağa aktar = framio-social-hub);
+  // işlem yoksa (yetki/eklenti kapalı) paylaşım menüsü açılır
+  runAction(name, url) {
+    try {
+      const cp = new CommentPost();
+      cp.attrs = { post: this.attrs.post };
+      const item = cp.actionItems().toArray().find((v) => v && v.itemName === name);
+      const onclick = item && item.attrs && item.attrs.onclick;
+      if (onclick) return onclick();
+    } catch (e) {}
+    this.share(url);
   }
 
   // Açık fotoğrafın EXIF kartı: Upload & EXIF eklentisinin kendi bileşeni (mesaj sayfasındakiyle aynı)
@@ -132,7 +162,7 @@ export default class MobileFeedCard extends Component {
     try {
       const cp = new CommentPost();
       cp.attrs = { post: this.attrs.post };
-      items = cp.actionItems().toArray().filter((v) => v && !['like', 'reply'].includes(v.itemName));
+      items = cp.actionItems().toArray().filter((v) => v && !['like', 'reply', 'react', 'post-comments'].includes(v.itemName));
     } catch (e) {}
 
     const host = document.createElement('div');

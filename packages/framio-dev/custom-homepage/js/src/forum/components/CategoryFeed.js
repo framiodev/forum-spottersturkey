@@ -5,6 +5,7 @@ import LoadingIndicator from 'flarum/common/components/LoadingIndicator';
 import CommentPost from 'flarum/forum/components/CommentPost';
 import Link from 'flarum/common/components/Link';
 import MobileFeedCard from './MobileFeedCard';
+import MobileRings from './MobileRings';
 
 export default class CategoryFeed extends Component {
     oninit(vnode) {
@@ -178,6 +179,23 @@ export default class CategoryFeed extends Component {
     }
 
     view() {
+        const phone = window.matchMedia('(max-width: 767px)').matches;
+        // Telefon: genel akışta üstte kategori halkaları; yüklenirken dönen simge yerine iskelet kartlar
+        const rings = phone && !this.currentTag ? <MobileRings /> : null;
+        if (this.loading && phone) {
+            return (
+                <div className="CategoryFeed-Container">
+                    {rings}
+                    {[0, 1].map(() => (
+                        <div className="FeedSkeleton">
+                            <div className="FeedSkeleton-head"><i /><span /></div>
+                            <div className="FeedSkeleton-photo" />
+                            <span className="FeedSkeleton-line" /><span className="FeedSkeleton-line short" />
+                        </div>
+                    ))}
+                </div>
+            );
+        }
         if (this.loading) {
             return (
                 <div className="CategoryFeed-Container">
@@ -190,6 +208,7 @@ export default class CategoryFeed extends Component {
 
         return (
             <div className="CategoryFeed-Container">
+                {rings}
                 {this.posts.length > 0 ? (
                     <div className="PostStream">
                         {this.posts.slice(0, this.visibleLimit).map(post => this.renderPost(post))}
