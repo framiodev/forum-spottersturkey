@@ -17,6 +17,7 @@ import registerNavMenu from './navMenu';
 import ExplorePage from './components/ExplorePage';
 import Component from 'flarum/common/Component';
 import MobileTabBar from './components/MobileTabBar';
+import MobileComposeSheet from './components/MobileComposeSheet';
 import MobileChips from './components/MobileChips';
 import MobileCategoriesPage from './components/MobileCategoriesPage';
 import MobileFeedCard from './components/MobileFeedCard';
@@ -123,6 +124,12 @@ app.initializers.add('framio-custom-homepage', () => {
         tabBarEl.className = 'MobileTabBar-mount';
         document.body.appendChild(tabBarEl);
         m.mount(tabBarEl, { view: () => { try { return m(MobileTabBar); } catch (e) { return null; } } });
+
+        // Fotoğraf paylaş 3. adımı: yazma penceresinin üstünde paylaşım ekranı
+        const composeEl = document.createElement('div');
+        composeEl.className = 'MobileCompose-mount';
+        document.body.appendChild(composeEl);
+        m.mount(composeEl, { view: () => { try { return m(MobileComposeSheet); } catch (e) { return null; } } });
 
         // Kategori çipleri: sayfa içeriğinin hemen üstünde
         const content = document.getElementById('content');

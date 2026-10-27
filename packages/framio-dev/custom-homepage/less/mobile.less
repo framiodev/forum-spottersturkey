@@ -674,3 +674,23 @@
     font-size: 11px; font-weight: 800; display: grid; place-items: center; box-shadow: 0 0 0 2px #fff; }
   .MobileShare-hint { margin: 14px 16px 0; color: #8d8d96; font-size: 12.5px; }
 }
+
+// ═══ Maket uygulaması: Fotoğraf paylaş (6), 3. adım: paylaşım ekranı ═══
+@media (max-width: 767px) {
+  // Yazma penceresinin (1020) üstünde, açılan pencerelerin (1040+, örn. kategori seçimi) altında
+  .MobileCompose { position: fixed; inset: 0; z-index: 1025; display: flex; flex-direction: column; background: #0c0c0e; color: #f3f3f5; padding-top: env(safe-area-inset-top, 0px); }
+  .MobileCompose-media { position: relative; margin: 0 14px 4px; border-radius: 14px; overflow: hidden; background: #1b1b1f; }
+  .MobileCompose-track { display: flex; overflow-x: auto; scroll-snap-type: x mandatory; scrollbar-width: none; &::-webkit-scrollbar { display: none; } }
+  .MobileCompose-slide { flex: 0 0 100%; aspect-ratio: 3 / 2; scroll-snap-align: center; background: center / cover no-repeat; }
+  .MobileCompose-count { position: absolute; left: 10px; bottom: 10px; padding: 3px 9px; border-radius: 999px; background: rgba(0,0,0,.6); font-size: 11.5px; font-weight: 700; }
+  .MobileCompose-box { margin: 12px 14px 0; padding: 12px; border: 1px solid #26262b; border-radius: 14px; }
+  .MobileCompose-label { display: block; margin-bottom: 6px; font-size: 10px; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; color: #8d8d96; }
+  .MobileCompose-kunye { margin: 0; padding-left: 18px; font-size: 13.5px; font-weight: 700; li { margin: 1px 0; } li::marker { color: #9a9aa3; } }
+  .MobileCompose-input { width: 100%; border: 0; background: none; color: #f3f3f5; font-size: 16px; font-weight: 700; padding: 2px 0; outline: none;
+    &::placeholder { color: #55555c; font-weight: 500; } }
+  .MobileCompose-tags { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; width: 100%; border: 0; background: none; padding: 0; color: #f3f3f5; text-align: left;
+    .icon { margin-left: auto; color: #8d8d96; } }
+  .MobileCompose-tag { padding: 4px 10px; border-radius: 999px; color: #fff; font-size: 12.5px; font-weight: 700; }
+  .MobileCompose-placeholder { color: #8d8d96; font-size: 14px; }
+  .MobileCompose-raw { display: flex; align-items: center; gap: 8px; margin: 16px 14px 0; padding: 0; border: 0; background: none; color: #8d8d96; font-size: 13px; font-weight: 600; }
+}
