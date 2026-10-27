@@ -1,0 +1,30 @@
+// Mobil iyileştirmeler — 1. aşama (yalnızca telefon kırılımında; masaüstüne dokunmaz)
+@media (max-width: 767px) {
+  // Okunabilir yazı; iOS 16 px altındaki giriş alanlarında sayfayı yakınlaştırmasın
+  body { font-size: 15px; -webkit-text-size-adjust: 100%; }
+  input, select, textarea, .FormControl { font-size: 16px !important; }
+
+  // Sağ kenarda sabit sosyal medya düğmeleri liste sayılarının üstüne biniyordu: telefonda gizli
+  .sticky-icon, .sticky-icongh { display: none !important; }
+
+  // Mesaj başlığı: kullanıcı adı ve rozetler tek satıra sığmazsa alta iner, taşmaz
+  .Post-header > ul { display: flex; flex-wrap: wrap; align-items: center; gap: 2px 8px; }
+  .PostUser { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 6px; max-width: 100%; }
+  .PostUser-name { margin: 0; min-width: 0; }
+  .PostUser-name .username { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 46vw; display: inline-block; vertical-align: middle; }
+  .PostUser-badges { display: flex; flex-wrap: wrap; gap: 4px; margin: 0; }
+  .PostUser-badges .RankBadge { font-size: 10px; padding: 2px 6px; line-height: 1.4; }
+  .PostUser-badges .RankBadge i { font-size: 9px; }
+
+  // Mesaj işlemleri sağa taşmasın
+  .Post-footer, .Post-actions { max-width: 100%; }
+  .Post-footer > ul, .Post-actions > ul { flex-wrap: wrap; }
+
+  // Boyutu bilinmeyen eski görseller (Flickr vb.) için yer önceden ayrılır: kaydırırken sayfa zıplamaz,
+  // doğrudan bir mesaja inişte (/d/x/N) konum kaymaz
+  .Post-body img:not([height]):not(.emoji):not(.Avatar) { width: 100%; height: auto; aspect-ratio: 3 / 2; object-fit: cover; background: var(--control-bg); }
+
+  // Uzun kelimeler/adresler sayfayı yatayda kaydırmasın
+  .Post-body, .DiscussionListItem-title, .Hero-title { overflow-wrap: anywhere; }
+  html, body { overflow-x: hidden; }
+}

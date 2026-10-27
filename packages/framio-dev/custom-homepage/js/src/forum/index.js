@@ -15,6 +15,19 @@ import CategoryGallery from './components/CategoryGallery';
 import CategoryFeed from './components/CategoryFeed';
 import registerNavMenu from './navMenu';
 import ExplorePage from './components/ExplorePage';
+import Component from 'flarum/common/Component';
+
+/** /gallery → galeri görünümü (yönlendirme) */
+class GalleryRedirect extends Component {
+    oninit(vnode) {
+        super.oninit(vnode);
+        setTimeout(() => m.route.set(app.route('index', { sort: 'gallery' }), null, { replace: true }), 0);
+    }
+
+    view() {
+        return null;
+    }
+}
 
 // Menü yöneticisi (en son çalışan başlatıcı olarak kaydolur)
 registerNavMenu();
@@ -57,7 +70,11 @@ app.initializers.add('framio-custom-homepage', () => {
     };
     addMobileLogo();
     
-    // spotters.gallery route removed; using index with sort=gallery
+    // /gallery adresi (eski bağlantılar, menü) galeri görünümüne yönlenir; eskiden ana sayfaya düşüyordu
+    app.routes['spotters.gallery'] = {
+        path: '/gallery',
+        component: GalleryRedirect,
+    };
 
     const originalTrans = app.translator.trans.bind(app.translator);
     app.translator.trans = function(id, parameters) {
@@ -82,7 +99,8 @@ app.initializers.add('framio-custom-homepage', () => {
     const isHomePage = () => {
         const path = m.route.get();
         const routeName = app.current && app.current.get('routeName');
-        return path === '/' || path === '' || path === '/tags' || routeName === 'tags' || (routeName === 'index' && !m.route.param('sort'));
+        // Yalnızca sitenin kök adresi: "Tüm Tartışmalar" (/all) ana sayfanın karşılama alanını ve tablosunu tekrar etmez
+        return path === '/' || path === '' || path === '/tags' || routeName === 'tags';
     };
 
     // Galeri/akış görünümü kategoriye taşınmaz: Flarum sıralama parametresini (sort=gallery) bağlantılara

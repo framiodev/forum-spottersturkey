@@ -17,10 +17,15 @@ return [
     (new Extend\Frontend('forum'))
         ->js(__DIR__.'/js/dist/forum.js')
         ->css(__DIR__.'/less/forum.less')
+        // Telefon kırılımı iyileştirmeleri
+        ->css(__DIR__.'/less/mobile.less')
         ->route('/gallery', 'spotters.gallery')
         // Keşfet (Jetphotos tarzı fotoğraf vitrini). Ana sayfa yapmak için:
         // Yönetim → Temel → Varsayılan Rota = /kesfet
         ->route('/kesfet', 'framio.explore'),
+
+    // Sitenin tasarımına uygun 404 sayfası (çekirdeğin sade sayfası yerine)
+    (new Extend\View())->extendNamespace('flarum.forum', __DIR__.'/views'),
 
     (new Extend\Middleware('forum'))
         ->add(Framio\CustomHomepage\Middleware\LightboxRedirectMiddleware::class),
