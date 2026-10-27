@@ -272,3 +272,74 @@
   .FeedCard-exif { padding: 0 !important; margin: 0 !important; }
   .FeedCard-exif .framio-image-container, .FeedCard-exif .SpotterCard, .FeedCard-exif .spotter-exif-placeholder { margin: 0 !important; padding: 0 !important; max-width: none !important; }
 }
+
+// ═══ Maket uygulaması: Mesaj ve yorumlar (Threads düzeni) ═══
+@media (max-width: 767px) {
+  .DiscussionPage { --th-line: rgba(127,127,127,.22); --th-av: 34px; --th-gap: 12px; --th-pad: 14px; }
+
+  // Başlık: renkli büyük kutu yerine sade, sola yaslı başlık + küçük kategori satırı
+  .DiscussionPage .DiscussionHero { background: none !important; color: var(--text-color) !important; padding: 10px var(--th-pad) 12px !important; text-align: left;
+    border-bottom: 1px solid var(--th-line);
+    .container { padding: 0 !important; }
+    ul { display: flex; flex-direction: column-reverse; align-items: flex-start; gap: 4px; margin: 0; padding: 0; }
+    .DiscussionHero-title { font-size: 19px !important; font-weight: 800 !important; letter-spacing: -.01em; color: var(--text-color) !important; margin: 0; text-align: left; }
+    .TagsLabel, .item-tags { font-size: 12px; }
+    .TagLabel { background: none !important; color: var(--muted-color) !important; padding: 0 !important; border: 0 !important; font-weight: 600; }
+    .TagLabel + .TagLabel::before { content: "·"; margin: 0 5px; }
+    .TagLabel-text .icon { display: none; }
+  }
+  // Kenar gezinmesi (Paylaş, kaydırıcı) telefonda yok: paylaşım kartlardaki simgelerde
+  .DiscussionPage-nav, .PostStreamScrubber { display: none !important; }
+
+  // Mesaj: avatar sütunu + dikey bağ çizgisi + içerik sütunu
+  .DiscussionPage .PostStream-item { border: 0 !important; margin: 0 !important; padding: 0 !important; }
+  .DiscussionPage .CommentPost { padding: 14px var(--th-pad) 4px !important; margin: 0 !important; background: none !important; border: 0 !important; box-shadow: none !important; }
+  .DiscussionPage .CommentPost .Post-container { display: grid; grid-template-columns: var(--th-av) minmax(0, 1fr); gap: 0 var(--th-gap); }
+  .DiscussionPage .CommentPost .Post-side { position: relative; display: flex; flex-direction: column; align-items: center; margin: 0 !important; float: none !important; width: auto !important;
+    &::after { content: ""; flex: 1; width: 2px; margin-top: 8px; border-radius: 2px; background: var(--th-line); } }
+  .DiscussionPage .PostStream-item:last-of-type .CommentPost .Post-side::after { display: none; }
+  .DiscussionPage .CommentPost .Post-avatar, .DiscussionPage .CommentPost .Post-side .Avatar { --size: var(--th-av); width: var(--th-av) !important; height: var(--th-av) !important; font-size: 14px; line-height: var(--th-av); position: static !important; }
+  .DiscussionPage .CommentPost .Post-main { margin: 0 !important; padding: 0 !important; min-width: 0; }
+  // Telefonda Flarum avatarı başlığa taşır: yan sütundaki avatar gösterilir, başlıktaki gizlenir
+  .DiscussionPage .CommentPost .Post-side .Post-avatar { display: block !important; border-radius: 50%; }
+  .DiscussionPage .CommentPost .Post-header .PostUser-name .Avatar { display: none !important; }
+  // Sayfa kabının 15 px yan boşluğu kaldırılır: fotoğraflar tam kenara ulaşır
+  .DiscussionPage .Page-container { padding-left: 0 !important; padding-right: 0 !important; }
+  .DiscussionPage .PostComments-Button .Button-label { display: none; }
+  .DiscussionPage .CommentPost .Post-header { margin: 0 0 2px !important; padding: 0 !important;
+    ul { display: flex; align-items: baseline; gap: 6px; flex-wrap: nowrap; }
+    .PostUser-name, .username { font-size: 14px; font-weight: 700; }
+    .item-meta, .item-meta a, time { font-size: 12.5px; color: var(--muted-color) !important; }
+    .UserOnline, .PostUser .Avatar { display: none; } }
+  .DiscussionPage .CommentPost .Post-body { font-size: 14.5px; line-height: 1.5; padding: 0 !important; }
+
+  // Fotoğraflar ve EXIF kartı kenardan kenara (içerik sütununun dışına taşar), masaüstü kimliği korunur
+  .DiscussionPage .CommentPost .Post-body .framio-image-container,
+  .DiscussionPage .CommentPost .Post-body .SpotterCarousel-Dots-Container,
+  .DiscussionPage .CommentPost .Post-body .spotter-old-image {
+    margin-left: calc(-1 * (var(--th-av) + var(--th-gap) + var(--th-pad))) !important;
+    margin-right: calc(-1 * var(--th-pad)) !important; width: auto !important; max-width: none !important; border-radius: 0 !important;
+  }
+  .DiscussionPage .CommentPost .Post-body .framio-image-container { margin-top: 8px !important; margin-bottom: 10px !important; }
+  // Künye: masaüstü listesi aynen
+  .DiscussionPage .CommentPost .Post-body > ul, .DiscussionPage .CommentPost .Post-body .framio-kunye-card { margin: 4px 0 6px; }
+
+  // İşlemler: yalnızca simge, sessiz renk; Yanıtla metin olarak kalır
+  .DiscussionPage .CommentPost .Post-actions { position: static !important; opacity: 1 !important; margin: 2px 0 10px -8px !important; padding: 0 !important; float: none !important;
+    ul { display: flex; gap: 2px; justify-content: flex-start; }
+    .Button { color: var(--muted-color) !important; font-size: 17px; padding: 6px 8px !important; min-height: 0; background: none !important; }
+    .Button.hasIcon .Button-label { display: none; }
+    .item-reply .Button { font-size: 13px; font-weight: 700; } }
+  .DiscussionPage .CommentPost .Post-footer { margin: 0 !important; padding: 0 !important; font-size: 12.5px; }
+
+  // Zaman ayırıcıları ("10 GÜN SONRA") sade
+  .DiscussionPage .PostStream-timeGap { margin: 6px 0 !important; padding: 0 var(--th-pad) !important; font-size: 10.5px; letter-spacing: .08em; border: 0 !important; }
+
+  // Sabit yanıt kutusu (alt çubuğun yerine)
+  .MobileReplyBar { position: fixed; left: 0; right: 0; bottom: 0; z-index: 260; display: flex; align-items: center; gap: 8px;
+    padding: 8px 10px calc(8px + env(safe-area-inset-bottom, 0px)); background: var(--body-bg); border-top: 1px solid rgba(127,127,127,.2); }
+  .MobileReplyBar-back { flex: none; width: 36px; height: 40px; border: 0; background: none; color: var(--text-color); font-size: 18px; }
+  .MobileReplyBar-input { flex: 1; min-width: 0; height: 40px; border: 0; border-radius: 999px; background: var(--control-bg); color: var(--muted-color);
+    text-align: left; padding: 0 16px; font-size: 14px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .MobileReplyBar-send { flex: none; border: 0; background: none; color: var(--primary-color); font-weight: 800; font-size: 14px; padding: 0 6px; }
+}

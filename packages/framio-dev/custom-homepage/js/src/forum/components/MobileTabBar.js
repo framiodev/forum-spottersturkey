@@ -1,5 +1,6 @@
 import app from 'flarum/forum/app';
 import Component from 'flarum/common/Component';
+import DiscussionControls from 'flarum/forum/utils/DiscussionControls';
 
 /**
  * Telefonda ekranın altında sabit duran 5 sekmeli gezinme çubuğu
@@ -12,6 +13,25 @@ export default class MobileTabBar extends Component {
 
     const user = app.session.user;
     const route = app.current.get('routeName');
+
+    // Mesaj sayfası (Threads düzeni): alt çubuk yerine sabit yanıt kutusu
+    const discussion = app.current.get('discussion');
+    if (discussion && /^discussion/.test(route || '')) {
+      document.documentElement.classList.remove('MobileRoot');
+      return (
+        <div className="MobileTabBar-wrap">
+          <div className="MobileReplyBar">
+            <button type="button" className="MobileReplyBar-back" aria-label="Geri" onclick={() => (window.history.length > 1 ? window.history.back() : this.go('/all?sort=feed'))}>
+              <i className="icon fas fa-chevron-left" />
+            </button>
+            <button type="button" className="MobileReplyBar-input" onclick={() => this.reply(discussion)}>
+              {user ? (user.displayName() + ' olarak yanıtla…') : 'Yanıtlamak için giriş yap'}
+            </button>
+            <button type="button" className="MobileReplyBar-send" onclick={() => this.reply(discussion)}>Yanıtla</button>
+          </div>
+        </div>
+      );
+    }
     const unread = user ? user.unreadNotificationCount() || 0 : 0;
 
     const tab = (key, ic, label, active, onclick, badge) => (
@@ -53,6 +73,12 @@ export default class MobileTabBar extends Component {
         <img src={logo} alt={app.forum.attribute('title')} />
       </a>
     );
+  }
+
+  reply(discussion) {
+    if (!app.session.user) return this.login();
+    const r = DiscussionControls.replyAction.call(discussion, true, false);
+    if (r && r.catch) r.catch(() => {});
   }
 
   go(url) {
