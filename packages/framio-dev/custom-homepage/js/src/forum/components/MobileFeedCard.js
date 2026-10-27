@@ -94,7 +94,8 @@ export default class MobileFeedCard extends Component {
     const img = this.images[this.index];
     const Card = window.FramioImageManager && window.FramioImageManager.SpotterImageCard;
     if (!img || !img.id || !Card) return null;
-    return <div className="FeedCard-exif" key={'exif-' + img.id}>{m(Card, { photoId: img.id, post: this.attrs.post })}</div>;
+    // Anahtar yalnızca iç bileşende: kart içindeki diğer elemanlar anahtarsız olduğundan dış kutu anahtarsız kalmalı
+    return <div className="FeedCard-exif">{[m(Card, { key: 'exif-' + img.id, photoId: img.id, post: this.attrs.post })]}</div>;
   }
 
   toggleLike(isLiked) {
