@@ -106,6 +106,11 @@ export default class CategoryFeed extends Component {
         }).catch(() => ({ data: [], meta: {}, included: [] }))
         .then((response) => {
             if (response && response.data) {
+                // Uç nokta onay bilgisini göndermiyor; bilgi yokken onay eklentisi her mesaja
+                // "Onay Bekliyor" yazıyordu. Akışa yalnızca yayımlanmış mesajlar gelir.
+                (Array.isArray(response.data) ? response.data : [response.data]).forEach((d) => {
+                    if (d.type === 'posts' && d.attributes && d.attributes.isApproved === undefined) d.attributes.isApproved = true;
+                });
                 // Parse API response using Flarum's store to get proper Post models
                 const models = app.store.pushPayload(response);
                 

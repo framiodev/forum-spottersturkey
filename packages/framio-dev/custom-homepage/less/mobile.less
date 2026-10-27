@@ -82,6 +82,14 @@
     .Post { padding: 0 !important; margin: 0 !important; background: none !important; border: 0 !important; box-shadow: none !important; }
     .Post-header { padding: 10px 14px 8px; margin: 0 !important; }
     .Post-header .PostUser-avatar, .Post-avatar { width: 32px; height: 32px; }
+    // Kullanıcı satırı tek satır: avatar · ad · rozet simgeleri · zaman
+    .Post-header > ul { display: flex; flex-wrap: nowrap; align-items: center; gap: 6px; overflow: hidden; white-space: nowrap; }
+    .Post-header > ul > li { margin: 0 !important; flex: none; }
+    .Post-header > ul > li.item-user { flex: 0 1 auto; min-width: 0; }
+    .Post-header .item-meta, .Post-header .item-meta a, .Post-header time { color: var(--muted-color); font-size: 12px; }
+    .PostUser { flex-wrap: nowrap; }
+    .PostUser-badges .RankBadge { font-size: 0; padding: 3px 5px; }
+    .PostUser-badges .RankBadge i { font-size: 10px; margin: 0; }
     .Post-body { padding: 0 !important; margin: 0 !important; font-size: 14px; }
     .Post-body > *:not(p):not(ul):not(ol):not(blockquote) { margin-left: 0; margin-right: 0; }
     .Post-body img { width: 100% !important; max-width: none; border-radius: 0 !important; display: block; margin: 0 !important; }
