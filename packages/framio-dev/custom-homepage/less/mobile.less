@@ -626,3 +626,20 @@
     -webkit-touch-callout: none; -webkit-user-select: none; user-select: none; }
   .MobileProfileGrid-tile img, .LayoutA-Card img, .Explore-Card img { -webkit-user-drag: none; pointer-events: none; }
 }
+
+// ═══ Künye bağlantıları, EXIF dokunuşu, başlık menüsü ═══
+@media (max-width: 767px) {
+  // Künye kutuları SEO Pack bağlantıları için galeri sınıfını taşır; galerinin kendi stilleri uygulanmaz
+  .FeedCard-kunye.SpottersGallery-DescContent, .MobileViewer-kunye.SpottersGallery-DescContent {
+    padding: 2px 14px 0 !important; font-size: inherit !important; background: none !important; max-height: none !important; overflow: visible !important;
+    ul, ol { margin: 0 !important; padding: 0 0 0 18px !important; } li { margin: 1px 0 !important; padding: 0 !important; border: 0 !important; background: none !important; } }
+  .MobileViewer-kunye.SpottersGallery-DescContent { padding: 0 !important; }
+  .FramioKunyeLink { color: inherit !important; text-decoration: underline; text-decoration-color: rgba(127,127,127,.5); text-underline-offset: 2px; }
+
+  // Akış / mesaj kartındaki EXIF: dokununca doğrudan açılsın (indir / yüksek kalite düğmeleri kartta gizli;
+  // indirme görüntüleyicideki ⤓ düğmesinde)
+  .FeedCard-exif .SpotterCard-topControls, .FeedCard-exif .SpotterCard-image-wrapper { display: none !important; }
+
+  // Sağ üst: arama yerine ⋯ menü (giriş yap, kayıt ol, arama, tema seçenekleri çekmecede)
+  .Navigation-drawer .icon::before { content: "\f142" !important; }
+}

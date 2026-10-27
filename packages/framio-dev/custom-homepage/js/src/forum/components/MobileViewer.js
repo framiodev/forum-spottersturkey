@@ -19,7 +19,7 @@ export default function installMobileViewer() {
   };
 
   /** Bir gönderinin HTML'inden görüntüleyici kayıtları: her fotoğraf için {src, id, url, kunyeHtml} */
-  function entriesFromHtml(html, url) {
+  function entriesFromHtml(html, url, pid = '') {
     const body = document.createElement('div');
     body.innerHTML = html || '';
     const kunye = body.querySelector('.framio-kunye-card') || body.querySelector(':scope > ul');
@@ -28,10 +28,10 @@ export default function installMobileViewer() {
       .filter((i) => !i.classList.contains('emoji') && (i.getAttribute('src') || i.getAttribute('data-src')))
       .map((i) => {
         const box = i.closest('.framio-image-container[data-id]');
-        return { src: i.getAttribute('src') || i.getAttribute('data-src'), alt: i.getAttribute('alt') || '', id: box ? box.getAttribute('data-id') : '', url, kunyeHtml };
+        return { src: i.getAttribute('src') || i.getAttribute('data-src'), alt: i.getAttribute('alt') || '', id: box ? box.getAttribute('data-id') : '', url, pid, kunyeHtml };
       });
   }
-  const entriesFromPost = (post) => entriesFromHtml(post.contentHtml(), app.route.post(post));
+  const entriesFromPost = (post) => entriesFromHtml(post.contentHtml(), app.route.post(post), String(post.id()));
 
   // Sayfadaki gönderi sırası (Akış kartları, mesaj sayfası)
   const pagePosts = () => [...document.querySelectorAll('.FeedCard[data-post-id]')]
@@ -100,7 +100,7 @@ export default function installMobileViewer() {
       '<div class="MobileViewer-dots"></div>' +
       '<div class="MobileViewer-sheet"><span class="MobileViewer-grip"></span>' +
       '<div class="MobileViewer-exif Post-body"><div class="framio-image-container SpotterCard"><div class="spotter-exif-placeholder"></div></div></div>' +
-      '<div class="MobileViewer-row"><div class="MobileViewer-kunye Post-body"></div><a class="MobileViewer-go" href="#">Konuya git</a></div></div>';
+      '<div class="MobileViewer-row"><div class="MobileViewer-kunye Post-body SpottersGallery-DescContent"></div><a class="MobileViewer-go" href="#">Konuya git</a></div></div>';
 
     const track = root.querySelector('.MobileViewer-track');
     entries.forEach((en, k) => {
@@ -160,6 +160,8 @@ export default function installMobileViewer() {
       if (en.url !== currentUrl) {
         currentUrl = en.url;
         kunyeBox.innerHTML = en.kunyeHtml || '';
+        // SEO Pack bu kutuyu görünce künye adlarını /arac sayfalarına bağlar
+        if (en.pid) kunyeBox.setAttribute('data-post-id', en.pid); else kunyeBox.removeAttribute('data-post-id');
         go.hidden = !en.url;
         go.href = en.url || '#';
       }

@@ -104,7 +104,8 @@ export default class MobileFeedCard extends Component {
           {discussion && !this.attrs.inDiscussion ? <Link href={url} className="FeedCard-title">{discussion.title()}</Link> : null}
           {!this.kunyeHtml && this.caption ? <p>{this.caption}</p> : null}
         </div>
-        {this.kunyeHtml ? <div className="FeedCard-kunye Post-body">{m.trust(this.kunyeHtml)}</div> : null}
+        {/* SpottersGallery-DescContent + data-post-id: SEO Pack künye adlarını /arac sayfalarına bağlar */}
+        {this.kunyeHtml ? <div className="FeedCard-kunye Post-body SpottersGallery-DescContent" data-post-id={post.id()}>{m.trust(this.kunyeHtml)}</div> : null}
         <div className="FeedCard-text">
           {replies && !this.attrs.inDiscussion ? <Link href={url} className="FeedCard-more">{replies} yorumun tümünü gör</Link> : null}
           <span className="FeedCard-when">{humanTime(post.createdAt())}</span>
