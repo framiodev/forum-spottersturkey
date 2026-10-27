@@ -474,3 +474,37 @@
     .Explore-Coll { border-radius: 12px !important; overflow: hidden; }
   }
 }
+
+// ═══ Maket uygulaması: Profil (4) ═══
+@media (max-width: 767px) {
+  // Başlık: kapak üstte, avatar sola yaslı ve kapağın altına taşar; ad, rozetler, sayılar
+  .UserPage .UserHero { padding: 0 !important; text-align: left !important; background-size: cover; min-height: 0 !important; }
+  .UserPage .UserHero .darkenBackground { padding: 96px 0 0 !important; background: linear-gradient(180deg, transparent 0, transparent 96px, var(--body-bg) 96px) !important; }
+  .UserPage .UserHero .container { padding: 0 16px 12px !important; }
+  .UserPage .UserCard-profile { text-align: left !important; padding: 0 !important; }
+  .UserPage .UserCard-avatar { margin: -42px 0 8px !important; text-align: left !important;
+    .Avatar { --size: 84px; width: 84px !important; height: 84px !important; font-size: 34px; line-height: 84px; box-shadow: 0 0 0 4px var(--body-bg) !important; } }
+  .UserPage .UserCard-identity { font-size: 21px !important; font-weight: 900 !important; letter-spacing: -.01em; margin: 0 0 6px !important; color: var(--text-color) !important;
+    display: flex; flex-wrap: wrap; align-items: center; gap: 6px; text-align: left; }
+  .UserPage .UserCard-identity .username { color: var(--text-color) !important; }
+  // Rozetler yalnızca profilde: küçük, yazılı
+  .UserPage .UserCard .RankBadge, .UserPage .UserCard .Badge { display: inline-flex !important; font-size: 11px !important; padding: 2px 8px !important; }
+  .UserPage .UserCard-info { display: flex !important; flex-wrap: wrap; gap: 4px 14px; justify-content: flex-start !important; padding: 10px 0 0 !important; margin: 10px 0 0 !important;
+    border-top: 1px solid rgba(127,127,127,.18); color: var(--muted-color) !important; font-size: 12.5px;
+    li { margin: 0 !important; color: inherit !important; } }
+  .UserPage .UserCard-controls { position: absolute; top: 104px; right: 14px; }
+
+  // İçerik tam genişlik, yan menü gizli
+  .UserPage .Page-container { padding-left: 0 !important; padding-right: 0 !important; }
+  .UserPage .Page-sidebar, .UserPage .UserPage-nav { display: none !important; }
+  .MobileProfile-seg { margin: 4px 14px 2px !important; }
+  .MobileProfile .PostListItem, .MobileProfile .PostList { padding-left: 14px; padding-right: 14px; }
+
+  // 3 sütunlu boşluksuz fotoğraf ızgarası
+  .MobileProfileGrid-tiles { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2px; margin-top: 10px; }
+  .MobileProfileGrid-tile { position: relative; display: block; aspect-ratio: 1; overflow: hidden; background: var(--control-bg);
+    img { width: 100% !important; height: 100% !important; object-fit: cover; display: block; border-radius: 0 !important; margin: 0 !important; aspect-ratio: auto !important; }
+    .icon { position: absolute; top: 6px; right: 6px; color: #fff; font-size: 13px; text-shadow: 0 1px 3px rgba(0,0,0,.6); } }
+  .MobileProfileGrid-empty, .MobileProfileGrid-loading { text-align: center; color: var(--muted-color); padding: 30px 0; margin: 0; }
+  .MobileProfileGrid-more { display: block; width: calc(100% - 28px); margin: 12px 14px; padding: 11px; border: 0; border-radius: 12px; background: var(--control-bg); color: var(--text-color); font-weight: 700; }
+}

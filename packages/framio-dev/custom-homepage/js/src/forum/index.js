@@ -22,6 +22,7 @@ import MobileCategoriesPage from './components/MobileCategoriesPage';
 import MobileFeedCard from './components/MobileFeedCard';
 import MobileCommentRow from './components/MobileCommentRow';
 import MobileTagHeader from './components/MobileTagHeader';
+import MobileProfileGrid from './components/MobileProfileGrid';
 import { applyDiscussionThumbs } from './utils/mobileThumbs';
 import installMobileViewer from './components/MobileViewer';
 
@@ -47,6 +48,26 @@ app.initializers.add('framio-custom-homepage', () => {
     // Telefon alt sekme çubuğu: uygulama kökünün dışında kendi bağlama noktasında yaşar.
     // Uygulama ve oturum hazır olduktan sonra (ilk sayfa çizildiğinde) bir kez bağlanır.
     app.routes['framio.categories'] = { path: '/kategoriler', component: MobileCategoriesPage };
+
+    // Telefon profil sayfası (onaylı maket 4): Fotoğraflar / Mesajlar sekmesi; Fotoğraflar = 3 sütunlu ızgara
+    override('flarum/forum/components/PostsUserPage', 'content', function (original, ...args) {
+        if (!window.matchMedia('(max-width: 767px)').matches) return original(...args);
+        if (this.mobileTab === undefined) this.mobileTab = 'photos';
+        const tab = (key, ic, label) => (
+            <button type="button" className={this.mobileTab === key ? 'on' : ''} onclick={() => { this.mobileTab = key; }}>
+                <i className={'icon ' + ic} /> {label}
+            </button>
+        );
+        return (
+            <div className="PostsUserPage MobileProfile">
+                <div className="MobileTagHeader-seg MobileProfile-seg" role="tablist">
+                    {tab('photos', 'fas fa-th', 'Fotoğraflar')}
+                    {tab('posts', 'fas fa-comment', 'Mesajlar')}
+                </div>
+                {this.mobileTab === 'photos' ? <MobileProfileGrid state={this.posts} /> : original(...args)}
+            </div>
+        );
+    });
 
     // Telefon mesaj sayfası (onaylı maket, A yönü): fotoğraflı mesaj = Akış kartı,
     // fotoğrafsız cevap = Instagram yorumu. Düzenleme sırasında ve masaüstünde Flarum görünümü kalır.
