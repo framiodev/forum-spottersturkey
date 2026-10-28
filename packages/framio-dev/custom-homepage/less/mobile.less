@@ -936,3 +936,37 @@
     .item-delete .Button-icon, .item-hide .Button-icon, [class*="delete"] .Button-icon { background: #ff453a !important; }
     .item-delete .Button, .item-delete .Button-label, [class*="delete"] .Button-label { color: #ff453a !important; } }
 }
+
+// ═══ ⋯ Gönderi menüsü v3: canlıda denenmiş kesin kurallar ═══
+// Masaüstü seçenekleri "Button" sınıfı olmadan (<button class="hasIcon">) gelir: kurallar sınıftan bağımsız.
+@media (max-width: 767px) {
+  .FeedSheet-panel > * { flex-shrink: 0 !important; } // panel esnek kutu: gruplar ezilip kırpılmasın
+  html:has(.FeedSheet-backdrop) .FramioAssistant-fab { display: none !important; }
+
+  .FeedSheet-group > * {
+    display: flex !important; flex-direction: row !important; align-items: center !important; justify-content: flex-start !important; gap: 14px !important;
+    width: 100% !important; min-height: 54px !important; margin: 0 !important; padding: 0 14px !important; border: 0 !important; border-radius: 0 !important;
+    background: none !important; box-shadow: none !important; color: var(--text-color) !important; text-align: left !important;
+    font-size: 15.5px !important; font-weight: 600 !important; line-height: 1.2 !important; float: none !important; box-sizing: border-box; }
+  .FeedSheet-group > * + * { box-shadow: inset 60px 1px 0 -59px rgba(127,127,127,.28) !important; }
+  .FeedSheet-group > *:active { background: rgba(127,127,127,.12) !important; }
+  .FeedSheet-group > li.Dropdown-separator { display: none !important; }
+  .FeedSheet-group .Button-label, .FeedSheet-group .Button-labelText { display: inline !important; margin: 0 !important; font: inherit !important; color: inherit !important; }
+  .FeedSheet-group > * > .icon:first-child, .FeedSheet-group > * > .Button-icon {
+    flex: none; width: 32px !important; height: 32px !important; margin: 0 !important; border-radius: 9px; display: grid !important; place-items: center;
+    background: #8e8e93 !important; color: #fff !important; font-size: 14px !important; line-height: 1 !important; }
+  .FeedSheet-group > :has(.fa-trash-alt), .FeedSheet-group > :has(.fa-trash) { color: #ff453a !important; }
+
+  // Simge karosu rengi işleve göre
+  .FeedSheet-group > * > .icon {
+    &.fa-link, &.fa-share-square, &.fa-pencil-alt, &.fa-pen { background: #0a84ff !important; }
+    &.fa-paper-plane, &.fa-heart { background: #ff375f !important; }
+    &.fa-share-alt, &.fa-share-nodes { background: #34aadc !important; }
+    &.fa-network-wired, &.fa-sitemap, &.fa-user-edit, &.fa-arrow-right { background: #5e5ce6 !important; }
+    &.fa-flag, &.fa-bookmark, &.fa-exclamation-circle { background: #ff9f0a !important; }
+    &.fa-folder-open, &.fa-folder, &.fa-poll { background: #30b158 !important; }
+    &.fa-chart-bar { background: #64d2ff !important; }
+    &.fa-sliders-h { background: #8e8e93 !important; }
+    &.fa-trash-alt, &.fa-trash, &.fa-eye-slash { background: #ff453a !important; }
+  }
+}
