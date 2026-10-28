@@ -26,6 +26,7 @@ import MobileTagHeader from './components/MobileTagHeader';
 import MobileProfileGrid from './components/MobileProfileGrid';
 import { applyDiscussionThumbs } from './utils/mobileThumbs';
 import installMobileViewer from './components/MobileViewer';
+import { installMobileMenu } from './components/MobileMenu';
 
 /** /gallery → galeri görünümü (yönlendirme) */
 class GalleryRedirect extends Component {
@@ -108,6 +109,7 @@ app.initializers.add('framio-custom-homepage', () => {
         return original(...args);
     });
     installMobileViewer();
+    installMobileMenu();
 
     // Başlatıcılar uygulama bağlanmadan önce çalışır; setTimeout ile bağlandıktan hemen sonra
     // (her sayfa türünde, PageStructure kullanmayan sayfalarda da) bir kez kurulur.

@@ -776,3 +776,43 @@
   // Ana kategori görseli alt kategorilerden belirgin büyük
   .MobileCategories-row:not(.is-child) .MobileCategories-dot { width: 46px !important; height: 46px !important; border-radius: 12px !important; flex: none; }
 }
+
+// ═══ ⋮ Menü (alttan açılan, tema uyumlu) ve görüntüleyici künye okunurluğu ═══
+@media (max-width: 767px) {
+  .MobileMenu-backdrop { position: fixed; inset: 0; z-index: 1035; background: rgba(0,0,0,.42); display: flex; align-items: flex-end; }
+  @media (prefers-reduced-motion: no-preference) {
+    .MobileMenu { animation: mmUp .22s cubic-bezier(.2,.8,.2,1); }
+    @keyframes mmUp { from { transform: translateY(24px); opacity: .6; } }
+  }
+  .MobileMenu { width: 100%; max-height: 88vh; overflow-y: auto; background: var(--body-bg); color: var(--text-color);
+    border-radius: 20px 20px 0 0; padding: 8px 12px calc(14px + env(safe-area-inset-bottom, 0px)); box-shadow: 0 -10px 34px rgba(0,0,0,.2); }
+  .MobileMenu-grip { display: block; width: 38px; height: 4px; border-radius: 2px; background: var(--control-bg); margin: 2px auto 12px; }
+  .MobileMenu-account { display: flex; align-items: center; gap: 12px; width: 100%; padding: 10px; border: 0; border-radius: 14px; background: var(--control-bg); color: var(--text-color); text-align: left;
+    .Avatar { --size: 44px; width: 44px; height: 44px; font-size: 18px; line-height: 44px; flex: none; }
+    span { flex: 1; min-width: 0; } b { display: block; font-size: 15px; } small { color: var(--muted-color); font-size: 12.5px; } }
+  .MobileMenu-guest { padding: 6px 4px 4px;
+    p { margin: 0 0 12px; color: var(--muted-color); font-size: 13.5px; line-height: 1.4; }
+    div { display: flex; gap: 8px; } }
+  .MobileMenu-primary, .MobileMenu-secondary { flex: 1; padding: 12px; border-radius: 12px; font-weight: 800; font-size: 14.5px; border: 0; }
+  .MobileMenu-primary { background: var(--primary-color); color: #fff; }
+  .MobileMenu-secondary { background: var(--control-bg); color: var(--text-color); }
+  .MobileMenu-group { margin-top: 10px; border-radius: 14px; background: var(--control-bg); overflow: hidden; }
+  .MobileMenu-row, .MobileMenu-themeRow { display: flex; align-items: center; gap: 12px; width: 100%; min-height: 52px; padding: 0 14px; border: 0; background: none;
+    color: var(--text-color); text-align: left; font-size: 15px;
+    & + & { border-top: 1px solid rgba(127,127,127,.14); } }
+  .MobileMenu-row:active { background: rgba(127,127,127,.12); }
+  .MobileMenu-ic { width: 22px; text-align: center; color: var(--muted-color); font-size: 17px; }
+  .MobileMenu-label { flex: 1; font-weight: 600; }
+  .MobileMenu-chev { color: var(--muted-color); font-size: 12px; opacity: .7; }
+  .MobileMenu-badge { min-width: 22px; height: 22px; padding: 0 6px; border-radius: 11px; background: var(--primary-color); color: #fff; font-size: 12px; font-weight: 800; display: grid; place-items: center; }
+  .MobileMenu-seg { display: flex; padding: 3px; border-radius: 10px; background: var(--body-bg);
+    button { padding: 6px 10px; border: 0; border-radius: 8px; background: none; color: var(--muted-color); font-size: 12.5px; font-weight: 700; }
+    button.on { background: var(--text-color); color: var(--body-bg); } }
+  .MobileMenu-cancel { display: block; width: 100%; margin-top: 10px; padding: 13px; border: 0; border-radius: 14px; background: var(--control-bg); color: var(--text-color); font-weight: 700; font-size: 15px; }
+
+  // Görüntüleyici zemini siyah: künye her temada açık renk (künye kartının kendi koyu yazısı ezilir)
+  .MobileViewer .MobileViewer-kunye, .MobileViewer .MobileViewer-kunye * { color: #ececef !important; }
+  .MobileViewer .MobileViewer-kunye .framio-kunye-card { background: none !important; border: 0 !important; padding: 0 !important; box-shadow: none !important; }
+  .MobileViewer .MobileViewer-kunye li::marker { color: #9a9aa3 !important; }
+  .MobileViewer .FramioKunyeLink { text-decoration-color: rgba(255,255,255,.35) !important; }
+}
