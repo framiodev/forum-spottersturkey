@@ -68,6 +68,8 @@ export default class MobileTabBar extends Component {
     const root = ['index', 'tags', 'tag', 'framio.explore', 'framio.categories'].includes(route);
     document.documentElement.classList.toggle('MobileRoot', root);
     if (route !== 'tag') document.documentElement.classList.remove('MobileTagPage', 'MobileTagPage--photos', 'MobileTagPage--list');
+    // Mesajlar ekranı (Instagram DM gibi): alt çubuk ve yüzen düğmeler gizli, yazma kutusu ekranın altında
+    document.documentElement.classList.toggle('MobileMessages', /^messages/.test(route || ''));
     // Topluluk görünümü (/all?topluluk=1): yalnızca FoF Widgets bölümü (istatistikler, yeni üyeler)
     document.documentElement.classList.toggle('MobileCommunity', route === 'index' && !!m.route.param('topluluk'));
     // Logo: admin ayarındaki logo (Framio-MobileLogo) ana sekmelerde ortada gösterilir (CSS)

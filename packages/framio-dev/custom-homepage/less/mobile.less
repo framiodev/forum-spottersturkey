@@ -816,3 +816,27 @@
   .MobileViewer .MobileViewer-kunye li::marker { color: #9a9aa3 !important; }
   .MobileViewer .FramioKunyeLink { text-decoration-color: rgba(255,255,255,.35) !important; }
 }
+
+// ═══ Mesajlar ve Topluluk Odaları (maket düzeni) ═══
+@media (max-width: 767px) {
+  // Mesajlar: alt çubuk, asistan ve yüzen mesaj kutusu gizli (ekranın kendi gezinmesi var)
+  html.MobileMessages {
+    .MobileTabBar-mount, .FramioAssistant-fab, #framio-messenger-dock { display: none !important; }
+    body { padding-bottom: 0 !important; }
+  }
+  .DirectMessenger-tabs .active, .DirectMessenger-tabs [aria-selected="true"] { color: var(--text-color) !important; border-color: var(--text-color) !important; }
+  // Yüzen mesaj kutusu telefonda gereksiz (Mesajlar ⋮ menüde ve /messages'ta)
+  #framio-messenger-dock { display: none !important; }
+
+  // Topluluk Odaları: yüzen pencere yerine tam ekran, tema renkleriyle
+  .VoiceRooms-panel { top: 0 !important; left: 0 !important; right: 0 !important; bottom: 0 !important; width: auto !important; height: auto !important;
+    border-radius: 0 !important; padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area-inset-bottom, 0px); box-shadow: none !important; }
+  .VoiceRooms-panelHeader { padding: 12px 14px !important; }
+  .VoiceRooms-tabs { display: flex !important; gap: 0 !important; margin: 0 14px 10px !important; padding: 3px !important; border-radius: 12px !important; background: var(--control-bg) !important; border: 0 !important; }
+  .VoiceRooms-tabBtn { flex: 1 !important; display: flex !important; align-items: center; justify-content: center; gap: 6px; padding: 9px 6px !important; border: 0 !important;
+    border-radius: 9px !important; background: none !important; box-shadow: none !important; color: var(--muted-color) !important; font-size: 13px !important; font-weight: 700 !important; white-space: nowrap;
+    &.active { background: var(--body-bg) !important; color: var(--text-color) !important; box-shadow: 0 1px 3px rgba(0,0,0,.12) !important; } }
+  .VoiceRooms-tabCounter { font-size: 11px !important; padding: 1px 7px !important; }
+  // Küçük oynatıcı çubuğu (sesli odadayken) alt sekme çubuğunun üstünde
+  .VoiceRooms-root { bottom: calc(64px + env(safe-area-inset-bottom, 0px)) !important; }
+}
