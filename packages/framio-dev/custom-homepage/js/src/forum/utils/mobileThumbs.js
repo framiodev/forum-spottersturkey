@@ -10,10 +10,11 @@ let timer = null;
 
 function flush() {
   timer = null;
-  const tags = [...pending.tags];
-  const discussions = [...pending.discussions];
-  pending.tags.clear();
-  pending.discussions.clear();
+  // Sunucu istek başına en fazla 40 kayıt alır: fazlası bir sonraki isteğe kalır
+  const take = (set) => { const out = [...set].slice(0, 40); out.forEach((id) => set.delete(id)); return out; };
+  const tags = take(pending.tags);
+  const discussions = take(pending.discussions);
+  if (pending.tags.size || pending.discussions.size) timer = setTimeout(flush, 60);
   if (!tags.length && !discussions.length) return;
 
   app.request({

@@ -737,3 +737,26 @@
     .Modal-close .Button { color: var(--muted-color) !important; }
   }
 }
+
+// ═══ Cilalama: açık tema turu ═══
+@media (max-width: 767px) {
+  // Sabit sosyal medya düğmeleri (YouTube / Twitter) telefonda içeriğin üstüne biniyor: gizli
+  .sticky-icon, .sticky-iconyt, .sticky-icontw, .sticky-icongh { display: none !important; }
+
+  // Kategoriler: satır görseli fotoğraf (yuvarlatılmış kare); alt kategoriler daha küçük
+  .MobileCategories-dot { background-size: cover !important; background-position: center !important; background-repeat: no-repeat !important;
+    border-radius: 10px !important; overflow: hidden; }
+  .MobileCategories-row.is-child { padding-left: 30px !important;
+    .MobileCategories-dot { width: 34px !important; height: 34px !important; border-radius: 9px !important; font-size: 13px; } }
+  .MobileCategories-row { gap: 12px; padding-top: 9px !important; padding-bottom: 9px !important; }
+  .MobileCategories-count { min-width: 26px; text-align: right; font-variant-numeric: tabular-nums; }
+
+  // Izgaralardaki "çoklu fotoğraf" işareti: koyu kutu yerine gölgeli sade simge
+  .LayoutA-Card .LayoutA-Multi, .LayoutA-Card [class*="Multi"], .Explore-Card-Multi, .LayoutA-Card .icon-clone {
+    background: none !important; box-shadow: none !important; padding: 0 !important; width: auto !important; height: auto !important;
+    top: 6px !important; right: 6px !important; color: #fff !important; font-size: 14px !important; filter: drop-shadow(0 1px 2px rgba(0,0,0,.6)); }
+
+  // Profil: rozetler adın altında, girintisiz
+  .UserPage .UserCard-identity { flex-direction: column; align-items: flex-start !important; gap: 6px !important; }
+  .UserPage .UserCard-badges, .UserPage .UserCard-identity .badges { margin: 0 !important; padding: 0 !important; display: flex; gap: 6px; flex-wrap: wrap; }
+}

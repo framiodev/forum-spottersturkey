@@ -1,6 +1,7 @@
 import app from 'flarum/forum/app';
 import Page from 'flarum/common/components/Page';
 import LoadingIndicator from 'flarum/common/components/LoadingIndicator';
+import { tagThumb } from '../utils/mobileThumbs';
 
 /**
  * /kategoriler — telefon için kategori listesi: ana kategoriler ve altındaki kategoriler,
@@ -24,11 +25,17 @@ export default class MobileCategoriesPage extends Page {
     const primaries = all.filter((t) => t.position && t.position() !== null && !(t.parent && t.parent())).sort(byPos);
     const children = (p) => all.filter((t) => t.parent && t.parent() === p).sort(byPos);
 
-    const row = (t, child) => (
+    // Satır görseli: admin kategori kapağı → kategori arka planı → kategorinin en son fotoğrafı → renk + simge
+    const covers = (() => { try { return JSON.parse(app.forum.attribute('framioTagCovers') || '{}'); } catch (e) { return {}; } })();
+    const coverOf = (t) => covers[t.id()] || (t.backgroundUrl && t.backgroundUrl()) || tagThumb(t.id()) || null;
+
+    const row = (t, child) => {
+      const cover = coverOf(t);
+      return (
       <a href={app.route('tag', { tags: t.slug() })} className={'MobileCategories-row' + (child ? ' is-child' : '')}
         onclick={(e) => { e.preventDefault(); m.route.set(app.route('tag', { tags: t.slug() })); }}>
-        <span className="MobileCategories-dot" style={{ background: t.color() || 'var(--control-bg)' }}>
-          {t.icon() ? <i className={'icon ' + t.icon()} /> : null}
+        <span className="MobileCategories-dot" style={{ backgroundColor: t.color() || 'var(--control-bg)', backgroundImage: cover ? 'url(' + cover + ')' : 'none' }}>
+          {!cover && t.icon() ? <i className={'icon ' + t.icon()} /> : null}
         </span>
         <span className="MobileCategories-text">
           <b>{t.name()}</b>
@@ -36,7 +43,8 @@ export default class MobileCategoriesPage extends Page {
         </span>
         <span className="MobileCategories-count">{t.discussionCount() || 0}</span>
       </a>
-    );
+      );
+    };
 
     return (
       <div className="MobileCategories">
