@@ -105,7 +105,11 @@ export default class MobileFeedCard extends Component {
           {!this.kunyeHtml && this.caption ? <p>{this.caption}</p> : null}
         </div>
         {/* SpottersGallery-DescContent + data-post-id: SEO Pack künye adlarını /arac sayfalarına bağlar */}
-        {this.kunyeHtml ? <div className="FeedCard-kunye Post-body SpottersGallery-DescContent" data-post-id={post.id()}>{m.trust(this.kunyeHtml)}</div> : null}
+        {this.kunyeHtml ? (
+          // İçerik Mithril'e bırakılmaz (yalnızca değişince yazılır): SEO Pack'in eklediği /arac bağlantıları yeniden çizimde silinmez
+          <div className="FeedCard-kunye Post-body SpottersGallery-DescContent" data-post-id={post.id()}
+            oncreate={(v) => this.writeKunye(v.dom)} onupdate={(v) => this.writeKunye(v.dom)} />
+        ) : null}
         <div className="FeedCard-text">
           {replies && !this.attrs.inDiscussion ? <Link href={url} className="FeedCard-more">{replies} yorumun tümünü gör</Link> : null}
           <span className="FeedCard-when">{humanTime(post.createdAt())}</span>
@@ -125,6 +129,13 @@ export default class MobileFeedCard extends Component {
       if (onclick) return onclick();
     } catch (e) {}
     this.share(url);
+  }
+
+  writeKunye(el) {
+    if (el.__kunye === this.kunyeHtml) return;
+    el.__kunye = this.kunyeHtml;
+    el.innerHTML = this.kunyeHtml;
+    delete el.dataset.kunyeFor;
   }
 
   // Açık fotoğrafın EXIF kartı: Upload & EXIF eklentisinin kendi bileşeni (mesaj sayfasındakiyle aynı)
