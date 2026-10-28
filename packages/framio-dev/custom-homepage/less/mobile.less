@@ -840,3 +840,60 @@
   // Küçük oynatıcı çubuğu (sesli odadayken) alt sekme çubuğunun üstünde
   .VoiceRooms-root { bottom: calc(64px + env(safe-area-inset-bottom, 0px)) !important; }
 }
+
+// ═══ ⋮ Menü v2: uygulama kalitesinde (logo başlığı, katılım/profil kartı, renkli simge karoları, tema kartları) ═══
+@media (max-width: 767px) {
+  .MobileMenu-backdrop { background: rgba(10,10,12,.5) !important; backdrop-filter: blur(3px); -webkit-backdrop-filter: blur(3px); }
+  .MobileMenu { max-height: 92vh !important; padding: 0 16px calc(18px + env(safe-area-inset-bottom, 0px)) !important; border-radius: 24px 24px 0 0 !important;
+    background: var(--body-bg) !important; box-shadow: 0 -12px 40px rgba(0,0,0,.25) !important; }
+  .MobileMenu-head { position: sticky; top: 0; z-index: 1; display: flex; align-items: center; justify-content: space-between;
+    margin: 0 -16px; padding: 14px 16px 10px; background: var(--body-bg); }
+  // Logo koyu üst başlık zemini için hazırlanmış: her temada görünsün diye başlıkla aynı koyu rozet içinde
+  .MobileMenu-logo { height: 40px; width: auto; display: block; padding: 7px 12px; border-radius: 12px; background: #1b1b1f; box-sizing: border-box; }
+  .MobileMenu-x { width: 34px; height: 34px; border: 0; border-radius: 50%; background: var(--control-bg); color: var(--text-color); font-size: 15px; display: grid; place-items: center; }
+
+  // Profil kartı (kapak varsa arka planda)
+  .MobileMenu-profile { position: relative; overflow: hidden; display: flex; align-items: center; gap: 12px; width: 100%; margin-top: 4px; padding: 16px; border: 0;
+    border-radius: 18px; background: var(--control-bg) center / cover no-repeat; color: var(--text-color); text-align: left;
+    .Avatar { position: relative; --size: 52px; width: 52px; height: 52px; font-size: 20px; line-height: 52px; flex: none; box-shadow: 0 0 0 3px var(--body-bg); }
+    > .icon { position: relative; color: var(--muted-color); } }
+  .MobileMenu-profile[style*="background-image"] { color: #fff;
+    .MobileMenu-profileShade { position: absolute; inset: 0; background: linear-gradient(90deg, rgba(0,0,0,.65), rgba(0,0,0,.25)); }
+    small, > .icon { color: rgba(255,255,255,.8) !important; } }
+  .MobileMenu-profileText { position: relative; flex: 1; min-width: 0; b { display: block; font-size: 17px; font-weight: 800; } small { color: var(--muted-color); font-size: 13px; } }
+
+  // Katılım kartı (giriş yapılmamışsa): marka renginde
+  .MobileMenu-join { margin-top: 4px; padding: 18px 16px 16px; border-radius: 18px; color: #fff;
+    background: linear-gradient(135deg, var(--primary-color), color-mix(in srgb, var(--primary-color) 55%, #000));
+    b { display: block; font-size: 17px; font-weight: 800; letter-spacing: -.01em; }
+    p { margin: 4px 0 14px; font-size: 13.5px; line-height: 1.4; opacity: .85; } }
+  .MobileMenu-joinBtns { display: flex; gap: 8px; }
+  .MobileMenu-join .MobileMenu-primary { background: #fff !important; color: #111 !important; }
+  .MobileMenu-join .MobileMenu-secondary { background: rgba(255,255,255,.16) !important; color: #fff !important; }
+
+  // Bölüm başlıkları ve gruplar
+  .MobileMenu-section { margin: 18px 4px 6px; font-size: 12px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; color: var(--muted-color); }
+  .MobileMenu-group { margin-top: 0 !important; border-radius: 16px !important; background: var(--control-bg) !important; }
+  .MobileMenu-row { min-height: 56px !important; gap: 14px !important; padding: 0 14px !important;
+    & + & { border-top: 0 !important; box-shadow: inset 60px 1px 0 -59px rgba(127,127,127,.25); } }
+  .MobileMenu-ic { flex: none; width: 32px !important; height: 32px; border-radius: 9px; display: grid; place-items: center;
+    background: var(--tint, #8e8e93); color: #fff !important; font-size: 15px !important; }
+  .MobileMenu-label { display: flex; flex-direction: column; font-size: 15.5px; font-weight: 600 !important;
+    small { margin-top: 1px; font-size: 12.5px; font-weight: 400; color: var(--muted-color); } }
+  .MobileMenu-badge { background: #ff375f !important; }
+
+  // Tema kartları
+  .MobileMenu-themes { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+  .MobileMenu-theme { display: flex; flex-direction: column; align-items: center; gap: 8px; padding: 10px 6px 12px; border: 2px solid transparent; border-radius: 16px;
+    background: var(--control-bg); color: var(--text-color); font-size: 13px; font-weight: 700;
+    &.on { border-color: var(--primary-color); } }
+  .MobileMenu-themePrev { width: 100%; height: 48px; border-radius: 10px; display: grid; place-items: center; font-size: 18px; }
+  .MobileMenu-theme--light .MobileMenu-themePrev { background: #fff; color: #f5a623; box-shadow: inset 0 0 0 1px rgba(0,0,0,.08); }
+  .MobileMenu-theme--dark .MobileMenu-themePrev { background: #1c1c1e; color: #c7c7cc; }
+  .MobileMenu-theme--auto .MobileMenu-themePrev { background: linear-gradient(135deg, #fff 50%, #1c1c1e 50%); color: #8e8e93; box-shadow: inset 0 0 0 1px rgba(0,0,0,.08); }
+
+  // Alt bilgi
+  .MobileMenu-foot { display: flex; flex-direction: column; align-items: center; gap: 4px; margin-top: 22px; font-size: 12px; color: var(--muted-color);
+    a { color: var(--muted-color) !important; text-decoration: underline; } }
+  .MobileMenu-cancel, .MobileMenu-grip, .MobileMenu-account, .MobileMenu-guest, .MobileMenu-themeRow { display: none !important; }
+}
