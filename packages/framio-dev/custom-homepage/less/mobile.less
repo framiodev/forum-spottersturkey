@@ -760,3 +760,14 @@
   .UserPage .UserCard-identity { flex-direction: column; align-items: flex-start !important; gap: 6px !important; }
   .UserPage .UserCard-badges, .UserPage .UserCard-identity .badges { margin: 0 !important; padding: 0 !important; display: flex; gap: 6px; flex-wrap: wrap; }
 }
+
+// Künye kutuları galeri sınıfını yalnızca /arac bağlantıları için taşır: galerinin ortalama ve
+// madde işaretini kaldırma kuralları geri alınır (künye masaüstündeki gibi noktalı ve sola yaslı)
+@media (max-width: 767px) {
+  .FeedCard .FeedCard-kunye.SpottersGallery-DescContent, .MobileViewer .MobileViewer-kunye.SpottersGallery-DescContent {
+    display: block !important; text-align: left !important; align-items: stretch !important; width: auto !important;
+    ul, ol { display: block !important; align-items: stretch !important; padding: 0 0 0 18px !important; margin: 0 !important; list-style: disc !important; }
+    li { display: list-item !important; text-align: left !important; list-style: disc !important; }
+  }
+  .MobileViewer .MobileViewer-kunye.SpottersGallery-DescContent { flex: 1; }
+}
