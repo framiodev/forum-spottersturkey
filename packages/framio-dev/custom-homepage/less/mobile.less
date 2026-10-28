@@ -700,3 +700,40 @@
   .MobileCompose-wait .MobileCompose-slide { border-radius: 14px; background: #1b1b1f; }
   @media (prefers-reduced-motion: no-preference) { .MobileCompose-shimmer { animation: fcshim 1.3s ease-in-out infinite; } }
 }
+
+// ═══ Tema uyumu: yeni ekranlar sitenin açık/koyu temasını izler (yalnızca fotoğraf görüntüleyici hep siyah) ═══
+@media (max-width: 767px) {
+  .MobileShare, .MobileCompose { background: var(--body-bg) !important; color: var(--text-color) !important; }
+  .MobileShare-top b { color: var(--heading-color, var(--text-color)); }
+  .MobileShare-x { color: var(--text-color) !important; }
+  .MobileShare-next { color: var(--primary-color) !important; &:disabled { color: var(--muted-more-color, var(--muted-color)) !important; opacity: .6; } }
+  .MobileShare-steps i { background: var(--control-bg) !important; &.on { background: var(--primary-color) !important; } }
+  .MobileShare-target { background: var(--control-bg) !important;
+    button { color: var(--muted-color) !important; } button.on { background: var(--body-bg) !important; color: var(--text-color) !important; box-shadow: 0 1px 3px rgba(0,0,0,.12); } }
+  .MobileShare-preview, .MobileShare-tile, .MobileCompose-media, .MobileCompose-wait .MobileCompose-slide { background-color: var(--control-bg) !important; }
+  .MobileShare-empty { border-color: var(--control-bg) !important; color: var(--text-color) !important; .icon, small { color: var(--muted-color) !important; } }
+  .MobileShare-add { background: var(--control-bg) !important; color: var(--muted-color) !important; }
+  .MobileShare-tile.cur { outline-color: var(--primary-color) !important; }
+  .MobileShare-tile span { background: var(--primary-color) !important; box-shadow: 0 0 0 2px var(--body-bg) !important; }
+  .MobileShare-hint, .MobileCompose-wait p, .MobileCompose-raw, .MobileCompose-placeholder { color: var(--muted-color) !important; }
+  .MobileCompose-box { border-color: var(--control-bg) !important; background: var(--body-bg); }
+  .MobileCompose-label { color: var(--muted-color) !important; }
+  .MobileCompose-kunye { color: var(--text-color); li::marker { color: var(--muted-color); } }
+  .MobileCompose-input { color: var(--text-color) !important; &::placeholder { color: var(--muted-more-color, var(--muted-color)) !important; } }
+  .MobileCompose-tags { color: var(--text-color) !important; .icon { color: var(--muted-color) !important; } }
+
+  // ⋯ menüsü
+  .FeedSheet-panel { background: var(--body-bg) !important; color: var(--text-color) !important; box-shadow: 0 -8px 30px rgba(0,0,0,.18); }
+  .FeedSheet-grip { background: var(--control-bg) !important; }
+  .FeedSheet-group { & + & { border-top-color: var(--control-bg) !important; }
+    .Button, a { color: var(--text-color) !important; } .Button .icon, a .icon { color: var(--muted-color) !important; } }
+  .FeedSheet-cancel { background: var(--control-bg) !important; color: var(--text-color) !important; }
+
+  // Alttan açılan paylaşım pencereleri
+  .SocialActionChooserModal, .FramioShareModal, .FramioForumFeedPickerModal, .FramioStoryModal, .ModalManager [class*="ShareAsMessage"], .ModalManager [class*="shareAsMessage"] {
+    .Modal-content { background: var(--body-bg) !important; color: var(--text-color) !important; }
+    .Modal-header::before { background: var(--control-bg) !important; }
+    .Modal-header h3, .Modal-header .App-titleControl { color: var(--heading-color, var(--text-color)) !important; }
+    .Modal-close .Button { color: var(--muted-color) !important; }
+  }
+}
