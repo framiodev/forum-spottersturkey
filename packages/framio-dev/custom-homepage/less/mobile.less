@@ -897,3 +897,42 @@
     a { color: var(--muted-color) !important; text-decoration: underline; } }
   .MobileMenu-cancel, .MobileMenu-grip, .MobileMenu-account, .MobileMenu-guest, .MobileMenu-themeRow { display: none !important; }
 }
+
+// ═══ ⋯ Gönderi menüsü v2: ⋮ menüsüyle aynı dil (başlık + ✕, bölümler, renkli simge karolu satırlar) ═══
+@media (max-width: 767px) {
+  .FeedSheet-backdrop { background: rgba(10,10,12,.5) !important; backdrop-filter: blur(3px); -webkit-backdrop-filter: blur(3px); z-index: 1035 !important; }
+  .FeedSheet-panel { max-height: 90vh !important; overflow-y: auto; padding: 0 16px calc(18px + env(safe-area-inset-bottom, 0px)) !important;
+    border-radius: 24px 24px 0 0 !important; background: var(--body-bg) !important; box-shadow: 0 -12px 40px rgba(0,0,0,.25) !important; }
+  .FeedSheet-grip, .FeedSheet-cancel { display: none !important; }
+  .FeedSheet-head { position: sticky; top: 0; z-index: 1; display: flex; align-items: center; justify-content: space-between; margin: 0 -16px; padding: 16px 16px 6px; background: var(--body-bg);
+    b { font-size: 17px; font-weight: 800; color: var(--text-color); } }
+  .FeedSheet-x { width: 34px; height: 34px; border: 0; border-radius: 50%; background: var(--control-bg); color: var(--text-color); font-size: 15px; display: grid; place-items: center; }
+  .FeedSheet-section { margin: 14px 4px 6px; font-size: 12px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; color: var(--muted-color); }
+  .FeedSheet-group { display: block !important; padding: 0 !important; border: 0 !important; border-radius: 16px !important; overflow: hidden; background: var(--control-bg) !important;
+    & + & { border-top: 0 !important; } }
+  .FeedSheet-group li { list-style: none; margin: 0; padding: 0; display: block; }
+  .FeedSheet-group li.Dropdown-separator, .FeedSheet-group .Dropdown-separator { display: none !important; }
+
+  // Eklentilerin ve Flarum'un düğmeleri: masaüstü kutu stili yerine tek satır
+  .FeedSheet-group .Button, .FeedSheet-group > a, .FeedSheet-group li > a {
+    display: flex !important; flex-direction: row !important; align-items: center !important; justify-content: flex-start !important; gap: 14px !important;
+    width: 100% !important; min-height: 54px !important; margin: 0 !important; padding: 0 14px !important; border: 0 !important; border-radius: 0 !important;
+    background: none !important; box-shadow: none !important; color: var(--text-color) !important; text-align: left !important;
+    font-size: 15.5px !important; font-weight: 600 !important; line-height: 1.2 !important; white-space: normal !important; }
+  .FeedSheet-group .Button:active { background: rgba(127,127,127,.12) !important; }
+  .FeedSheet-group > * + *, .FeedSheet-group li + li { box-shadow: inset 60px 1px 0 -59px rgba(127,127,127,.25); }
+  .FeedSheet-group .Button-label { display: inline !important; margin: 0 !important; font-size: inherit !important; }
+  .FeedSheet-group .Button-icon, .FeedSheet-group .Button > .icon:first-child {
+    flex: none; width: 32px !important; height: 32px !important; margin: 0 !important; border-radius: 9px; display: grid !important; place-items: center;
+    background: #8e8e93; color: #fff !important; font-size: 14px !important; line-height: 1 !important; }
+  // Simge karolarının rengi işleve göre
+  .FeedSheet-group { .Button:nth-child(6n+1) .Button-icon, li:nth-child(6n+1) .Button-icon { background: #0a84ff; }
+    .Button:nth-child(6n+2) .Button-icon, li:nth-child(6n+2) .Button-icon { background: #ff375f; }
+    .Button:nth-child(6n+3) .Button-icon, li:nth-child(6n+3) .Button-icon { background: #5e5ce6; }
+    .Button:nth-child(6n+4) .Button-icon, li:nth-child(6n+4) .Button-icon { background: #30b158; }
+    .Button:nth-child(6n+5) .Button-icon, li:nth-child(6n+5) .Button-icon { background: #ff9f0a; }
+    .Button:nth-child(6n) .Button-icon, li:nth-child(6n) .Button-icon { background: #64d2ff; } }
+  .FeedSheet-group--controls { .item-flag .Button-icon, .item-warn .Button-icon, [class*="warn"] .Button-icon { background: #ff9f0a !important; }
+    .item-delete .Button-icon, .item-hide .Button-icon, [class*="delete"] .Button-icon { background: #ff453a !important; }
+    .item-delete .Button, .item-delete .Button-label, [class*="delete"] .Button-label { color: #ff453a !important; } }
+}

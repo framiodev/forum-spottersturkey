@@ -189,15 +189,19 @@ export default class MobileFeedCard extends Component {
       view: () => (
         <div className="FeedSheet-backdrop" onclick={(e) => { if (e.target === e.currentTarget) close(); }}>
           <div className="FeedSheet-panel" onclick={(e) => { if (e.target.closest('button, a') && !e.target.closest('.FeedSheet-link')) setTimeout(close, 0); }}>
-            <span className="FeedSheet-grip" />
+            <div className="FeedSheet-head">
+              <b>Gönderi seçenekleri</b>
+              <button type="button" className="FeedSheet-x" aria-label="Kapat" onclick={close}><i className="icon fas fa-times" /></button>
+            </div>
+            <div className="FeedSheet-section">Paylaş</div>
             <div className="FeedSheet-group">
-              <button type="button" className="FeedSheet-link Button" onclick={() => { this.nativeShare(url); close(); }}>
-                <i className="icon fas fa-link" /> Bağlantıyı paylaş
+              <button type="button" className="FeedSheet-link Button hasIcon" onclick={() => { this.nativeShare(url); close(); }}>
+                <i className="icon fas fa-link Button-icon" /><span className="Button-label">Bağlantıyı paylaş</span>
               </button>
               {shareItems}
             </div>
+            {controls.length ? <div className="FeedSheet-section">Gönderi</div> : null}
             {controls.length ? <div className="FeedSheet-group FeedSheet-group--controls">{controls}</div> : null}
-            <button type="button" className="FeedSheet-cancel" onclick={close}>Vazgeç</button>
           </div>
         </div>
       ),
