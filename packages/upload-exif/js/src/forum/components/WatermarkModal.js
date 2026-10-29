@@ -836,6 +836,12 @@ export default class WatermarkModal extends Modal {
 
                 {this.loadingOptions ? (
                     <div className="WmA-loading"><i className="fas fa-spinner fa-spin"></i> İmzalar yükleniyor...</div>
+                ) : this.loadFailed ? (
+                    <div className="WmA-loading WmA-loadFailed">
+                        <i className="fas fa-exclamation-triangle"></i> İmzalar yüklenemedi.{' '}
+                        <button type="button" className="Button Button--link" onclick={() => this.loadWatermarks()}>Tekrar dene</button>
+                        <div style={{ marginTop: '6px', fontSize: '12px', opacity: .8 }}>İmzasız yüklemeye de devam edebilirsiniz.</div>
+                    </div>
                 ) : (
                     this.renderSignatureControls()
                 )}
@@ -1390,10 +1396,26 @@ export default class WatermarkModal extends Modal {
 
   loadWatermarks() {
     this.loadingOptions = true;
+    this.loadFailed = false;
+    // İstek cevapsız kalırsa (eklenti / ağ engeli) ekran "yükleniyor"da takılmasın: 12 sn sonra tekrar dene seçeneği
+    const attempt = (this.loadAttempt = (this.loadAttempt || 0) + 1);
+    clearTimeout(this.loadTimer);
+    this.loadTimer = setTimeout(() => {
+        if (this.loadingOptions && attempt === this.loadAttempt) {
+            this.loadingOptions = false;
+            this.loadFailed = true;
+            m.redraw();
+        }
+    }, 12000);
     return app.request({
         method: 'GET',
         url: app.forum.attribute('apiUrl') + '/framio-media/watermarks',
+        errorHandler: () => {},
     }).then((response) => {
+        if (attempt !== this.loadAttempt) return;
+        clearTimeout(this.loadTimer);
+        response = response || {};
+        this.loadFailed = false;
         this.watermarkMode(response.mode || 'hybrid');
         this.allowPersonalUpload = response.allow_personal_upload !== false;
         const list = response.watermarks || [];
@@ -1416,7 +1438,10 @@ export default class WatermarkModal extends Modal {
         m.redraw();
     }).catch(err => {
         console.error(err);
+        if (attempt !== this.loadAttempt) return;
+        clearTimeout(this.loadTimer);
         this.loadingOptions = false;
+        this.loadFailed = true;
         m.redraw();
     });
   }
